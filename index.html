@@ -282,9 +282,15 @@
             </div>
         </header>
 
-        <div id="maintenance-overlay" class="hidden flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm text-center p-8 max-w-4xl mx-auto animate-pulse">
-            <h3 class="text-xl font-bold text-slate-800">현재 시스템 점검 중입니다.</h3>
-            <p class="text-sm text-slate-400 mt-3 max-w-md mx-auto leading-relaxed">사내 인프라 고도화 및 안정적인 서비스를 제공하기 위한 기술적 점검 조치가 진행 중에 있습니다.</p>
+        <div id="maintenance-overlay" class="hidden flex-col items-center justify-center py-20 bg-gradient-to-b from-amber-50/70 to-white rounded-3xl border border-amber-200/70 shadow-sm text-center p-8 max-w-2xl mx-auto">
+            <div class="w-20 h-20 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center mb-6 shadow-inner animate-pulse">
+                <i data-lucide="construction" class="w-10 h-10 text-amber-500"></i>
+            </div>
+            <span class="px-3 py-1 bg-amber-500/10 text-amber-600 text-[10px] font-bold rounded-full border border-amber-300/50 tracking-widest mb-4">SYSTEM MAINTENANCE</span>
+            <h3 class="text-2xl font-extrabold text-slate-800">현재 시스템 점검 중입니다.</h3>
+            <p class="text-base font-semibold text-slate-500 mt-2">불편을 드려 죄송합니다.</p>
+            <p class="text-xs text-slate-400 mt-4 max-w-md mx-auto leading-relaxed">사내 인프라 고도화 및 안정적인 서비스 제공을 위한 기술 점검이 진행 중입니다. 점검이 완료되면 별도 조치 없이 정상 이용하실 수 있습니다.</p>
+            <button onclick="switchTab('dashboard')" class="mt-7 px-5 py-2.5 bg-slate-900 text-white hover:bg-amber-500 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> 대시보드로 이동</button>
         </div>
 
         <div id="access-denied-overlay" class="hidden flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm text-center p-8 max-w-xl mx-auto">
@@ -357,18 +363,27 @@
                     </div>
                     <button onclick="openModal('add-project-modal')" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="plus-circle" class="w-4 h-4"></i> 새 프로젝트 기획안 등록</button>
                 </div>
-                <div id="project-subview-board" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
-                        <div class="font-bold text-xs text-slate-500 pb-2 border-b">대기 및 검토 중 (<span id="board-count-paused">0</span>)</div>
-                        <div id="board-paused-list" class="space-y-3 flex-1 overflow-y-auto"></div>
+                <div id="project-subview-board" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-slate-50/80 rounded-2xl border border-slate-200/70 min-h-[520px] flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200/70">
+                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span><span class="font-bold text-xs text-slate-600">대기 및 검토</span></div>
+                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="board-count-paused">0</span>
+                        </div>
+                        <div id="board-paused-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
-                        <div class="font-bold text-xs text-slate-500 pb-2 border-b">진행 중 (<span id="board-count-ongoing">0</span>)</div>
-                        <div id="board-ongoing-list" class="space-y-3 flex-1 overflow-y-auto"></div>
+                    <div class="bg-blue-50/40 rounded-2xl border border-blue-200/60 min-h-[520px] flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-blue-200/50">
+                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span><span class="font-bold text-xs text-blue-700">진행 중</span></div>
+                            <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full" id="board-count-ongoing">0</span>
+                        </div>
+                        <div id="board-ongoing-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
-                        <div class="font-bold text-xs text-slate-500 pb-2 border-b">완료됨 (<span id="board-count-completed">0</span>)</div>
-                        <div id="board-completed-list" class="space-y-3 flex-1 overflow-y-auto"></div>
+                    <div class="bg-emerald-50/40 rounded-2xl border border-emerald-200/60 min-h-[520px] flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-emerald-200/50">
+                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="font-bold text-xs text-emerald-700">완료됨</span></div>
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full" id="board-count-completed">0</span>
+                        </div>
+                        <div id="board-completed-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
                     </div>
                 </div>
                 <div id="project-subview-list" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
@@ -586,7 +601,7 @@
                                     <th class="p-3.5 font-bold text-slate-600">소속 부서</th>
                                     <th class="p-3.5 font-bold text-slate-600">인가 등급</th>
                                     <th class="p-3.5 font-bold text-slate-600">직급 정보</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-right">자격 제어</th>
+                                    <th class="p-3.5 font-bold text-slate-600 text-right">수정 / 제어</th>
                                 </tr>
                             </thead>
                             <tbody id="active-users-list-body" class="divide-y divide-slate-100"></tbody>
@@ -735,6 +750,20 @@
                 <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer"><input type="file" id="doc-file-input" accept=".pdf,.docx,.xlsx" onchange="handleDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="doc-file-status">클릭하여 보고서 업로드</p></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('add-doc-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-blue-600 text-white text-xs font-bold">작성 완료</button></div>
             </form>
+        </div>
+    </div>
+
+    <!-- 문서 미리보기 / 다운로드 모달 -->
+    <div id="doc-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border">
+            <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
+                <h4 id="doc-preview-title" class="font-bold text-sm text-slate-800 truncate pr-4">문서 미리보기</h4>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a id="doc-preview-download" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> 다운로드</a>
+                    <button onclick="closeModal('doc-preview-modal')" class="px-3 py-1.5 border rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-100">닫기</button>
+                </div>
+            </div>
+            <div id="doc-preview-body" class="flex-1 overflow-auto bg-slate-100 flex items-center justify-center"></div>
         </div>
     </div>
 
@@ -906,6 +935,7 @@
             refreshRoleScopedUI();
             updateProfileUI();
             await loadAllData();
+            setupRealtime();
             switchTab('dashboard');
             showToast('접속 승인', `${prof.name} 님 환영합니다.`);
         }
@@ -954,6 +984,7 @@
         }
 
         async function handleUserLogout() {
+            if (STATE._rt) { try { sb.removeChannel(STATE._rt); } catch (e) {} STATE._rt = null; }
             await sb.auth.signOut();
             STATE.currentUser = null;
             STATE.profile = { name: '', deptId: 'strategy', role: 'none' };
@@ -977,7 +1008,7 @@
         }
         async function reloadDocuments() {
             const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
-            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size }));
+            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size, storagePath: r.storage_path, fileMime: r.file_mime }));
         }
         async function reloadMeetings() {
             const { data } = await sb.from('weekly_meetings').select('*').order('id', { ascending: false });
@@ -999,6 +1030,46 @@
             if (STATE.profile.role === 'admin' && STATE.currentTab === 'management-stats' && STATE.currentUser) {
                 await reloadProfiles(); renderPendingUsers(); renderActiveUsers();
             }
+        }
+
+        // ── 실시간 동기화 (Supabase Realtime) ────────────────────────────
+        function setupRealtime() {
+            if (STATE._rt) return;
+            STATE._rt = sb.channel('portal-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); if (STATE.currentTab === 'management-progress') renderProjects(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
+                .subscribe();
+        }
+
+        // 관리자가 내 계정의 권한/부서/직급을 바꾸면 새로고침 없이 즉시 반영
+        async function maybeRecheckSelf() {
+            if (!STATE.currentUser) return;
+            const me = STATE.users.find(u => u.id === STATE.currentUser.id);
+            if (!me) { showToast('세션 종료', '관리자에 의해 계정 접근 권한이 해제되었습니다.'); await handleUserLogout(); return; }
+            const changed = (me.role !== STATE.currentUser.role) || (me.deptId !== STATE.currentUser.deptId) || (me.position !== STATE.currentUser.position);
+            if (changed) {
+                STATE.currentUser.role = me.role; STATE.currentUser.deptId = me.deptId; STATE.currentUser.position = me.position;
+                STATE.profile.role = me.role; STATE.profile.deptId = me.deptId;
+                refreshRoleScopedUI(); updateProfileUI(); switchTab(STATE.currentTab);
+                showToast('권한 변경', '관리자에 의해 계정 정보가 실시간으로 갱신되었습니다.');
+            }
+        }
+
+        function humanSize(bytes) {
+            if (bytes === null || bytes === undefined || isNaN(bytes)) return '';
+            const u = ['B', 'KB', 'MB', 'GB']; let i = 0, n = bytes;
+            while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+            return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
+        }
+
+        function applyDeptLock(selectId) {
+            const sel = document.getElementById(selectId); if (!sel) return;
+            if (STATE.profile.role === 'admin') { sel.disabled = false; }
+            else { sel.value = STATE.profile.deptId; sel.disabled = true; }
         }
 
         // ── 역할 기반 UI 노출 ────────────────────────────────────────────
@@ -1155,10 +1226,14 @@
             const endEl = document.getElementById('event-end'); if (endEl) endEl.value = d;
             const t = document.getElementById('event-modal-title'); if (t) t.innerText = '새 일정 등록';
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.add('hidden');
+            applyDeptLock('event-dept');
             openModal('add-event-modal');
         }
         function editEvent(id) {
             const evt = STATE.events.find(e => e.id === id); if (!evt) return;
+            if (STATE.profile.role !== 'admin' && evt.deptId !== STATE.profile.deptId) {
+                showToast('수정 권한 없음', '본인 소속 부서의 일정만 수정할 수 있습니다.'); return;
+            }
             document.getElementById('event-id').value = evt.id;
             document.getElementById('event-title').value = evt.title;
             document.getElementById('event-dept').value = evt.deptId;
@@ -1166,6 +1241,7 @@
             document.getElementById('event-end').value = evt.endDate;
             const t = document.getElementById('event-modal-title'); if (t) t.innerText = '일정 수정';
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.remove('hidden');
+            applyDeptLock('event-dept');
             openModal('add-event-modal');
         }
         async function handleSaveEvent(e) {
@@ -1177,6 +1253,7 @@
             const endDate = document.getElementById('event-end').value;
             if (!title || !startDate || !endDate) { showToast('입력 오류', '제목과 기간을 모두 입력하십시오.'); return; }
             if (endDate < startDate) { showToast('기간 오류', '종료일은 시작일 이후여야 합니다.'); return; }
+            if (STATE.profile.role !== 'admin' && deptId !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 일정만 작성할 수 있습니다.'); return; }
             let error;
             if (id) { ({ error } = await sb.from('events').update({ title, dept_id: deptId, start_date: startDate, end_date: endDate }).eq('id', parseInt(id))); }
             else { ({ error } = await sb.from('events').insert({ title, dept_id: deptId, start_date: startDate, end_date: endDate })); }
@@ -1221,36 +1298,71 @@
             if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
             items.forEach(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
-                const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50/70 transition-all text-xs cursor-pointer";
+                const hasFile = !!doc.storagePath;
+                const sizeTxt = doc.fileSize ? ` · ${doc.fileSize}` : '';
+                const fileBadge = hasFile ? `<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ` : '';
+                const tr = document.createElement('tr'); tr.className = "hover:bg-blue-50/40 transition-all text-xs cursor-pointer";
                 tr.onclick = () => viewDocument(doc.id);
-                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${doc.title}</td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author}</td><td class="p-3 text-slate-400 font-mono">${doc.date}</td><td class="p-3 text-right" onclick="event.stopPropagation()"><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
+                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[10px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
                 tbody.appendChild(tr);
             });
+            if (window.lucide) lucide.createIcons();
         }
         function handleDocFileSelection(e) {
             const f = e.target.files[0]; if (!f) return; STATE.uploadedDocFile = f;
-            const st = document.getElementById('doc-file-status'); if (st) { st.innerText = `선택됨 : ${f.name}`; st.classList.add('text-indigo-600'); }
+            const st = document.getElementById('doc-file-status'); if (st) { st.innerText = `선택됨 : ${f.name} (${humanSize(f.size)})`; st.classList.add('text-indigo-600'); }
+            const titleEl = document.getElementById('doc-title'); if (titleEl && !titleEl.value.trim()) titleEl.value = f.name;
         }
         async function handleNewDocument(e) {
             e.preventDefault();
-            const title = document.getElementById('doc-title').value.trim();
+            const typed = document.getElementById('doc-title').value.trim();
             const dept = document.getElementById('doc-dept').value;
             const author = document.getElementById('doc-author').value.trim() || STATE.profile.name;
-            const finalTitle = STATE.uploadedDocFile ? STATE.uploadedDocFile.name : title;
-            const { error } = await sb.from('documents').insert({ title: finalTitle, dept_id: dept, author, doc_date: formatDate(new Date()), file_type: 'docx', file_size: '1.2 MB' });
+            const f = STATE.uploadedDocFile;
+            let storage_path = null, file_mime = null, file_size = '', file_type = 'memo', title = typed;
+            if (f) {
+                const safe = f.name.replace(/[^\w.\-가-힣]/g, '_');
+                storage_path = `${Date.now()}_${safe}`;
+                const { error: upErr } = await sb.storage.from('documents').upload(storage_path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
+                if (upErr) { showToast('업로드 실패', upErr.message); return; }
+                file_mime = f.type || ''; file_size = humanSize(f.size); file_type = (f.name.split('.').pop() || 'file').toLowerCase();
+                if (!title) title = f.name;
+            }
+            if (!title) { showToast('입력 필요', '보고서 제목을 입력하거나 파일을 첨부하세요.'); return; }
+            const { error } = await sb.from('documents').insert({ title, dept_id: dept, author, doc_date: formatDate(new Date()), file_type, file_size, storage_path, file_mime });
             if (error) { showToast('등록 실패', error.message); return; }
             STATE.uploadedDocFile = null;
-            await reloadDocuments(); renderDocuments(); closeModal('add-doc-modal'); showToast('문서 등록', '사내 보고서가 수임되었습니다.');
-            const st = document.getElementById('doc-file-status'); if (st) st.innerText = '클릭하여 보고서 업로드';
+            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments();
+            closeModal('add-doc-modal'); showToast('문서 등록', f ? '파일이 안전하게 업로드되었습니다.' : '보고서 기록이 등록되었습니다.');
+            document.getElementById('doc-title').value = '';
+            const st = document.getElementById('doc-file-status'); if (st) { st.innerText = '클릭하여 보고서 업로드'; st.classList.remove('text-indigo-600'); }
         }
-        function viewDocument(id) {
+        async function viewDocument(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
-            alert(`[보고서 열람 통제]\n문서명: ${doc.title}\n작성자: ${doc.author}\n본 파일은 정적 시뮬레이션 환경에 안전하게 보관 중입니다.`);
+            const titleEl = document.getElementById('doc-preview-title');
+            const body = document.getElementById('doc-preview-body');
+            const dl = document.getElementById('doc-preview-download');
+            titleEl.innerText = doc.title;
+            if (!doc.storagePath) {
+                body.innerHTML = `<div class="text-center text-slate-400 text-xs p-10"><div class="text-4xl mb-3">📝</div>첨부 파일이 없는 기록입니다.<br>작성자: ${doc.author || '-'} · ${doc.date || ''}</div>`;
+                dl.classList.add('hidden'); dl.removeAttribute('href'); openModal('doc-preview-modal'); return;
+            }
+            body.innerHTML = `<div class="text-slate-400 text-xs p-10">파일을 불러오는 중입니다...</div>`;
+            openModal('doc-preview-modal');
+            const { data, error } = await sb.storage.from('documents').createSignedUrl(doc.storagePath, 3600);
+            if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.${error ? ' (' + error.message + ')' : ''}</div>`; dl.classList.add('hidden'); return; }
+            const url = data.signedUrl; const mime = doc.fileMime || '';
+            dl.href = url; dl.classList.remove('hidden'); dl.setAttribute('download', doc.title);
+            if (mime.startsWith('image/')) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; }
+            else if (mime === 'application/pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; }
+            else { body.innerHTML = `<div class="text-center text-slate-500 text-xs p-10"><div class="text-4xl mb-3">📄</div>이 형식(${mime || doc.fileType || '알 수 없음'})은 브라우저에서 바로 미리보기가 어렵습니다.<br>상단의 <span class="font-bold text-blue-600">다운로드</span> 버튼으로 파일을 받아 확인하세요.</div>`; }
         }
         async function deleteDocument(id) {
+            const doc = STATE.documents.find(d => d.id === id);
+            if (doc && doc.storagePath) { try { await sb.storage.from('documents').remove([doc.storagePath]); } catch (e) {} }
             const { error } = await sb.from('documents').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
-            await reloadDocuments(); renderDocuments(); showToast('기안 폐기', '해당 서류가 소거되었습니다.');
+            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments(); showToast('기안 폐기', '해당 서류가 소거되었습니다.');
         }
         function filterDocs() {
             const q = (document.getElementById('doc-search') ? document.getElementById('doc-search').value : '').toLowerCase().trim();
@@ -1276,39 +1388,69 @@
         }
         function renderProjects() {
             const v = STATE.currentProgressSubView;
+            const deptBar = { ceo: 'border-slate-400', south_cs: 'border-blue-400', strategy: 'border-purple-400', hydrogen: 'border-emerald-400', rnd: 'border-amber-400', central_cs: 'border-cyan-400', sales: 'border-rose-400' };
+            const statusFill = { paused: 'bg-slate-400', ongoing: 'bg-blue-500', completed: 'bg-emerald-500' };
+            const statusText = { paused: 'text-slate-500', ongoing: 'text-blue-600', completed: 'text-emerald-600' };
             if (v === 'board') {
                 const p = document.getElementById('board-paused-list'), o = document.getElementById('board-ongoing-list'), c = document.getElementById('board-completed-list');
                 if (!p || !o || !c) return; p.innerHTML = ''; o.innerHTML = ''; c.innerHTML = '';
                 let pc = 0, oc = 0, cc = 0;
                 STATE.projects.forEach(proj => {
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
-                    const div = document.createElement('div'); div.className = "bg-white p-4 rounded-xl border space-y-3 shadow-sm hover:shadow-md transition-all";
-                    div.innerHTML = `<div class="flex justify-between items-center text-[10px] text-slate-400 font-medium"><span>[${dept ? dept.name : '전사'}]</span><span>${proj.startDate} ~ ${proj.endDate}</span></div><h4 class="font-bold text-xs text-slate-800">${proj.title}</h4><div class="flex items-center justify-between pt-2 border-t text-[11px]"><span class="text-slate-400">공정률</span><button onclick="openDirectProgressModal(${proj.id})" class="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold rounded font-mono">${proj.progress}% ⚙️</button></div><div class="flex justify-between text-[10px] text-slate-400 pt-1"><button onclick="moveProjectStatus(${proj.id}, 'prev')" class="hover:text-indigo-600 font-bold">이전</button><button onclick="deleteProject(${proj.id})" class="hover:text-rose-500 font-bold">삭제</button><button onclick="moveProjectStatus(${proj.id}, 'next')" class="hover:text-indigo-600 font-bold">다음</button></div>`;
+                    const bar = statusFill[proj.status] || 'bg-slate-400';
+                    const txt = statusText[proj.status] || 'text-slate-500';
+                    const lb = deptBar[proj.deptId] || 'border-slate-300';
+                    const div = document.createElement('div');
+                    div.className = `bg-white p-4 rounded-xl border border-slate-200/80 border-l-4 ${lb} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all space-y-3`;
+                    div.innerHTML = `
+                        <h4 class="font-bold text-[13px] text-slate-800 leading-snug">${proj.title}</h4>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="px-2 py-0.5 border rounded-md text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                            <span class="text-[9px] text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">공정률</span><span class="text-[10px] font-bold ${txt}">${proj.progress}%</span></div>
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full transition-all duration-500" style="width:${proj.progress}%"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-100">
+                            <button onclick="moveProjectStatus(${proj.id}, 'prev')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5"><i data-lucide="chevron-left" class="w-3 h-3"></i>이전</button>
+                            <div class="flex items-center gap-2.5">
+                                <button onclick="openDirectProgressModal(${proj.id})" class="text-[10px] text-indigo-600 hover:underline font-bold">수정</button>
+                                <button onclick="deleteProject(${proj.id})" class="text-[10px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                            </div>
+                            <button onclick="moveProjectStatus(${proj.id}, 'next')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5">다음<i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+                        </div>`;
                     if (proj.status === 'paused') { p.appendChild(div); pc++; }
                     else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
                     else if (proj.status === 'completed') { c.appendChild(div); cc++; }
                 });
+                if (pc === 0) p.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
+                if (oc === 0) o.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
+                if (cc === 0) c.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
                 document.getElementById('board-count-paused').innerText = pc;
                 document.getElementById('board-count-ongoing').innerText = oc;
                 document.getElementById('board-count-completed').innerText = cc;
-                lucide.createIcons();
+                if (window.lucide) lucide.createIcons();
             } else if (v === 'list') {
                 const tbody = document.getElementById('project-list-table-body'); if (!tbody) return; tbody.innerHTML = '';
                 STATE.projects.forEach(proj => {
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
+                    const bar = statusFill[proj.status] || 'bg-slate-400';
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
-                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate} ~ ${proj.endDate}</td><td class="p-3 font-bold"><button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono hover:underline">${proj.progress}% ⚙️</button></td><td class="p-3 text-right"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></td>`;
+                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div><button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button></div></td><td class="p-3 text-right"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></td>`;
                     tbody.appendChild(tr);
                 });
             } else if (v === 'gantt') {
-                const header = document.getElementById('gantt-header-days'); if (header) { header.innerHTML = ''; for (let d = 1; d <= 30; d++) header.innerHTML += `<div class="flex items-center justify-center border-r border-slate-100 select-none">${d}</div>`; }
+                const header = document.getElementById('gantt-header-days'); if (header) { header.innerHTML = ''; for (let d = 1; d <= 30; d++) { const wk = (d % 7 === 0); header.innerHTML += `<div class="flex items-center justify-center border-r border-slate-100 select-none ${wk ? 'text-rose-300 font-bold' : ''}">${d}</div>`; } }
                 const container = document.getElementById('gantt-rows-container'); if (!container) return; container.innerHTML = '';
                 STATE.projects.forEach(proj => {
-                    const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center border-b border-slate-50 pb-2.5 last:border-0";
+                    const dept = STATE.departments.find(d => d.id === proj.deptId);
+                    const barBg = statusFill[proj.status] || 'bg-slate-400';
+                    const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
                     const sDay = parseInt((proj.startDate || '2026-06-01').split('-')[2]) || 1, eDay = parseInt((proj.endDate || '2026-06-30').split('-')[2]) || 30;
-                    const dur = (eDay - sDay) + 1;
+                    const dur = Math.max((eDay - sDay) + 1, 1);
                     const left = ((sDay - 1) / 30) * 100, width = (dur / 30) * 100;
-                    row.innerHTML = `<div class="col-span-3 font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="col-span-9 relative h-8 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden"><div onclick="openDirectProgressModal(${proj.id})" class="absolute top-1/2 -translate-y-1/2 h-5 bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-[9px] font-bold rounded-md px-2 flex items-center justify-between cursor-pointer transition-all shadow-sm" style="left: ${left}%; width: ${width}%;"><span class="truncate">${proj.progress}% (${dur}일간)</span></div></div>`;
+                    row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100"><div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate || ''} ~ ${proj.endDate || ''} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${dur}일</span></div></div>`;
                     container.appendChild(row);
                 });
             }
@@ -1370,10 +1512,12 @@
                 const card = document.createElement('div'); card.className = "bg-white border rounded-2xl p-5 shadow-sm space-y-3 flex flex-col justify-between";
                 let img = meet.image ? `<img src="${meet.image}" class="w-full h-32 object-cover rounded-xl border mt-2">` : '';
                 let file = meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-xl text-[10px] font-bold text-slate-500 truncate mt-1">📎 첨부: ${meet.fileName}</div>` : '';
-                card.innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center text-[10px]"><span class="px-2 py-0.5 border rounded font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span><span class="text-slate-400 font-mono">${meet.date}</span></div><h4 class="font-extrabold text-sm text-slate-800">${meet.week} 주간 실무 일지</h4><p class="text-[9px] text-slate-400">보고자: ${meet.author}</p><p class="text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border break-all whitespace-pre-line font-medium">${meet.content}</p>${img}${file}</div><div class="text-right pt-2 border-t border-slate-50"><button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button></div>`;
+                const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
+                const delBtn = canManage ? `<button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button>` : `<span class="text-[10px] text-slate-300">타 부서 기록</span>`;
+                card.innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center text-[10px]"><span class="px-2 py-0.5 border rounded font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span><span class="text-slate-400 font-mono">${meet.date}</span></div><h4 class="font-extrabold text-sm text-slate-800">${meet.week} 주간 실무 일지</h4><p class="text-[9px] text-slate-400">보고자: ${meet.author}</p><p class="text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border break-all whitespace-pre-line font-medium">${meet.content}</p>${img}${file}</div><div class="text-right pt-2 border-t border-slate-50">${delBtn}</div>`;
                 container.appendChild(card);
             });
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
         function handleMeetingImgSelection(e) {
             const f = e.target.files[0]; if (!f) return;
@@ -1388,6 +1532,7 @@
             const dept = document.getElementById('meeting-dept').value;
             const content = document.getElementById('meeting-content').value.trim();
             if (!content) { showToast('입력 필요', '내용을 입력하세요.'); return; }
+            if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 회의록만 작성할 수 있습니다.'); return; }
             const { error } = await sb.from('weekly_meetings').insert({ dept_id: dept, week, author: STATE.profile.name, meet_date: formatDate(new Date()), content, image: STATE.meetingUploadedImg || '', file_name: STATE.meetingUploadedFileName || '' });
             if (error) { showToast('등록 실패', error.message); return; }
             STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = '';
@@ -1465,19 +1610,43 @@
             if (error) { showToast('반려 실패', error.message); return; }
             await reloadProfiles(); renderPendingUsers(); showToast('기각', '가입 신청을 반려했습니다.');
         }
+        const ROLE_OPTIONS = [['ceo', '대표이사'], ['head', '부서장'], ['leader', '팀장'], ['employee', '사원'], ['admin', '관리자']];
         function renderActiveUsers() {
             const tbody = document.getElementById('active-users-list-body'); if (!tbody) return; tbody.innerHTML = '';
             const approvedUsers = STATE.users.filter(u => u.approved);
             if (approvedUsers.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-400 font-semibold">활동 중인 임직원이 없습니다.</td></tr>`; return; }
             approvedUsers.forEach(user => {
-                const dept = STATE.departments.find(d => d.id === user.deptId);
-                const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50 transition-colors";
                 const isSelf = STATE.currentUser && STATE.currentUser.id === user.id;
-                const btn = isSelf ? `<span class="text-[10px] text-slate-400 font-bold px-2 py-1 bg-slate-100 rounded-md">접속 세션</span>`
-                    : `<button onclick="terminateUser('${user.id}')" class="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all shadow-sm">자격 해지</button>`;
-                tr.innerHTML = `<td class="p-3.5 font-bold text-slate-700">${user.email || '(미표기)'}</td><td class="p-3.5 font-semibold">${user.name}</td><td class="p-3.5">${dept ? dept.name : '인프라 관리국'}</td><td class="p-3.5 font-mono text-[10px] font-bold text-indigo-600 uppercase">${user.role}</td><td class="p-3.5 text-slate-500">${user.position}</td><td class="p-3.5 text-right font-medium">${btn}</td>`;
+                const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50 transition-colors align-middle";
+                const deptOpts = STATE.departments.map(d => `<option value="${d.id}" ${d.id === user.deptId ? 'selected' : ''}>${d.name}</option>`).join('');
+                const roleOpts = ROLE_OPTIONS.map(([v, l]) => `<option value="${v}" ${v === user.role ? 'selected' : ''}>${l}</option>`).join('');
+                const termBtn = isSelf ? `<span class="text-[9px] text-emerald-600 font-bold px-2 py-1 bg-emerald-50 rounded-md border border-emerald-200">본인</span>`
+                    : `<button onclick="terminateUser('${user.id}')" class="px-2 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all">해지</button>`;
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-700">${user.email || '(미표기)'}</td>
+                    <td class="p-3 font-semibold">${user.name}</td>
+                    <td class="p-3"><select id="edit-dept-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[11px] outline-none focus:border-indigo-400">${deptOpts}</select></td>
+                    <td class="p-3"><select id="edit-role-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[11px] outline-none focus:border-indigo-400">${roleOpts}</select></td>
+                    <td class="p-3"><input id="edit-pos-${user.id}" value="${user.position || ''}" class="w-20 px-2 py-1 border rounded-md text-[11px] outline-none focus:border-indigo-400"></td>
+                    <td class="p-3 text-right whitespace-nowrap"><button onclick="saveUserEdits('${user.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold mr-1.5 shadow-sm">저장</button>${termBtn}</td>`;
                 tbody.appendChild(tr);
             });
+        }
+        async function saveUserEdits(id) {
+            const deptEl = document.getElementById(`edit-dept-${id}`), roleEl = document.getElementById(`edit-role-${id}`), posEl = document.getElementById(`edit-pos-${id}`);
+            if (!deptEl || !roleEl || !posEl) return;
+            const dept = deptEl.value, role = roleEl.value, pos = posEl.value.trim() || '사원';
+            const isSelf = STATE.currentUser && STATE.currentUser.id === id;
+            if (isSelf && role !== 'admin') { if (!confirm('본인 계정의 관리자 권한을 해제하면 관리 기능을 즉시 잃게 됩니다. 계속할까요?')) { renderActiveUsers(); return; } }
+            const { error } = await sb.from('profiles').update({ dept_id: dept, role, position: pos }).eq('id', id);
+            if (error) { showToast('저장 실패', error.message); return; }
+            await reloadProfiles(); renderActiveUsers(); renderPendingUsers();
+            if (isSelf) {
+                STATE.currentUser.role = role; STATE.currentUser.deptId = dept; STATE.currentUser.position = pos;
+                STATE.profile.role = role; STATE.profile.deptId = dept;
+                refreshRoleScopedUI(); updateProfileUI(); if (role !== 'admin') switchTab('dashboard');
+            }
+            showToast('정보 갱신', '임직원 정보가 수정되었습니다. (모든 접속자에게 실시간 반영)');
         }
         async function terminateUser(id) {
             const user = STATE.users.find(u => u.id === id); const name = user ? user.name : '해당 사원';
@@ -1669,6 +1838,7 @@
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
             else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
             else if (tabId === 'management-stats') { await reloadProfiles(); renderPermissionMatrix(); renderPendingUsers(); renderActiveUsers(); }
+            if (window.lucide) lucide.createIcons();
         }
 
         function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
@@ -1687,6 +1857,7 @@
                 const n = document.getElementById('profile-name'); if (n) n.value = STATE.currentUser.name;
                 const d = document.getElementById('profile-dept'); if (d) d.value = STATE.currentUser.deptId;
             }
+            if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
             const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
