@@ -301,21 +301,35 @@
 
         <div id="main-content-sections">
             <!-- 대시보드 탭 -->
-            <section id="view-dashboard" class="space-y-8">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 space-y-8">
-                        <div id="dashboard-notice-card" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 transition-all"></div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i> 다가오는 주요 일정 요약</h3>
+            <section id="view-dashboard" class="space-y-6">
+                <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div id="dashboard-notice-card" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm space-y-4 transition-all"></div>
+                        <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i> 다가오는 주요 일정</h3>
                             <div class="divide-y divide-slate-100" id="dashboard-schedule-snapshot"></div>
                         </div>
                     </div>
-                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col h-[420px]">
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm flex flex-col h-[460px]">
                         <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-shrink-0">
                             <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5 text-blue-500"></i> 포탈 연동 편지함</h3>
                             <button onclick="switchTab('mail-integration')" class="text-xs text-blue-600 font-bold hover:underline">연동 설정</button>
                         </div>
                         <div class="flex-1 overflow-y-auto pt-4" id="dashboard-mail-widget"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="folder-git" class="w-5 h-5 text-indigo-500"></i> 프로젝트 진행 현황</h3>
+                        <div class="space-y-3" id="dashboard-project-summary"></div>
+                    </div>
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="files" class="w-5 h-5 text-blue-500"></i> 최근 등록 보고서</h3>
+                            <button onclick="switchTab('documents')" class="text-xs text-blue-600 font-bold hover:underline">전체 보기</button>
+                        </div>
+                        <div class="space-y-1" id="dashboard-recent-docs"></div>
                     </div>
                 </div>
             </section>
@@ -894,7 +908,7 @@
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
                 'management-stats': false, 'management-logs': false, 'weekly-meeting': false
             },
-            meetingUploadedImg: '', meetingUploadedFileName: ''
+            meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
 
         window.addEventListener('DOMContentLoaded', () => { initApp(); });
@@ -1012,7 +1026,7 @@
         }
         async function reloadMeetings() {
             const { data } = await sb.from('weekly_meetings').select('*').order('id', { ascending: false });
-            STATE.weeklyMeetings = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, week: r.week, author: r.author, date: r.meet_date, content: r.content, image: r.image, fileName: r.file_name }));
+            STATE.weeklyMeetings = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, week: r.week, author: r.author, date: r.meet_date, content: r.content, image: r.image, fileName: r.file_name, filePath: r.file_path, fileMime: r.file_mime }));
         }
         async function reloadSettings() {
             const { data } = await sb.from('app_settings').select('*');
@@ -1037,11 +1051,11 @@
             if (STATE._rt) return;
             STATE._rt = sb.channel('portal-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); if (STATE.currentTab === 'management-progress') renderProjects(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); if (STATE.currentTab === 'documents') filterDocs(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
         }
 
@@ -1337,12 +1351,22 @@
             document.getElementById('doc-title').value = '';
             const st = document.getElementById('doc-file-status'); if (st) { st.innerText = '클릭하여 보고서 업로드'; st.classList.remove('text-indigo-600'); }
         }
-        async function viewDocument(id) {
-            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
-            const titleEl = document.getElementById('doc-preview-title');
+        function openFilePreview(title, url, mime) {
             const body = document.getElementById('doc-preview-body');
             const dl = document.getElementById('doc-preview-download');
-            titleEl.innerText = doc.title;
+            document.getElementById('doc-preview-title').innerText = title;
+            dl.href = url; dl.classList.remove('hidden'); dl.setAttribute('download', title);
+            mime = mime || '';
+            if (mime.startsWith('image/')) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; }
+            else if (mime === 'application/pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; }
+            else { body.innerHTML = `<div class="text-center text-slate-500 text-xs p-10"><div class="text-4xl mb-3">📄</div>이 형식(${mime || '알 수 없음'})은 브라우저에서 바로 미리보기가 어렵습니다.<br>상단의 <span class="font-bold text-blue-600">다운로드</span> 버튼으로 파일을 받아 확인하세요.</div>`; }
+            openModal('doc-preview-modal');
+        }
+        async function viewDocument(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            const body = document.getElementById('doc-preview-body');
+            const dl = document.getElementById('doc-preview-download');
+            document.getElementById('doc-preview-title').innerText = doc.title;
             if (!doc.storagePath) {
                 body.innerHTML = `<div class="text-center text-slate-400 text-xs p-10"><div class="text-4xl mb-3">📝</div>첨부 파일이 없는 기록입니다.<br>작성자: ${doc.author || '-'} · ${doc.date || ''}</div>`;
                 dl.classList.add('hidden'); dl.removeAttribute('href'); openModal('doc-preview-modal'); return;
@@ -1351,11 +1375,7 @@
             openModal('doc-preview-modal');
             const { data, error } = await sb.storage.from('documents').createSignedUrl(doc.storagePath, 3600);
             if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.${error ? ' (' + error.message + ')' : ''}</div>`; dl.classList.add('hidden'); return; }
-            const url = data.signedUrl; const mime = doc.fileMime || '';
-            dl.href = url; dl.classList.remove('hidden'); dl.setAttribute('download', doc.title);
-            if (mime.startsWith('image/')) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; }
-            else if (mime === 'application/pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; }
-            else { body.innerHTML = `<div class="text-center text-slate-500 text-xs p-10"><div class="text-4xl mb-3">📄</div>이 형식(${mime || doc.fileType || '알 수 없음'})은 브라우저에서 바로 미리보기가 어렵습니다.<br>상단의 <span class="font-bold text-blue-600">다운로드</span> 버튼으로 파일을 받아 확인하세요.</div>`; }
+            openFilePreview(doc.title, data.signedUrl, doc.fileMime || '');
         }
         async function deleteDocument(id) {
             const doc = STATE.documents.find(d => d.id === id);
@@ -1400,8 +1420,19 @@
                     const bar = statusFill[proj.status] || 'bg-slate-400';
                     const txt = statusText[proj.status] || 'text-slate-500';
                     const lb = deptBar[proj.deptId] || 'border-slate-300';
+                    const manage = canManageProject(proj);
                     const div = document.createElement('div');
                     div.className = `bg-white p-4 rounded-xl border border-slate-200/80 border-l-4 ${lb} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all space-y-3`;
+                    const ctrlRow = manage ? `
+                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-100">
+                            <button onclick="moveProjectStatus(${proj.id}, 'prev')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5"><i data-lucide="chevron-left" class="w-3 h-3"></i>이전</button>
+                            <div class="flex items-center gap-2.5">
+                                <button onclick="openDirectProgressModal(${proj.id})" class="text-[10px] text-indigo-600 hover:underline font-bold">수정</button>
+                                <button onclick="deleteProject(${proj.id})" class="text-[10px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                            </div>
+                            <button onclick="moveProjectStatus(${proj.id}, 'next')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5">다음<i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+                        </div>`
+                        : `<div class="pt-2.5 border-t border-slate-100 text-[9px] text-slate-300 text-center">타 부서 과제 · 열람 전용</div>`;
                     div.innerHTML = `
                         <h4 class="font-bold text-[13px] text-slate-800 leading-snug">${proj.title}</h4>
                         <div class="flex items-center gap-1.5 flex-wrap">
@@ -1412,14 +1443,7 @@
                             <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">공정률</span><span class="text-[10px] font-bold ${txt}">${proj.progress}%</span></div>
                             <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full transition-all duration-500" style="width:${proj.progress}%"></div></div>
                         </div>
-                        <div class="flex items-center justify-between pt-2.5 border-t border-slate-100">
-                            <button onclick="moveProjectStatus(${proj.id}, 'prev')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5"><i data-lucide="chevron-left" class="w-3 h-3"></i>이전</button>
-                            <div class="flex items-center gap-2.5">
-                                <button onclick="openDirectProgressModal(${proj.id})" class="text-[10px] text-indigo-600 hover:underline font-bold">수정</button>
-                                <button onclick="deleteProject(${proj.id})" class="text-[10px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
-                            </div>
-                            <button onclick="moveProjectStatus(${proj.id}, 'next')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-0.5">다음<i data-lucide="chevron-right" class="w-3 h-3"></i></button>
-                        </div>`;
+                        ${ctrlRow}`;
                     if (proj.status === 'paused') { p.appendChild(div); pc++; }
                     else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
                     else if (proj.status === 'completed') { c.appendChild(div); cc++; }
@@ -1436,27 +1460,68 @@
                 STATE.projects.forEach(proj => {
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
                     const bar = statusFill[proj.status] || 'bg-slate-400';
+                    const manage = canManageProject(proj);
+                    const delCell = manage ? `<button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[10px]">열람 전용</span>`;
+                    const pctCell = manage ? `<button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button>` : `<span class="text-slate-500 font-mono font-bold">${proj.progress}%</span>`;
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
-                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div><button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button></div></td><td class="p-3 text-right"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></td>`;
+                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
                     tbody.appendChild(tr);
                 });
             } else if (v === 'gantt') {
-                const header = document.getElementById('gantt-header-days'); if (header) { header.innerHTML = ''; for (let d = 1; d <= 30; d++) { const wk = (d % 7 === 0); header.innerHTML += `<div class="flex items-center justify-center border-r border-slate-100 select-none ${wk ? 'text-rose-300 font-bold' : ''}">${d}</div>`; } }
-                const container = document.getElementById('gantt-rows-container'); if (!container) return; container.innerHTML = '';
-                STATE.projects.forEach(proj => {
-                    const dept = STATE.departments.find(d => d.id === proj.deptId);
-                    const barBg = statusFill[proj.status] || 'bg-slate-400';
-                    const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
-                    const sDay = parseInt((proj.startDate || '2026-06-01').split('-')[2]) || 1, eDay = parseInt((proj.endDate || '2026-06-30').split('-')[2]) || 30;
-                    const dur = Math.max((eDay - sDay) + 1, 1);
-                    const left = ((sDay - 1) / 30) * 100, width = (dur / 30) * 100;
-                    row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100"><div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate || ''} ~ ${proj.endDate || ''} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${dur}일</span></div></div>`;
-                    container.appendChild(row);
-                });
+                renderGantt(statusFill);
             }
         }
+        // 실제 달력(연-월) 기준 간트 타임라인
+        function renderGantt(statusFill) {
+            const header = document.getElementById('gantt-header-days');
+            const container = document.getElementById('gantt-rows-container');
+            if (!container) return; container.innerHTML = '';
+            const dated = STATE.projects.filter(p => p.startDate && p.endDate);
+            if (dated.length === 0) { if (header) header.innerHTML = ''; container.innerHTML = `<div class="text-center text-slate-300 text-xs py-10">표시할 일정 정보가 있는 프로젝트가 없습니다.</div>`; return; }
+            const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+            const DAY = 86400000;
+            let minD = parse(dated[0].startDate), maxD = parse(dated[0].endDate);
+            dated.forEach(p => { const s = parse(p.startDate), e = parse(p.endDate); if (s < minD) minD = s; if (e > maxD) maxD = e; });
+            // 시작 달 1일 ~ 종료 달 말일로 확장
+            const rangeStart = new Date(minD.getFullYear(), minD.getMonth(), 1);
+            const rangeEnd = new Date(maxD.getFullYear(), maxD.getMonth() + 1, 0);
+            const totalDays = Math.round((rangeEnd - rangeStart) / DAY) + 1;
+            const pct = (date) => (Math.round((date - rangeStart) / DAY) / totalDays) * 100;
+            // 월 구간 헤더
+            const months = [];
+            let cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+            while (cur <= rangeEnd) {
+                const mStart = new Date(cur.getFullYear(), cur.getMonth(), 1);
+                const mEnd = new Date(cur.getFullYear(), cur.getMonth() + 1, 0);
+                const segStart = mStart < rangeStart ? rangeStart : mStart;
+                const segEnd = mEnd > rangeEnd ? rangeEnd : mEnd;
+                const days = Math.round((segEnd - segStart) / DAY) + 1;
+                months.push({ label: `${cur.getFullYear()}.${String(cur.getMonth() + 1).padStart(2, '0')}`, width: (days / totalDays) * 100, leftPct: pct(mStart) });
+                cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+            }
+            if (header) {
+                header.style.display = 'flex'; header.style.gridTemplateColumns = '';
+                header.className = 'col-span-9 flex text-[9px] font-bold text-slate-500 select-none';
+                header.innerHTML = months.map((mo, i) => `<div class="text-center border-l ${i === 0 ? 'border-transparent' : 'border-slate-200'} py-0.5" style="width:${mo.width}%">${mo.label}</div>`).join('');
+            }
+            const monthLines = months.map(mo => mo.leftPct).filter(x => x > 0.5);
+            dated.forEach(proj => {
+                const dept = STATE.departments.find(d => d.id === proj.deptId);
+                const barBg = statusFill[proj.status] || 'bg-slate-400';
+                const s = parse(proj.startDate), e = parse(proj.endDate);
+                const left = pct(s), right = pct(new Date(e.getTime() + DAY));
+                const width = Math.max(right - left, 1.5);
+                const durDays = Math.round((e - s) / DAY) + 1;
+                const lines = monthLines.map(x => `<div class="absolute inset-y-0 border-l border-slate-100" style="left:${x}%"></div>`).join('');
+                const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
+                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${lines}<div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate} ~ ${proj.endDate} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
+                container.appendChild(row);
+            });
+        }
+        function canManageProject(proj) { return STATE.profile.role === 'admin' || (proj && proj.deptId === STATE.profile.deptId); }
         function openDirectProgressModal(id) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            if (!canManageProject(proj)) { showToast('수정 권한 없음', '본인 소속 부서의 프로젝트만 수정할 수 있습니다.'); return; }
             document.getElementById('direct-progress-project-id').value = proj.id;
             document.getElementById('direct-progress-title').innerText = `[${proj.title}] 공정 진행도 직접 보정`;
             document.getElementById('direct-progress-value').value = proj.progress;
@@ -1465,6 +1530,8 @@
         async function handleSaveDirectProgress(e) {
             e.preventDefault();
             const id = parseInt(document.getElementById('direct-progress-project-id').value);
+            const proj = STATE.projects.find(p => p.id === id);
+            if (proj && !canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 수정할 수 있습니다.'); return; }
             const val = parseInt(document.getElementById('direct-progress-value').value);
             if (isNaN(val) || val < 0 || val > 100) { showToast('오류', '0에서 100사이 수치만 인가 가능합니다.'); return; }
             const status = (val === 100) ? 'completed' : (val === 0 ? 'paused' : 'ongoing');
@@ -1480,17 +1547,21 @@
             const s = document.getElementById('project-start').value || null;
             const end = document.getElementById('project-end').value || null;
             const desc = document.getElementById('project-desc').value;
+            if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 프로젝트만 등록할 수 있습니다.'); return; }
             const { error } = await sb.from('projects').insert({ title, dept_id: dept, status, start_date: s, end_date: end, progress: 0, descr: desc });
             if (error) { showToast('등록 실패', error.message); return; }
             await reloadProjects(); renderProjects(); closeModal('add-project-modal'); showToast('기획 수립', '새 프로젝트가 배포되었습니다.');
         }
         async function deleteProject(id) {
+            const proj = STATE.projects.find(p => p.id === id);
+            if (proj && !canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 삭제할 수 있습니다.'); return; }
             const { error } = await sb.from('projects').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
             await reloadProjects(); renderProjects(); showToast('기획 철회', '해당 과제가 소거되었습니다.');
         }
         async function moveProjectStatus(id, dir) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 변경할 수 있습니다.'); return; }
             const order = ['paused', 'ongoing', 'completed'];
             let idx = order.indexOf(proj.status); if (idx === -1) idx = 0;
             idx = dir === 'next' ? Math.min(idx + 1, 2) : Math.max(idx - 1, 0);
@@ -1506,25 +1577,64 @@
             const container = document.getElementById('weekly-meetings-container'); if (!container) return; container.innerHTML = '';
             const filterDept = document.getElementById('meeting-filter-dept').value;
             const filtered = STATE.weeklyMeetings.filter(m => filterDept === 'all' || m.deptId === filterDept);
-            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-400 text-xs font-medium">등록된 주간 회의 기록이 없습니다.</div>`; return; }
+            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-xs font-medium">등록된 주간 회의 기록이 없습니다.</div>`; return; }
+            const accent = { ceo: 'bg-slate-700', south_cs: 'bg-blue-500', strategy: 'bg-purple-500', hydrogen: 'bg-emerald-500', rnd: 'bg-amber-500', central_cs: 'bg-cyan-500', sales: 'bg-rose-500' };
             filtered.forEach(meet => {
                 const dept = STATE.departments.find(d => d.id === meet.deptId);
-                const card = document.createElement('div'); card.className = "bg-white border rounded-2xl p-5 shadow-sm space-y-3 flex flex-col justify-between";
-                let img = meet.image ? `<img src="${meet.image}" class="w-full h-32 object-cover rounded-xl border mt-2">` : '';
-                let file = meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-xl text-[10px] font-bold text-slate-500 truncate mt-1">📎 첨부: ${meet.fileName}</div>` : '';
+                const stripe = accent[meet.deptId] || 'bg-slate-400';
                 const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
-                const delBtn = canManage ? `<button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button>` : `<span class="text-[10px] text-slate-300">타 부서 기록</span>`;
-                card.innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center text-[10px]"><span class="px-2 py-0.5 border rounded font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span><span class="text-slate-400 font-mono">${meet.date}</span></div><h4 class="font-extrabold text-sm text-slate-800">${meet.week} 주간 실무 일지</h4><p class="text-[9px] text-slate-400">보고자: ${meet.author}</p><p class="text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border break-all whitespace-pre-line font-medium">${meet.content}</p>${img}${file}</div><div class="text-right pt-2 border-t border-slate-50">${delBtn}</div>`;
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden";
+                const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="w-full h-36 object-cover cursor-pointer hover:opacity-90 transition" title="클릭하여 크게 보기">` : '';
+                const fileChip = meet.filePath
+                    ? `<button onclick="viewMeetingFile(${meet.id})" class="w-full flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition mt-1"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${meet.fileName || '첨부파일'}</span><span class="text-[9px] text-blue-500">열람 ›</span></button>`
+                    : (meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-lg text-[10px] font-bold text-slate-500 truncate mt-1">📎 ${meet.fileName}</div>` : '');
+                const delBtn = canManage
+                    ? `<button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button>`
+                    : `<span class="text-[10px] text-slate-300">열람 전용</span>`;
+                card.innerHTML = `
+                    <div class="flex">
+                        <div class="w-1.5 ${stripe} flex-shrink-0"></div>
+                        <div class="flex-1 p-5 space-y-3 min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${meet.date || ''}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-slate-800 leading-tight">${meet.week} 주간 실무 일지</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${meet.author || '-'}</p>
+                            </div>
+                            <p class="text-xs text-slate-600 bg-slate-50/70 p-3 rounded-xl border border-slate-100 whitespace-pre-line leading-relaxed font-medium">${meet.content}</p>
+                            ${img}${fileChip}
+                            <div class="text-right pt-2 border-t border-slate-50">${delBtn}</div>
+                        </div>
+                    </div>`;
                 container.appendChild(card);
             });
             if (window.lucide) lucide.createIcons();
+        }
+        async function viewMeetingFile(id) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet || !meet.filePath) return;
+            const body = document.getElementById('doc-preview-body'); const dl = document.getElementById('doc-preview-download');
+            document.getElementById('doc-preview-title').innerText = meet.fileName || '첨부파일';
+            body.innerHTML = `<div class="text-slate-400 text-xs p-10">파일을 불러오는 중입니다...</div>`;
+            openModal('doc-preview-modal');
+            const { data, error } = await sb.storage.from('documents').createSignedUrl(meet.filePath, 3600);
+            if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.</div>`; dl.classList.add('hidden'); return; }
+            openFilePreview(meet.fileName || '첨부파일', data.signedUrl, meet.fileMime || '');
+        }
+        function viewMeetingImage(id) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet || !meet.image) return;
+            openFilePreview(`${meet.week} 회의 사진`, meet.image, 'image/png');
         }
         function handleMeetingImgSelection(e) {
             const f = e.target.files[0]; if (!f) return;
             const r = new FileReader(); r.onload = (evt) => { STATE.meetingUploadedImg = evt.target.result; document.getElementById('meeting-img-status').innerText = `사진 완료: ${f.name}`; }; r.readAsDataURL(f);
         }
         function handleMeetingFileSelection(e) {
-            const f = e.target.files[0]; if (!f) return; STATE.meetingUploadedFileName = f.name; document.getElementById('meeting-file-status').innerText = `문서 완료: ${f.name}`;
+            const f = e.target.files[0]; if (!f) return;
+            STATE.meetingUploadedFile = f; STATE.meetingUploadedFileName = f.name;
+            document.getElementById('meeting-file-status').innerText = `첨부 완료: ${f.name}`;
         }
         async function handleNewMeeting(e) {
             e.preventDefault();
@@ -1533,15 +1643,26 @@
             const content = document.getElementById('meeting-content').value.trim();
             if (!content) { showToast('입력 필요', '내용을 입력하세요.'); return; }
             if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 회의록만 작성할 수 있습니다.'); return; }
-            const { error } = await sb.from('weekly_meetings').insert({ dept_id: dept, week, author: STATE.profile.name, meet_date: formatDate(new Date()), content, image: STATE.meetingUploadedImg || '', file_name: STATE.meetingUploadedFileName || '' });
+            let file_path = null, file_mime = null;
+            if (STATE.meetingUploadedFile) {
+                const f = STATE.meetingUploadedFile;
+                const safe = f.name.replace(/[^\w.\-가-힣]/g, '_');
+                file_path = `meetings/${Date.now()}_${safe}`;
+                const { error: upErr } = await sb.storage.from('documents').upload(file_path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
+                if (upErr) { showToast('첨부 업로드 실패', upErr.message); return; }
+                file_mime = f.type || '';
+            }
+            const { error } = await sb.from('weekly_meetings').insert({ dept_id: dept, week, author: STATE.profile.name, meet_date: formatDate(new Date()), content, image: STATE.meetingUploadedImg || '', file_name: STATE.meetingUploadedFileName || '', file_path, file_mime });
             if (error) { showToast('등록 실패', error.message); return; }
-            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = '';
+            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = ''; STATE.meetingUploadedFile = null;
             await reloadMeetings(); renderWeeklyMeetings(); closeModal('add-meeting-modal'); showToast('일지 배포', '주간 회의록이 원장에 기입되었습니다.');
             document.getElementById('meeting-content').value = '';
             const i = document.getElementById('meeting-img-status'); if (i) i.innerText = '사진 파일 선택';
             const f = document.getElementById('meeting-file-status'); if (f) f.innerText = '첨부파일 선택';
         }
         async function deleteWeeklyMeeting(id) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === id);
+            if (meet && meet.filePath) { try { await sb.storage.from('documents').remove([meet.filePath]); } catch (e) {} }
             const { error } = await sb.from('weekly_meetings').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
             await reloadMeetings(); renderWeeklyMeetings(); showToast('기록 소거', '주간 회의록이 말소되었습니다.');
@@ -1549,18 +1670,77 @@
 
         // ── 대시보드 위젯 ────────────────────────────────────────────────
         function renderDashboardWidgets() {
-            const widget = document.getElementById('dashboard-mail-widget'); if (!widget) return; widget.innerHTML = '';
-            if (!STATE.mailplug.connected) {
-                widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[10px]">연동 허용</button></div>`;
-            } else {
-                STATE.mailplug.emails.slice(0, 3).forEach(m => {
-                    widget.innerHTML += `<div class="py-2 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[10px] text-slate-400"><span>${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
+            // 상단 통계 카드
+            const stats = document.getElementById('dashboard-stats');
+            if (stats) {
+                const today = new Date(); const fy = today.getFullYear(), fmo = today.getMonth();
+                const firstStr = formatDate(new Date(fy, fmo, 1)), lastStr = formatDate(new Date(fy, fmo + 1, 0));
+                const monthEvents = STATE.events.filter(e => e.endDate >= firstStr && e.startDate <= lastStr).length;
+                const ongoing = STATE.projects.filter(p => p.status === 'ongoing').length;
+                const completed = STATE.projects.filter(p => p.status === 'completed').length;
+                const docCount = STATE.documents.length;
+                const cards = [
+                    { label: '이번 달 일정', value: monthEvents, icon: 'calendar-days', bg: 'bg-indigo-50', fg: 'text-indigo-600' },
+                    { label: '진행 중 프로젝트', value: ongoing, icon: 'loader', bg: 'bg-blue-50', fg: 'text-blue-600' },
+                    { label: '완료 프로젝트', value: completed, icon: 'check-circle-2', bg: 'bg-emerald-50', fg: 'text-emerald-600' },
+                    { label: '등록 보고서', value: docCount, icon: 'files', bg: 'bg-slate-100', fg: 'text-slate-600' }
+                ];
+                if (STATE.profile.role === 'admin') {
+                    const pending = STATE.users.filter(u => !u.approved).length;
+                    cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
+                }
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all h-full"><div class="w-11 h-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="text-2xl font-extrabold text-slate-800 leading-none">${c.value}</div><div class="text-[11px] text-slate-400 font-medium mt-1">${c.label}</div></div></div></div>`).join('');
+            }
+            // 편지함 위젯
+            const widget = document.getElementById('dashboard-mail-widget');
+            if (widget) {
+                widget.innerHTML = '';
+                if (!STATE.mailplug.connected) {
+                    widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[10px]">연동 허용</button></div>`;
+                } else {
+                    STATE.mailplug.emails.slice(0, 4).forEach(m => {
+                        widget.innerHTML += `<div class="py-2.5 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[10px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
+                    });
+                }
+            }
+            // 다가오는 일정 (오늘 이후 가까운 순)
+            const snap = document.getElementById('dashboard-schedule-snapshot');
+            if (snap) {
+                snap.innerHTML = '';
+                const todayStr = formatDate(new Date());
+                const upcoming = STATE.events.filter(e => STATE.visibility[e.deptId] && e.endDate >= todayStr).sort((a, b) => a.startDate.localeCompare(b.startDate)).slice(0, 5);
+                if (upcoming.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">예정된 부서 일정이 없습니다.</div>`;
+                else upcoming.forEach(e => {
+                    const dept = STATE.departments.find(d => d.id === e.deptId);
+                    snap.innerHTML += `<div class="py-2.5 text-xs flex justify-between items-center gap-2"><span class="flex items-center gap-2 min-w-0"><span class="px-1.5 py-0.5 border rounded text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'} flex-shrink-0">${dept ? dept.name : '공통'}</span><strong class="truncate text-slate-700">${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400 flex-shrink-0">${e.startDate} ~ ${e.endDate}</span></div>`;
                 });
             }
-            const snap = document.getElementById('dashboard-schedule-snapshot'); if (!snap) return; snap.innerHTML = '';
-            const active = STATE.events.filter(e => STATE.visibility[e.deptId]).slice(0, 3);
-            if (active.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">활성화된 부서 일정이 없습니다.</div>`;
-            else active.forEach(e => snap.innerHTML += `<div class="py-2 text-xs flex justify-between items-center"><span>• <strong>${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400">${e.startDate} ~ ${e.endDate}</span></div>`);
+            // 프로젝트 진행 현황
+            const psum = document.getElementById('dashboard-project-summary');
+            if (psum) {
+                psum.innerHTML = '';
+                const fill = { paused: 'bg-slate-400', ongoing: 'bg-blue-500', completed: 'bg-emerald-500' };
+                const active = STATE.projects.filter(p => p.status !== 'completed').slice(0, 5);
+                const list = active.length ? active : STATE.projects.slice(0, 5);
+                if (list.length === 0) psum.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">등록된 프로젝트가 없습니다.</div>`;
+                else list.forEach(proj => {
+                    const dept = STATE.departments.find(d => d.id === proj.deptId);
+                    psum.innerHTML += `<div class="space-y-1"><div class="flex justify-between items-center text-xs"><span class="font-semibold text-slate-700 truncate pr-2">${proj.title}</span><span class="font-mono font-bold text-slate-500 flex-shrink-0">${proj.progress}%</span></div><div class="flex items-center gap-2"><span class="text-[9px] text-slate-400 w-20 flex-shrink-0 truncate">${dept ? dept.name : '전사'}</span><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${fill[proj.status] || 'bg-slate-400'} rounded-full" style="width:${proj.progress}%"></div></div></div></div>`;
+                });
+            }
+            // 최근 등록 보고서
+            const rdocs = document.getElementById('dashboard-recent-docs');
+            if (rdocs) {
+                rdocs.innerHTML = '';
+                const recent = STATE.documents.slice(0, 5);
+                if (recent.length === 0) rdocs.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">등록된 보고서가 없습니다.</div>`;
+                else recent.forEach(doc => {
+                    const dept = STATE.departments.find(d => d.id === doc.deptId);
+                    const clip = doc.storagePath ? `<i data-lucide="paperclip" class="w-3 h-3 inline text-blue-500"></i> ` : '';
+                    rdocs.innerHTML += `<div onclick="viewDocument(${doc.id})" class="py-2 px-2 -mx-2 rounded-lg hover:bg-slate-50 cursor-pointer text-xs flex justify-between items-center gap-2"><span class="truncate flex items-center gap-1 min-w-0">${clip}<span class="truncate text-slate-700 font-medium">${doc.title}</span></span><span class="text-[9px] text-slate-400 flex-shrink-0">${dept ? dept.name : '공통'}</span></div>`;
+                });
+            }
+            if (window.lucide) lucide.createIcons();
         }
 
         // ── 권한 매트릭스 ────────────────────────────────────────────────
@@ -1858,6 +2038,7 @@
                 const d = document.getElementById('profile-dept'); if (d) d.value = STATE.currentUser.deptId;
             }
             if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
+            if (id === 'add-project-modal') applyDeptLock('project-dept');
             const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
