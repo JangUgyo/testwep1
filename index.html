@@ -695,6 +695,43 @@
         </div>
     </div>
 
+    <!-- 일정 등록/수정 모달 -->
+    <div id="add-event-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
+            <form onsubmit="handleSaveEvent(event)" class="p-5 space-y-4">
+                <input type="hidden" id="event-id">
+                <div class="text-sm font-bold text-slate-800" id="event-modal-title">새 일정 등록</div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">일정 제목</label><input type="text" id="event-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 부서</label><select id="event-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="event-start" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="event-end" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" id="event-delete-btn" onclick="deleteEventFromModal()" class="hidden px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button>
+                    <button type="button" onclick="closeModal('add-event-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button>
+                    <button type="submit" class="flex-1 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 공지 수정 모달 -->
+    <div id="edit-notice-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
+            <form onsubmit="handleSaveNotice(event)" class="p-5 space-y-4">
+                <div class="text-sm font-bold text-slate-800">대시보드 공지 수정</div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="notice-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">표시 날짜</label><input type="text" id="notice-date" placeholder="2026.06.08" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">공지 내용</label><textarea id="notice-content" required rows="5" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div class="flex gap-2"><button type="button" onclick="closeModal('edit-notice-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg">공지 갱신</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 컨테이너 -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 items-end pointer-events-none"></div>
+
     <!-- 스크립트 실행 제어 본부 -->
     <script>
         // --- 로컬 스토리지 DB 연동 엔진 (Vercel 배포 시 영구적 데이터 유지) ---
@@ -849,10 +886,28 @@
             if (STATE.currentUser) {
                 const gateway = document.getElementById('auth-gateway-overlay');
                 if (gateway) gateway.classList.add('hidden');
-                handleRoleSimulatedChange(STATE.currentUser.role);
+                const u = STATE.currentUser;
+                STATE.profile.name = u.name;
+                STATE.profile.deptId = u.deptId;
+                STATE.profile.role = u.role;
+                refreshRoleScopedUI();
+                updateProfileUI();
+                switchTab('dashboard');
             } else {
                 handleRoleSimulatedChange(STATE.profile.role);
             }
+        }
+
+        // 역할에 따라 관리자 전용 UI(사이드바 그룹, 점검 제어 버튼)의 노출을 제어
+        function refreshRoleScopedUI() {
+            const isAdmin = STATE.profile.role === 'admin';
+            const adminGroup = document.getElementById('sidebar-admin-group');
+            if (adminGroup) {
+                adminGroup.style.opacity = isAdmin ? '1' : '0.4';
+                adminGroup.style.pointerEvents = isAdmin ? 'auto' : 'none';
+            }
+            const maintCtrl = document.getElementById('admin-maintenance-control');
+            if (maintCtrl) maintCtrl.classList.toggle('hidden', !isAdmin);
         }
 
         // --- 공통 데이터 보존용 헬퍼 동기화기 ---
@@ -873,12 +928,7 @@
             STATE.profile.deptId = roleDepts[newRole] || 'strategy';
             updateProfileUI();
 
-            const adminGroup = document.getElementById('sidebar-admin-group');
-            if (newRole === 'admin') {
-                if (adminGroup) { adminGroup.style.opacity = '1'; adminGroup.style.pointerEvents = 'auto'; }
-            } else {
-                if (adminGroup) { adminGroup.style.opacity = '0.4'; adminGroup.style.pointerEvents = 'none'; }
-            }
+            refreshRoleScopedUI();
             switchTab(STATE.currentTab);
         }
 
@@ -1285,6 +1335,7 @@
             const overlay = document.getElementById('auth-gateway-overlay'); if (overlay) overlay.classList.add('hidden');
 
             showToast('터널 인가', `${user.name} 님 접속 승인.`);
+            refreshRoleScopedUI();
             updateProfileUI(); switchTab('dashboard');
         }
 
@@ -1378,11 +1429,18 @@
             const target = document.getElementById(`view-${tabId}`); if (target) target.classList.remove('hidden');
             syncSidebarActiveState(tabId);
 
+            // 관리자: 현재 탭의 점검 상태 배지 및 버튼 라벨 갱신
+            const badge = document.getElementById('tab-maintenance-badge');
+            if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
+            const maintBtnText = document.getElementById('maintenance-btn-text');
+            if (maintBtnText) maintBtnText.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
+
             if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
             else if (tabId === 'calendar') renderCalendar();
             else if (tabId === 'documents') renderDocuments();
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
+            else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
             else if (tabId === 'management-stats') { renderPermissionMatrix(); renderPendingUsers(); }
         }
 
@@ -1402,6 +1460,252 @@
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const d = String(date.getDate()).padStart(2, '0');
             return `${y}-${m}-${d}`;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           이하: 기존에 호출은 되지만 정의가 누락되어 오류를 유발하던
+           기능들을 모두 구현하여 정상 작동하도록 보강한 영역입니다.
+           ════════════════════════════════════════════════════════════ */
+
+        // --- 토스트 알림 (가장 광범위하게 호출되던 누락 함수) ---
+        function showToast(title, message) {
+            const container = document.getElementById('toast-container');
+            if (!container) { console.log(`[${title}] ${message}`); return; }
+            const el = document.createElement('div');
+            el.className = "pointer-events-auto bg-slate-900 text-white rounded-xl shadow-lg px-4 py-3 min-w-[240px] max-w-sm border border-slate-700/50 transition-all duration-300 opacity-0 translate-y-2";
+            el.innerHTML = `<p class="text-xs font-bold">${title}</p><p class="text-[11px] text-slate-300 mt-0.5 leading-snug">${message}</p>`;
+            container.appendChild(el);
+            requestAnimationFrame(() => { el.classList.remove('opacity-0', 'translate-y-2'); });
+            setTimeout(() => {
+                el.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => el.remove(), 300);
+            }, 3200);
+        }
+
+        // --- 캘린더 일정 등록 / 수정 / 삭제 ---
+        function quickAddEvent(dateStr) {
+            const d = dateStr || formatDate(new Date());
+            const idEl = document.getElementById('event-id');
+            const titleEl = document.getElementById('event-title');
+            const deptEl = document.getElementById('event-dept');
+            const startEl = document.getElementById('event-start');
+            const endEl = document.getElementById('event-end');
+            if (idEl) idEl.value = '';
+            if (titleEl) titleEl.value = '';
+            if (deptEl && !deptEl.value) deptEl.selectedIndex = 0;
+            if (startEl) startEl.value = d;
+            if (endEl) endEl.value = d;
+            const t = document.getElementById('event-modal-title'); if (t) t.innerText = '새 일정 등록';
+            const del = document.getElementById('event-delete-btn'); if (del) del.classList.add('hidden');
+            openModal('add-event-modal');
+        }
+
+        function editEvent(id) {
+            const evt = STATE.events.find(e => e.id === id); if (!evt) return;
+            document.getElementById('event-id').value = evt.id;
+            document.getElementById('event-title').value = evt.title;
+            document.getElementById('event-dept').value = evt.deptId;
+            document.getElementById('event-start').value = evt.startDate;
+            document.getElementById('event-end').value = evt.endDate;
+            const t = document.getElementById('event-modal-title'); if (t) t.innerText = '일정 수정';
+            const del = document.getElementById('event-delete-btn'); if (del) del.classList.remove('hidden');
+            openModal('add-event-modal');
+        }
+
+        function handleSaveEvent(e) {
+            e.preventDefault();
+            const id = document.getElementById('event-id').value;
+            const title = document.getElementById('event-title').value.trim();
+            const deptId = document.getElementById('event-dept').value;
+            const startDate = document.getElementById('event-start').value;
+            const endDate = document.getElementById('event-end').value;
+            if (!title || !startDate || !endDate) { showToast('입력 오류', '제목과 기간을 모두 입력하십시오.'); return; }
+            if (endDate < startDate) { showToast('기간 오류', '종료일은 시작일 이후여야 합니다.'); return; }
+
+            if (id) {
+                const evt = STATE.events.find(ev => ev.id === parseInt(id));
+                if (evt) { evt.title = title; evt.deptId = deptId; evt.startDate = startDate; evt.endDate = endDate; }
+                showToast('일정 수정', '일정 정보가 갱신되었습니다.');
+            } else {
+                STATE.events.push({ id: Date.now(), deptId, title, startDate, endDate });
+                showToast('일정 등록', '새 일정이 캘린더에 반영되었습니다.');
+            }
+            STATE.visibility[deptId] = true; // 새 일정이 필터에 가려지지 않도록 보장
+            syncDB('events');
+            renderFilters(); renderCalendar(); renderDashboardWidgets();
+            closeModal('add-event-modal');
+        }
+
+        function deleteEventFromModal() {
+            const id = parseInt(document.getElementById('event-id').value);
+            if (!id) return;
+            STATE.events = STATE.events.filter(e => e.id !== id);
+            syncDB('events'); renderCalendar(); renderDashboardWidgets();
+            closeModal('add-event-modal'); showToast('일정 삭제', '선택한 일정이 제거되었습니다.');
+        }
+
+        // --- 칸반 보드: 프로젝트 상태 이동 ---
+        function moveProjectStatus(id, dir) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            const order = ['paused', 'ongoing', 'completed'];
+            let idx = order.indexOf(proj.status);
+            if (idx === -1) idx = 0;
+            idx = dir === 'next' ? Math.min(idx + 1, 2) : Math.max(idx - 1, 0);
+            proj.status = order[idx];
+            if (proj.status === 'completed') proj.progress = 100;
+            else if (proj.status === 'paused') proj.progress = 0;
+            else if (proj.progress === 0 || proj.progress === 100) proj.progress = 50;
+            syncDB('projects'); renderProjects();
+        }
+
+        // --- RBAC 권한 매트릭스 토글 ---
+        function togglePermission(deptId, tab) {
+            if (!STATE.permissions[deptId]) STATE.permissions[deptId] = {};
+            STATE.permissions[deptId][tab] = !STATE.permissions[deptId][tab];
+            syncDB('permissions');
+            const dept = STATE.departments.find(d => d.id === deptId);
+            const state = STATE.permissions[deptId][tab] ? '허용' : '차단';
+            showToast('권한 갱신', `[${dept ? dept.name : deptId}] 권한이 ${state} 처리되었습니다.`);
+        }
+
+        // --- 통합 보고 허브: 검색 / 부서 필터 ---
+        function filterDocs() {
+            const q = (document.getElementById('doc-search')?.value || '').toLowerCase().trim();
+            const dept = document.getElementById('doc-filter-dept')?.value || 'all';
+            const filtered = STATE.documents.filter(doc => {
+                const matchDept = (dept === 'all') || (doc.deptId === dept);
+                const matchText = !q || doc.title.toLowerCase().includes(q) || (doc.author || '').toLowerCase().includes(q);
+                return matchDept && matchText;
+            });
+            renderDocuments(filtered);
+        }
+
+        // --- 대시보드 공지 수정 ---
+        function openEditNoticeModal() {
+            document.getElementById('notice-title').value = STATE.dashboardNotice.title;
+            document.getElementById('notice-date').value = STATE.dashboardNotice.date;
+            document.getElementById('notice-content').value = STATE.dashboardNotice.content;
+            openModal('edit-notice-modal');
+        }
+
+        function handleSaveNotice(e) {
+            e.preventDefault();
+            STATE.dashboardNotice = {
+                title: document.getElementById('notice-title').value.trim(),
+                date: document.getElementById('notice-date').value.trim(),
+                content: document.getElementById('notice-content').value.trim()
+            };
+            syncDB('dashboardNotice'); renderDashboardNotice();
+            closeModal('edit-notice-modal'); showToast('공지 갱신', '대시보드 공지가 업데이트되었습니다.');
+        }
+
+        // --- 메일 연동 센터: 제공자별 입력 패널 전환 ---
+        function toggleMailFields() {
+            const sel = document.getElementById('mail-provider-select');
+            if (!sel) return;
+            const provider = sel.value;
+            STATE.mailplug.provider = provider;
+
+            const api = document.getElementById('panel-api-config');
+            const oauth = document.getElementById('panel-oauth-config');
+            const imap = document.getElementById('panel-custom-imap');
+            [api, oauth, imap].forEach(p => p && p.classList.add('hidden'));
+
+            if (provider === 'mailplug') { api && api.classList.remove('hidden'); }
+            else if (provider === 'gmail' || provider === 'outlook') {
+                oauth && oauth.classList.remove('hidden');
+                const prompt = document.getElementById('oauth-prompt-text');
+                const btn = document.getElementById('oauth-btn-text');
+                const label = provider === 'gmail' ? 'Google Gmail' : 'MS Outlook';
+                if (prompt) prompt.innerText = STATE.mailplug.oauthConnected ? `${label} 토큰 발급 완료` : `${label} 보안 연동 토큰이 필요합니다.`;
+                if (btn) btn.innerText = STATE.mailplug.oauthConnected ? '재인증 요청' : '보안 OAuth 2.0 연결';
+            }
+            else if (provider === 'custom_imap') { imap && imap.classList.remove('hidden'); }
+
+            updateMailStatusBadge();
+        }
+
+        function updateMailStatusBadge() {
+            const badge = document.getElementById('mp-status-badge');
+            if (!badge) return;
+            if (STATE.mailplug.connected) {
+                badge.innerText = '연동 활성';
+                badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200/50";
+            } else {
+                badge.innerText = '연동 끊김';
+                badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50";
+            }
+        }
+
+        // --- OAuth 2.0 토큰 발급 시뮬레이션 ---
+        function handleOAuthSimulation() {
+            STATE.mailplug.oauthConnected = true;
+            toggleMailFields();
+            showToast('토큰 발급', '보안 인증 토큰이 정상 발급되었습니다. [연동 저장]을 눌러 완료하십시오.');
+        }
+
+        // --- 메일 연동 저장 / 해제 ---
+        function handleUnifiedMailConnect(save) {
+            if (!save) {
+                STATE.mailplug.connected = false;
+                STATE.mailplug.oauthConnected = false;
+                STATE.mailplug.emails = [];
+                updateMailStatusBadge(); renderMailInbox(); renderDashboardWidgets();
+                showToast('연동 해제', '메일 보안 터널 세션이 종료되었습니다.');
+                return;
+            }
+
+            const provider = STATE.mailplug.provider || (document.getElementById('mail-provider-select')?.value);
+            if (provider === 'mailplug') {
+                const domain = document.getElementById('mp-domain')?.value.trim();
+                if (!domain) { showToast('입력 필요', '메일플러그 회사 ID를 입력하십시오.'); return; }
+                STATE.mailplug.domain = domain;
+            } else if (provider === 'gmail' || provider === 'outlook') {
+                if (!STATE.mailplug.oauthConnected) { showToast('인증 필요', '먼저 OAuth 2.0 보안 연결을 완료하십시오.'); return; }
+            } else if (provider === 'custom_imap') {
+                const host = document.getElementById('imap-host')?.value.trim();
+                const email = document.getElementById('custom-email')?.value.trim();
+                if (!host || !email) { showToast('입력 필요', 'IMAP 서버 주소와 이메일 주소를 입력하십시오.'); return; }
+            }
+
+            STATE.mailplug.connected = true;
+            STATE.mailplug.emails = (STATE.mailplug.mockDB[provider] || []).map(m => ({ ...m }));
+            updateMailStatusBadge(); renderMailInbox(); renderDashboardWidgets();
+            showToast('연동 완료', '메일 서버와의 보안 동기화가 활성화되었습니다.');
+        }
+
+        // --- 수신 메일 동기화 (수동 새로고침) ---
+        function triggerApprovalSync() {
+            if (!STATE.mailplug.connected) { showToast('연동 필요', '먼저 메일 서버 연동을 완료하십시오.'); return; }
+            const provider = STATE.mailplug.provider;
+            const base = (STATE.mailplug.mockDB[provider] || []).map(m => ({ ...m }));
+            base.unshift({ id: Date.now(), sender: '동기화 엔진', subject: '[동기화] 신규 수신 메일 확인 완료', time: '방금 전', content: '수동 동기화 요청에 따라 사서함을 갱신했습니다.' });
+            STATE.mailplug.emails = base;
+            renderMailInbox(); renderDashboardWidgets();
+            showToast('동기화 완료', '최신 수신 메일을 불러왔습니다.');
+        }
+
+        // --- 수신 메일 원장 렌더링 ---
+        function renderMailInbox() {
+            const grid = document.getElementById('mailplug-inbox-grid');
+            if (!grid) return;
+            if (!STATE.mailplug.connected) {
+                grid.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-16">
+                    <i data-lucide="mail-x" class="w-9 h-9 mb-3 opacity-30"></i>
+                    <p class="text-xs font-medium">메일 서버가 연동되지 않았습니다.</p>
+                    <p class="text-[10px] mt-1">좌측 패널에서 연동을 완료하면 수신 메일이 표시됩니다.</p>
+                </div>`;
+                lucide.createIcons();
+                return;
+            }
+            grid.innerHTML = '';
+            STATE.mailplug.emails.forEach(m => {
+                const row = document.createElement('div');
+                row.className = "p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-all cursor-pointer";
+                row.onclick = () => showToast(m.subject, m.content);
+                row.innerHTML = `<div class="flex justify-between items-center text-[10px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-xs text-slate-800 truncate mt-0.5">${m.subject}</h5><p class="text-[11px] text-slate-500 truncate mt-0.5">${m.content}</p>`;
+                grid.appendChild(row);
+            });
         }
     </script>
 </body>
