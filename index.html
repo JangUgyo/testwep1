@@ -124,7 +124,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 mb-1">직급 (수행역할)</label>
-                        <select id="signup-position" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white">
+                        <select id="signup-position" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white font-medium text-slate-600">
                             <option value="대표이사">대표이사 (CEO)</option>
                             <option value="부서장">부서장 (Head of Dept)</option>
                             <option value="팀장">팀장 (Team Leader)</option>
@@ -226,7 +226,7 @@
         </div>
 
         <div class="p-3 border-t border-slate-200/60 bg-slate-50/50 space-y-2">
-            <button onclick="openModal('add-feature-modal')" class="w-full py-2 bg-slate-900 text-white hover:bg-blue-600 text-[11px] font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
+            <button onclick="openModal('add-feature-modal')" class="w-full py-2 bg-slate-950 hover:bg-blue-600 text-white text-[11px] font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                 <span>시스템 기능 추가</span>
             </button>
@@ -236,7 +236,7 @@
                     <div id="user-avatar" class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold shadow-inner">?</div>
                     <div class="overflow-hidden flex-1">
                         <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate font-mono">사용자 미설정</p>
-                        <p id="user-display-dept" class="text-[9px] text-slate-500 truncate">사원 등록 필요</p>
+                        <p id="user-display-dept" class="text-[9px] text-slate-500 truncate font-medium">사원 등록 필요</p>
                     </div>
                     <i data-lucide="cog" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors"></i>
                 </div>
@@ -380,7 +380,8 @@
                     <div id="gantt-chart-wrapper" class="overflow-x-auto min-w-full">
                         <div class="grid grid-cols-12 border-b pb-2 text-[10px] font-bold text-slate-400 text-center">
                             <div class="col-span-3 text-left pl-2">프로젝트 대상</div>
-                            <div class="col-span-9 grid grid-cols-30 gap-px text-[8px] font-mono select-none" id="gantt-header-days"></div>
+                            <!-- 가로형 30일 격자망 레이아웃 구조 정합화 -->
+                            <div class="col-span-9 grid gap-px text-[8px] font-mono select-none" id="gantt-header-days" style="grid-template-columns: repeat(30, minmax(0, 1fr));"></div>
                         </div>
                         <div id="gantt-rows-container" class="space-y-3 pt-2"></div>
                     </div>
@@ -934,7 +935,8 @@
         }
 
         function renderDeptOptions() {
-            const list = ['event-dept', 'doc-dept', 'profile-dept', 'project-dept', 'meeting-dept'];
+            // [수정] 회원가입 부서 목록 누락 해결을 위해 'signup-dept'를 리스트에 추가 기입했습니다.
+            const list = ['event-dept', 'doc-dept', 'profile-dept', 'project-dept', 'meeting-dept', 'signup-dept'];
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
             const docFilter = document.getElementById('doc-filter-dept');
@@ -1328,7 +1330,7 @@
             STATE.customFeatures.forEach(feat => {
                 const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item"; btn.onclick = () => launchCustomFeature(feat.id);
                 btn.innerHTML = `<i data-lucide="${feat.icon==='wrench'?'wrench':'rocket'}" class="w-4 h-4 text-blue-500"></i><span>${feat.name}</span>`;
-                container.appendChild(btn);
+                container.appendChild(btn); // [수정] feat 바인딩 오류를 제거하고 btn 노드를 정상 기입했습니다.
             });
             lucide.createIcons();
         }
@@ -1388,7 +1390,7 @@
         function openModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('hidden'); if(m) m.classList.add('flex'); }
         function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.add('hidden'); if(m) m.classList.remove('flex'); }
         
-        // --- 캘린더 날짜 가공용 헬퍼 유틸리티 등록 (수정: 누락된 addDays 및 formatDate 정상 복구 기입) ---
+        // --- 캘린더 날짜 가공용 헬퍼 유틸리티 등록 ---
         function addDays(date, days) {
             const result = new Date(date);
             result.setDate(result.getDate() + days);
