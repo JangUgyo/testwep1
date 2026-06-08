@@ -162,7 +162,7 @@
         <div class="flex-1 overflow-y-auto p-3 space-y-6">
             <div>
                 <p class="sidebar-group-title">기본 플랫폼 서비스</p>
-                <div class="space-y-1">
+                <div class="space-y-1" id="navgroup-platform">
                     <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active">
                         <i data-lucide="layout-grid" class="w-4.5 h-4.5"></i>
                         <span>종합 대시보드</span>
@@ -184,7 +184,7 @@
 
             <div>
                 <p class="sidebar-group-title">문서 / 보고서 분류</p>
-                <div class="space-y-1">
+                <div class="space-y-1" id="navgroup-docs">
                     <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item">
                         <i data-lucide="folder-closed" class="w-4.5 h-4.5"></i>
                         <span>통합 보고 허브</span>
@@ -202,7 +202,7 @@
 
             <div>
                 <p class="sidebar-group-title">그룹웨어 인프라</p>
-                <div class="space-y-1">
+                <div class="space-y-1" id="navgroup-groupware">
                     <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">
                         <i data-lucide="mail" class="w-4.5 h-4.5 text-blue-600"></i>
                         <span class="font-semibold text-slate-700">통합 메일 연동 센터</span>
@@ -215,7 +215,7 @@
                     <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
                     <span>시스템 관리자</span>
                 </p>
-                <div class="space-y-1">
+                <div class="space-y-1" id="navgroup-admin">
                     <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item">
                         <i data-lucide="shield-check" class="w-4.5 h-4.5 text-blue-600"></i>
                         <span class="font-semibold text-slate-800">조직 권한 제어 센터</span>
@@ -228,11 +228,7 @@
             </div>
 
             <div id="custom-features-group" class="hidden">
-                <p class="sidebar-group-title flex items-center gap-1">
-                    <i data-lucide="blocks" class="w-3 h-3 text-slate-400"></i>
-                    <span>확장 기능 모듈</span>
-                </p>
-                <div class="space-y-1" id="custom-menu-container"></div>
+                <div id="custom-menu-container" class="space-y-6"></div>
             </div>
         </div>
 
@@ -708,7 +704,7 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm h-[70vh] overflow-hidden p-2">
-                    <iframe id="custom-feature-iframe" class="w-full h-full rounded-xl border-0" sandbox="allow-scripts allow-popups allow-forms allow-modals" srcdoc=""></iframe>
+                    <iframe id="custom-feature-iframe" class="w-full h-full rounded-xl border-0" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads" srcdoc=""></iframe>
                 </div>
             </section>
         </div>
@@ -806,8 +802,13 @@
             </div>
             <form onsubmit="handleInstallFeature(event)" class="p-5 space-y-4 overflow-y-auto">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">새 탭(메뉴) 명칭</label>
-                    <input type="text" id="feature-name" required placeholder="예: 매출 대시보드, 사내 계산기" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:border-blue-400">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">메뉴 대분류(큰 틀) 선택 또는 생성</label>
+                    <select id="feature-group" onchange="toggleFeatureGroupNew()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white focus:border-blue-400"></select>
+                    <input type="text" id="feature-group-new" placeholder="새 대분류 이름 입력 (예: 경영 분석)" class="hidden w-full mt-2 px-3 py-2 border rounded-lg text-xs outline-none focus:border-blue-400">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">기능(탭) 명칭</label>
+                    <input type="text" id="feature-name" required placeholder="예: 정비 완료 보고서, 사내 계산기" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:border-blue-400">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-1.5">메뉴 표시 아이콘 선택</label>
@@ -1931,17 +1932,31 @@
             }
         }
 
-        // ── 동적 기능 임베딩 (DB 영구 저장 · 관리자 전용) ────────────────
+        // ── 동적 기능 임베딩 (DB 영구 저장 · 관리자 전용 · 그룹 배치) ──────
         const FEATURE_ICONS = ['rocket', 'wrench', 'bar-chart-3', 'line-chart', 'pie-chart', 'calculator', 'bot', 'database', 'globe', 'calendar-clock', 'clipboard-list', 'cpu', 'kanban', 'notebook-pen', 'megaphone', 'shield', 'wallet', 'package', 'map', 'sparkles', 'gauge', 'table', 'book-open', 'briefcase'];
+        const NATIVE_GROUPS = [
+            { title: '기본 플랫폼 서비스', container: 'navgroup-platform' },
+            { title: '문서 / 보고서 분류', container: 'navgroup-docs' },
+            { title: '그룹웨어 인프라', container: 'navgroup-groupware' },
+            { title: '시스템 관리자', container: 'navgroup-admin' }
+        ];
         function renderFeatureIconGrid() {
             const grid = document.getElementById('feature-icon-grid'); if (!grid) return;
             const cur = document.getElementById('feature-icon').value;
             grid.innerHTML = FEATURE_ICONS.map(ic => `<button type="button" onclick="selectFeatureIcon('${ic}')" data-icon="${ic}" class="feature-icon-opt h-9 rounded-lg border flex items-center justify-center transition-all ${ic === cur ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}"><i data-lucide="${ic}" class="w-4 h-4"></i></button>`).join('');
             if (window.lucide) lucide.createIcons();
         }
-        function selectFeatureIcon(ic) {
-            document.getElementById('feature-icon').value = ic;
-            renderFeatureIconGrid();
+        function selectFeatureIcon(ic) { document.getElementById('feature-icon').value = ic; renderFeatureIconGrid(); }
+        function renderFeatureGroupSelect() {
+            const sel = document.getElementById('feature-group'); if (!sel) return;
+            const titles = NATIVE_GROUPS.map(g => g.title);
+            (STATE.customFeatures || []).forEach(f => { if (f.group && !titles.includes(f.group)) titles.push(f.group); });
+            sel.innerHTML = titles.map(t => `<option value="${t}">${t}</option>`).join('') + `<option value="__new__">＋ 새 대분류 직접 생성</option>`;
+            toggleFeatureGroupNew();
+        }
+        function toggleFeatureGroupNew() {
+            const sel = document.getElementById('feature-group'), inp = document.getElementById('feature-group-new');
+            if (!sel || !inp) return; inp.classList.toggle('hidden', sel.value !== '__new__');
         }
         function handleFeatureFileSelection(e) {
             const f = e.target.files[0]; if (!f) return;
@@ -1952,46 +1967,92 @@
             if (STATE.profile.role !== 'admin') { showToast('권한 없음', '시스템 기능 추가는 관리자 전용입니다.'); return; }
             const name = document.getElementById('feature-name').value.trim();
             const icon = document.getElementById('feature-icon').value || 'rocket';
+            const sel = document.getElementById('feature-group');
+            let group = sel ? sel.value : '기본 플랫폼 서비스';
+            if (group === '__new__') { group = document.getElementById('feature-group-new').value.trim(); if (!group) { showToast('입력 필요', '새 대분류 이름을 입력하세요.'); return; } }
             const pasted = document.getElementById('feature-code').value.trim();
             const html = STATE.uploadedFeatureHtml || pasted;
-            if (!name) { showToast('입력 필요', '탭(메뉴) 명칭을 입력하세요.'); return; }
+            if (!name) { showToast('입력 필요', '기능(탭) 명칭을 입력하세요.'); return; }
             if (!html) { showToast('입력 필요', 'HTML 파일을 업로드하거나 코드를 붙여넣으세요.'); return; }
-            const feat = { id: 'custom_' + Date.now(), name, icon, html };
+            const feat = { id: 'custom_' + Date.now(), name, icon, group, html };
             const next = [...STATE.customFeatures, feat];
             const { error } = await sb.from('app_settings').upsert({ key: 'custom_features', value: next, updated_at: new Date().toISOString() });
             if (error) { showToast('배포 실패', error.message); return; }
             STATE.customFeatures = next;
-            renderCustomFeaturesMenu(); closeModal('add-feature-modal'); showToast('배포 완료', `[${name}] 탭이 생성되어 전 임직원에게 적용되었습니다.`);
+            renderCustomFeaturesMenu(); closeModal('add-feature-modal'); showToast('배포 완료', `[${group} › ${name}] 탭이 생성되어 전 임직원에게 적용되었습니다.`);
             document.getElementById('feature-name').value = ''; document.getElementById('feature-code').value = '';
-            STATE.uploadedFeatureHtml = null; const fs = document.getElementById('feature-file-status'); if (fs) fs.innerText = '클릭하여 .html 파일 업로드';
+            const gnew = document.getElementById('feature-group-new'); if (gnew) gnew.value = '';
+            STATE.uploadedFeatureHtml = null; const fst = document.getElementById('feature-file-status'); if (fst) fst.innerText = '클릭하여 .html 파일 업로드';
             launchCustomFeature(feat.id);
         }
+        function makeFeatureButton(feat) {
+            const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item custom-feat-btn"; btn.onclick = () => launchCustomFeature(feat.id);
+            btn.innerHTML = `<i data-lucide="${feat.icon || 'rocket'}" class="w-4 h-4 text-blue-500"></i><span class="font-medium text-slate-700">${feat.name}</span>`;
+            return btn;
+        }
         function renderCustomFeaturesMenu() {
-            const group = document.getElementById('custom-features-group'), container = document.getElementById('custom-menu-container');
-            if (!container) return;
-            if (!STATE.customFeatures || STATE.customFeatures.length === 0) { if (group) group.classList.add('hidden'); container.innerHTML = ''; return; }
-            if (group) group.classList.remove('hidden'); container.innerHTML = '';
-            STATE.customFeatures.forEach(feat => {
-                const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item"; btn.onclick = () => launchCustomFeature(feat.id);
-                btn.innerHTML = `<i data-lucide="${feat.icon || 'rocket'}" class="w-4 h-4 text-blue-500"></i><span class="font-medium text-slate-700">${feat.name}</span>`;
-                container.appendChild(btn);
+            document.querySelectorAll('.custom-feat-btn').forEach(b => b.remove());
+            const host = document.getElementById('custom-features-group');
+            const hostInner = document.getElementById('custom-menu-container');
+            if (host) host.classList.add('hidden');
+            if (hostInner) hostInner.innerHTML = '';
+            if (!STATE.customFeatures || STATE.customFeatures.length === 0) return;
+            const nativeByTitle = {}; NATIVE_GROUPS.forEach(g => nativeByTitle[g.title] = g.container);
+            const groups = {};
+            STATE.customFeatures.forEach(f => { const g = f.group || '확장 기능 모듈'; (groups[g] = groups[g] || []).push(f); });
+            let hasHostGroups = false;
+            Object.keys(groups).forEach(title => {
+                if (nativeByTitle[title]) {
+                    const cont = document.getElementById(nativeByTitle[title]); if (!cont) return;
+                    groups[title].forEach(f => cont.appendChild(makeFeatureButton(f)));
+                } else {
+                    hasHostGroups = true;
+                    const block = document.createElement('div');
+                    block.innerHTML = `<p class="sidebar-group-title flex items-center gap-1"><i data-lucide="blocks" class="w-3 h-3 text-slate-400"></i><span>${title}</span></p>`;
+                    const list = document.createElement('div'); list.className = 'space-y-1';
+                    groups[title].forEach(f => list.appendChild(makeFeatureButton(f)));
+                    block.appendChild(list); if (hostInner) hostInner.appendChild(block);
+                }
             });
+            if (host) host.classList.toggle('hidden', !hasHostGroups);
             if (window.lucide) lucide.createIcons();
         }
         function launchCustomFeature(id) {
-            const feat = STATE.customFeatures.find(f => f.id === id); if (!feat) { showToast('알림', '해당 기능을 찾을 수 없습니다.'); switchTab('dashboard'); return; }
+            const feat = STATE.customFeatures.find(f => f.id === id);
+            if (!feat) { showToast('알림', '해당 기능을 찾을 수 없습니다.'); switchTab('dashboard'); return; }
             STATE.currentTab = id; STATE.currentCustomId = id;
+            const isAdmin = STATE.profile.role === 'admin';
             document.getElementById('main-content-sections').classList.remove('hidden');
             document.getElementById('maintenance-overlay').classList.add('hidden');
             document.getElementById('access-denied-overlay').classList.add('hidden');
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            syncSidebarActiveState(id);
+            const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[id]);
+            const mb = document.getElementById('maintenance-btn-text'); if (mb) mb.innerText = STATE.maintenance[id] ? '점검 해제하기' : '현재 메뉴 점검 설정';
+            // 비관리자 점검 차단 (기존 탭과 동일)
+            if (!isAdmin && STATE.maintenance[id]) {
+                document.getElementById('main-content-sections').classList.add('hidden');
+                document.getElementById('maintenance-overlay').classList.remove('hidden');
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
             const customView = document.getElementById('view-custom-feature'); if (customView) customView.classList.remove('hidden');
             document.getElementById('view-title').innerText = feat.name;
-            document.getElementById('view-description').innerText = "관리자가 탑재한 확장 기능 모듈";
+            document.getElementById('view-description').innerText = `관리자가 탑재한 확장 기능 · ${feat.group || '확장 기능'}`;
             const head = document.getElementById('custom-feature-headline'); if (head) head.innerText = feat.name;
-            const iframe = document.getElementById('custom-feature-iframe'); if (iframe) iframe.srcdoc = feat.html;
-            const delBtn = document.getElementById('custom-feature-delete-btn'); if (delBtn) delBtn.classList.toggle('hidden', STATE.profile.role !== 'admin');
-            syncSidebarActiveState(id);
+            const iframe = document.getElementById('custom-feature-iframe');
+            if (iframe) {
+                try {
+                    if (STATE._featBlob) { URL.revokeObjectURL(STATE._featBlob); STATE._featBlob = null; }
+                    if (window.URL && URL.createObjectURL && typeof Blob !== 'undefined') {
+                        const blob = new Blob([feat.html], { type: 'text/html' });
+                        const u = URL.createObjectURL(blob); STATE._featBlob = u;
+                        iframe.removeAttribute('srcdoc'); iframe.src = u;
+                    } else { iframe.removeAttribute('src'); iframe.srcdoc = feat.html; }
+                } catch (err) { try { iframe.removeAttribute('src'); iframe.srcdoc = feat.html; } catch (e2) {} }
+            }
+            const delBtn = document.getElementById('custom-feature-delete-btn'); if (delBtn) delBtn.classList.toggle('hidden', !isAdmin);
+            if (window.lucide) lucide.createIcons();
         }
         async function removeCustomFeature() {
             if (STATE.profile.role !== 'admin') return;
@@ -2139,7 +2200,7 @@
             }
             if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
             if (id === 'add-project-modal') applyDeptLock('project-dept');
-            if (id === 'add-feature-modal') renderFeatureIconGrid();
+            if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
             const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
