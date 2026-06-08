@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
@@ -86,8 +88,8 @@
             <!-- 로그인 폼 세션 -->
             <form id="auth-login-form" onsubmit="handleUserLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">사원 아이디 (ID)</label>
-                    <input type="text" id="login-id" required placeholder="아이디를 입력하세요" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
+                    <input type="email" id="login-id" required placeholder="name@company.com" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호 (Password)</label>
@@ -99,10 +101,10 @@
 
                 <!-- 가이드라인 데크 수록 -->
                 <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 space-y-1">
-                    <p class="font-bold text-slate-500">💡 시뮬레이션용 승인 테스트 계정</p>
-                    <p>• 시스템 관리자: <span class="font-mono text-slate-600 font-semibold">admin</span> / 패스워드: <span class="font-mono text-slate-600 font-semibold">admin</span></p>
-                    <p>• 대표이사 계정: <span class="font-mono text-slate-600 font-semibold">ceo</span> / 패스워드: <span class="font-mono text-slate-600 font-semibold">ceo</span></p>
-                    <p class="mt-1">※ 회원가입 탭에서 신청 후, <span class="font-bold text-blue-600">admin</span> 계정으로 접속하여 가입자 승인 및 부서/직급에 상응하는 권한을 즉시 부여할 수 있습니다.</p>
+                    <p class="font-bold text-slate-500">💡 이용 안내</p>
+                    <p>• 처음 이용하시는 분은 <span class="font-bold text-blue-600">회원가입 신청</span> 탭에서 회사 이메일로 가입하세요.</p>
+                    <p>• 가입 신청은 시스템 관리자(어드민) 승인 후 로그인할 수 있습니다.</p>
+                    <p class="mt-1">※ 이 포탈에 <span class="font-bold text-slate-600">가장 먼저 가입하는 계정이 자동으로 시스템 관리자</span>가 됩니다. 동료에게 공유하기 전 먼저 가입하세요.</p>
                 </div>
             </form>
 
@@ -110,11 +112,11 @@
             <form id="auth-signup-form" onsubmit="handleUserSignup(event)" class="space-y-4 hidden">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">희망 아이디 (ID)</label>
-                        <input type="text" id="signup-id" required placeholder="ID 생성" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
+                        <input type="email" id="signup-id" required placeholder="name@company.com" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호</label>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호 (6자+)</label>
                         <input type="password" id="signup-password" required placeholder="Password" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                 </div>
@@ -551,7 +553,7 @@
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-slate-50 border-b border-slate-200">
                                 <tr>
-                                    <th class="p-3 font-bold text-slate-600">ID / 신청자명</th>
+                                    <th class="p-3 font-bold text-slate-600">이메일 / 신청자명</th>
                                     <th class="p-3 font-bold text-slate-600">희망 직급</th>
                                     <th class="p-3 font-bold text-slate-600">희망 소속</th>
                                     <th class="p-3 font-bold text-slate-600">인가 역할 지정</th>
@@ -579,7 +581,7 @@
                         <table class="w-full text-left border-collapse text-xs">
                             <thead class="bg-slate-50 border-b border-slate-200">
                                 <tr>
-                                    <th class="p-3.5 font-bold text-slate-600">사원 ID</th>
+                                    <th class="p-3.5 font-bold text-slate-600">이메일</th>
                                     <th class="p-3.5 font-bold text-slate-600">임직원명</th>
                                     <th class="p-3.5 font-bold text-slate-600">소속 부서</th>
                                     <th class="p-3.5 font-bold text-slate-600">인가 등급</th>
@@ -796,32 +798,16 @@
 
     <!-- 스크립트 실행 제어 본부 -->
     <script>
-        // --- 로컬 스토리지 DB 연동 엔진 (Vercel 배포 시 영구적 데이터 유지) ---
-        const DB = {
-            get: (key, fallback) => {
-                try {
-                    const data = localStorage.getItem('WP_DB_' + key);
-                    return data ? JSON.parse(data) : fallback;
-                } catch (e) {
-                    return fallback;
-                }
-            },
-            save: (key, val) => {
-                try {
-                    localStorage.setItem('WP_DB_' + key, JSON.stringify(val));
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-        };
+        // ════════════════════════════════════════════════════════════════
+        //  WorkSpace Pro — Supabase 연동 클라이언트
+        //  (publishable 키는 브라우저에 공개되어도 안전 — 데이터는 RLS로 보호)
+        // ════════════════════════════════════════════════════════════════
+        const SUPABASE_URL = 'https://doxbobwlgwcuocrfdtez.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_jITajlme_6lZvA-wHzXLZg__w0-ktoT';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 전역 날짜 유틸리티 함수 배치 (수정: 최상단 영역에 안전하게 영구 주입)
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
-        }
-
+        // 전역 날짜 유틸리티
+        function addDays(date, days) { const r = new Date(date); r.setDate(r.getDate() + days); return r; }
         function formatDate(date) {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -830,14 +816,10 @@
         }
 
         const STATE = {
-            profile: {
-                name: '최고관리자',
-                deptId: 'strategy',
-                role: 'admin'
-            },
+            profile: { name: '', deptId: 'strategy', role: 'none' },
+            currentUser: null,
             currentYear: 2026,
-            currentMonth: 6, 
-            currentUser: DB.get('currentUser', null), // 세션 정보 자동 유지
+            currentMonth: 6,
             departments: [
                 { id: 'ceo', name: '대표이사', color: 'border-slate-800 text-slate-900 bg-slate-100/70 hover:bg-slate-200/70', textTheme: 'text-slate-800 bg-slate-100 border-slate-400' },
                 { id: 'south_cs', name: '남부CS', color: 'border-blue-500 text-blue-700 bg-blue-50/85 hover:bg-blue-100/85', textTheme: 'text-blue-700 bg-blue-50 border-blue-200' },
@@ -847,68 +829,29 @@
                 { id: 'central_cs', name: '중부CS', color: 'border-cyan-500 text-cyan-700 bg-cyan-50/85 hover:bg-cyan-100/85', textTheme: 'text-cyan-700 bg-cyan-50 border-cyan-200' },
                 { id: 'sales', name: '영업팀', color: 'border-rose-500 text-rose-700 bg-rose-50/85 hover:bg-rose-100/85', textTheme: 'text-rose-700 bg-rose-50 border-rose-200' }
             ],
-            visibility: {
-                ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true
-            },
-            dashboardNotice: DB.get('dashboardNotice', {
-                title: "금일 주요 공지 및 부서 정보",
-                date: "2026.06.08",
-                content: "수소사업부 및 남부/중부CS 기술 지원 부서의 원활한 업무 연동을 위해 캘린더 필터링 기능을 적극 활용하시기 바랍니다. 각 보고서는 PDF, Excel 파일 형태로 업로드하여 안전하게 열람할 수 있습니다."
-            }),
-            events: DB.get('events', [
-                { id: 1, deptId: 'ceo', title: '경영 효율성 개선 보고 회의', startDate: '2026-06-03', endDate: '2026-06-05' },
-                { id: 2, deptId: 'rnd', title: '신재생 수소 에너지 변환 고도화 실험', startDate: '2026-06-04', endDate: '2026-06-04' },
-                { id: 3, deptId: 'hydrogen', title: '남부 실증 스테이션 기기 구축 실사', startDate: '2026-06-10', endDate: '2026-06-12' },
-                { id: 4, deptId: 'south_cs', title: '남부 연계 서비스 긴급 서버 장애 대응', startDate: '2026-06-15', endDate: '2026-06-15' },
-                { id: 5, deptId: 'strategy', title: '하반기 수소 에너지 융합 중장기 프로젝트 검토', startDate: '2026-06-22', endDate: '2026-06-26' }
-            ]),
-            projects: DB.get('projects', [
-                { id: 1, title: '남부CS 현장 가용설비 정합성 보완 조치', deptId: 'south_cs', progress: 85, status: 'ongoing', startDate: '2026-06-01', endDate: '2026-06-18', desc: '남부 CS 거점 모니터링 시스템 연계 장비 및 실시간 연동 드라이버 탑재 고도화' },
-                { id: 2, title: 'R&D 촉매 효율 정밀 설계 변경안 수립', deptId: 'rnd', progress: 32, status: 'ongoing', startDate: '2026-06-05', endDate: '2026-06-28', desc: '차세대 전력 변환 수소 촉매 실험 결과 및 도면 엔지니어링 리비전 배포' },
-                { id: 3, title: '미래전략실 중장기 비즈니스 로드맵 편정', deptId: 'strategy', progress: 100, status: 'completed', startDate: '2026-06-01', endDate: '2026-06-07', desc: '글로벌 수소 에너지 융합 예산 승인 획득 및 전사 이사회 보고 체계 완결' }
-            ]),
-            documents: DB.get('documents', [
-                { id: 1, title: "남부CS 6월 1주차 기술지원 실적 현황.pdf", deptId: "south_cs", author: "박대리", date: "2026-06-01", fileType: "pdf", fileSize: "1.2 MB", contentUrl: "" },
-                { id: 2, title: "미래전략기획실 수소산업 인프라 비즈니스 로드맵.xlsx", deptId: "strategy", author: "최수석", date: "2026-05-29", fileType: "xlsx", fileSize: "840 KB", contentUrl: "" }
-            ]),
-            weeklyMeetings: DB.get('weeklyMeetings', [
-                { id: 1, deptId: 'strategy', week: '6월 1주차', author: '이우진 실장', date: '2026-06-05', content: '사내 친환경 수소에너지 중장기 마일스톤 예산 가안 이사회 최종 승인 획득 완료.\n차주 R&D 연구 센터 및 남부 실사팀 공동 충전 스테이션 안전 규격 실사 협조 체계 준비 바랍니다.', image: '', fileName: '2026_전사_수소인프라_연구가안.pdf' },
-                { id: 2, deptId: 'south_cs', week: '6월 1주차', author: '박차장', date: '2026-06-04', content: '남부 CS 긴급 설비 정기 무결성 가동률 보완 원장 조치 완료.\n설비 점검 기계 가동률 99.4%로 정상 안정 궤도 진입 완료 및 특이 사항 보고 없음.', image: '', fileName: '' }
-            ]),
-            users: DB.get('users', [
-                { id: 'admin', name: '최고관리자', deptId: 'strategy', role: 'admin', position: '시스템 관리자', approved: true, password: 'admin' },
-                { id: 'ceo', name: '이우진', deptId: 'ceo', role: 'ceo', position: '대표이사', approved: true, password: 'ceo' },
-                { id: 'emp1', name: '김사원', deptId: 'south_cs', role: 'employee', position: '사원', approved: true, password: '123' },
-                { id: 'test_user', name: '박기획', deptId: 'strategy', role: 'none', position: '팀장', approved: false, password: '123' }
-            ]),
+            visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
+            dashboardNotice: { title: '공지', date: '', content: '' },
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [],
+            permissions: {},
             mailplug: {
-                connected: false,
-                provider: 'mailplug', 
-                domain: '',
-                apiKey: '',
-                oauthConnected: false,
-                emails: [
-                    { id: 1, sender: "김대표 (CEO)", subject: "6월 통합 경영 효율성 자문 일정 확정 통보", time: "10분 전", content: "대표이사 지시 사안으로 금주 금요일 전 부서 회의에 참석 바랍니다." },
-                    { id: 2, sender: "메일플러그 알림", subject: "[알림] 사내 결재대기 문서 연계 큐 정상 갱신", time: "1시간 전", content: "WorkSpace Pro 결재 라인 연동 검증이 완료되었습니다." },
-                    { id: 3, sender: "R&D 센터장", subject: "[수소] 신형 촉매 변환 시스템 실무 미팅 소집", time: "3시간 전", content: "R&D센터 회의실에서 오전 진행 예정이오니 참고하십시오." },
-                    { id: 4, sender: "남부CS 박대리", subject: "수정 실적 현황 엑셀 파일 송부의 건", time: "어제", content: "실적 보고서 최종 가공본 파일 업로드를 수행했습니다." }
-                ],
+                connected: false, provider: 'mailplug', domain: '', apiKey: '', oauthConnected: false,
+                emails: [],
                 mockDB: {
                     mailplug: [
-                        { id: 1, sender: "김대표 (CEO)", subject: "6월 통합 경영 효율성 자문 일정 확정 통보", time: "10분 전", content: "대표이사 지시 사안으로 금주 금요일 전 부서 회의에 참석 바랍니다." },
-                        { id: 2, sender: "메일플러그 알림", subject: "[알림] 사내 결재대기 문서 연계 큐 정상 갱신", time: "1시간 전", content: "WorkSpace Pro 결재 라인 연동 검증이 완료되었습니다." }
+                        { id: 1, sender: '김대표 (CEO)', subject: '6월 통합 경영 효율성 자문 일정 확정 통보', time: '10분 전', content: '대표이사 지시 사안으로 금주 금요일 전 부서 회의에 참석 바랍니다.' },
+                        { id: 2, sender: '메일플러그 알림', subject: '[알림] 사내 결재대기 문서 연계 큐 정상 갱신', time: '1시간 전', content: 'WorkSpace Pro 결재 라인 연동 검증이 완료되었습니다.' }
                     ],
                     gmail: [
-                        { id: 1, sender: "Google Account", subject: "보안 로그인 알림: WorkSpace Pro 연동 완료", time: "방금 전", content: "포탈에서 사용자 계정의 Gmail 조작 권한 수여를 감지했습니다." },
-                        { id: 2, sender: "외부 파트너사", subject: "[공유] 글로벌 친환경 수소 기술 동향 보고서", time: "2시간 전", content: "구글 드라이브를 통해 보고 자료 파일을 인계합니다." }
+                        { id: 1, sender: 'Google Account', subject: '보안 로그인 알림: WorkSpace Pro 연동 완료', time: '방금 전', content: '포탈에서 사용자 계정의 Gmail 조작 권한 수여를 감지했습니다.' },
+                        { id: 2, sender: '외부 파트너사', subject: '[공유] 글로벌 친환경 수소 기술 동향 보고서', time: '2시간 전', content: '구글 드라이브를 통해 보고 자료 파일을 인계합니다.' }
                     ],
                     outlook: [
-                        { id: 1, sender: "Microsoft Outlook", subject: "Microsoft Graph 엔드포인트 연동 알림", time: "5분 전", content: "사내 인트라넷을 통한 사서함 동기화 세션이 생성되었습니다." },
-                        { id: 2, sender: "중부CS 기술연구팀", subject: "[일정] 설비 정기 무결성 검증 피드백 송부", time: "3시간 전", content: "차세대 수소 개질기 안정성 등급 보고서를 첨부합니다." }
+                        { id: 1, sender: 'Microsoft Outlook', subject: 'Microsoft Graph 엔드포인트 연동 알림', time: '5분 전', content: '사내 인트라넷을 통한 사서함 동기화 세션이 생성되었습니다.' },
+                        { id: 2, sender: '중부CS 기술연구팀', subject: '[일정] 설비 정기 무결성 검증 피드백 송부', time: '3시간 전', content: '차세대 수소 개질기 안정성 등급 보고서를 첨부합니다.' }
                     ],
                     custom_imap: [
-                        { id: 1, sender: "POSTMASTER", subject: "보안 IMAP/SMTP 자체 사서함 보안 접속 통과", time: "1분 전", content: "SSL/TLS 암호화 레이어를 통하여 수발신이 원활히 동기화 중입니다." },
-                        { id: 2, sender: "보안 감사관", subject: "[경고] 허용되지 않은 이메일의 수발신 대량 발송 필터링 결과", time: "4시간 전", content: "시스템 보안 로그 원장을 참고하시어 사후 조치를 수행해 주십시오." }
+                        { id: 1, sender: 'POSTMASTER', subject: '보안 IMAP/SMTP 자체 사서함 보안 접속 통과', time: '1분 전', content: 'SSL/TLS 암호화 레이어를 통하여 수발신이 원활히 동기화 중입니다.' },
+                        { id: 2, sender: '보안 감사관', subject: '[경고] 허용되지 않은 이메일 대량 발송 필터링 결과', time: '4시간 전', content: '시스템 보안 로그 원장을 참고하시어 사후 조치를 수행해 주십시오.' }
                     ]
                 }
             },
@@ -918,148 +861,213 @@
             uploadedFeatureHtml: null,
             currentProgressSubView: 'board',
             maintenance: {
-                'dashboard': false,
-                'calendar': false,
-                'documents': false,
-                'documents-pending': false,
-                'documents-archive': false,
-                'mail-integration': false,
-                'management-progress': false,
-                'management-stats': false,
-                'management-logs': false,
-                'weekly-meeting': false
+                'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
+                'documents-archive': false, 'mail-integration': false, 'management-progress': false,
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false
             },
-            permissions: DB.get('permissions', {
-                'admin': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'ceo': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'south_cs': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'strategy': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'hydrogen': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'rnd': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'central_cs': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true },
-                'sales': { 'dashboard': true, 'calendar': true, 'management-progress': true, 'weekly-meeting': true, 'documents': true, 'documents-pending': true, 'documents-archive': true, 'mail-integration': true }
-            }),
-            meetingUploadedImg: '',
-            meetingUploadedFileName: ''
+            meetingUploadedImg: '', meetingUploadedFileName: ''
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initApp();
-        });
+        window.addEventListener('DOMContentLoaded', () => { initApp(); });
 
-        function initApp() {
+        async function initApp() {
             lucide.createIcons();
-            populateHeaderSelects(); 
+            populateHeaderSelects();
             renderFilters();
             renderDeptOptions();
             renderCalendar();
-            renderDocuments(); 
-            renderDashboardNotice();
-            renderDashboardWidgets(); 
             updateProfileUI();
+            try {
+                const { data: { session } } = await sb.auth.getSession();
+                if (session && session.user) { await onAuthed(session.user); }
+                else { showGateway(); }
+            } catch (e) { console.error(e); showGateway(); }
+            // 관리자 화면에 있을 때 신규 가입 신청을 주기적으로 자동 반영 (실시간 느낌)
+            setInterval(adminPoll, 15000);
+        }
 
-            // Vercel 재진입 시 자동 로그인 처리 복구 장치
-            if (STATE.currentUser) {
-                const gateway = document.getElementById('auth-gateway-overlay');
-                if (gateway) gateway.classList.add('hidden');
-                handleRoleSimulatedChange(STATE.currentUser.role);
+        // ── 인증(로그인/회원가입/세션) ───────────────────────────────────
+        function showGateway() { const g = document.getElementById('auth-gateway-overlay'); if (g) g.classList.remove('hidden'); }
+        function hideGateway() { const g = document.getElementById('auth-gateway-overlay'); if (g) g.classList.add('hidden'); }
+
+        async function fetchProfile(id) {
+            const { data, error } = await sb.from('profiles').select('*').eq('id', id).maybeSingle();
+            if (error) { console.error(error); return null; }
+            return data;
+        }
+
+        async function onAuthed(user) {
+            const prof = await fetchProfile(user.id);
+            if (!prof) { showToast('계정 확인 불가', '프로필 정보를 찾을 수 없습니다. 관리자에게 문의하세요.'); await sb.auth.signOut(); showGateway(); return; }
+            if (!prof.approved) { showToast('승인 대기', '시스템 관리자의 가입 승인 후 이용할 수 있습니다.'); await sb.auth.signOut(); showGateway(); return; }
+            STATE.currentUser = { id: user.id, email: user.email || prof.email || '', name: prof.name, deptId: prof.dept_id, role: prof.role, position: prof.position, approved: true };
+            STATE.profile = { name: prof.name, deptId: prof.dept_id, role: prof.role };
+            hideGateway();
+            refreshRoleScopedUI();
+            updateProfileUI();
+            await loadAllData();
+            switchTab('dashboard');
+            showToast('접속 승인', `${prof.name} 님 환영합니다.`);
+        }
+
+        async function handleUserLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-id').value.trim();
+            const pw = document.getElementById('login-password').value;
+            if (!email || !pw) { showToast('입력 필요', '이메일과 비밀번호를 입력하세요.'); return; }
+            const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+            if (error) { showToast('접속 거부', '이메일 또는 비밀번호가 올바르지 않습니다.'); return; }
+            await onAuthed(data.user);
+        }
+
+        async function handleUserSignup(e) {
+            e.preventDefault();
+            const email = document.getElementById('signup-id').value.trim();
+            const pw = document.getElementById('signup-password').value;
+            const name = document.getElementById('signup-name').value.trim();
+            const pos = document.getElementById('signup-position').value;
+            const dept = document.getElementById('signup-dept').value;
+            if (!email || !pw || !name) { showToast('입력 필요', '이메일/비밀번호/성명을 입력하세요.'); return; }
+            if (pw.length < 6) { showToast('비밀번호 길이', '비밀번호는 6자 이상이어야 합니다.'); return; }
+            const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { name, position: pos, dept_id: dept } } });
+            if (error) { showToast('가입 실패', error.message); return; }
+
+            let approved = false;
+            if (data && data.user) {
+                for (let i = 0; i < 4 && !approved; i++) {
+                    const prof = await fetchProfile(data.user.id);
+                    if (prof) { approved = prof.approved; break; }
+                    await new Promise(r => setTimeout(r, 400));
+                }
+            }
+            if (approved && data.session) {
+                showToast('가입 완료', '최초 가입자 — 시스템 관리자 계정으로 접속합니다.');
+                await onAuthed(data.user);
             } else {
-                handleRoleSimulatedChange(STATE.profile.role);
+                if (data && data.session) await sb.auth.signOut();
+                showToast('신청 완료', '가입 신청이 접수되었습니다. 관리자 승인 후 로그인하세요.');
+                document.getElementById('signup-id').value = '';
+                document.getElementById('signup-password').value = '';
+                document.getElementById('signup-name').value = '';
+                switchAuthTab('login');
             }
         }
 
-        // 역할에 따라 관리자 전용 UI(사이드바 그룹, 점검 제어 버튼)의 노출을 제어
+        async function handleUserLogout() {
+            await sb.auth.signOut();
+            STATE.currentUser = null;
+            STATE.profile = { name: '', deptId: 'strategy', role: 'none' };
+            showGateway();
+            showToast('로그아웃', '보안 접속 세션이 종료되었습니다.');
+        }
+
+        // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
+        async function loadAllData() {
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles()]);
+            renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
+        }
+        async function reloadEvents() {
+            const { data } = await sb.from('events').select('*').order('start_date', { ascending: true });
+            STATE.events = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, title: r.title, startDate: r.start_date, endDate: r.end_date }));
+            STATE.events.forEach(e => { if (STATE.visibility[e.deptId] === undefined) STATE.visibility[e.deptId] = true; });
+        }
+        async function reloadProjects() {
+            const { data } = await sb.from('projects').select('*').order('id', { ascending: false });
+            STATE.projects = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, progress: r.progress, status: r.status, startDate: r.start_date, endDate: r.end_date, desc: r.descr }));
+        }
+        async function reloadDocuments() {
+            const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
+            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size }));
+        }
+        async function reloadMeetings() {
+            const { data } = await sb.from('weekly_meetings').select('*').order('id', { ascending: false });
+            STATE.weeklyMeetings = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, week: r.week, author: r.author, date: r.meet_date, content: r.content, image: r.image, fileName: r.file_name }));
+        }
+        async function reloadSettings() {
+            const { data } = await sb.from('app_settings').select('*');
+            (data || []).forEach(row => {
+                if (row.key === 'dashboard_notice') STATE.dashboardNotice = row.value;
+                else if (row.key === 'permissions') STATE.permissions = row.value;
+            });
+        }
+        async function reloadProfiles() {
+            const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: true });
+            STATE.users = (data || []).map(r => ({ id: r.id, email: r.email || '', name: r.name, deptId: r.dept_id, role: r.role, position: r.position, approved: r.approved }));
+        }
+
+        async function adminPoll() {
+            if (STATE.profile.role === 'admin' && STATE.currentTab === 'management-stats' && STATE.currentUser) {
+                await reloadProfiles(); renderPendingUsers(); renderActiveUsers();
+            }
+        }
+
+        // ── 역할 기반 UI 노출 ────────────────────────────────────────────
         function refreshRoleScopedUI() {
             const isAdmin = STATE.profile.role === 'admin';
             const adminGroup = document.getElementById('sidebar-admin-group');
-            if (adminGroup) {
-                adminGroup.style.opacity = isAdmin ? '1' : '0.4';
-                adminGroup.style.pointerEvents = isAdmin ? 'auto' : 'none';
-            }
+            if (adminGroup) { adminGroup.style.opacity = isAdmin ? '1' : '0.4'; adminGroup.style.pointerEvents = isAdmin ? 'auto' : 'none'; }
             const maintCtrl = document.getElementById('admin-maintenance-control');
             if (maintCtrl) maintCtrl.classList.toggle('hidden', !isAdmin);
         }
 
-        // --- 공통 데이터 보존용 헬퍼 동기화기 ---
-        function syncDB(key) {
-            DB.save(key, STATE[key]);
-        }
-
-        function handleRoleSimulatedChange(newRole) {
-            STATE.profile.role = newRole;
-            const roleLabels = { 'admin': '시스템 관리자', 'ceo': '대표이사', 'head': '부서장', 'leader': '팀장', 'employee': '사원' };
-            const roleDepts = { 'admin': 'strategy', 'ceo': 'ceo', 'head': 'south_cs', 'leader': 'rnd', 'employee': 'sales' };
-            STATE.profile.name = roleLabels[newRole] + " 테스트";
-            STATE.profile.deptId = roleDepts[newRole] || 'strategy';
-            updateProfileUI();
-
-            refreshRoleScopedUI();
-            switchTab(STATE.currentTab);
-        }
-
         function toggleActiveTabMaintenance() {
-            if (STATE.profile.role !== 'admin') {
-                showToast('보안 오류', '점검 제어 권한은 최고 시스템 관리자에게만 부여되어 있습니다.');
-                return;
-            }
-            const currentTab = STATE.currentTab;
-            STATE.maintenance[currentTab] = !STATE.maintenance[currentTab];
-            showToast('공정 통제', `[${currentTab}] 탭 점검 상태가 변경되었습니다.`);
-            switchTab(currentTab);
+            if (STATE.profile.role !== 'admin') { showToast('보안 오류', '점검 제어 권한은 관리자 전용입니다.'); return; }
+            const t = STATE.currentTab;
+            STATE.maintenance[t] = !STATE.maintenance[t];
+            showToast('공정 통제', `[${t}] 점검 상태가 변경되었습니다.`);
+            switchTab(t);
         }
 
         function updateProfileUI() {
             const avatar = document.getElementById('user-avatar');
             const dName = document.getElementById('user-display-name');
             const dDept = document.getElementById('user-display-dept');
-            const activeUser = STATE.currentUser || STATE.users[1]; 
-
+            const u = STATE.currentUser;
             if (avatar) {
-                avatar.innerText = activeUser.name.substring(0, 2).toUpperCase();
-                avatar.className = "w-7 h-7 rounded-full bg-slate-950 flex items-center justify-center text-white text-[10px] font-bold shadow-sm";
+                avatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
+                avatar.className = u ? "w-7 h-7 rounded-full bg-slate-950 flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
+                                     : "w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-bold shadow-inner";
             }
-            if (dName) dName.innerText = activeUser.name + " (" + activeUser.position + ")";
-            const targetDept = STATE.departments.find(d => d.id === activeUser.deptId);
-            if (dDept) dDept.innerText = targetDept ? targetDept.name : '인프라 총무부';
-
+            if (dName) dName.innerText = u ? `${u.name} (${u.position})` : '사용자 미설정';
+            if (dDept) {
+                const dept = u ? STATE.departments.find(d => d.id === u.deptId) : null;
+                dDept.innerText = dept ? dept.name : (u ? '인프라 총무부' : '로그인 필요');
+            }
             const headerRoleBadge = document.getElementById('header-user-role-badge');
             if (headerRoleBadge) {
                 const roleLabels = { 'admin': '시스템 마스터 관리자', 'ceo': '대표이사 (CEO)', 'head': '본부 부서장', 'leader': '실무 팀장', 'employee': '일반 실무진' };
-                headerRoleBadge.innerText = roleLabels[activeUser.role] || '미인가 상태';
+                headerRoleBadge.innerText = u ? (roleLabels[u.role] || '미인가 상태') : '로그인 필요';
             }
         }
 
-        function handleSaveProfile(e) {
+        async function handleSaveProfile(e) {
             e.preventDefault();
-            const name = document.getElementById('profile-name').value;
+            if (!STATE.currentUser) return;
+            const name = document.getElementById('profile-name').value.trim();
             const deptId = document.getElementById('profile-dept').value;
-            if (STATE.currentUser) { STATE.currentUser.name = name; STATE.currentUser.deptId = deptId; syncDB('currentUser'); }
-            const userIdx = STATE.users.findIndex(u => u.id === (STATE.currentUser ? STATE.currentUser.id : ''));
-            if (userIdx !== -1) { STATE.users[userIdx].name = name; STATE.users[userIdx].deptId = deptId; syncDB('users'); }
-            updateProfileUI(); closeModal('profile-setting-modal'); showToast('인사 갱신 완료', '사원 정보가 저장되었습니다.');
+            const { error } = await sb.from('profiles').update({ name, dept_id: deptId }).eq('id', STATE.currentUser.id);
+            if (error) { showToast('저장 실패', error.message); return; }
+            STATE.currentUser.name = name; STATE.currentUser.deptId = deptId;
+            STATE.profile.name = name; STATE.profile.deptId = deptId;
+            updateProfileUI(); closeModal('profile-setting-modal'); showToast('정보 갱신', '사원 정보가 저장되었습니다.');
         }
 
+        // ── 필터 / 부서 옵션 / 헤더 셀렉트 ────────────────────────────────
         function renderFilters() {
-            const container = document.getElementById('dept-filter-container');
-            if (!container) return; container.innerHTML = '';
+            const container = document.getElementById('dept-filter-container'); if (!container) return; container.innerHTML = '';
             STATE.departments.forEach(dept => {
                 const div = document.createElement('div'); div.className = "flex items-center justify-between py-0.5";
-                div.innerHTML = `<label class="flex items-center gap-2 cursor-pointer w-full text-xs font-medium text-slate-600"><input type="checkbox" ${STATE.visibility[dept.id]?'checked':''} onchange="toggleVisibility('${dept.id}')" class="rounded border-slate-300 text-slate-900 focus:ring-slate-500"> <span>${dept.name}</span></label>`;
+                div.innerHTML = `<label class="flex items-center gap-2 cursor-pointer w-full text-xs font-medium text-slate-600"><input type="checkbox" ${STATE.visibility[dept.id] ? 'checked' : ''} onchange="toggleVisibility('${dept.id}')" class="rounded border-slate-300 text-slate-900 focus:ring-slate-500"> <span>${dept.name}</span></label>`;
                 container.appendChild(div);
             });
         }
-
         function renderDeptOptions() {
-            // 회원가입 부서 목록 누락 해결을 위해 'signup-dept'를 리스트에 추가 기입했습니다.
             const list = ['event-dept', 'doc-dept', 'profile-dept', 'project-dept', 'meeting-dept', 'signup-dept'];
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
-            const docFilter = document.getElementById('doc-filter-dept');
-            if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML;
-            const meetFilter = document.getElementById('meeting-filter-dept');
-            if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + optionsHTML;
+            const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML;
+            const meetFilter = document.getElementById('meeting-filter-dept'); if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + optionsHTML;
         }
-
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
         function populateHeaderSelects() {
             const ys = document.getElementById('cal-year-select'), ms = document.getElementById('cal-month-select');
@@ -1076,31 +1084,23 @@
             const ys = document.getElementById('cal-year-select'), ms = document.getElementById('cal-month-select');
             if (ys && ms) { STATE.currentYear = parseInt(ys.value); STATE.currentMonth = parseInt(ms.value); renderCalendar(); }
         }
-        function navigateMonth(offset) {
-            let d = new Date(STATE.currentYear, STATE.currentMonth - 1 + offset, 1);
-            STATE.currentYear = d.getFullYear(); STATE.currentMonth = d.getMonth() + 1; updateHeaderSelectsUI(); renderCalendar();
-        }
-        function navigateToday() {
-            const d = new Date(); STATE.currentYear = d.getFullYear(); STATE.currentMonth = d.getMonth() + 1; updateHeaderSelectsUI(); renderCalendar();
-        }
+        function navigateMonth(offset) { const d = new Date(STATE.currentYear, STATE.currentMonth - 1 + offset, 1); STATE.currentYear = d.getFullYear(); STATE.currentMonth = d.getMonth() + 1; updateHeaderSelectsUI(); renderCalendar(); }
+        function navigateToday() { const d = new Date(); STATE.currentYear = d.getFullYear(); STATE.currentMonth = d.getMonth() + 1; updateHeaderSelectsUI(); renderCalendar(); }
 
-        // --- 달력 일정 처리 코어 엔진 ---
+        function isToday(y, m, d) { const t = new Date(); return t.getFullYear() === y && (t.getMonth() + 1) === m && t.getDate() === d; }
+
+        // ── 달력 ─────────────────────────────────────────────────────────
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); if (!grid) return; grid.innerHTML = '';
             const y = STATE.currentYear, m = STATE.currentMonth;
             const firstOfMonth = new Date(y, m - 1, 1);
             const firstIdx = firstOfMonth.getDay();
             const gridStartDate = new Date(y, m - 1, 1 - firstIdx);
-
             for (let w = 0; w < 6; w++) {
                 const weekStartDate = addDays(gridStartDate, w * 7);
                 const dayDates = []; for (let i = 0; i < 7; i++) dayDates.push(formatDate(addDays(weekStartDate, i)));
                 const weekEvents = STATE.events.filter(e => STATE.visibility[e.deptId] && e.startDate <= dayDates[6] && e.endDate >= dayDates[0]);
-                weekEvents.sort((a, b) => {
-                    if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
-                    return (new Date(b.endDate)-new Date(b.startDate)) - (new Date(a.endDate)-new Date(a.startDate));
-                });
-
+                weekEvents.sort((a, b) => { if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); return (new Date(b.endDate) - new Date(b.startDate)) - (new Date(a.endDate) - new Date(a.startDate)); });
                 const tracks = []; const placements = [];
                 weekEvents.forEach(evt => {
                     let s = dayDates.indexOf(evt.startDate); if (s === -1) s = 0;
@@ -1113,37 +1113,31 @@
                     }
                     placements.push({ evt, s, e, t });
                 });
-
                 const weekDiv = document.createElement('div');
                 weekDiv.className = "relative flex-1 bg-white grid grid-cols-7 min-h-[120px] divide-x divide-slate-100/40";
                 weekDiv.style.gridAutoRows = "26px";
-
                 for (let c = 0; c < 7; c++) {
-                    const bg = document.createElement('div'); bg.className = `bg-white border-r border-slate-100/60 h-full ${c===6?'border-r-0':''}`;
-                    bg.style.gridColumn = `${c+1}`; bg.style.gridRow = "1 / 30"; weekDiv.appendChild(bg);
+                    const bg = document.createElement('div'); bg.className = `bg-white border-r border-slate-100/60 h-full ${c === 6 ? 'border-r-0' : ''}`;
+                    bg.style.gridColumn = `${c + 1}`; bg.style.gridRow = "1 / 30"; weekDiv.appendChild(bg);
                 }
-
                 dayDates.forEach((dStr, cIdx) => {
                     const dObj = new Date(dStr); const dayNum = dObj.getDate(); const isCurr = dObj.getMonth() + 1 === m;
                     const isTodayCell = isToday(dObj.getFullYear(), dObj.getMonth() + 1, dayNum);
                     const todayClass = isTodayCell ? 'bg-indigo-600 text-white px-1.5 py-0.5 rounded-full font-bold' : '';
                     const textClass = isCurr ? 'text-slate-700' : 'text-slate-200';
-
                     const hDiv = document.createElement('div'); hDiv.className = `flex justify-between items-center px-2 py-1 select-none z-10 ${textClass}`;
                     hDiv.style.gridColumn = `${cIdx + 1}`; hDiv.style.gridRow = "1";
                     hDiv.innerHTML = `<span class="${todayClass} text-[10px] font-semibold">${dayNum}</span><button onclick="quickAddEvent('${dStr}')" class="text-[9px] text-slate-300 hover:text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">등록</button>`;
                     weekDiv.appendChild(hDiv);
                 });
-
                 placements.forEach(({ evt, s, e, t }) => {
                     const dept = STATE.departments.find(d => d.id === evt.deptId);
                     const evEl = document.createElement('div');
                     const isCompleted = evt.endDate < formatDate(new Date());
                     const compClass = isCompleted ? 'line-through opacity-40' : '';
-
-                    evEl.className = `dept-tag ${dept?dept.color:'bg-slate-100 border-slate-300'} cursor-pointer text-left text-[11px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium ${compClass}`;
+                    evEl.className = `dept-tag ${dept ? dept.color : 'bg-slate-100 border-slate-300'} cursor-pointer text-left text-[11px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium ${compClass}`;
                     evEl.style.gridColumn = `${s + 1} / ${e + 2}`; evEl.style.gridRow = `${t + 2}`; evEl.style.margin = "2px 4px";
-                    evEl.innerHTML = `<span>${isCompleted?'✓ ':''}[${dept?dept.name:'공통'}]</span> ${evt.title}`;
+                    evEl.innerHTML = `<span>${isCompleted ? '✓ ' : ''}[${dept ? dept.name : '공통'}]</span> ${evt.title}`;
                     evEl.onclick = (el) => { el.stopPropagation(); editEvent(evt.id); };
                     weekDiv.appendChild(evEl);
                 });
@@ -1151,470 +1145,7 @@
             }
         }
 
-        // --- 공지사항 및 동적 보드 연동 제어계 ---
-        function renderDashboardNotice() {
-            const container = document.getElementById('dashboard-notice-card'); if (!container) return;
-            const canEdit = ['admin', 'ceo'].includes(STATE.profile.role);
-            container.innerHTML = `<div class="flex items-center justify-between"><h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-blue-500"></i> ${STATE.dashboardNotice.title}</h3><div class="flex items-center gap-3"><span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-md font-mono">${STATE.dashboardNotice.date}</span>${canEdit?`<button onclick="openEditNoticeModal()" class="text-[10px] text-blue-600 font-bold hover:underline">수정</button>`:''}</div></div><p class="text-xs text-slate-500 leading-relaxed">${STATE.dashboardNotice.content}</p>`;
-            lucide.createIcons();
-        }
-
-        // --- 문서 보관함 및 드래그 바인딩 가동 파트 ---
-        function renderDocuments(items = STATE.documents) {
-            const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
-            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
-            items.forEach(doc => {
-                const dept = STATE.departments.find(d => d.id === doc.deptId);
-                const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50/70 transition-all text-xs cursor-pointer";
-                tr.onclick = () => viewDocument(doc.id);
-                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${doc.title}</td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept?dept.textTheme:'bg-slate-100'}">${dept?dept.name:'공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author}</td><td class="p-3 text-slate-400 font-mono">${doc.date}</td><td class="p-3 text-right" onclick="event.stopPropagation()"><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function handleDocFileSelection(e) {
-            const f = e.target.files[0]; if (!f) return; STATE.uploadedDocFile = f;
-            const st = document.getElementById('doc-file-status'); if (st) { st.innerText = `선택됨 : ${f.name}`; st.classList.add('text-indigo-600'); }
-        }
-
-        function handleNewDocument(e) {
-            e.preventDefault();
-            const title = document.getElementById('doc-title').value, dept = document.getElementById('doc-dept').value, author = document.getElementById('doc-author').value || STATE.profile.name;
-            const newDoc = { id: Date.now(), title: STATE.uploadedDocFile ? STATE.uploadedDocFile.name : title, deptId: dept, author, date: formatDate(new Date()), fileType: 'docx', fileSize: '1.2 MB' };
-            STATE.documents.unshift(newDoc); syncDB('documents'); renderDocuments(); closeModal('add-doc-modal'); showToast('문서 등록', '사내 보고서 서류가 수임되었습니다.');
-        }
-
-        function viewDocument(id) {
-            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
-            alert(`[보고서 열람 통제]\n문서명: ${doc.title}\n작성자: ${doc.author}\n본 파일은 정적 시뮬레이션 환경에 안전하게 암호화 보관 중입니다.`);
-        }
-
-        function deleteDocument(id) { STATE.documents = STATE.documents.filter(d => d.id !== id); syncDB('documents'); renderDocuments(); showToast('기안 폐기', '해당 서류가 소거되었습니다.'); }
-
-        // --- 클로바인 방식 프로젝트 진척 모듈 및 직접 기입 팝업 시스템 ---
-        function switchProgressSubView(viewId) {
-            STATE.currentProgressSubView = viewId;
-            document.querySelectorAll('.progress-sub-tab').forEach(btn => btn.className = "progress-sub-tab text-xs font-semibold text-slate-400 pb-0.5");
-            const active = document.getElementById(`prog-subtab-${viewId}`); if (active) active.className = "progress-sub-tab text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 pb-0.5";
-            document.getElementById('project-subview-board').classList.add('hidden');
-            document.getElementById('project-subview-list').classList.add('hidden');
-            document.getElementById('project-subview-gantt').classList.add('hidden');
-            document.getElementById(`project-subview-${viewId}`).classList.remove('hidden');
-            renderProjects();
-        }
-
-        function renderProjects() {
-            const v = STATE.currentProgressSubView;
-            if (v === 'board') {
-                const p = document.getElementById('board-paused-list'), o = document.getElementById('board-ongoing-list'), c = document.getElementById('board-completed-list');
-                if (!p || !o || !c) return; p.innerHTML = ''; o.innerHTML = ''; c.innerHTML = '';
-                let pc = 0, oc = 0, cc = 0;
-                STATE.projects.forEach(proj => {
-                    const dept = STATE.departments.find(d => d.id === proj.deptId);
-                    const div = document.createElement('div'); div.className = "bg-white p-4 rounded-xl border space-y-3 shadow-sm hover:shadow-md transition-all";
-                    div.innerHTML = `<div class="flex justify-between items-center text-[10px] text-slate-400 font-medium"><span>[${dept?dept.name:'전사'}]</span><span>${proj.startDate} ~ ${proj.endDate}</span></div><h4 class="font-bold text-xs text-slate-800">${proj.title}</h4><div class="flex items-center justify-between pt-2 border-t text-[11px]"><span class="text-slate-400">공정률</span><button onclick="openDirectProgressModal(${proj.id})" class="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold rounded font-mono">${proj.progress}% ⚙️</button></div><div class="flex justify-between text-[10px] text-slate-400 pt-1"><button onclick="moveProjectStatus(${proj.id}, 'prev')" class="hover:text-indigo-600 font-bold">이전</button><button onclick="deleteProject(${proj.id})" class="hover:text-rose-500 font-bold">삭제</button><button onclick="moveProjectStatus(${proj.id}, 'next')" class="hover:text-indigo-600 font-bold">다음</button></div>`;
-                    if (proj.status === 'paused') { p.appendChild(div); pc++; }
-                    else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
-                    else if (proj.status === 'completed') { c.appendChild(div); cc++; }
-                });
-                document.getElementById('board-count-paused').innerText = pc;
-                document.getElementById('board-count-ongoing').innerText = oc;
-                document.getElementById('board-count-completed').innerText = cc;
-                lucide.createIcons();
-            } else if (v === 'list') {
-                const tbody = document.getElementById('project-list-table-body'); if (!tbody) return; tbody.innerHTML = '';
-                STATE.projects.forEach(proj => {
-                    const dept = STATE.departments.find(d => d.id === proj.deptId);
-                    const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
-                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept?dept.name:'전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate} ~ ${proj.endDate}</td><td class="p-3 font-bold"><button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono hover:underline">${proj.progress}% ⚙️</button></td><td class="p-3 text-right"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></td>`;
-                    tbody.appendChild(tr);
-                });
-            } else if (v === 'gantt') {
-                const header = document.getElementById('gantt-header-days'); if (header) { header.innerHTML = ''; for(let d=1; d<=30; d++) header.innerHTML += `<div class="flex items-center justify-center border-r border-slate-100 select-none">${d}</div>`; }
-                const container = document.getElementById('gantt-rows-container'); if (!container) return; container.innerHTML = '';
-                STATE.projects.forEach(proj => {
-                    const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center border-b border-slate-50 pb-2.5 last:border-0";
-                    const sDay = parseInt(proj.startDate.split('-')[2]) || 1, eDay = parseInt(proj.endDate.split('-')[2]) || 30;
-                    const dur = (eDay - sDay) + 1;
-                    const left = ((sDay - 1) / 30) * 100, width = (dur / 30) * 100;
-                    
-                    row.innerHTML = `<div class="col-span-3 font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="col-span-9 relative h-8 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden"><div onclick="openDirectProgressModal(${proj.id})" class="absolute top-1/2 -translate-y-1/2 h-5 bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-[9px] font-bold rounded-md px-2 flex items-center justify-between cursor-pointer transition-all shadow-sm" style="left: ${left}%; width: ${width}%;"><span class="truncate">${proj.progress}% (${dur}일간)</span><span class="text-[8px] opacity-75 hidden sm:inline">${proj.startDate.slice(5)}~${proj.endDate.slice(5)}</span></div></div>`;
-                    container.appendChild(row);
-                });
-            }
-        }
-
-        function openDirectProgressModal(id) {
-            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
-            document.getElementById('direct-progress-project-id').value = proj.id;
-            document.getElementById('direct-progress-title').innerText = `[${proj.title}] 공정 진행도 직접 보정`;
-            document.getElementById('direct-progress-value').value = proj.progress;
-            openModal('update-progress-modal');
-        }
-
-        function handleSaveDirectProgress(e) {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('direct-progress-project-id').value);
-            const val = parseInt(document.getElementById('direct-progress-value').value);
-            if (val < 0 || val > 100 || isNaN(val)) { showToast('오류', '0에서 100사이 수치만 인가 가능합니다.'); return; }
-            const proj = STATE.projects.find(p => p.id === id);
-            if (proj) {
-                proj.progress = val; proj.status = (val === 100) ? 'completed' : (val === 0 ? 'paused' : 'ongoing');
-                syncDB('projects'); closeModal('update-progress-modal'); showToast('공정 갱신', '진척 수치가 실시간 동기화되었습니다.'); renderProjects();
-            }
-        }
-
-        function handleNewProject(e) {
-            e.preventDefault();
-            const title = document.getElementById('project-title').value, dept = document.getElementById('project-dept').value, status = document.getElementById('project-status').value, s = document.getElementById('project-start').value, end = document.getElementById('project-end').value, desc = document.getElementById('project-desc').value;
-            STATE.projects.unshift({ id: Date.now(), title, deptId: dept, status, startDate: s, endDate: end, progress: 0, desc });
-            syncDB('projects'); renderProjects(); closeModal('add-project-modal'); showToast('기획 수립', '새 기획 마일스톤 프로젝트가 배포되었습니다.');
-        }
-
-        function deleteProject(id) { STATE.projects = STATE.projects.filter(p => p.id !== id); syncDB('projects'); renderProjects(); showToast('기획 철회', '해당 과제가 소거되었습니다.'); }
-
-        // --- 노션 스타일 주간 회의 일지 작성 및 비동기 업로드 원장 ---
-        function renderWeeklyMeetings() {
-            const container = document.getElementById('weekly-meetings-container'); if (!container) return; container.innerHTML = '';
-            const filterDept = document.getElementById('meeting-filter-dept').value;
-            const filtered = STATE.weeklyMeetings.filter(m => filterDept === 'all' || m.deptId === filterDept);
-
-            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-400 text-xs font-medium">검출 완료된 주간 회의 기록이 부재합니다.</div>`; return; }
-            filtered.forEach(meet => {
-                const dept = STATE.departments.find(d => d.id === meet.deptId);
-                const card = document.createElement('div'); card.className = "bg-white border rounded-2xl p-5 shadow-sm space-y-3 flex flex-col justify-between";
-                let img = meet.image ? `<img src="${meet.image}" class="w-full h-32 object-cover rounded-xl border mt-2">` : '';
-                let file = meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-xl text-[10px] font-bold text-slate-500 truncate mt-1">📎 첨부: ${meet.fileName}</div>` : '';
-
-                card.innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center text-[10px]"><span class="px-2 py-0.5 border rounded font-bold ${dept?dept.textTheme:'bg-slate-100'}">${dept?dept.name:'전사'}</span><span class="text-slate-400 font-mono">${meet.date}</span></div><h4 class="font-extrabold text-sm text-slate-800">${meet.week} 주간 실무 일지</h4><p class="text-[9px] text-slate-400">보고자: ${meet.author}</p><p class="text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border break-all whitespace-pre-line font-medium">${meet.content}</p>${img}${file}</div><div class="text-right pt-2 border-t border-slate-50"><button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button></div>`;
-                container.appendChild(card);
-            });
-            lucide.createIcons();
-        }
-
-        function handleMeetingImgSelection(e) {
-            const f = e.target.files[0]; if (!f) return;
-            const r = new FileReader(); r.onload = (evt) => { STATE.meetingUploadedImg = evt.target.result; document.getElementById('meeting-img-status').innerText = `사진 완료: ${f.name}`; }; r.readAsDataURL(f);
-        }
-        function handleMeetingFileSelection(e) {
-            const f = e.target.files[0]; if (!f) return; STATE.meetingUploadedFileName = f.name; document.getElementById('meeting-file-status').innerText = `문서 완료: ${f.name}`;
-        }
-        function handleNewMeeting(e) {
-            e.preventDefault();
-            const week = document.getElementById('meeting-week').value, dept = document.getElementById('meeting-dept').value, content = document.getElementById('meeting-content').value;
-            STATE.weeklyMeetings.unshift({ id: Date.now(), deptId: dept, week, author: STATE.profile.name, date: formatDate(new Date()), content, image: STATE.meetingUploadedImg, fileName: STATE.meetingUploadedFileName });
-            syncDB('weeklyMeetings'); renderWeeklyMeetings(); closeModal('add-meeting-modal'); showToast('일지 배포', '주간 업무 회의록이 원장에 기입 전파되었습니다.');
-            document.getElementById('meeting-content').value = ''; STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = '';
-            document.getElementById('meeting-img-status').innerText = '사진 파일 선택'; document.getElementById('meeting-file-status').innerText = '첨부파일 선택';
-        }
-        function deleteWeeklyMeeting(id) { STATE.weeklyMeetings = STATE.weeklyMeetings.filter(m => m.id !== id); syncDB('weeklyMeetings'); renderWeeklyMeetings(); showToast('기록 소거', '주간 회의록이 말소되었습니다.'); }
-
-        // --- 실시간 알림 위젯 및 동적 배포 체계 ---
-        function renderDashboardWidgets() {
-            const widget = document.getElementById('dashboard-mail-widget'); if (!widget) return; widget.innerHTML = '';
-            if (!STATE.mailplug.connected) {
-                widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[10px]">연동 허용</button></div>`;
-            } else {
-                STATE.mailplug.emails.slice(0,3).forEach(m => {
-                    widget.innerHTML += `<div class="py-2 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[10px] text-slate-400"><span>${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
-                });
-            }
-
-            const snap = document.getElementById('dashboard-schedule-snapshot'); if (!snap) return; snap.innerHTML = '';
-            const active = STATE.events.filter(e => STATE.visibility[e.deptId]).slice(0,3);
-            if (active.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">활성화된 부서 일정이 부재합니다.</div>`;
-            else { active.forEach(e => snap.innerHTML += `<div class="py-2 text-xs flex justify-between items-center"><span>• <strong>${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400">${e.startDate} ~ ${e.endDate}</span></div>`); }
-        }
-
-        // --- 권한 매트릭스 UI 생성기 ---
-        function renderPermissionMatrix() {
-            const tbody = document.getElementById('permission-matrix-body'); if (!tbody) return; tbody.innerHTML = '';
-            STATE.departments.forEach(dept => {
-                const tr = document.createElement('tr'); tr.className = "text-center text-xs hover:bg-slate-50/50";
-                const cState = (tab) => STATE.permissions[dept.id] && STATE.permissions[dept.id][tab] ? 'checked' : '';
-                tr.innerHTML = `<td class="p-3 font-bold text-slate-800 text-left">${dept.name}</td>
-                    <td><input type="checkbox" ${cState('dashboard')} onchange="togglePermission('${dept.id}','dashboard')"></td>
-                    <td><input type="checkbox" ${cState('calendar')} onchange="togglePermission('${dept.id}','calendar')"></td>
-                    <td><input type="checkbox" ${cState('management-progress')} onchange="togglePermission('${dept.id}','management-progress')"></td>
-                    <td><input type="checkbox" ${cState('documents')} onchange="togglePermission('${dept.id}','documents')"></td>
-                    <td><input type="checkbox" ${cState('mail-integration')} onchange="togglePermission('${dept.id}','mail-integration')"></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // --- 승인 대기 명부 및 회원 관리 ---
-        function renderPendingUsers() {
-            const tbody = document.getElementById('pending-users-list-body'); if (!tbody) return; tbody.innerHTML = '';
-            const pending = STATE.users.filter(u => !u.approved);
-            if (pending.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400 font-semibold">가입 승인 요청 대기 내역이 없습니다.</td></tr>`; return; }
-            pending.forEach(user => {
-                const dept = STATE.departments.find(d => d.id === user.deptId);
-                const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50";
-                tr.innerHTML = `<td class="p-3 font-bold">${user.id} (${user.name})</td><td class="p-3">${user.position}</td><td class="p-3 font-semibold">${dept?dept.name:'미지정'}</td><td class="p-3"><select id="assign-role-${user.id}" class="px-2 py-1 border rounded bg-white text-xs outline-none"><option value="ceo">대표이사 (CEO)</option><option value="head">부서장 (Head)</option><option value="leader">팀장 (Leader)</option><option value="employee" selected>사원 (Employee)</option><option value="admin">시스템 관리자 (Admin)</option></select></td><td class="p-3 text-right space-x-1"><button onclick="approveUser('${user.id}')" class="px-2 py-1 bg-blue-600 text-white rounded text-[10px] font-bold">승인</button><button onclick="rejectUser('${user.id}')" class="px-2 py-1 border border-slate-200 text-slate-400 rounded text-[10px]">반려</button></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function approveUser(id) {
-            const sel = document.getElementById(`assign-role-${id}`); const r = sel ? sel.value : 'employee';
-            const u = STATE.users.find(x => x.id === id); if (u) { u.approved = true; u.role = r; syncDB('users'); showToast('신원 확인', `${u.name} 임직원 가입 승인.`); renderPendingUsers(); renderActiveUsers(); }
-        }
-        function rejectUser(id) {
-            const u = STATE.users.find(x => x.id === id); if (u) { STATE.users = STATE.users.filter(x => x.id !== id); syncDB('users'); showToast('기각', '가입 신청 반려됨.'); renderPendingUsers(); }
-        }
-
-        // --- [신설] 사원 명부 목록 및 자격 영구 박탈 처리 제어판 ---
-        function renderActiveUsers() {
-            const tbody = document.getElementById('active-users-list-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            const approvedUsers = STATE.users.filter(u => u.approved);
-
-            approvedUsers.forEach(user => {
-                const dept = STATE.departments.find(d => d.id === user.deptId);
-                const tr = document.createElement('tr');
-                tr.className = "text-xs hover:bg-slate-50/50 transition-colors";
-
-                const isCurrentSelf = STATE.currentUser && STATE.currentUser.id === user.id;
-                const terminateBtn = isCurrentSelf ? 
-                    `<span class="text-[10px] text-slate-400 font-bold px-2 py-1 bg-slate-100 rounded-md">접속 세션</span>` : 
-                    `<button onclick="terminateUser('${user.id}')" class="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all shadow-sm">자격 해지</button>`;
-
-                tr.innerHTML = `
-                    <td class="p-3.5 font-bold text-slate-700">${user.id}</td>
-                    <td class="p-3.5 font-semibold">${user.name}</td>
-                    <td class="p-3.5">${dept ? dept.name : '인프라 관리국'}</td>
-                    <td class="p-3.5 font-mono text-[10px] font-bold text-indigo-600 uppercase">${user.role}</td>
-                    <td class="p-3.5 text-slate-500">${user.position}</td>
-                    <td class="p-3.5 text-right font-medium">${terminateBtn}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function terminateUser(id) {
-            const user = STATE.users.find(u => u.id === id);
-            const name = user ? user.name : '해당 사원';
-            if (!confirm(`[보안 통제] 임직원 [${name}]의 포탈 로그인 접속 자격을 영구 박탈 및 명부에서 제명하시겠습니까?`)) return;
-
-            STATE.users = STATE.users.filter(u => u.id !== id);
-            syncDB('users');
-            renderActiveUsers();
-            showToast('사원 자격 해지', `[${name}] 계정이 사내 원장에서 안전하게 탈퇴 및 영구 제명 조치되었습니다.`);
-        }
-
-        // --- [신설] 최고 관리자 비밀번호 변경 로직 ---
-        function handleUpdateAdminPassword(e) {
-            e.preventDefault();
-            const oldPw = document.getElementById('admin-old-pw').value;
-            const newPw = document.getElementById('admin-new-pw').value;
-            const confirmPw = document.getElementById('admin-new-pw-confirm').value;
-
-            // 마스터 관리자의 현재 계정 정보 획득
-            const adminUser = STATE.users.find(u => u.id === 'admin');
-            if (!adminUser) return;
-
-            if (adminUser.password !== oldPw) {
-                showToast('비밀번호 불일치', '입력하신 기존 마스터 비밀번호가 올바르지 않습니다.');
-                return;
-            }
-
-            if (newPw !== confirmPw) {
-                showToast('일치성 위배', '재입력한 신규 비밀번호가 서로 일치하지 않습니다.');
-                return;
-            }
-
-            if (newPw.length < 3) {
-                showToast('강도 부족', '보안을 위해 최소 3자 이상의 암호를 부여해 주십시오.');
-                return;
-            }
-
-            // 전역 세션 및 원장 동기화
-            adminUser.password = newPw;
-            if (STATE.currentUser && STATE.currentUser.id === 'admin') {
-                STATE.currentUser.password = newPw;
-                syncDB('currentUser');
-            }
-            syncDB('users');
-
-            showToast('비밀번호 변경 성료', '시스템 최고 관리자의 보안 마스터 패스워드가 성공적으로 갱신되었습니다.');
-            document.getElementById('admin-old-pw').value = '';
-            document.getElementById('admin-new-pw').value = '';
-            document.getElementById('admin-new-pw-confirm').value = '';
-        }
-
-        // --- 계통 가설망 인증 매커니즘 ---
-        function switchAuthTab(type) {
-            const loginBtn = document.getElementById('auth-tab-login');
-            const signupBtn = document.getElementById('auth-tab-signup');
-            const loginForm = document.getElementById('auth-login-form');
-            const signupForm = document.getElementById('auth-signup-form');
-
-            if (type === 'login') {
-                if (loginBtn) loginBtn.className = "flex-1 pb-1.5 text-center text-xs font-bold text-slate-800 border-b-2 border-slate-950 transition-all";
-                if (signupBtn) signupBtn.className = "flex-1 pb-1.5 text-center text-xs font-semibold text-slate-400 border-b-2 border-transparent transition-all";
-                if (loginForm) loginForm.classList.remove('hidden');
-                if (signupForm) signupForm.classList.add('hidden');
-            } else {
-                if (signupBtn) signupBtn.className = "flex-1 pb-1.5 text-center text-xs font-bold text-slate-800 border-b-2 border-slate-950 transition-all";
-                if (loginBtn) loginBtn.className = "flex-1 pb-1.5 text-center text-xs font-semibold text-slate-400 border-b-2 border-transparent transition-all";
-                if (signupForm) signupForm.classList.remove('hidden');
-                if (loginForm) loginForm.classList.add('hidden');
-            }
-        }
-
-        function handleUserLogin(e) {
-            e.preventDefault();
-            const idEl = document.getElementById('login-id'), pwEl = document.getElementById('login-password');
-            if (!idEl || !pwEl) return;
-            const id = idEl.value.trim(), pw = pwEl.value.trim();
-
-            const user = STATE.users.find(u => u.id === id && u.password === pw);
-            if (!user) { showToast('접속 거부', 'ID 또는 패스워드를 확인하십시오.'); return; }
-            if (!user.approved) { showToast('심사 대기', '시스템 관리자의 가입 허가 승인이 보류 중입니다.'); return; }
-
-            STATE.currentUser = user; syncDB('currentUser');
-            STATE.profile.name = user.name; STATE.profile.deptId = user.deptId; STATE.profile.role = user.role;
-
-            const sim = document.getElementById('role-simulator-select'); if (sim) sim.value = user.role;
-            const overlay = document.getElementById('auth-gateway-overlay'); if (overlay) overlay.classList.add('hidden');
-
-            showToast('터널 인가', `${user.name} 님 접속 승인.`);
-            refreshRoleScopedUI();
-            updateProfileUI(); switchTab('dashboard');
-        }
-
-        function handleUserSignup(e) {
-            e.preventDefault();
-            const idEl = document.getElementById('signup-id'), pwEl = document.getElementById('signup-password'), nameEl = document.getElementById('signup-name'), posEl = document.getElementById('signup-position'), deptEl = document.getElementById('signup-dept');
-            if (!idEl || !pwEl || !nameEl || !posEl || !deptEl) return;
-
-            const id = idEl.value.trim(), pw = pwEl.value.trim(), name = nameEl.value.trim(), pos = posEl.value, dept = deptEl.value;
-            if (STATE.users.some(u => u.id === id)) { showToast('중복 ID', '사용 불가능한 식별자입니다.'); return; }
-
-            STATE.users.push({ id, name, deptId: dept, role: 'none', position: pos, approved: false, password: pw });
-            syncDB('users'); showToast('신청 전송', '가입 승인 대기열에 등록되었습니다.');
-            idEl.value = ''; pwEl.value = ''; nameEl.value = ''; switchAuthTab('login');
-        }
-
-        function handleUserLogout() {
-            STATE.currentUser = null; syncDB('currentUser');
-            const overlay = document.getElementById('auth-gateway-overlay'); if (overlay) overlay.classList.remove('hidden');
-            showToast('인증 해제', '보안 접속 세션이 파기되었습니다.'); updateProfileUI();
-        }
-
-        // --- 시스템 동적 기능 임베딩 ---
-        function handleFeatureFileSelection(e) {
-            const f = e.target.files[0]; if (!f) return;
-            const r = new FileReader(); r.onload = (evt) => { STATE.uploadedFeatureHtml = evt.target.result; document.getElementById('feature-file-status').innerText = `로드 완료: ${f.name}`; }; r.readAsText(f);
-        }
-
-        function handleInstallFeature(e) {
-            e.preventDefault();
-            const nameEl = document.getElementById('feature-name'), iconEl = document.getElementById('feature-icon');
-            if (!STATE.uploadedFeatureHtml) { showToast('오류', '구동 코드가 누락되었습니다.'); return; }
-
-            STATE.customFeatures.push({ id: 'custom_' + Date.now(), name: nameEl.value, icon: iconEl.value, html: STATE.uploadedFeatureHtml });
-            renderCustomFeaturesMenu(); closeModal('add-feature-modal'); showToast('배포 완료', `신규 기능 [${nameEl.value}] 탑재.`);
-            nameEl.value = ''; STATE.uploadedFeatureHtml = null;
-        }
-
-        function renderCustomFeaturesMenu() {
-            const group = document.getElementById('custom-features-group'), container = document.getElementById('custom-menu-container');
-            if (!container) return; if (STATE.customFeatures.length === 0) { if (group) group.classList.add('hidden'); return; }
-            if (group) group.classList.remove('hidden'); container.innerHTML = '';
-            STATE.customFeatures.forEach(feat => {
-                const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item"; btn.onclick = () => launchCustomFeature(feat.id);
-                btn.innerHTML = `<i data-lucide="${feat.icon==='wrench'?'wrench':'rocket'}" class="w-4 h-4 text-blue-500"></i><span>${feat.name}</span>`;
-                container.appendChild(btn); // [수정] feat 바인딩 오류를 제거하고 btn 노드를 정상 기입했습니다.
-            });
-            lucide.createIcons();
-        }
-
-        function launchCustomFeature(id) {
-            const feat = STATE.customFeatures.find(f => f.id === id); if (!feat) return;
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            const customView = document.getElementById('view-custom-feature'); if (customView) customView.classList.remove('hidden');
-            document.getElementById('view-title').innerText = feat.name;
-            document.getElementById('view-description').innerText = "사용자 탑재 동적 독립 마이크로 애플리케이션";
-            const iframe = document.getElementById('custom-feature-iframe'); if (iframe) iframe.srcdoc = feat.html;
-            syncSidebarActiveState(id);
-        }
-
-        // --- 계계적 라우터 및 네비게이션 가드 인터셉터 ---
-        function switchTab(tabId) {
-            STATE.currentTab = tabId;
-            const role = STATE.profile.role; const isAdmin = (role === 'admin');
-            const adminOnly = ['management-stats', 'management-logs'];
-
-            document.getElementById('main-content-sections').classList.remove('hidden');
-            document.getElementById('maintenance-overlay').classList.add('hidden');
-            document.getElementById('access-denied-overlay').classList.add('hidden');
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-
-            if (!isAdmin) {
-                if (adminOnly.includes(tabId)) {
-                    document.getElementById('main-content-sections').classList.add('hidden');
-                    document.getElementById('access-denied-overlay').classList.remove('hidden');
-                    syncSidebarActiveState(tabId); return;
-                }
-                const dept = STATE.profile.deptId || 'strategy';
-                if (STATE.permissions[dept] && STATE.permissions[dept][tabId] === false) {
-                    document.getElementById('main-content-sections').classList.add('hidden');
-                    document.getElementById('access-denied-overlay').classList.remove('hidden');
-                    syncSidebarActiveState(tabId); return;
-                }
-                if (STATE.maintenance[tabId]) {
-                    document.getElementById('main-content-sections').classList.add('hidden');
-                    document.getElementById('maintenance-overlay').classList.remove('hidden');
-                    syncSidebarActiveState(tabId); return;
-                }
-            }
-
-            const target = document.getElementById(`view-${tabId}`); if (target) target.classList.remove('hidden');
-            syncSidebarActiveState(tabId);
-
-            const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
-            const maintBtnText = document.getElementById('maintenance-btn-text'); if (maintBtnText) maintBtnText.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
-
-            if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
-            else if (tabId === 'calendar') renderCalendar();
-            else if (tabId === 'documents') renderDocuments();
-            else if (tabId === 'management-progress') renderProjects();
-            else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
-            else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
-            else if (tabId === 'management-stats') { renderPermissionMatrix(); renderPendingUsers(); renderActiveUsers(); }
-        }
-
-        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
-        function openModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('hidden'); if(m) m.classList.add('flex'); }
-        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.add('hidden'); if(m) m.classList.remove('flex'); }
-
-        /* ════════════════════════════════════════════════════════════════════
-           [복구] UI에서 호출되지만 정의가 누락되어 오류를 유발하던 기능 일괄 구현
-           - showToast / isToday 누락은 페이지 초기화·모든 버튼 동작을 중단시킴
-           ════════════════════════════════════════════════════════════════════ */
-
-        // 오늘 날짜 판별 (renderCalendar가 시작 시 호출 — 누락 시 초기 렌더링 전체 중단)
-        function isToday(y, m, d) {
-            const t = new Date();
-            return t.getFullYear() === y && (t.getMonth() + 1) === m && t.getDate() === d;
-        }
-
-        // 토스트 알림 (로그인·저장·삭제·승인 등 거의 모든 동작이 의존)
-        function showToast(title, message) {
-            const container = document.getElementById('toast-container');
-            if (!container) { console.log(`[${title}] ${message}`); return; }
-            const el = document.createElement('div');
-            el.className = "pointer-events-auto bg-slate-900 text-white rounded-xl shadow-lg px-4 py-3 min-w-[240px] max-w-sm border border-slate-700/50 transition-all duration-300 opacity-0 translate-y-2";
-            el.innerHTML = `<p class="text-xs font-bold">${title}</p><p class="text-[11px] text-slate-300 mt-0.5 leading-snug">${message}</p>`;
-            container.appendChild(el);
-            requestAnimationFrame(() => { el.classList.remove('opacity-0', 'translate-y-2'); });
-            setTimeout(() => { el.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => el.remove(), 300); }, 3200);
-        }
-
-        // 캘린더 일정 등록 / 수정 / 삭제
+        // ── 캘린더 일정 등록/수정/삭제 ───────────────────────────────────
         function quickAddEvent(dateStr) {
             const d = dateStr || formatDate(new Date());
             const idEl = document.getElementById('event-id'); if (idEl) idEl.value = '';
@@ -1637,7 +1168,7 @@
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.remove('hidden');
             openModal('add-event-modal');
         }
-        function handleSaveEvent(e) {
+        async function handleSaveEvent(e) {
             e.preventDefault();
             const id = document.getElementById('event-id').value;
             const title = document.getElementById('event-title').value.trim();
@@ -1646,48 +1177,81 @@
             const endDate = document.getElementById('event-end').value;
             if (!title || !startDate || !endDate) { showToast('입력 오류', '제목과 기간을 모두 입력하십시오.'); return; }
             if (endDate < startDate) { showToast('기간 오류', '종료일은 시작일 이후여야 합니다.'); return; }
-            if (id) {
-                const evt = STATE.events.find(ev => ev.id === parseInt(id));
-                if (evt) { evt.title = title; evt.deptId = deptId; evt.startDate = startDate; evt.endDate = endDate; }
-                showToast('일정 수정', '일정 정보가 갱신되었습니다.');
-            } else {
-                STATE.events.push({ id: Date.now(), deptId, title, startDate, endDate });
-                showToast('일정 등록', '새 일정이 캘린더에 반영되었습니다.');
-            }
+            let error;
+            if (id) { ({ error } = await sb.from('events').update({ title, dept_id: deptId, start_date: startDate, end_date: endDate }).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('events').insert({ title, dept_id: deptId, start_date: startDate, end_date: endDate })); }
+            if (error) { showToast('저장 실패', error.message); return; }
             STATE.visibility[deptId] = true;
-            syncDB('events'); renderFilters(); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
+            await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
+            showToast(id ? '일정 수정' : '일정 등록', id ? '일정 정보가 갱신되었습니다.' : '새 일정이 캘린더에 반영되었습니다.');
         }
-        function deleteEventFromModal() {
+        async function deleteEventFromModal() {
             const id = parseInt(document.getElementById('event-id').value); if (!id) return;
-            STATE.events = STATE.events.filter(e => e.id !== id);
-            syncDB('events'); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
-            showToast('일정 삭제', '선택한 일정이 제거되었습니다.');
+            const { error } = await sb.from('events').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadEvents(); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal'); showToast('일정 삭제', '선택한 일정이 제거되었습니다.');
         }
 
-        // 칸반 보드 프로젝트 상태 이동 (이전/다음)
-        function moveProjectStatus(id, dir) {
-            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
-            const order = ['paused', 'ongoing', 'completed'];
-            let idx = order.indexOf(proj.status); if (idx === -1) idx = 0;
-            idx = dir === 'next' ? Math.min(idx + 1, 2) : Math.max(idx - 1, 0);
-            proj.status = order[idx];
-            if (proj.status === 'completed') proj.progress = 100;
-            else if (proj.status === 'paused') proj.progress = 0;
-            else if (proj.progress === 0 || proj.progress === 100) proj.progress = 50;
-            syncDB('projects'); renderProjects();
+        // ── 공지 ─────────────────────────────────────────────────────────
+        function renderDashboardNotice() {
+            const container = document.getElementById('dashboard-notice-card'); if (!container) return;
+            const canEdit = STATE.profile.role === 'admin';
+            const n = STATE.dashboardNotice || { title: '', date: '', content: '' };
+            container.innerHTML = `<div class="flex items-center justify-between"><h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-blue-500"></i> ${n.title || ''}</h3><div class="flex items-center gap-3"><span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-md font-mono">${n.date || ''}</span>${canEdit ? `<button onclick="openEditNoticeModal()" class="text-[10px] text-blue-600 font-bold hover:underline">수정</button>` : ''}</div></div><p class="text-xs text-slate-500 leading-relaxed">${n.content || ''}</p>`;
+            lucide.createIcons();
+        }
+        function openEditNoticeModal() {
+            const n = STATE.dashboardNotice || {};
+            document.getElementById('notice-title').value = n.title || '';
+            document.getElementById('notice-date').value = n.date || '';
+            document.getElementById('notice-content').value = n.content || '';
+            openModal('edit-notice-modal');
+        }
+        async function handleSaveNotice(e) {
+            e.preventDefault();
+            const v = { title: document.getElementById('notice-title').value.trim(), date: document.getElementById('notice-date').value.trim(), content: document.getElementById('notice-content').value.trim() };
+            const { error } = await sb.from('app_settings').upsert({ key: 'dashboard_notice', value: v, updated_at: new Date().toISOString() });
+            if (error) { showToast('저장 실패', '공지는 관리자만 수정할 수 있습니다.'); return; }
+            STATE.dashboardNotice = v; renderDashboardNotice(); closeModal('edit-notice-modal'); showToast('공지 갱신', '대시보드 공지가 업데이트되었습니다.');
         }
 
-        // RBAC 권한 매트릭스 체크박스 토글
-        function togglePermission(deptId, tab) {
-            if (!STATE.permissions[deptId]) STATE.permissions[deptId] = {};
-            STATE.permissions[deptId][tab] = !STATE.permissions[deptId][tab];
-            syncDB('permissions');
-            const dept = STATE.departments.find(d => d.id === deptId);
-            const state = STATE.permissions[deptId][tab] ? '허용' : '차단';
-            showToast('권한 갱신', `[${dept ? dept.name : deptId}] 권한이 ${state} 처리되었습니다.`);
+        // ── 문서 허브 ────────────────────────────────────────────────────
+        function renderDocuments(items = STATE.documents) {
+            const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
+            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
+            items.forEach(doc => {
+                const dept = STATE.departments.find(d => d.id === doc.deptId);
+                const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50/70 transition-all text-xs cursor-pointer";
+                tr.onclick = () => viewDocument(doc.id);
+                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${doc.title}</td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author}</td><td class="p-3 text-slate-400 font-mono">${doc.date}</td><td class="p-3 text-right" onclick="event.stopPropagation()"><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
+                tbody.appendChild(tr);
+            });
         }
-
-        // 통합 보고 허브 검색 / 부서 필터
+        function handleDocFileSelection(e) {
+            const f = e.target.files[0]; if (!f) return; STATE.uploadedDocFile = f;
+            const st = document.getElementById('doc-file-status'); if (st) { st.innerText = `선택됨 : ${f.name}`; st.classList.add('text-indigo-600'); }
+        }
+        async function handleNewDocument(e) {
+            e.preventDefault();
+            const title = document.getElementById('doc-title').value.trim();
+            const dept = document.getElementById('doc-dept').value;
+            const author = document.getElementById('doc-author').value.trim() || STATE.profile.name;
+            const finalTitle = STATE.uploadedDocFile ? STATE.uploadedDocFile.name : title;
+            const { error } = await sb.from('documents').insert({ title: finalTitle, dept_id: dept, author, doc_date: formatDate(new Date()), file_type: 'docx', file_size: '1.2 MB' });
+            if (error) { showToast('등록 실패', error.message); return; }
+            STATE.uploadedDocFile = null;
+            await reloadDocuments(); renderDocuments(); closeModal('add-doc-modal'); showToast('문서 등록', '사내 보고서가 수임되었습니다.');
+            const st = document.getElementById('doc-file-status'); if (st) st.innerText = '클릭하여 보고서 업로드';
+        }
+        function viewDocument(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            alert(`[보고서 열람 통제]\n문서명: ${doc.title}\n작성자: ${doc.author}\n본 파일은 정적 시뮬레이션 환경에 안전하게 보관 중입니다.`);
+        }
+        async function deleteDocument(id) {
+            const { error } = await sb.from('documents').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadDocuments(); renderDocuments(); showToast('기안 폐기', '해당 서류가 소거되었습니다.');
+        }
         function filterDocs() {
             const q = (document.getElementById('doc-search') ? document.getElementById('doc-search').value : '').toLowerCase().trim();
             const dept = document.getElementById('doc-filter-dept') ? document.getElementById('doc-filter-dept').value : 'all';
@@ -1699,25 +1263,299 @@
             renderDocuments(filtered);
         }
 
-        // 대시보드 공지 수정 모달 열기 / 저장
-        function openEditNoticeModal() {
-            document.getElementById('notice-title').value = STATE.dashboardNotice.title;
-            document.getElementById('notice-date').value = STATE.dashboardNotice.date;
-            document.getElementById('notice-content').value = STATE.dashboardNotice.content;
-            openModal('edit-notice-modal');
+        // ── 프로젝트 진척 ────────────────────────────────────────────────
+        function switchProgressSubView(viewId) {
+            STATE.currentProgressSubView = viewId;
+            document.querySelectorAll('.progress-sub-tab').forEach(btn => btn.className = "progress-sub-tab text-xs font-semibold text-slate-400 pb-0.5");
+            const active = document.getElementById(`prog-subtab-${viewId}`); if (active) active.className = "progress-sub-tab text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 pb-0.5";
+            document.getElementById('project-subview-board').classList.add('hidden');
+            document.getElementById('project-subview-list').classList.add('hidden');
+            document.getElementById('project-subview-gantt').classList.add('hidden');
+            document.getElementById(`project-subview-${viewId}`).classList.remove('hidden');
+            renderProjects();
         }
-        function handleSaveNotice(e) {
+        function renderProjects() {
+            const v = STATE.currentProgressSubView;
+            if (v === 'board') {
+                const p = document.getElementById('board-paused-list'), o = document.getElementById('board-ongoing-list'), c = document.getElementById('board-completed-list');
+                if (!p || !o || !c) return; p.innerHTML = ''; o.innerHTML = ''; c.innerHTML = '';
+                let pc = 0, oc = 0, cc = 0;
+                STATE.projects.forEach(proj => {
+                    const dept = STATE.departments.find(d => d.id === proj.deptId);
+                    const div = document.createElement('div'); div.className = "bg-white p-4 rounded-xl border space-y-3 shadow-sm hover:shadow-md transition-all";
+                    div.innerHTML = `<div class="flex justify-between items-center text-[10px] text-slate-400 font-medium"><span>[${dept ? dept.name : '전사'}]</span><span>${proj.startDate} ~ ${proj.endDate}</span></div><h4 class="font-bold text-xs text-slate-800">${proj.title}</h4><div class="flex items-center justify-between pt-2 border-t text-[11px]"><span class="text-slate-400">공정률</span><button onclick="openDirectProgressModal(${proj.id})" class="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold rounded font-mono">${proj.progress}% ⚙️</button></div><div class="flex justify-between text-[10px] text-slate-400 pt-1"><button onclick="moveProjectStatus(${proj.id}, 'prev')" class="hover:text-indigo-600 font-bold">이전</button><button onclick="deleteProject(${proj.id})" class="hover:text-rose-500 font-bold">삭제</button><button onclick="moveProjectStatus(${proj.id}, 'next')" class="hover:text-indigo-600 font-bold">다음</button></div>`;
+                    if (proj.status === 'paused') { p.appendChild(div); pc++; }
+                    else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
+                    else if (proj.status === 'completed') { c.appendChild(div); cc++; }
+                });
+                document.getElementById('board-count-paused').innerText = pc;
+                document.getElementById('board-count-ongoing').innerText = oc;
+                document.getElementById('board-count-completed').innerText = cc;
+                lucide.createIcons();
+            } else if (v === 'list') {
+                const tbody = document.getElementById('project-list-table-body'); if (!tbody) return; tbody.innerHTML = '';
+                STATE.projects.forEach(proj => {
+                    const dept = STATE.departments.find(d => d.id === proj.deptId);
+                    const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
+                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate} ~ ${proj.endDate}</td><td class="p-3 font-bold"><button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono hover:underline">${proj.progress}% ⚙️</button></td><td class="p-3 text-right"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></td>`;
+                    tbody.appendChild(tr);
+                });
+            } else if (v === 'gantt') {
+                const header = document.getElementById('gantt-header-days'); if (header) { header.innerHTML = ''; for (let d = 1; d <= 30; d++) header.innerHTML += `<div class="flex items-center justify-center border-r border-slate-100 select-none">${d}</div>`; }
+                const container = document.getElementById('gantt-rows-container'); if (!container) return; container.innerHTML = '';
+                STATE.projects.forEach(proj => {
+                    const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center border-b border-slate-50 pb-2.5 last:border-0";
+                    const sDay = parseInt((proj.startDate || '2026-06-01').split('-')[2]) || 1, eDay = parseInt((proj.endDate || '2026-06-30').split('-')[2]) || 30;
+                    const dur = (eDay - sDay) + 1;
+                    const left = ((sDay - 1) / 30) * 100, width = (dur / 30) * 100;
+                    row.innerHTML = `<div class="col-span-3 font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="col-span-9 relative h-8 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden"><div onclick="openDirectProgressModal(${proj.id})" class="absolute top-1/2 -translate-y-1/2 h-5 bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-[9px] font-bold rounded-md px-2 flex items-center justify-between cursor-pointer transition-all shadow-sm" style="left: ${left}%; width: ${width}%;"><span class="truncate">${proj.progress}% (${dur}일간)</span></div></div>`;
+                    container.appendChild(row);
+                });
+            }
+        }
+        function openDirectProgressModal(id) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            document.getElementById('direct-progress-project-id').value = proj.id;
+            document.getElementById('direct-progress-title').innerText = `[${proj.title}] 공정 진행도 직접 보정`;
+            document.getElementById('direct-progress-value').value = proj.progress;
+            openModal('update-progress-modal');
+        }
+        async function handleSaveDirectProgress(e) {
             e.preventDefault();
-            STATE.dashboardNotice = {
-                title: document.getElementById('notice-title').value.trim(),
-                date: document.getElementById('notice-date').value.trim(),
-                content: document.getElementById('notice-content').value.trim()
-            };
-            syncDB('dashboardNotice'); renderDashboardNotice(); closeModal('edit-notice-modal');
-            showToast('공지 갱신', '대시보드 공지가 업데이트되었습니다.');
+            const id = parseInt(document.getElementById('direct-progress-project-id').value);
+            const val = parseInt(document.getElementById('direct-progress-value').value);
+            if (isNaN(val) || val < 0 || val > 100) { showToast('오류', '0에서 100사이 수치만 인가 가능합니다.'); return; }
+            const status = (val === 100) ? 'completed' : (val === 0 ? 'paused' : 'ongoing');
+            const { error } = await sb.from('projects').update({ progress: val, status }).eq('id', id);
+            if (error) { showToast('갱신 실패', error.message); return; }
+            await reloadProjects(); closeModal('update-progress-modal'); renderProjects(); showToast('공정 갱신', '진척 수치가 동기화되었습니다.');
+        }
+        async function handleNewProject(e) {
+            e.preventDefault();
+            const title = document.getElementById('project-title').value.trim();
+            const dept = document.getElementById('project-dept').value;
+            const status = document.getElementById('project-status').value;
+            const s = document.getElementById('project-start').value || null;
+            const end = document.getElementById('project-end').value || null;
+            const desc = document.getElementById('project-desc').value;
+            const { error } = await sb.from('projects').insert({ title, dept_id: dept, status, start_date: s, end_date: end, progress: 0, descr: desc });
+            if (error) { showToast('등록 실패', error.message); return; }
+            await reloadProjects(); renderProjects(); closeModal('add-project-modal'); showToast('기획 수립', '새 프로젝트가 배포되었습니다.');
+        }
+        async function deleteProject(id) {
+            const { error } = await sb.from('projects').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadProjects(); renderProjects(); showToast('기획 철회', '해당 과제가 소거되었습니다.');
+        }
+        async function moveProjectStatus(id, dir) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            const order = ['paused', 'ongoing', 'completed'];
+            let idx = order.indexOf(proj.status); if (idx === -1) idx = 0;
+            idx = dir === 'next' ? Math.min(idx + 1, 2) : Math.max(idx - 1, 0);
+            const status = order[idx]; let progress = proj.progress;
+            if (status === 'completed') progress = 100; else if (status === 'paused') progress = 0; else if (progress === 0 || progress === 100) progress = 50;
+            const { error } = await sb.from('projects').update({ status, progress }).eq('id', id);
+            if (error) { showToast('이동 실패', error.message); return; }
+            await reloadProjects(); renderProjects();
         }
 
-        // 메일 연동 센터 — 제공자별 입력 패널 전환
+        // ── 주간 회의 일지 ───────────────────────────────────────────────
+        function renderWeeklyMeetings() {
+            const container = document.getElementById('weekly-meetings-container'); if (!container) return; container.innerHTML = '';
+            const filterDept = document.getElementById('meeting-filter-dept').value;
+            const filtered = STATE.weeklyMeetings.filter(m => filterDept === 'all' || m.deptId === filterDept);
+            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-3 py-16 text-center text-slate-400 text-xs font-medium">등록된 주간 회의 기록이 없습니다.</div>`; return; }
+            filtered.forEach(meet => {
+                const dept = STATE.departments.find(d => d.id === meet.deptId);
+                const card = document.createElement('div'); card.className = "bg-white border rounded-2xl p-5 shadow-sm space-y-3 flex flex-col justify-between";
+                let img = meet.image ? `<img src="${meet.image}" class="w-full h-32 object-cover rounded-xl border mt-2">` : '';
+                let file = meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-xl text-[10px] font-bold text-slate-500 truncate mt-1">📎 첨부: ${meet.fileName}</div>` : '';
+                card.innerHTML = `<div class="space-y-2"><div class="flex justify-between items-center text-[10px]"><span class="px-2 py-0.5 border rounded font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span><span class="text-slate-400 font-mono">${meet.date}</span></div><h4 class="font-extrabold text-sm text-slate-800">${meet.week} 주간 실무 일지</h4><p class="text-[9px] text-slate-400">보고자: ${meet.author}</p><p class="text-xs text-slate-600 bg-slate-50/50 p-3 rounded-xl border break-all whitespace-pre-line font-medium">${meet.content}</p>${img}${file}</div><div class="text-right pt-2 border-t border-slate-50"><button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors">삭제</button></div>`;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+        function handleMeetingImgSelection(e) {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader(); r.onload = (evt) => { STATE.meetingUploadedImg = evt.target.result; document.getElementById('meeting-img-status').innerText = `사진 완료: ${f.name}`; }; r.readAsDataURL(f);
+        }
+        function handleMeetingFileSelection(e) {
+            const f = e.target.files[0]; if (!f) return; STATE.meetingUploadedFileName = f.name; document.getElementById('meeting-file-status').innerText = `문서 완료: ${f.name}`;
+        }
+        async function handleNewMeeting(e) {
+            e.preventDefault();
+            const week = document.getElementById('meeting-week').value;
+            const dept = document.getElementById('meeting-dept').value;
+            const content = document.getElementById('meeting-content').value.trim();
+            if (!content) { showToast('입력 필요', '내용을 입력하세요.'); return; }
+            const { error } = await sb.from('weekly_meetings').insert({ dept_id: dept, week, author: STATE.profile.name, meet_date: formatDate(new Date()), content, image: STATE.meetingUploadedImg || '', file_name: STATE.meetingUploadedFileName || '' });
+            if (error) { showToast('등록 실패', error.message); return; }
+            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = '';
+            await reloadMeetings(); renderWeeklyMeetings(); closeModal('add-meeting-modal'); showToast('일지 배포', '주간 회의록이 원장에 기입되었습니다.');
+            document.getElementById('meeting-content').value = '';
+            const i = document.getElementById('meeting-img-status'); if (i) i.innerText = '사진 파일 선택';
+            const f = document.getElementById('meeting-file-status'); if (f) f.innerText = '첨부파일 선택';
+        }
+        async function deleteWeeklyMeeting(id) {
+            const { error } = await sb.from('weekly_meetings').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadMeetings(); renderWeeklyMeetings(); showToast('기록 소거', '주간 회의록이 말소되었습니다.');
+        }
+
+        // ── 대시보드 위젯 ────────────────────────────────────────────────
+        function renderDashboardWidgets() {
+            const widget = document.getElementById('dashboard-mail-widget'); if (!widget) return; widget.innerHTML = '';
+            if (!STATE.mailplug.connected) {
+                widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[10px]">연동 허용</button></div>`;
+            } else {
+                STATE.mailplug.emails.slice(0, 3).forEach(m => {
+                    widget.innerHTML += `<div class="py-2 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[10px] text-slate-400"><span>${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
+                });
+            }
+            const snap = document.getElementById('dashboard-schedule-snapshot'); if (!snap) return; snap.innerHTML = '';
+            const active = STATE.events.filter(e => STATE.visibility[e.deptId]).slice(0, 3);
+            if (active.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">활성화된 부서 일정이 없습니다.</div>`;
+            else active.forEach(e => snap.innerHTML += `<div class="py-2 text-xs flex justify-between items-center"><span>• <strong>${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400">${e.startDate} ~ ${e.endDate}</span></div>`);
+        }
+
+        // ── 권한 매트릭스 ────────────────────────────────────────────────
+        function renderPermissionMatrix() {
+            const tbody = document.getElementById('permission-matrix-body'); if (!tbody) return; tbody.innerHTML = '';
+            STATE.departments.forEach(dept => {
+                const tr = document.createElement('tr'); tr.className = "text-center text-xs hover:bg-slate-50/50";
+                const cState = (tab) => STATE.permissions[dept.id] && STATE.permissions[dept.id][tab] ? 'checked' : '';
+                tr.innerHTML = `<td class="p-3 font-bold text-slate-800 text-left">${dept.name}</td>
+                    <td><input type="checkbox" ${cState('dashboard')} onchange="togglePermission('${dept.id}','dashboard')"></td>
+                    <td><input type="checkbox" ${cState('calendar')} onchange="togglePermission('${dept.id}','calendar')"></td>
+                    <td><input type="checkbox" ${cState('management-progress')} onchange="togglePermission('${dept.id}','management-progress')"></td>
+                    <td><input type="checkbox" ${cState('documents')} onchange="togglePermission('${dept.id}','documents')"></td>
+                    <td><input type="checkbox" ${cState('mail-integration')} onchange="togglePermission('${dept.id}','mail-integration')"></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        async function togglePermission(deptId, tab) {
+            if (!STATE.permissions[deptId]) STATE.permissions[deptId] = {};
+            STATE.permissions[deptId][tab] = !STATE.permissions[deptId][tab];
+            const { error } = await sb.from('app_settings').upsert({ key: 'permissions', value: STATE.permissions, updated_at: new Date().toISOString() });
+            if (error) { STATE.permissions[deptId][tab] = !STATE.permissions[deptId][tab]; renderPermissionMatrix(); showToast('권한 저장 실패', '관리자만 권한을 변경할 수 있습니다.'); return; }
+            const dept = STATE.departments.find(d => d.id === deptId);
+            showToast('권한 갱신', `[${dept ? dept.name : deptId}] ${STATE.permissions[deptId][tab] ? '허용' : '차단'} 처리`);
+        }
+
+        // ── 가입 승인 / 사원 명부 / 자격 관리 ─────────────────────────────
+        function renderPendingUsers() {
+            const tbody = document.getElementById('pending-users-list-body'); if (!tbody) return; tbody.innerHTML = '';
+            const pending = STATE.users.filter(u => !u.approved);
+            if (pending.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400 font-semibold">가입 승인 요청 대기 내역이 없습니다.</td></tr>`; return; }
+            pending.forEach(user => {
+                const dept = STATE.departments.find(d => d.id === user.deptId);
+                const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50";
+                tr.innerHTML = `<td class="p-3 font-bold">${user.email || '(이메일 미표기)'}<div class="text-[10px] text-slate-400 font-normal">${user.name}</div></td><td class="p-3">${user.position}</td><td class="p-3 font-semibold">${dept ? dept.name : '미지정'}</td><td class="p-3"><select id="assign-role-${user.id}" class="px-2 py-1 border rounded bg-white text-xs outline-none"><option value="ceo">대표이사 (CEO)</option><option value="head">부서장 (Head)</option><option value="leader">팀장 (Leader)</option><option value="employee" selected>사원 (Employee)</option><option value="admin">시스템 관리자 (Admin)</option></select></td><td class="p-3 text-right space-x-1"><button onclick="approveUser('${user.id}')" class="px-2 py-1 bg-blue-600 text-white rounded text-[10px] font-bold">승인</button><button onclick="rejectUser('${user.id}')" class="px-2 py-1 border border-slate-200 text-slate-400 rounded text-[10px]">반려</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        async function approveUser(id) {
+            const sel = document.getElementById(`assign-role-${id}`); const r = sel ? sel.value : 'employee';
+            const { error } = await sb.from('profiles').update({ approved: true, role: r }).eq('id', id);
+            if (error) { showToast('승인 실패', error.message); return; }
+            await reloadProfiles(); renderPendingUsers(); renderActiveUsers(); showToast('신원 확인', '임직원 가입이 승인되었습니다.');
+        }
+        async function rejectUser(id) {
+            const { error } = await sb.from('profiles').delete().eq('id', id);
+            if (error) { showToast('반려 실패', error.message); return; }
+            await reloadProfiles(); renderPendingUsers(); showToast('기각', '가입 신청을 반려했습니다.');
+        }
+        function renderActiveUsers() {
+            const tbody = document.getElementById('active-users-list-body'); if (!tbody) return; tbody.innerHTML = '';
+            const approvedUsers = STATE.users.filter(u => u.approved);
+            if (approvedUsers.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-400 font-semibold">활동 중인 임직원이 없습니다.</td></tr>`; return; }
+            approvedUsers.forEach(user => {
+                const dept = STATE.departments.find(d => d.id === user.deptId);
+                const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50 transition-colors";
+                const isSelf = STATE.currentUser && STATE.currentUser.id === user.id;
+                const btn = isSelf ? `<span class="text-[10px] text-slate-400 font-bold px-2 py-1 bg-slate-100 rounded-md">접속 세션</span>`
+                    : `<button onclick="terminateUser('${user.id}')" class="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all shadow-sm">자격 해지</button>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold text-slate-700">${user.email || '(미표기)'}</td><td class="p-3.5 font-semibold">${user.name}</td><td class="p-3.5">${dept ? dept.name : '인프라 관리국'}</td><td class="p-3.5 font-mono text-[10px] font-bold text-indigo-600 uppercase">${user.role}</td><td class="p-3.5 text-slate-500">${user.position}</td><td class="p-3.5 text-right font-medium">${btn}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        async function terminateUser(id) {
+            const user = STATE.users.find(u => u.id === id); const name = user ? user.name : '해당 사원';
+            if (!confirm(`[보안 통제] 임직원 [${name}]의 포탈 접속 자격을 회수하고 명부에서 제명하시겠습니까?`)) return;
+            const { error } = await sb.from('profiles').delete().eq('id', id);
+            if (error) { showToast('해지 실패', error.message); return; }
+            await reloadProfiles(); renderActiveUsers(); renderPendingUsers(); showToast('자격 해지', `[${name}] 계정의 접속 권한이 회수되었습니다.`);
+        }
+        async function handleUpdateAdminPassword(e) {
+            e.preventDefault();
+            const oldPw = document.getElementById('admin-old-pw').value;
+            const newPw = document.getElementById('admin-new-pw').value;
+            const confirmPw = document.getElementById('admin-new-pw-confirm').value;
+            if (newPw !== confirmPw) { showToast('일치성 위배', '새 비밀번호가 서로 일치하지 않습니다.'); return; }
+            if (newPw.length < 6) { showToast('강도 부족', '비밀번호는 6자 이상이어야 합니다.'); return; }
+            if (!STATE.currentUser) { showToast('오류', '로그인이 필요합니다.'); return; }
+            const { error: signErr } = await sb.auth.signInWithPassword({ email: STATE.currentUser.email, password: oldPw });
+            if (signErr) { showToast('비밀번호 불일치', '현재 비밀번호가 올바르지 않습니다.'); return; }
+            const { error } = await sb.auth.updateUser({ password: newPw });
+            if (error) { showToast('변경 실패', error.message); return; }
+            showToast('변경 성료', '보안 비밀번호가 성공적으로 갱신되었습니다.');
+            document.getElementById('admin-old-pw').value = ''; document.getElementById('admin-new-pw').value = ''; document.getElementById('admin-new-pw-confirm').value = '';
+        }
+
+        // ── 인증 탭 전환 ─────────────────────────────────────────────────
+        function switchAuthTab(type) {
+            const loginBtn = document.getElementById('auth-tab-login');
+            const signupBtn = document.getElementById('auth-tab-signup');
+            const loginForm = document.getElementById('auth-login-form');
+            const signupForm = document.getElementById('auth-signup-form');
+            if (type === 'login') {
+                if (loginBtn) loginBtn.className = "flex-1 pb-1.5 text-center text-xs font-bold text-slate-800 border-b-2 border-slate-950 transition-all";
+                if (signupBtn) signupBtn.className = "flex-1 pb-1.5 text-center text-xs font-semibold text-slate-400 border-b-2 border-transparent transition-all";
+                if (loginForm) loginForm.classList.remove('hidden');
+                if (signupForm) signupForm.classList.add('hidden');
+            } else {
+                if (signupBtn) signupBtn.className = "flex-1 pb-1.5 text-center text-xs font-bold text-slate-800 border-b-2 border-slate-950 transition-all";
+                if (loginBtn) loginBtn.className = "flex-1 pb-1.5 text-center text-xs font-semibold text-slate-400 border-b-2 border-transparent transition-all";
+                if (signupForm) signupForm.classList.remove('hidden');
+                if (loginForm) loginForm.classList.add('hidden');
+            }
+        }
+
+        // ── 동적 기능 임베딩 (세션 내 한정) ──────────────────────────────
+        function handleFeatureFileSelection(e) {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader(); r.onload = (evt) => { STATE.uploadedFeatureHtml = evt.target.result; document.getElementById('feature-file-status').innerText = `로드 완료: ${f.name}`; }; r.readAsText(f);
+        }
+        function handleInstallFeature(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('feature-name'), iconEl = document.getElementById('feature-icon');
+            if (!STATE.uploadedFeatureHtml) { showToast('오류', '구동 코드가 누락되었습니다.'); return; }
+            STATE.customFeatures.push({ id: 'custom_' + Date.now(), name: nameEl.value, icon: iconEl.value, html: STATE.uploadedFeatureHtml });
+            renderCustomFeaturesMenu(); closeModal('add-feature-modal'); showToast('배포 완료', `신규 기능 [${nameEl.value}] 탑재.`);
+            nameEl.value = ''; STATE.uploadedFeatureHtml = null;
+        }
+        function renderCustomFeaturesMenu() {
+            const group = document.getElementById('custom-features-group'), container = document.getElementById('custom-menu-container');
+            if (!container) return; if (STATE.customFeatures.length === 0) { if (group) group.classList.add('hidden'); return; }
+            if (group) group.classList.remove('hidden'); container.innerHTML = '';
+            STATE.customFeatures.forEach(feat => {
+                const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item"; btn.onclick = () => launchCustomFeature(feat.id);
+                btn.innerHTML = `<i data-lucide="${feat.icon === 'wrench' ? 'wrench' : 'rocket'}" class="w-4 h-4 text-blue-500"></i><span>${feat.name}</span>`;
+                container.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+        function launchCustomFeature(id) {
+            const feat = STATE.customFeatures.find(f => f.id === id); if (!feat) return;
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            const customView = document.getElementById('view-custom-feature'); if (customView) customView.classList.remove('hidden');
+            document.getElementById('view-title').innerText = feat.name;
+            document.getElementById('view-description').innerText = "사용자 탑재 동적 마이크로 애플리케이션";
+            const iframe = document.getElementById('custom-feature-iframe'); if (iframe) iframe.srcdoc = feat.html;
+            syncSidebarActiveState(id);
+        }
+
+        // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {
             const sel = document.getElementById('mail-provider-select'); if (!sel) return;
             const provider = sel.value; STATE.mailplug.provider = provider;
@@ -1744,7 +1582,7 @@
         }
         function handleOAuthSimulation() {
             STATE.mailplug.oauthConnected = true; toggleMailFields();
-            showToast('토큰 발급', '보안 인증 토큰이 정상 발급되었습니다. [연동 저장]을 눌러 완료하십시오.');
+            showToast('토큰 발급', '보안 인증 토큰이 발급되었습니다. [연동 저장]을 눌러 완료하십시오.');
         }
         function handleUnifiedMailConnect(save) {
             if (!save) {
@@ -1762,7 +1600,7 @@
             } else if (provider === 'custom_imap') {
                 const host = document.getElementById('imap-host') ? document.getElementById('imap-host').value.trim() : '';
                 const email = document.getElementById('custom-email') ? document.getElementById('custom-email').value.trim() : '';
-                if (!host || !email) { showToast('입력 필요', 'IMAP 서버 주소와 이메일 주소를 입력하십시오.'); return; }
+                if (!host || !email) { showToast('입력 필요', 'IMAP 서버 주소와 이메일을 입력하십시오.'); return; }
             }
             STATE.mailplug.connected = true;
             STATE.mailplug.emails = (STATE.mailplug.mockDB[provider] || []).map(m => ({ ...m }));
@@ -1777,7 +1615,6 @@
             STATE.mailplug.emails = base; renderMailInbox(); renderDashboardWidgets();
             showToast('동기화 완료', '최신 수신 메일을 불러왔습니다.');
         }
-        // 수신 메일 원장 렌더링 (이 버전의 컨테이너 id 는 'mailplug-grid')
         function renderMailInbox() {
             const grid = document.getElementById('mailplug-grid'); if (!grid) return;
             if (!STATE.mailplug.connected) {
@@ -1793,6 +1630,67 @@
                 grid.appendChild(row);
             });
         }
+
+        // ── 라우터 / 네비게이션 가드 ─────────────────────────────────────
+        async function switchTab(tabId) {
+            STATE.currentTab = tabId;
+            const isAdmin = (STATE.profile.role === 'admin');
+            const adminOnly = ['management-stats', 'management-logs'];
+            document.getElementById('main-content-sections').classList.remove('hidden');
+            document.getElementById('maintenance-overlay').classList.add('hidden');
+            document.getElementById('access-denied-overlay').classList.add('hidden');
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            if (!isAdmin) {
+                if (adminOnly.includes(tabId)) {
+                    document.getElementById('main-content-sections').classList.add('hidden');
+                    document.getElementById('access-denied-overlay').classList.remove('hidden');
+                    syncSidebarActiveState(tabId); return;
+                }
+                const dept = STATE.profile.deptId || 'strategy';
+                if (STATE.permissions[dept] && STATE.permissions[dept][tabId] === false) {
+                    document.getElementById('main-content-sections').classList.add('hidden');
+                    document.getElementById('access-denied-overlay').classList.remove('hidden');
+                    syncSidebarActiveState(tabId); return;
+                }
+                if (STATE.maintenance[tabId]) {
+                    document.getElementById('main-content-sections').classList.add('hidden');
+                    document.getElementById('maintenance-overlay').classList.remove('hidden');
+                    syncSidebarActiveState(tabId); return;
+                }
+            }
+            const target = document.getElementById(`view-${tabId}`); if (target) target.classList.remove('hidden');
+            syncSidebarActiveState(tabId);
+            const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
+            const mb = document.getElementById('maintenance-btn-text'); if (mb) mb.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
+            if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
+            else if (tabId === 'calendar') renderCalendar();
+            else if (tabId === 'documents') renderDocuments();
+            else if (tabId === 'management-progress') renderProjects();
+            else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
+            else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
+            else if (tabId === 'management-stats') { await reloadProfiles(); renderPermissionMatrix(); renderPendingUsers(); renderActiveUsers(); }
+        }
+
+        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
+
+        function showToast(title, message) {
+            const container = document.getElementById('toast-container'); if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = "bg-white border border-slate-200 rounded-xl shadow-lg p-3.5 w-72 flex items-start gap-3 transition-all duration-300";
+            toast.innerHTML = `<div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0"><i data-lucide="bell" class="w-4 h-4"></i></div><div class="flex-1 min-w-0"><h5 class="text-xs font-bold text-slate-800">${title}</h5><p class="text-[11px] text-slate-500 mt-0.5 break-words">${message}</p></div>`;
+            container.appendChild(toast);
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 3200);
+        }
+        function openModal(id) {
+            if (id === 'profile-setting-modal' && STATE.currentUser) {
+                const n = document.getElementById('profile-name'); if (n) n.value = STATE.currentUser.name;
+                const d = document.getElementById('profile-dept'); if (d) d.value = STATE.currentUser.deptId;
+            }
+            const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+        }
+        function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+
     </script>
 </body>
 </html>
