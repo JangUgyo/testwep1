@@ -11,21 +11,22 @@
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             overflow-x: hidden; 
+            font-size: 15px; /* 전반적인 폰트 스케일 상향 조정 */
         }
         /* Refined Sidebar Navigation Styling */
         .sidebar-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 500;
             color: #475569;
             transition: all 0.15s ease-in-out;
@@ -40,18 +41,18 @@
             font-weight: 600;
         }
         .sidebar-group-title {
-            padding: 0 12px;
-            font-size: 10px;
+            padding: 0 14px;
+            font-size: 11px;
             font-weight: 700;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #f8fafc;
@@ -68,39 +69,39 @@
     <!--  노션 스타일 통합 인증 게이트웨이 (로그인 및 회원가입 화면)  -->
     <!-- ──────────────────────────────────────────────────────── -->
     <div id="auth-gateway-overlay" class="fixed inset-0 bg-[#F8FAFC] z-50 flex items-center justify-center overflow-y-auto">
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl w-full max-w-md p-8 m-4 space-y-6 relative transition-all animate-in fade-in duration-300">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-2xl w-full max-w-md p-10 m-4 space-y-6 relative transition-all animate-in fade-in duration-300">
             <!-- 회사 브랜딩 헤더 -->
-            <div class="text-center space-y-2">
-                <div class="w-12 h-12 bg-slate-950 rounded-xl flex items-center justify-center text-white text-2xl font-bold mx-auto shadow-md">W</div>
-                <h1 class="font-extrabold text-xl text-slate-800 tracking-tight">WorkSpace Pro Gateway</h1>
+            <div class="text-center space-y-3">
+                <div class="w-14 h-14 bg-slate-950 rounded-2xl flex items-center justify-center text-white text-3xl font-bold mx-auto shadow-md">W</div>
+                <h1 class="font-extrabold text-2xl text-slate-800 tracking-tight">WorkSpace Pro Gateway</h1>
                 <p class="text-xs text-slate-400">사내 인트라넷 보안 포탈 접속 인증망</p>
             </div>
 
             <!-- 로그인/회원가입 탭 내비게이션 -->
             <div class="flex border-b border-slate-100 pb-2 gap-4">
-                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 pb-1.5 text-center text-xs font-bold text-slate-800 border-b-2 border-slate-950 transition-all">로그인</button>
-                <button onclick="switchAuthTab('signup')" id="auth-tab-signup" class="flex-1 pb-1.5 text-center text-xs font-semibold text-slate-400 border-b-2 border-transparent transition-all">회원가입 신청</button>
+                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 pb-1.5 text-center text-sm font-bold text-slate-800 border-b-2 border-slate-950 transition-all">로그인</button>
+                <button onclick="switchAuthTab('signup')" id="auth-tab-signup" class="flex-1 pb-1.5 text-center text-sm font-semibold text-slate-400 border-b-2 border-transparent transition-all">회원가입 신청</button>
             </div>
 
             <!-- 로그인 폼 세션 -->
             <form id="auth-login-form" onsubmit="handleUserLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">사원 아이디 (ID)</label>
-                    <input type="text" id="login-id" required placeholder="아이디를 입력하세요" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">사원 아이디 (ID)</label>
+                    <input type="text" id="login-id" required placeholder="아이디를 입력하세요" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">비밀번호 (Password)</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호 (Password)</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
                 </div>
                 <button type="submit" class="w-full py-3 bg-slate-950 hover:bg-slate-850 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5">
                     <i data-lucide="log-in" class="w-4 h-4"></i> 포탈 보안 접속
                 </button>
 
                 <!-- 가이드라인 데크 수록 -->
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-[10px] text-slate-400 space-y-1">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 space-y-1">
                     <p class="font-bold text-slate-500">💡 시뮬레이션용 승인 테스트 계정</p>
-                    <p>• 시스템 관리자: <span class="font-mono text-slate-600 font-semibold">admin</span> / 비밀번호: <span class="font-mono text-slate-600 font-semibold">admin</span></p>
-                    <p>• 대표이사 계정: <span class="font-mono text-slate-600 font-semibold">ceo</span> / 비밀번호: <span class="font-mono text-slate-600 font-semibold">ceo</span></p>
+                    <p>• 시스템 관리자: <span class="font-mono text-slate-600 font-semibold">admin</span> / 패스워드: <span class="font-mono text-slate-600 font-semibold">admin</span></p>
+                    <p>• 대표이사 계정: <span class="font-mono text-slate-600 font-semibold">ceo</span> / 패스워드: <span class="font-mono text-slate-600 font-semibold">ceo</span></p>
                     <p class="mt-1">※ 회원가입 탭에서 신청 후, <span class="font-bold text-blue-600">admin</span> 계정으로 접속하여 가입자 승인 및 부서/직급에 상응하는 권한을 즉시 부여할 수 있습니다.</p>
                 </div>
             </form>
@@ -109,21 +110,21 @@
             <form id="auth-signup-form" onsubmit="handleUserSignup(event)" class="space-y-4 hidden">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">희망 아이디 (ID)</label>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">희망 아이디 (ID)</label>
                         <input type="text" id="signup-id" required placeholder="ID 생성" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">비밀번호</label>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호</label>
                         <input type="password" id="signup-password" required placeholder="Password" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">사원명</label>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">사원명</label>
                         <input type="text" id="signup-name" required placeholder="성명 입력" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">직급 (수행역할)</label>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">직급 (수행역할)</label>
                         <select id="signup-position" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white font-medium text-slate-600">
                             <option value="대표이사">대표이사 (CEO)</option>
                             <option value="부서장">부서장 (Head of Dept)</option>
@@ -133,7 +134,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">희망 소속 부서</label>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">희망 소속 부서</label>
                     <select id="signup-dept" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white font-medium text-slate-600">
                     </select>
                 </div>
@@ -146,9 +147,9 @@
 
     <!-- 사이드바 (Sidebar) -->
     <aside class="w-64 bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-30">
-        <div class="p-5 border-b border-slate-200/60">
+        <div class="p-6 border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 bg-slate-950 rounded flex items-center justify-center text-white text-sm font-bold tracking-tight">W</div>
+                <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center text-white text-lg font-bold tracking-tight">W</div>
                 <div class="flex flex-col">
                     <span class="font-bold text-sm text-slate-800 tracking-tight">WorkSpace Pro</span>
                     <span class="text-[10px] text-slate-400 font-medium">통합 지원 시스템</span>
@@ -156,24 +157,24 @@
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-5">
+        <div class="flex-1 overflow-y-auto p-3 space-y-6">
             <div>
                 <p class="sidebar-group-title">기본 플랫폼 서비스</p>
-                <div class="space-y-0.5">
+                <div class="space-y-1">
                     <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                        <i data-lucide="layout-grid" class="w-4.5 h-4.5"></i>
                         <span>종합 대시보드</span>
                     </button>
                     <button onclick="switchTab('calendar')" id="nav-calendar" class="sidebar-item">
-                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        <i data-lucide="calendar" class="w-4.5 h-4.5"></i>
                         <span>부서 통합 캘린더</span>
                     </button>
                     <button onclick="switchTab('management-progress')" id="nav-management-progress" class="sidebar-item">
-                        <i data-lucide="line-chart" class="w-4 h-4"></i>
+                        <i data-lucide="line-chart" class="w-4.5 h-4.5"></i>
                         <span>프로젝트 진척 관리</span>
                     </button>
                     <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">
-                        <i data-lucide="clipboard-signature" class="w-4 h-4 text-indigo-600"></i>
+                        <i data-lucide="clipboard-signature" class="w-4.5 h-4.5 text-indigo-600"></i>
                         <span class="font-semibold text-slate-800">주간 회의 대시보드</span>
                     </button>
                 </div>
@@ -181,17 +182,17 @@
 
             <div>
                 <p class="sidebar-group-title">문서 / 보고서 분류</p>
-                <div class="space-y-0.5">
+                <div class="space-y-1">
                     <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item">
-                        <i data-lucide="folder-closed" class="w-4 h-4"></i>
+                        <i data-lucide="folder-closed" class="w-4.5 h-4.5"></i>
                         <span>통합 보고 허브</span>
                     </button>
                     <button onclick="switchTab('documents-pending')" id="nav-documents-pending" class="sidebar-item">
-                        <i data-lucide="clock-4" class="w-4 h-4"></i>
+                        <i data-lucide="clock-4" class="w-4.5 h-4.5"></i>
                         <span>결재 대기 함</span>
                     </button>
                     <button onclick="switchTab('documents-archive')" id="nav-documents-archive" class="sidebar-item">
-                        <i data-lucide="archive-restore" class="w-4 h-4"></i>
+                        <i data-lucide="archive-restore" class="w-4.5 h-4.5"></i>
                         <span>보고 보관소</span>
                     </button>
                 </div>
@@ -199,9 +200,9 @@
 
             <div>
                 <p class="sidebar-group-title">그룹웨어 인프라</p>
-                <div class="space-y-0.5">
+                <div class="space-y-1">
                     <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">
-                        <i data-lucide="mail" class="w-4 h-4 text-blue-600"></i>
+                        <i data-lucide="mail" class="w-4.5 h-4.5 text-blue-600"></i>
                         <span class="font-semibold text-slate-700">통합 메일 연동 센터</span>
                     </button>
                 </div>
@@ -212,59 +213,59 @@
                     <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
                     <span>시스템 관리자</span>
                 </p>
-                <div class="space-y-0.5">
+                <div class="space-y-1">
                     <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
+                        <i data-lucide="shield-check" class="w-4.5 h-4.5 text-blue-600"></i>
                         <span class="font-semibold text-slate-800">조직 권한 제어 센터</span>
                     </button>
                     <button onclick="switchTab('management-logs')" id="nav-management-logs" class="sidebar-item">
-                        <i data-lucide="shield-alert" class="w-4 h-4 text-rose-500"></i>
+                        <i data-lucide="shield-alert" class="w-4.5 h-4.5 text-rose-500"></i>
                         <span class="text-rose-600 font-medium">보안 감사 원장</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="p-3 border-t border-slate-200/60 bg-slate-50/50 space-y-2">
-            <button onclick="openModal('add-feature-modal')" class="w-full py-2 bg-slate-950 hover:bg-blue-600 text-white text-[11px] font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
+        <div class="p-4 border-t border-slate-200/60 bg-slate-50/50 space-y-3">
+            <button onclick="openModal('add-feature-modal')" class="w-full py-2.5 bg-slate-950 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                 <span>시스템 기능 추가</span>
             </button>
 
-            <div class="flex flex-col gap-1.5">
-                <div onclick="openModal('profile-setting-modal')" class="flex items-center gap-2.5 p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all cursor-pointer group">
-                    <div id="user-avatar" class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-bold shadow-inner">?</div>
+            <div class="flex flex-col gap-2">
+                <div onclick="openModal('profile-setting-modal')" class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all cursor-pointer group">
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-bold shadow-inner">?</div>
                     <div class="overflow-hidden flex-1">
                         <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate font-mono">사용자 미설정</p>
                         <p id="user-display-dept" class="text-[9px] text-slate-500 truncate font-medium">사원 등록 필요</p>
                     </div>
                     <i data-lucide="cog" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors"></i>
                 </div>
-                <button onclick="handleUserLogout()" class="w-full py-1.5 border border-slate-200 hover:bg-rose-50 text-[10px] text-slate-500 hover:text-rose-600 rounded-lg font-bold flex items-center justify-center gap-1 transition-all">
+                <button onclick="handleUserLogout()" class="w-full py-2 border border-slate-200 hover:bg-rose-50 text-[10px] text-slate-500 hover:text-rose-600 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 사내 네트워크 로그아웃
                 </button>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 ml-64 p-8">
-        <header class="flex justify-between items-center mb-8 border-b border-slate-100 pb-5">
+    <main class="flex-1 ml-64 p-10">
+        <header class="flex justify-between items-center mb-10 border-b border-slate-100 pb-5">
             <div>
                 <div class="flex items-center gap-2">
-                    <h2 id="view-title" class="text-xl font-bold text-slate-800 tracking-tight">종합 대시보드</h2>
-                    <span id="tab-maintenance-badge" class="hidden px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-800 text-[9px] font-bold rounded">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
+                    <h2 id="view-title" class="text-2xl font-bold text-slate-800 tracking-tight">종합 대시보드</h2>
+                    <span id="tab-maintenance-badge" class="hidden px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-bold rounded-lg animate-pulse">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
                 </div>
-                <p id="view-description" class="text-slate-400 text-xs mt-0.5">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</p>
+                <p id="view-description" class="text-slate-400 text-sm mt-1 leading-normal">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</p>
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl text-xs">
+                <div class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs">
                     <span class="text-[10px] font-bold text-slate-400">인증 등급:</span>
                     <span id="header-user-role-badge" class="font-bold text-slate-800">로딩 중</span>
                 </div>
 
                 <div id="admin-maintenance-control" class="hidden">
-                    <button onclick="toggleActiveTabMaintenance()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition-all">
+                    <button onclick="toggleActiveTabMaintenance()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition-all">
                         <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                         <span id="maintenance-btn-text">현재 메뉴 점검 설정</span>
                     </button>
@@ -273,13 +274,13 @@
                 <div class="h-8 w-px bg-slate-200"></div>
 
                 <div class="relative">
-                    <input type="text" placeholder="통합 검색..." class="pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs w-44 focus:ring-1 outline-none transition-all">
+                    <input type="text" placeholder="통합 검색..." class="pl-8 pr-3 py-2 border border-slate-200 rounded-lg text-xs w-44 focus:ring-1 outline-none transition-all">
                     <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
                 </div>
             </div>
         </header>
 
-        <div id="maintenance-overlay" class="hidden flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm text-center p-8 max-w-4xl mx-auto animate-pulse">
+        <div id="maintenance-overlay" class="hidden flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200 shadow-sm text-center p-8 max-w-4xl mx-auto animate-pulse">
             <h3 class="text-xl font-bold text-slate-800">현재 시스템 점검 중입니다.</h3>
             <p class="text-sm text-slate-400 mt-3 max-w-md mx-auto leading-relaxed">사내 인프라 고도화 및 안정적인 서비스를 제공하기 위한 기술적 점검 조치가 진행 중에 있습니다.</p>
         </div>
@@ -292,19 +293,19 @@
 
         <div id="main-content-sections">
             <!-- 대시보드 탭 -->
-            <section id="view-dashboard" class="space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 space-y-6">
-                        <div id="dashboard-notice-card" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 transition-all"></div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-indigo-500"></i> 다가오는 주요 일정 요약</h3>
+            <section id="view-dashboard" class="space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div id="dashboard-notice-card" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 transition-all"></div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i> 다가오는 주요 일정 요약</h3>
                             <div class="divide-y divide-slate-100" id="dashboard-schedule-snapshot"></div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[400px]">
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col h-[420px]">
                         <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-shrink-0">
-                            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-blue-500"></i> 포탈 연동 편지함</h3>
-                            <button onclick="switchTab('mail-integration')" class="text-[10px] text-blue-600 font-bold hover:underline">연동 설정</button>
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5 text-blue-500"></i> 포탈 연동 편지함</h3>
+                            <button onclick="switchTab('mail-integration')" class="text-xs text-blue-600 font-bold hover:underline">연동 설정</button>
                         </div>
                         <div class="flex-1 overflow-y-auto pt-4" id="dashboard-mail-widget"></div>
                     </div>
@@ -312,21 +313,21 @@
             </section>
 
             <!-- 캘린더 탭 -->
-            <section id="view-calendar" class="hidden flex gap-6 h-[calc(100vh-12rem)] min-h-[750px]">
+            <section id="view-calendar" class="hidden flex gap-8 h-[calc(100vh-14rem)] min-h-[750px]">
                 <div class="w-60 flex flex-col gap-4 flex-shrink-0">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-1.5"><i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-500"></i> 필터 표시 전환</h3>
                         <div class="space-y-2" id="dept-filter-container"></div>
                     </div>
-                    <button onclick="quickAddEvent('')" class="w-full py-2.5 bg-slate-900 hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow transition-all flex items-center justify-center gap-1.5">
+                    <button onclick="quickAddEvent('')" class="w-full py-3 bg-slate-950 hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow transition-all flex items-center justify-center gap-1.5">
                         <i data-lucide="calendar-plus" class="w-4 h-4"></i> 일정 등록
                     </button>
                 </div>
                 <div class="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
                     <div class="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <div class="flex items-center gap-2">
-                            <select id="cal-year-select" onchange="handleHeaderNav()" class="px-2.5 py-1 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
-                            <select id="cal-month-select" onchange="handleHeaderNav()" class="px-2.5 py-1 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
+                            <select id="cal-year-select" onchange="handleHeaderNav()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
+                            <select id="cal-month-select" onchange="handleHeaderNav()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
                         </div>
                         <div class="flex gap-1 items-center">
                             <button onclick="navigateMonth(-1)" class="p-1 hover:bg-slate-200 rounded"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
@@ -334,18 +335,18 @@
                             <button onclick="navigateMonth(1)" class="p-1 hover:bg-slate-200 rounded"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-7 border-b border-slate-100 bg-slate-50/20 text-center text-xs font-bold py-1.5">
+                    <div class="grid grid-cols-7 border-b border-slate-100 bg-slate-50/20 text-center text-xs font-bold py-2">
                         <div class="text-rose-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-400">토</div>
                     </div>
                     <div id="calendar-grid" class="flex-1 flex flex-col bg-slate-100 divide-y divide-slate-100 h-full"></div>
                 </div>
             </section>
 
-            <!-- 프로젝트 진척 관리 탭 -->
+            <!-- 프로젝트 진척 관리 탭 (Clovine / Notion 스펙) -->
             <section id="view-management-progress" class="hidden space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm gap-4">
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="folder-git" class="text-indigo-600 w-5 h-5"></i> 프로젝트 협업 관제 센터</h3>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm gap-4">
+                    <div class="space-y-1.5">
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="folder-git" class="text-indigo-600 w-5 h-5"></i> 프로젝트 협업 관제 센터</h3>
                         <div class="flex gap-4 pt-1">
                             <button onclick="switchProgressSubView('board')" id="prog-subtab-board" class="progress-sub-tab text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 pb-0.5">칸반 보드</button>
                             <button onclick="switchProgressSubView('list')" id="prog-subtab-list" class="progress-sub-tab text-xs font-semibold text-slate-400 border-b-2 border-transparent pb-0.5">프로젝트 목록</button>
@@ -355,15 +356,15 @@
                     <button onclick="openModal('add-project-modal')" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="plus-circle" class="w-4 h-4"></i> 새 프로젝트 기획안 등록</button>
                 </div>
                 <div id="project-subview-board" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-slate-50 p-4 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
+                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
                         <div class="font-bold text-xs text-slate-500 pb-2 border-b">대기 및 검토 중 (<span id="board-count-paused">0</span>)</div>
                         <div id="board-paused-list" class="space-y-3 flex-1 overflow-y-auto"></div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
+                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
                         <div class="font-bold text-xs text-slate-500 pb-2 border-b">진행 중 (<span id="board-count-ongoing">0</span>)</div>
                         <div id="board-ongoing-list" class="space-y-3 flex-1 overflow-y-auto"></div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
+                    <div class="bg-slate-50 p-5 rounded-2xl border min-h-[500px] flex flex-col space-y-3">
                         <div class="font-bold text-xs text-slate-500 pb-2 border-b">완료됨 (<span id="board-count-completed">0</span>)</div>
                         <div id="board-completed-list" class="space-y-3 flex-1 overflow-y-auto"></div>
                     </div>
@@ -373,7 +374,7 @@
                         <thead class="bg-slate-50 border-b">
                             <tr><th class="p-4 font-bold">프로젝트명</th><th class="p-4 font-bold">수행 부서</th><th class="p-4 font-bold">일정 범위</th><th class="p-4 font-bold">진행도 (%)</th><th class="p-4 text-right">관리</th></tr>
                         </thead>
-                        <tbody id="project-list-table-body" class="divide-y"></tbody>
+                        <tbody id="project-list-table-body" class="divide-y text-xs"></tbody>
                     </table>
                 </div>
                 <div id="project-subview-gantt" class="hidden bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
@@ -392,8 +393,8 @@
             <section id="view-weekly-meeting" class="hidden space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-2xl border shadow-sm gap-4">
                     <div class="space-y-1">
-                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-signature" class="text-indigo-600 w-5 h-5"></i> 주간 부서 연례 회의록 및 부서별 일지</h3>
-                        <p class="text-[11px] text-slate-400">사내 각 부서의 주간 업무 성과를 문서화하고 공유합니다.</p>
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-signature" class="text-indigo-600 w-5 h-5"></i> 주간 부서 연례 회의록 및 부서별 일지</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">사내 각 부서의 주간 업무 성과를 문서화하고 공유합니다.</p>
                     </div>
                     <div class="flex gap-2.5">
                         <select id="meeting-filter-dept" onchange="renderWeeklyMeetings()" class="px-3 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
@@ -513,7 +514,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-y-auto mt-4" id="mailplug-inbox-grid"></div>
+                        <div class="flex-1 overflow-y-auto mt-4" id="mailplug-grid"></div>
                     </div>
                 </div>
             </section>
@@ -532,17 +533,19 @@
                 </div>
             </section>
 
+            <!-- [개편] 조직 제어 및 회원 탈퇴 / 자격 승인 센터 (Stats 탭 승격 연계) -->
             <section id="view-management-stats" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
+                <!-- 1. 계정 승인 및 역할 인가 센터 (Pending) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div>
                             <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                                <i data-lucide="user-plus" class="text-blue-600 w-4 h-4"></i>
-                                계정 승인 및 역할 인가 센터
+                                <i data-lucide="user-plus" class="text-indigo-600 w-4.5 h-4.5"></i>
+                                신입 가입 심사 대기열
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-1">회원가입 요청을 검증하고, 정식 부서 배정 및 시스템 권한 역할을 부여합니다.</p>
+                            <p class="text-[11px] text-slate-400 mt-1">회원가입 요청을 검증하고 사내 권한 역할을 수동으로 인가 배포합니다.</p>
                         </div>
-                        <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-md border border-amber-200/50">가입 승인 대기중</span>
+                        <span class="px-2.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded border border-amber-200">심사 보류</span>
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                         <table class="w-full text-left border-collapse text-xs">
@@ -559,31 +562,90 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- 2. 임직원 자격 관리 및 강제 탈퇴 원장 (Approved Users - 신설 요구 기능) -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div>
                             <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                                <i data-lucide="shield-check" class="text-blue-600 w-4 h-4"></i>
-                                사내 조직 권한 통제 원장 (RBAC Matrix)
+                                <i data-lucide="users" class="text-rose-600 w-4.5 h-4.5"></i>
+                                전사 임직원 자격 통제 명부
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-1">각 사업부(부서)에 대한 플랫폼 서비스 of 진입 및 조작 허용 상태를 실시간 제어 및 잠금 조치합니다.</p>
+                            <p class="text-[11px] text-slate-400 mt-1">포탈에 승인 등록되어 활동 중인 실무진 명부를 조회하고, 보안 위험 시 직무 자격을 영구 박탈 조치합니다.</p>
                         </div>
-                        <span class="px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-lg border border-blue-100">실시간 동기화 보안 터널</span>
+                        <span class="px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[10px] font-bold rounded border border-rose-200">원장 잠금</span>
                     </div>
-                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                    <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                         <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200">
-                                    <th class="p-3.5 font-bold text-slate-600">대상 사업부 및 부서</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-center">종합 대시보드</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-center">통합 캘린더</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-center">프로젝트 진척</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-center">통합 보고 허브</th>
-                                    <th class="p-3.5 font-bold text-slate-600 text-center">메일 연동 센터</th>
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3.5 font-bold text-slate-600">사원 ID</th>
+                                    <th class="p-3.5 font-bold text-slate-600">임직원명</th>
+                                    <th class="p-3.5 font-bold text-slate-600">소속 부서</th>
+                                    <th class="p-3.5 font-bold text-slate-600">인가 등급</th>
+                                    <th class="p-3.5 font-bold text-slate-600">직급 정보</th>
+                                    <th class="p-3.5 font-bold text-slate-600 text-right">자격 제어</th>
                                 </tr>
                             </thead>
-                            <tbody id="permission-matrix-body" class="divide-y divide-slate-100"></tbody>
+                            <tbody id="active-users-list-body" class="divide-y divide-slate-100"></tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- 3. 관리자 패스워드 정밀 변경 패널 (Change Credentials - 신설 요구 기능) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5 border-b border-slate-100 pb-3">
+                            <i data-lucide="key-round" class="text-blue-600 w-4.5 h-4.5"></i>
+                            시스템 최고 관리자 보안 자격 갱신
+                        </h3>
+                        <form onsubmit="handleUpdateAdminPassword(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1.5">현재 마스터 비밀번호</label>
+                                <input type="password" id="admin-old-pw" required placeholder="기존 비밀번호 입력" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">신규 비밀번호</label>
+                                    <input type="password" id="admin-new-pw" required placeholder="새 비밀번호" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">신규 비밀번호 재입력</label>
+                                    <input type="password" id="admin-new-pw-confirm" required placeholder="비밀번호 확인" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full py-2.5 bg-slate-950 text-white rounded-xl text-xs font-bold shadow hover:bg-blue-600 transition-all">보안 인증 자격 즉시 갱신</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 4. 부서별 기능 On/Off 통제 매트릭스 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                                    <i data-lucide="shield-check" class="text-blue-600 w-4 h-4"></i>
+                                    사내 조직 권한 통제 원장 (RBAC Matrix)
+                                </h3>
+                                <p class="text-[11px] text-slate-400 mt-1">각 사업부(부서)에 대한 플랫폼 서비스의 진입 및 조작 허용 상태를 실시간 제어 및 잠금 조치합니다.</p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200">
+                                        <th class="p-3.5 font-bold text-slate-600">대상 사업부 및 부서</th>
+                                        <th class="p-3.5 font-bold text-slate-600 text-center">종합 대시보드</th>
+                                        <th class="p-3.5 font-bold text-slate-600 text-center">통합 캘린더</th>
+                                        <th class="p-3.5 font-bold text-slate-600 text-center">프로젝트 진척</th>
+                                        <th class="p-3.5 font-bold text-slate-600 text-center">통합 보고 허브</th>
+                                        <th class="p-3.5 font-bold text-slate-600 text-center">메일 연동 센터</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="permission-matrix-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -644,7 +706,7 @@
     <div id="add-project-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <form onsubmit="handleNewProject(event)" class="p-5 space-y-4">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 핵심 명칭</label><input type="text" id="project-title" stroke="#eee" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 핵심 명칭</label><input type="text" id="project-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 사업부</label><select id="project-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상태</label><select id="project-status" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="paused">대기</option><option value="ongoing">진행</option></select></div>
@@ -695,7 +757,7 @@
         </div>
     </div>
 
-    <!-- 일정 등록/수정 모달 -->
+    <!-- [복구] 캘린더 일정 등록/수정 모달 -->
     <div id="add-event-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <form onsubmit="handleSaveEvent(event)" class="p-5 space-y-4">
@@ -716,7 +778,7 @@
         </div>
     </div>
 
-    <!-- 공지 수정 모달 -->
+    <!-- [복구] 대시보드 공지 수정 모달 -->
     <div id="edit-notice-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <form onsubmit="handleSaveNotice(event)" class="p-5 space-y-4">
@@ -729,7 +791,7 @@
         </div>
     </div>
 
-    <!-- 토스트 알림 컨테이너 -->
+    <!-- [복구] 토스트 알림 컨테이너 -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 items-end pointer-events-none"></div>
 
     <!-- 스크립트 실행 제어 본부 -->
@@ -752,6 +814,20 @@
                 }
             }
         };
+
+        // 전역 날짜 유틸리티 함수 배치 (수정: 최상단 영역에 안전하게 영구 주입)
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         const STATE = {
             profile: {
@@ -886,13 +962,7 @@
             if (STATE.currentUser) {
                 const gateway = document.getElementById('auth-gateway-overlay');
                 if (gateway) gateway.classList.add('hidden');
-                const u = STATE.currentUser;
-                STATE.profile.name = u.name;
-                STATE.profile.deptId = u.deptId;
-                STATE.profile.role = u.role;
-                refreshRoleScopedUI();
-                updateProfileUI();
-                switchTab('dashboard');
+                handleRoleSimulatedChange(STATE.currentUser.role);
             } else {
                 handleRoleSimulatedChange(STATE.profile.role);
             }
@@ -913,11 +983,6 @@
         // --- 공통 데이터 보존용 헬퍼 동기화기 ---
         function syncDB(key) {
             DB.save(key, STATE[key]);
-        }
-
-        function isToday(y, m, d) {
-            const today = new Date();
-            return today.getFullYear() === y && (today.getMonth() + 1) === m && today.getDate() === d;
         }
 
         function handleRoleSimulatedChange(newRole) {
@@ -985,7 +1050,7 @@
         }
 
         function renderDeptOptions() {
-            // [수정] 회원가입 부서 목록 누락 해결을 위해 'signup-dept'를 리스트에 추가 기입했습니다.
+            // 회원가입 부서 목록 누락 해결을 위해 'signup-dept'를 리스트에 추가 기입했습니다.
             const list = ['event-dept', 'doc-dept', 'profile-dept', 'project-dept', 'meeting-dept', 'signup-dept'];
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
@@ -1292,10 +1357,91 @@
 
         function approveUser(id) {
             const sel = document.getElementById(`assign-role-${id}`); const r = sel ? sel.value : 'employee';
-            const u = STATE.users.find(x => x.id === id); if (u) { u.approved = true; u.role = r; syncDB('users'); showToast('신원 확인', `${u.name} 임직원 가입 승인.`); renderPendingUsers(); }
+            const u = STATE.users.find(x => x.id === id); if (u) { u.approved = true; u.role = r; syncDB('users'); showToast('신원 확인', `${u.name} 임직원 가입 승인.`); renderPendingUsers(); renderActiveUsers(); }
         }
         function rejectUser(id) {
             const u = STATE.users.find(x => x.id === id); if (u) { STATE.users = STATE.users.filter(x => x.id !== id); syncDB('users'); showToast('기각', '가입 신청 반려됨.'); renderPendingUsers(); }
+        }
+
+        // --- [신설] 사원 명부 목록 및 자격 영구 박탈 처리 제어판 ---
+        function renderActiveUsers() {
+            const tbody = document.getElementById('active-users-list-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const approvedUsers = STATE.users.filter(u => u.approved);
+
+            approvedUsers.forEach(user => {
+                const dept = STATE.departments.find(d => d.id === user.deptId);
+                const tr = document.createElement('tr');
+                tr.className = "text-xs hover:bg-slate-50/50 transition-colors";
+
+                const isCurrentSelf = STATE.currentUser && STATE.currentUser.id === user.id;
+                const terminateBtn = isCurrentSelf ? 
+                    `<span class="text-[10px] text-slate-400 font-bold px-2 py-1 bg-slate-100 rounded-md">접속 세션</span>` : 
+                    `<button onclick="terminateUser('${user.id}')" class="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all shadow-sm">자격 해지</button>`;
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-slate-700">${user.id}</td>
+                    <td class="p-3.5 font-semibold">${user.name}</td>
+                    <td class="p-3.5">${dept ? dept.name : '인프라 관리국'}</td>
+                    <td class="p-3.5 font-mono text-[10px] font-bold text-indigo-600 uppercase">${user.role}</td>
+                    <td class="p-3.5 text-slate-500">${user.position}</td>
+                    <td class="p-3.5 text-right font-medium">${terminateBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function terminateUser(id) {
+            const user = STATE.users.find(u => u.id === id);
+            const name = user ? user.name : '해당 사원';
+            if (!confirm(`[보안 통제] 임직원 [${name}]의 포탈 로그인 접속 자격을 영구 박탈 및 명부에서 제명하시겠습니까?`)) return;
+
+            STATE.users = STATE.users.filter(u => u.id !== id);
+            syncDB('users');
+            renderActiveUsers();
+            showToast('사원 자격 해지', `[${name}] 계정이 사내 원장에서 안전하게 탈퇴 및 영구 제명 조치되었습니다.`);
+        }
+
+        // --- [신설] 최고 관리자 비밀번호 변경 로직 ---
+        function handleUpdateAdminPassword(e) {
+            e.preventDefault();
+            const oldPw = document.getElementById('admin-old-pw').value;
+            const newPw = document.getElementById('admin-new-pw').value;
+            const confirmPw = document.getElementById('admin-new-pw-confirm').value;
+
+            // 마스터 관리자의 현재 계정 정보 획득
+            const adminUser = STATE.users.find(u => u.id === 'admin');
+            if (!adminUser) return;
+
+            if (adminUser.password !== oldPw) {
+                showToast('비밀번호 불일치', '입력하신 기존 마스터 비밀번호가 올바르지 않습니다.');
+                return;
+            }
+
+            if (newPw !== confirmPw) {
+                showToast('일치성 위배', '재입력한 신규 비밀번호가 서로 일치하지 않습니다.');
+                return;
+            }
+
+            if (newPw.length < 3) {
+                showToast('강도 부족', '보안을 위해 최소 3자 이상의 암호를 부여해 주십시오.');
+                return;
+            }
+
+            // 전역 세션 및 원장 동기화
+            adminUser.password = newPw;
+            if (STATE.currentUser && STATE.currentUser.id === 'admin') {
+                STATE.currentUser.password = newPw;
+                syncDB('currentUser');
+            }
+            syncDB('users');
+
+            showToast('비밀번호 변경 성료', '시스템 최고 관리자의 보안 마스터 패스워드가 성공적으로 갱신되었습니다.');
+            document.getElementById('admin-old-pw').value = '';
+            document.getElementById('admin-new-pw').value = '';
+            document.getElementById('admin-new-pw-confirm').value = '';
         }
 
         // --- 계통 가설망 인증 매커니즘 ---
@@ -1429,11 +1575,8 @@
             const target = document.getElementById(`view-${tabId}`); if (target) target.classList.remove('hidden');
             syncSidebarActiveState(tabId);
 
-            // 관리자: 현재 탭의 점검 상태 배지 및 버튼 라벨 갱신
-            const badge = document.getElementById('tab-maintenance-badge');
-            if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
-            const maintBtnText = document.getElementById('maintenance-btn-text');
-            if (maintBtnText) maintBtnText.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
+            const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
+            const maintBtnText = document.getElementById('maintenance-btn-text'); if (maintBtnText) maintBtnText.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
 
             if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
             else if (tabId === 'calendar') renderCalendar();
@@ -1441,33 +1584,25 @@
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
             else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
-            else if (tabId === 'management-stats') { renderPermissionMatrix(); renderPendingUsers(); }
+            else if (tabId === 'management-stats') { renderPermissionMatrix(); renderPendingUsers(); renderActiveUsers(); }
         }
 
         function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
         function openModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('hidden'); if(m) m.classList.add('flex'); }
         function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.add('hidden'); if(m) m.classList.remove('flex'); }
-        
-        // --- 캘린더 날짜 가공용 헬퍼 유틸리티 등록 ---
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
+
+        /* ════════════════════════════════════════════════════════════════════
+           [복구] UI에서 호출되지만 정의가 누락되어 오류를 유발하던 기능 일괄 구현
+           - showToast / isToday 누락은 페이지 초기화·모든 버튼 동작을 중단시킴
+           ════════════════════════════════════════════════════════════════════ */
+
+        // 오늘 날짜 판별 (renderCalendar가 시작 시 호출 — 누락 시 초기 렌더링 전체 중단)
+        function isToday(y, m, d) {
+            const t = new Date();
+            return t.getFullYear() === y && (t.getMonth() + 1) === m && t.getDate() === d;
         }
 
-        function formatDate(date) {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-
-        /* ════════════════════════════════════════════════════════════
-           이하: 기존에 호출은 되지만 정의가 누락되어 오류를 유발하던
-           기능들을 모두 구현하여 정상 작동하도록 보강한 영역입니다.
-           ════════════════════════════════════════════════════════════ */
-
-        // --- 토스트 알림 (가장 광범위하게 호출되던 누락 함수) ---
+        // 토스트 알림 (로그인·저장·삭제·승인 등 거의 모든 동작이 의존)
         function showToast(title, message) {
             const container = document.getElementById('toast-container');
             if (!container) { console.log(`[${title}] ${message}`); return; }
@@ -1476,30 +1611,21 @@
             el.innerHTML = `<p class="text-xs font-bold">${title}</p><p class="text-[11px] text-slate-300 mt-0.5 leading-snug">${message}</p>`;
             container.appendChild(el);
             requestAnimationFrame(() => { el.classList.remove('opacity-0', 'translate-y-2'); });
-            setTimeout(() => {
-                el.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => el.remove(), 300);
-            }, 3200);
+            setTimeout(() => { el.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => el.remove(), 300); }, 3200);
         }
 
-        // --- 캘린더 일정 등록 / 수정 / 삭제 ---
+        // 캘린더 일정 등록 / 수정 / 삭제
         function quickAddEvent(dateStr) {
             const d = dateStr || formatDate(new Date());
-            const idEl = document.getElementById('event-id');
-            const titleEl = document.getElementById('event-title');
-            const deptEl = document.getElementById('event-dept');
-            const startEl = document.getElementById('event-start');
-            const endEl = document.getElementById('event-end');
-            if (idEl) idEl.value = '';
-            if (titleEl) titleEl.value = '';
-            if (deptEl && !deptEl.value) deptEl.selectedIndex = 0;
-            if (startEl) startEl.value = d;
-            if (endEl) endEl.value = d;
+            const idEl = document.getElementById('event-id'); if (idEl) idEl.value = '';
+            const titleEl = document.getElementById('event-title'); if (titleEl) titleEl.value = '';
+            const deptEl = document.getElementById('event-dept'); if (deptEl) deptEl.selectedIndex = 0;
+            const startEl = document.getElementById('event-start'); if (startEl) startEl.value = d;
+            const endEl = document.getElementById('event-end'); if (endEl) endEl.value = d;
             const t = document.getElementById('event-modal-title'); if (t) t.innerText = '새 일정 등록';
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.add('hidden');
             openModal('add-event-modal');
         }
-
         function editEvent(id) {
             const evt = STATE.events.find(e => e.id === id); if (!evt) return;
             document.getElementById('event-id').value = evt.id;
@@ -1511,7 +1637,6 @@
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.remove('hidden');
             openModal('add-event-modal');
         }
-
         function handleSaveEvent(e) {
             e.preventDefault();
             const id = document.getElementById('event-id').value;
@@ -1521,7 +1646,6 @@
             const endDate = document.getElementById('event-end').value;
             if (!title || !startDate || !endDate) { showToast('입력 오류', '제목과 기간을 모두 입력하십시오.'); return; }
             if (endDate < startDate) { showToast('기간 오류', '종료일은 시작일 이후여야 합니다.'); return; }
-
             if (id) {
                 const evt = STATE.events.find(ev => ev.id === parseInt(id));
                 if (evt) { evt.title = title; evt.deptId = deptId; evt.startDate = startDate; evt.endDate = endDate; }
@@ -1530,26 +1654,21 @@
                 STATE.events.push({ id: Date.now(), deptId, title, startDate, endDate });
                 showToast('일정 등록', '새 일정이 캘린더에 반영되었습니다.');
             }
-            STATE.visibility[deptId] = true; // 새 일정이 필터에 가려지지 않도록 보장
-            syncDB('events');
-            renderFilters(); renderCalendar(); renderDashboardWidgets();
-            closeModal('add-event-modal');
+            STATE.visibility[deptId] = true;
+            syncDB('events'); renderFilters(); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
         }
-
         function deleteEventFromModal() {
-            const id = parseInt(document.getElementById('event-id').value);
-            if (!id) return;
+            const id = parseInt(document.getElementById('event-id').value); if (!id) return;
             STATE.events = STATE.events.filter(e => e.id !== id);
-            syncDB('events'); renderCalendar(); renderDashboardWidgets();
-            closeModal('add-event-modal'); showToast('일정 삭제', '선택한 일정이 제거되었습니다.');
+            syncDB('events'); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
+            showToast('일정 삭제', '선택한 일정이 제거되었습니다.');
         }
 
-        // --- 칸반 보드: 프로젝트 상태 이동 ---
+        // 칸반 보드 프로젝트 상태 이동 (이전/다음)
         function moveProjectStatus(id, dir) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
             const order = ['paused', 'ongoing', 'completed'];
-            let idx = order.indexOf(proj.status);
-            if (idx === -1) idx = 0;
+            let idx = order.indexOf(proj.status); if (idx === -1) idx = 0;
             idx = dir === 'next' ? Math.min(idx + 1, 2) : Math.max(idx - 1, 0);
             proj.status = order[idx];
             if (proj.status === 'completed') proj.progress = 100;
@@ -1558,7 +1677,7 @@
             syncDB('projects'); renderProjects();
         }
 
-        // --- RBAC 권한 매트릭스 토글 ---
+        // RBAC 권한 매트릭스 체크박스 토글
         function togglePermission(deptId, tab) {
             if (!STATE.permissions[deptId]) STATE.permissions[deptId] = {};
             STATE.permissions[deptId][tab] = !STATE.permissions[deptId][tab];
@@ -1568,10 +1687,10 @@
             showToast('권한 갱신', `[${dept ? dept.name : deptId}] 권한이 ${state} 처리되었습니다.`);
         }
 
-        // --- 통합 보고 허브: 검색 / 부서 필터 ---
+        // 통합 보고 허브 검색 / 부서 필터
         function filterDocs() {
-            const q = (document.getElementById('doc-search')?.value || '').toLowerCase().trim();
-            const dept = document.getElementById('doc-filter-dept')?.value || 'all';
+            const q = (document.getElementById('doc-search') ? document.getElementById('doc-search').value : '').toLowerCase().trim();
+            const dept = document.getElementById('doc-filter-dept') ? document.getElementById('doc-filter-dept').value : 'all';
             const filtered = STATE.documents.filter(doc => {
                 const matchDept = (dept === 'all') || (doc.deptId === dept);
                 const matchText = !q || doc.title.toLowerCase().includes(q) || (doc.author || '').toLowerCase().includes(q);
@@ -1580,14 +1699,13 @@
             renderDocuments(filtered);
         }
 
-        // --- 대시보드 공지 수정 ---
+        // 대시보드 공지 수정 모달 열기 / 저장
         function openEditNoticeModal() {
             document.getElementById('notice-title').value = STATE.dashboardNotice.title;
             document.getElementById('notice-date').value = STATE.dashboardNotice.date;
             document.getElementById('notice-content').value = STATE.dashboardNotice.content;
             openModal('edit-notice-modal');
         }
-
         function handleSaveNotice(e) {
             e.preventDefault();
             STATE.dashboardNotice = {
@@ -1595,108 +1713,76 @@
                 date: document.getElementById('notice-date').value.trim(),
                 content: document.getElementById('notice-content').value.trim()
             };
-            syncDB('dashboardNotice'); renderDashboardNotice();
-            closeModal('edit-notice-modal'); showToast('공지 갱신', '대시보드 공지가 업데이트되었습니다.');
+            syncDB('dashboardNotice'); renderDashboardNotice(); closeModal('edit-notice-modal');
+            showToast('공지 갱신', '대시보드 공지가 업데이트되었습니다.');
         }
 
-        // --- 메일 연동 센터: 제공자별 입력 패널 전환 ---
+        // 메일 연동 센터 — 제공자별 입력 패널 전환
         function toggleMailFields() {
-            const sel = document.getElementById('mail-provider-select');
-            if (!sel) return;
-            const provider = sel.value;
-            STATE.mailplug.provider = provider;
-
+            const sel = document.getElementById('mail-provider-select'); if (!sel) return;
+            const provider = sel.value; STATE.mailplug.provider = provider;
             const api = document.getElementById('panel-api-config');
             const oauth = document.getElementById('panel-oauth-config');
             const imap = document.getElementById('panel-custom-imap');
             [api, oauth, imap].forEach(p => p && p.classList.add('hidden'));
-
-            if (provider === 'mailplug') { api && api.classList.remove('hidden'); }
+            if (provider === 'mailplug') { if (api) api.classList.remove('hidden'); }
             else if (provider === 'gmail' || provider === 'outlook') {
-                oauth && oauth.classList.remove('hidden');
+                if (oauth) oauth.classList.remove('hidden');
                 const prompt = document.getElementById('oauth-prompt-text');
                 const btn = document.getElementById('oauth-btn-text');
                 const label = provider === 'gmail' ? 'Google Gmail' : 'MS Outlook';
                 if (prompt) prompt.innerText = STATE.mailplug.oauthConnected ? `${label} 토큰 발급 완료` : `${label} 보안 연동 토큰이 필요합니다.`;
                 if (btn) btn.innerText = STATE.mailplug.oauthConnected ? '재인증 요청' : '보안 OAuth 2.0 연결';
             }
-            else if (provider === 'custom_imap') { imap && imap.classList.remove('hidden'); }
-
+            else if (provider === 'custom_imap') { if (imap) imap.classList.remove('hidden'); }
             updateMailStatusBadge();
         }
-
         function updateMailStatusBadge() {
-            const badge = document.getElementById('mp-status-badge');
-            if (!badge) return;
-            if (STATE.mailplug.connected) {
-                badge.innerText = '연동 활성';
-                badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200/50";
-            } else {
-                badge.innerText = '연동 끊김';
-                badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50";
-            }
+            const badge = document.getElementById('mp-status-badge'); if (!badge) return;
+            if (STATE.mailplug.connected) { badge.innerText = '연동 활성'; badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200/50"; }
+            else { badge.innerText = '연동 끊김'; badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50"; }
         }
-
-        // --- OAuth 2.0 토큰 발급 시뮬레이션 ---
         function handleOAuthSimulation() {
-            STATE.mailplug.oauthConnected = true;
-            toggleMailFields();
+            STATE.mailplug.oauthConnected = true; toggleMailFields();
             showToast('토큰 발급', '보안 인증 토큰이 정상 발급되었습니다. [연동 저장]을 눌러 완료하십시오.');
         }
-
-        // --- 메일 연동 저장 / 해제 ---
         function handleUnifiedMailConnect(save) {
             if (!save) {
-                STATE.mailplug.connected = false;
-                STATE.mailplug.oauthConnected = false;
-                STATE.mailplug.emails = [];
+                STATE.mailplug.connected = false; STATE.mailplug.oauthConnected = false; STATE.mailplug.emails = [];
                 updateMailStatusBadge(); renderMailInbox(); renderDashboardWidgets();
-                showToast('연동 해제', '메일 보안 터널 세션이 종료되었습니다.');
-                return;
+                showToast('연동 해제', '메일 보안 터널 세션이 종료되었습니다.'); return;
             }
-
-            const provider = STATE.mailplug.provider || (document.getElementById('mail-provider-select')?.value);
+            const provider = STATE.mailplug.provider || (document.getElementById('mail-provider-select') ? document.getElementById('mail-provider-select').value : 'mailplug');
             if (provider === 'mailplug') {
-                const domain = document.getElementById('mp-domain')?.value.trim();
+                const domain = document.getElementById('mp-domain') ? document.getElementById('mp-domain').value.trim() : '';
                 if (!domain) { showToast('입력 필요', '메일플러그 회사 ID를 입력하십시오.'); return; }
                 STATE.mailplug.domain = domain;
             } else if (provider === 'gmail' || provider === 'outlook') {
                 if (!STATE.mailplug.oauthConnected) { showToast('인증 필요', '먼저 OAuth 2.0 보안 연결을 완료하십시오.'); return; }
             } else if (provider === 'custom_imap') {
-                const host = document.getElementById('imap-host')?.value.trim();
-                const email = document.getElementById('custom-email')?.value.trim();
+                const host = document.getElementById('imap-host') ? document.getElementById('imap-host').value.trim() : '';
+                const email = document.getElementById('custom-email') ? document.getElementById('custom-email').value.trim() : '';
                 if (!host || !email) { showToast('입력 필요', 'IMAP 서버 주소와 이메일 주소를 입력하십시오.'); return; }
             }
-
             STATE.mailplug.connected = true;
             STATE.mailplug.emails = (STATE.mailplug.mockDB[provider] || []).map(m => ({ ...m }));
             updateMailStatusBadge(); renderMailInbox(); renderDashboardWidgets();
             showToast('연동 완료', '메일 서버와의 보안 동기화가 활성화되었습니다.');
         }
-
-        // --- 수신 메일 동기화 (수동 새로고침) ---
         function triggerApprovalSync() {
             if (!STATE.mailplug.connected) { showToast('연동 필요', '먼저 메일 서버 연동을 완료하십시오.'); return; }
             const provider = STATE.mailplug.provider;
             const base = (STATE.mailplug.mockDB[provider] || []).map(m => ({ ...m }));
             base.unshift({ id: Date.now(), sender: '동기화 엔진', subject: '[동기화] 신규 수신 메일 확인 완료', time: '방금 전', content: '수동 동기화 요청에 따라 사서함을 갱신했습니다.' });
-            STATE.mailplug.emails = base;
-            renderMailInbox(); renderDashboardWidgets();
+            STATE.mailplug.emails = base; renderMailInbox(); renderDashboardWidgets();
             showToast('동기화 완료', '최신 수신 메일을 불러왔습니다.');
         }
-
-        // --- 수신 메일 원장 렌더링 ---
+        // 수신 메일 원장 렌더링 (이 버전의 컨테이너 id 는 'mailplug-grid')
         function renderMailInbox() {
-            const grid = document.getElementById('mailplug-inbox-grid');
-            if (!grid) return;
+            const grid = document.getElementById('mailplug-grid'); if (!grid) return;
             if (!STATE.mailplug.connected) {
-                grid.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-16">
-                    <i data-lucide="mail-x" class="w-9 h-9 mb-3 opacity-30"></i>
-                    <p class="text-xs font-medium">메일 서버가 연동되지 않았습니다.</p>
-                    <p class="text-[10px] mt-1">좌측 패널에서 연동을 완료하면 수신 메일이 표시됩니다.</p>
-                </div>`;
-                lucide.createIcons();
-                return;
+                grid.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-16"><i data-lucide="mail-x" class="w-9 h-9 mb-3 opacity-30"></i><p class="text-xs font-medium">메일 서버가 연동되지 않았습니다.</p><p class="text-[10px] mt-1">좌측 패널에서 연동을 완료하면 수신 메일이 표시됩니다.</p></div>`;
+                lucide.createIcons(); return;
             }
             grid.innerHTML = '';
             STATE.mailplug.emails.forEach(m => {
