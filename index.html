@@ -1121,6 +1121,17 @@
             return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
         }
 
+        // Supabase 저장소 key는 ASCII만 허용 → 한글/공백 등은 안전 문자로 변환 (원본 파일명은 DB에 별도 보관)
+        function safeStorageKey(name, prefix) {
+            name = name || 'file';
+            const dot = name.lastIndexOf('.');
+            const ext = dot >= 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+            let base = (dot >= 0 ? name.slice(0, dot) : name).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
+            if (!base) base = 'file';
+            const rand = Math.random().toString(36).slice(2, 8);
+            return `${prefix || ''}${Date.now()}_${base}_${rand}${ext ? '.' + ext : ''}`;
+        }
+
         function applyDeptLock(selectId) {
             const sel = document.getElementById(selectId); if (!sel) return;
             if (STATE.profile.role === 'admin') { sel.disabled = false; }
@@ -1380,8 +1391,7 @@
             const f = STATE.uploadedDocFile;
             let storage_path = null, file_mime = null, file_size = '', file_type = 'memo', title = typed;
             if (f) {
-                const safe = f.name.replace(/[^\w.\-가-힣]/g, '_');
-                storage_path = `${Date.now()}_${safe}`;
+                storage_path = safeStorageKey(f.name, '');
                 const { error: upErr } = await sb.storage.from('documents').upload(storage_path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
                 if (upErr) { showToast('업로드 실패', upErr.message); return; }
                 file_mime = f.type || ''; file_size = humanSize(f.size); file_type = (f.name.split('.').pop() || 'file').toLowerCase();
@@ -1708,8 +1718,7 @@
             let file_path = null, file_mime = null;
             if (STATE.meetingUploadedFile) {
                 const f = STATE.meetingUploadedFile;
-                const safe = f.name.replace(/[^\w.\-가-힣]/g, '_');
-                file_path = `meetings/${Date.now()}_${safe}`;
+                file_path = safeStorageKey(f.name, 'meetings/');
                 const { error: upErr } = await sb.storage.from('documents').upload(file_path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
                 if (upErr) { showToast('첨부 업로드 실패', upErr.message); return; }
                 file_mime = f.type || '';
