@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -77,6 +77,10 @@
         /* 간트 오늘 표시선 */
         .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444; z-index: 5; }
         .gantt-today-line::after { content: '오늘'; position: absolute; top: -16px; left: -10px; font-size: 9px; font-weight: 700; color: #ef4444; }
+        /* 모달 크기 조절 그립 */
+        .modal-resize-grip { position: absolute; right: 3px; bottom: 3px; width: 20px; height: 20px; cursor: nwse-resize; z-index: 20; border-right: 3px solid #94a3b8; border-bottom: 3px solid #94a3b8; border-bottom-right-radius: 6px; opacity: 0.5; transition: opacity 0.15s; }
+        .modal-resize-grip:hover { opacity: 1; border-color: #6366f1; }
+        html.dark .modal-resize-grip { border-color: #6b7280; }
         /* 캘린더 일정 호버 툴팁 */
         #cal-tooltip { position: fixed; z-index: 70; pointer-events: none; max-width: 260px; background: #0f172a; color: #f1f5f9; border-radius: 10px; padding: 10px 12px; font-size: 11px; line-height: 1.5; box-shadow: 0 8px 24px rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.12s; }
         html.dark #cal-tooltip { background: #30302e; border: 1px solid #46443f; }
@@ -851,7 +855,7 @@
     </div>
 
     <!-- 프로젝트 상세 항목 추가/편집 -->
-    <div id="project-item-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+    <div id="project-item-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-indigo-600"></i><h4 id="project-item-modal-title" class="font-bold text-sm text-slate-800">상세 항목 추가</h4></div>
             <form onsubmit="handleSaveProjectItem(event)" class="p-5 space-y-3">
@@ -870,7 +874,7 @@
     </div>
 
     <!-- 주간 일별 내용 추가/편집 -->
-    <div id="meeting-day-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+    <div id="meeting-day-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i><h4 id="mday-modal-title" class="font-bold text-sm text-slate-800">일별 내용 작성</h4></div>
             <form onsubmit="handleSaveMeetingDay(event)" class="p-5 space-y-3">
@@ -919,7 +923,7 @@
     </div>
 
     <!-- 프로젝트 상세 모달 (대형 뷰) -->
-    <div id="project-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-3 md:p-6">
+    <div id="project-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl h-[95vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 프로젝트 상세 현황</h4>
@@ -961,7 +965,7 @@
     </div>
 
     <!-- 문서 미리보기 / 다운로드 모달 -->
-    <div id="doc-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div id="doc-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border">
             <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
                 <h4 id="doc-preview-title" class="font-bold text-sm text-slate-800 truncate pr-4">문서 미리보기</h4>
@@ -2501,9 +2505,8 @@
             await reloadMeetings(); openMeetingDetail(meetingId); showToast('삭제', '일별 내용이 삭제되었습니다.');
         }
         function gotoLinkedProject(projectId, itemId) {
-            closeModal('meeting-detail-modal');
-            switchTab('management-progress');
-            setTimeout(() => openProjectDetail(projectId, itemId || undefined), 60);
+            // 탭 전환 없이 현재 화면(주간보고 등) 위에 프로젝트 상세를 띄움. 닫으면 아래 화면이 그대로 보임.
+            openProjectDetail(projectId, itemId || undefined);
         }
         function populateMeetingWeekOptions() {
             const sel = document.getElementById('meeting-week'); if (!sel) return;
@@ -3138,14 +3141,33 @@
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
             const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); makeModalResizable(m); }
         }
+        let _rzState = null;
         function makeModalResizable(m) {
             const panel = m.querySelector(':scope > div'); if (!panel) return;
-            panel.style.resize = 'both';
-            panel.style.overflow = 'auto';
-            panel.style.maxWidth = '98vw';
-            panel.style.maxHeight = '96vh';
+            panel.style.maxWidth = '98vw'; panel.style.maxHeight = '96vh';
+            if (getComputedStyle(panel).position === 'static') panel.style.position = 'relative';
             if (!panel.style.minWidth) panel.style.minWidth = '300px';
             if (!panel.style.minHeight) panel.style.minHeight = '180px';
+            if (!panel.querySelector(':scope > .modal-resize-grip')) {
+                const grip = document.createElement('div');
+                grip.className = 'modal-resize-grip'; grip.title = '드래그하여 창 크기 조절';
+                grip.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const r = panel.getBoundingClientRect();
+                    _rzState = { panel, sx: e.clientX, sy: e.clientY, sw: r.width, sh: r.height };
+                    document.body.style.userSelect = 'none';
+                });
+                panel.appendChild(grip);
+            }
+            if (!window._rzBound) {
+                window._rzBound = true;
+                window.addEventListener('mousemove', (e) => {
+                    if (!_rzState) return;
+                    _rzState.panel.style.width = Math.max(300, _rzState.sw + (e.clientX - _rzState.sx)) + 'px';
+                    _rzState.panel.style.height = Math.max(180, _rzState.sh + (e.clientY - _rzState.sy)) + 'px';
+                });
+                window.addEventListener('mouseup', () => { if (_rzState) { _rzState = null; document.body.style.userSelect = ''; } });
+            }
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
 
@@ -3181,4 +3203,3 @@
 
     </script>
 </body>
-</html>
