@@ -829,7 +829,7 @@
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">회의 주제 / 보고 제목</label><input type="text" id="meeting-title" placeholder="예: 6월 2주차 수소사업부 정기 업무 보고" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="list" class="w-3 h-3 text-slate-400"></i> 주요 논의 내용 <span class="text-rose-400">*</span></label><textarea id="meeting-content" required rows="4" placeholder="이번 주 주요 진행 사항과 논의 내용을 입력하세요." class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> 주요 결정 / 합의 사항</label><textarea id="meeting-decisions" rows="2" placeholder="회의에서 확정된 결정 사항 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="target" class="w-3 h-3 text-indigo-500"></i> 액션 아이템 (담당/기한)</label><textarea id="meeting-actions" rows="2" placeholder="예: 안전규격 실사 - 박차장 / 6월 14일 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="folder-git" class="w-3 h-3 text-indigo-500"></i> 프로젝트</label><textarea id="meeting-actions" rows="2" placeholder="예: 수소추출기 설치 / 추출기 차압 점검 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="calendar-clock" class="w-3 h-3 text-amber-500"></i> 차주 계획</label><textarea id="meeting-next" rows="2" placeholder="다음 주 예정 업무 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="border rounded-xl p-2.5 relative text-center text-[10px] hover:bg-slate-50"><input type="file" id="meeting-img-input" accept="image/*" onchange="handleMeetingImgSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><i data-lucide="image" class="w-3.5 h-3.5 inline text-slate-400"></i> <span id="meeting-img-status">사진 첨부</span></div>
@@ -888,7 +888,11 @@
             <form onsubmit="handleSaveMeetingDay(event)" class="p-5 space-y-3">
                 <input type="hidden" id="mday-meeting-id"><input type="hidden" id="mday-entry-id">
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">요일</label><select id="mday-weekday" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option><option value="3">목요일</option><option value="4">금요일</option><option value="5">토요일</option><option value="6">일요일</option></select></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">업무 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">업무명</label><input type="text" id="mday-taskname" placeholder="예: 추출기 차압 점검" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="mday-manager" placeholder="예: 박과장" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                </div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 프로젝트 (선택)</label><select id="mday-project" onchange="onMdayProjectChange()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 항목 (선택)</label><select id="mday-item" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="">(연결 안 함)</option></select></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="mday-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleMdayFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="mday-file-status">클릭하여 파일 첨부</p></div></div>
@@ -2337,12 +2341,27 @@
             });
             if (window.lucide) lucide.createIcons();
         }
-        function meetingDayCardHTML(meet, en, wd, canManage) {
-            const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
-            const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
-            const fileRow = en.filePath ? `<div class="mt-2 max-w-[220px]">${attachSlot('mday', meet.id, en.id)}</div>` : '';
-            const ctrl = canManage ? `<div class="flex gap-3 mt-2 pt-2 border-t border-slate-100"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 삭제</button></div>` : '';
-            return `<div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"><p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${esc(en.content)}</p>${link}${fileRow}${ctrl}</div>`;
+        function meetingDayTableHTML(meet, wd, entries, canManage) {
+            const rows = entries.map(en => {
+                const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
+                const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
+                const att = en.filePath ? `<div class="mt-1.5 w-28">${attachSlot('mday', meet.id, en.id, 'sm')}</div>` : '';
+                const linkCell = (link || att) ? `${link}${att}` : '<span class="text-slate-300">-</span>';
+                const ctrl = canManage ? `<div class="flex gap-2 justify-end whitespace-nowrap"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></div>` : '<span class="text-slate-300">-</span>';
+                return `<tr class="border-t border-slate-100 align-top">
+                    <td class="p-2.5 font-bold text-slate-700 whitespace-pre-line min-w-[110px]">${esc(en.taskName) || '<span class=\'text-slate-300\'>-</span>'}</td>
+                    <td class="p-2.5 text-slate-600 whitespace-nowrap">${esc(en.manager) || '-'}</td>
+                    <td class="p-2.5 text-slate-600 whitespace-pre-line min-w-[200px] leading-relaxed">${esc(en.content) || '-'}</td>
+                    <td class="p-2.5 min-w-[120px]">${linkCell}</td>
+                    <td class="p-2.5 text-right text-[11px]">${ctrl}</td>
+                </tr>`;
+            }).join('');
+            return `<div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-xs">
+                    <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase"><th class="p-2.5 text-left font-bold">업무명</th><th class="p-2.5 text-left font-bold">담당자</th><th class="p-2.5 text-left font-bold">상세 내용</th><th class="p-2.5 text-left font-bold">연결 / 첨부</th><th class="p-2.5 text-right font-bold">관리</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
         }
         function openDayExpand(meetingId, wd) {
             const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
@@ -2350,7 +2369,7 @@
             const entries = (meet.days || []).filter(d => d.weekday === wd);
             document.getElementById('day-expand-title').innerHTML = `<i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> ${WEEKDAY_KO[wd]} 일별 업무 <span class="text-[10px] text-slate-400 font-bold">${entries.length}건</span>`;
             const addBtn = canManage ? `<button onclick="closeModal('day-expand-modal'); openMeetingDayForm(${meet.id}, ${wd})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>` : '';
-            const cards = entries.length ? entries.map(en => meetingDayCardHTML(meet, en, wd, canManage)).join('') : `<p class="text-xs text-slate-300 text-center py-8">이 요일에 등록된 업무가 없습니다.</p>`;
+            const cards = entries.length ? meetingDayTableHTML(meet, wd, entries, canManage) : `<p class="text-xs text-slate-300 text-center py-8">이 요일에 등록된 업무가 없습니다.</p>`;
             document.getElementById('day-expand-body').innerHTML = `<div class="flex justify-end">${addBtn}</div>${cards}`;
             openModal('day-expand-modal'); if (window.lucide) lucide.createIcons();
             hydrateAttachmentPreviews(document.getElementById('day-expand-body'));
@@ -2371,10 +2390,9 @@
                 : usedDays.map(wd => {
                     const entries = days.filter(d => d.weekday === wd);
                     const isWeekend = wd >= 5;
-                    const cards = entries.map(en => meetingDayCardHTML(meet, en, wd, canManage)).join('');
                     return `<div class="space-y-2">
                         <div class="flex items-center gap-2 cursor-pointer group" onclick="openDayExpand(${meet.id}, ${wd})" title="클릭하여 확대"><span class="px-3 py-1 rounded-lg text-xs font-bold ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-600'}">${WEEKDAY_KO[wd]}</span><span class="text-[10px] text-slate-300 font-bold">${entries.length}건</span><i data-lucide="maximize-2" class="w-3 h-3 text-slate-300 group-hover:text-indigo-500"></i></div>
-                        <div class="space-y-2 pl-1">${cards}</div>
+                        ${meetingDayTableHTML(meet, wd, entries, canManage)}
                     </div>`;
                 }).join('');
             const sec = (icon, color, label, val) => val && val.trim() ? `<div class="space-y-1"><div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${esc(val)}</p></div>` : '';
@@ -2406,7 +2424,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                             ${sec('list', 'text-slate-500', '주요 논의 내용', meet.content)}
                             ${sec('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
-                            ${sec('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
+                            ${sec('folder-git', 'text-indigo-600', '프로젝트', meet.actionItems)}
                             ${sec('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
                         </div>
                         ${attachWrap}
@@ -2459,6 +2477,8 @@
             const en = entryId ? (meet.days || []).find(d => d.id === entryId) : null;
             document.getElementById('mday-weekday').value = String(en ? en.weekday : (weekday || 0));
             document.getElementById('mday-content').value = en ? en.content : '';
+            document.getElementById('mday-taskname').value = en ? (en.taskName || '') : '';
+            document.getElementById('mday-manager').value = en ? (en.manager || '') : '';
             populateMdayProjectSelect(en ? en.projectId : '');
             onMdayProjectChange(en ? en.projectItemId : '');
             STATE.mdayFile = null;
@@ -2491,7 +2511,7 @@
                 if (entryId && keep.path) { try { await sb.storage.from('documents').remove([keep.path]); } catch (er) {} }
                 filePath = newPath; fileName = f.name; fileMime = f.type || '';
             }
-            const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel, filePath, fileName, fileMime };
+            const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), taskName: document.getElementById('mday-taskname').value.trim(), manager: document.getElementById('mday-manager').value.trim(), content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel, filePath, fileName, fileMime };
             let days = (meet.days || []).slice();
             if (entryId) { const i = days.findIndex(d => d.id === entryId); if (i >= 0) days[i] = entry; else days.push(entry); }
             else days.push(entry);
@@ -2525,7 +2545,7 @@
             await reloadMeetings(); openMeetingDetail(meetingId); showToast('삭제', '일별 내용이 삭제되었습니다.');
         }
         // ── 첨부파일 썸네일 미리보기 엔진 ────────────────────────────────
-        function attachSlot(kind, id, eid) { return `<div class="attach-preview-slot" data-kind="${kind}" data-id="${id}" data-eid="${eid || ''}"></div>`; }
+        function attachSlot(kind, id, eid, size) { return `<div class="attach-preview-slot" data-kind="${kind}" data-id="${id}" data-eid="${eid || ''}" data-size="${size || ''}"></div>`; }
         function resolveAttachInfo(kind, id, eid) {
             if (kind === 'meeting') { const m = STATE.weeklyMeetings.find(x => x.id == id); if (!m || !m.filePath) return null; return { path: m.filePath, name: m.fileName, mime: m.fileMime, view: `viewMeetingFile(${id})` }; }
             if (kind === 'mday') { const m = STATE.weeklyMeetings.find(x => x.id == id); if (!m) return null; const en = (m.days || []).find(d => d.id === eid); if (!en || !en.filePath) return null; return { path: en.filePath, name: en.fileName, mime: en.fileMime, view: `viewMdayFile(${id},'${eid}')` }; }
@@ -2556,12 +2576,14 @@
             const mime = (info.mime || '').toLowerCase();
             const escName = esc(info.name || '첨부파일');
             const safePath = (info.path || '').replace(/'/g, "\\'");
+            const sm = slot.dataset.size === 'sm';
+            const hCls = sm ? 'h-20' : 'h-44';
             slot.innerHTML = `<div class="relative group">
-                <div class="thumb-body relative w-full h-44 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer" onclick="${info.view}">
+                <div class="thumb-body relative w-full ${hCls} bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer" onclick="${info.view}">
                     <span class="inline-block w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></span>
                 </div>
-                <div class="absolute bottom-0 inset-x-0 bg-slate-900/75 text-white text-[10px] font-bold px-2 py-1.5 truncate flex items-center gap-1 pointer-events-none rounded-b-lg"><i data-lucide="paperclip" class="w-3 h-3"></i> ${escName}</div>
-                <button onclick="downloadStoragePath('${safePath}','${escName.replace(/'/g, "\\'")}')" class="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-slate-200 rounded-lg text-slate-600 shadow" title="다운로드"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+                <div class="absolute bottom-0 inset-x-0 bg-slate-900/75 text-white ${sm ? 'text-[8px] px-1 py-0.5' : 'text-[10px] px-2 py-1.5'} font-bold truncate flex items-center gap-1 pointer-events-none rounded-b-lg"><i data-lucide="paperclip" class="${sm ? 'w-2.5 h-2.5' : 'w-3 h-3'}"></i> ${escName}</div>
+                <button onclick="downloadStoragePath('${safePath}','${escName.replace(/'/g, "\\'")}')" class="absolute top-1 right-1 ${sm ? 'p-1' : 'p-1.5'} bg-white/90 hover:bg-white border border-slate-200 rounded-lg text-slate-600 shadow" title="다운로드"><i data-lucide="download" class="${sm ? 'w-3 h-3' : 'w-3.5 h-3.5'}"></i></button>
             </div>`;
             const thumb = slot.querySelector('.thumb-body');
             try {
@@ -2754,7 +2776,7 @@
                         const dept = STATE.departments.find(d => d.id === proj.deptId);
                         const done = it.done ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[9px] font-bold">완료</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[9px] font-bold">진행 필요</span>';
                         const period = (it.start || it.end) ? `<span class="font-mono text-[10px] text-slate-400">${it.start || '-'} ~ ${it.end || '-'}</span>` : '';
-                        return `<div onclick="gotoLinkedProject(${proj.id}, '${it.id}')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all flex items-center justify-between gap-3">
+                        return `<div onclick="acknowledgeAndOpen(${proj.id}, '${it.id}')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all flex items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap"><strong class="text-sm text-slate-800 truncate ${it.done ? 'line-through opacity-60' : ''}">${esc(it.info)}</strong>${done}</div>
                                 <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '전사'}</span> ${esc(proj.title)} ${period}</div>
@@ -2775,10 +2797,10 @@
                 const completed = scope(STATE.projects).filter(p => p.status === 'completed').length;
                 const docCount = scope(STATE.documents).length;
                 const cards = [
-                    { label: isAdmin ? '이번 달 일정' : '우리 부서 이번 달 일정', value: monthEvents, icon: 'calendar-days', bg: 'bg-indigo-50', fg: 'text-indigo-600' },
-                    { label: '진행 중 프로젝트', value: ongoing, icon: 'loader', bg: 'bg-blue-50', fg: 'text-blue-600' },
-                    { label: '완료 프로젝트', value: completed, icon: 'check-circle-2', bg: 'bg-emerald-50', fg: 'text-emerald-600' },
-                    { label: '등록 보고서', value: docCount, icon: 'files', bg: 'bg-slate-100', fg: 'text-slate-600' }
+                    { label: isAdmin ? '이번 달 일정' : '우리 부서 이번 달 일정', value: monthEvents, icon: 'calendar-days', bg: 'bg-indigo-50', fg: 'text-indigo-600', onclick: "switchTab('calendar')" },
+                    { label: '진행 중 프로젝트', value: ongoing, icon: 'loader', bg: 'bg-blue-50', fg: 'text-blue-600', onclick: "switchTab('management-progress')" },
+                    { label: '완료 프로젝트', value: completed, icon: 'check-circle-2', bg: 'bg-emerald-50', fg: 'text-emerald-600', onclick: "switchTab('management-progress')" },
+                    { label: '등록 보고서', value: docCount, icon: 'files', bg: 'bg-slate-100', fg: 'text-slate-600', onclick: "switchTab('documents')" }
                 ];
                 if (isAdmin) {
                     const pending = STATE.users.filter(u => !u.approved).length;
@@ -3302,6 +3324,12 @@
         function getSeenTasks() {
             try { const raw = localStorage.getItem(seenTasksKey()); return new Set(raw ? JSON.parse(raw) : []); } catch (e) { return new Set(); }
         }
+        function acknowledgeAndOpen(projId, itemId) {
+            try { const seen = getSeenTasks(); (STATE._assignedIds || []).forEach(id => seen.add(id)); localStorage.setItem(seenTasksKey(), JSON.stringify([...seen])); } catch (e) { }
+            const c = document.getElementById('dashboard-mytasks-count'); if (c) c.classList.add('hidden');
+            const a = document.getElementById('dashboard-mytasks-ack'); if (a) a.classList.add('hidden');
+            gotoLinkedProject(projId, itemId);
+        }
         function acknowledgeTasks() {
             try {
                 const seen = getSeenTasks();
@@ -3313,3 +3341,4 @@
 
     </script>
 </body>
+</html>
