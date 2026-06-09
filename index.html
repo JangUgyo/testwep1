@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -376,6 +376,7 @@
                     <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
                         <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 내 담당 업무 알림
                         <span id="dashboard-mytasks-count" class="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">0</span>
+                        <button onclick="acknowledgeTasks()" id="dashboard-mytasks-ack" class="ml-auto px-3 py-1 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-500 hover:bg-slate-100">확인</button>
                     </h3>
                     <p class="text-[11px] text-slate-400">프로젝트 상세 항목에 내 이름이 담당자로 지정된 업무입니다. 클릭하면 해당 항목으로 이동합니다.</p>
                     <div id="dashboard-mytasks" class="space-y-2"></div>
@@ -835,6 +836,17 @@
                 <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="meeting-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- 주간 일별 업무 요일 확대 -->
+    <div id="day-expand-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl h-[80vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 id="day-expand-title" class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> 일별 업무</h4>
+                <button onclick="closeModal('day-expand-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="day-expand-body" class="p-6 space-y-3 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -1387,13 +1399,13 @@
             });
         }
         function renderDeptOptions() {
-            const list = ['event-dept', 'doc-dept', 'edit-doc-dept', 'profile-dept', 'signup-dept'];
+            const list = ['event-dept', 'profile-dept', 'signup-dept'];
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-            // 프로젝트/주간회의에서는 대표이사(ceo) 제외
+            // 프로젝트/주간회의/통합보고허브에서는 대표이사(ceo) 제외
             const noCeoHTML = STATE.departments.filter(d => d.id !== 'ceo').map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
-            ['project-dept', 'meeting-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = noCeoHTML; });
-            const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML;
+            ['project-dept', 'meeting-dept', 'doc-dept', 'edit-doc-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = noCeoHTML; });
+            const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML;
             const meetFilter = document.getElementById('meeting-filter-dept'); if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + noCeoHTML;
             const projFilter = document.getElementById('project-filter-dept'); if (projFilter) { const keep = projFilter.value || 'all'; projFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; projFilter.value = [...projFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
@@ -1804,7 +1816,15 @@
         }
         function projectsForView() {
             const fd = document.getElementById('project-filter-dept') ? document.getElementById('project-filter-dept').value : 'all';
-            return STATE.projects.filter(p => fd === 'all' || p.deptId === fd);
+            return STATE.projects
+                .filter(p => fd === 'all' || p.deptId === fd)
+                .slice()
+                .sort((a, b) => {
+                    const sa = a.startDate || '9999-99-99', sb = b.startDate || '9999-99-99';
+                    if (sa !== sb) return sa < sb ? -1 : 1;
+                    const ea = a.endDate || '9999-99-99', eb = b.endDate || '9999-99-99';
+                    return ea < eb ? -1 : (ea > eb ? 1 : 0);
+                });
         }
         function renderProjects() {
             const v = STATE.currentProgressSubView;
@@ -2304,6 +2324,23 @@
             });
             if (window.lucide) lucide.createIcons();
         }
+        function meetingDayCardHTML(meet, en, wd, canManage) {
+            const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
+            const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
+            const fileRow = en.filePath ? `<div class="flex items-center gap-2 mt-2"><button onclick="viewMdayFile(${meet.id}, '${en.id}')" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[10px] font-bold text-blue-700"><i data-lucide="eye" class="w-3 h-3"></i><span class="truncate max-w-[180px]">${esc(en.fileName) || '첨부'}</span></button><button onclick="downloadMdayFile(${meet.id}, '${en.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3 h-3"></i></button></div>` : '';
+            const ctrl = canManage ? `<div class="flex gap-3 mt-2 pt-2 border-t border-slate-100"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 삭제</button></div>` : '';
+            return `<div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"><p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${esc(en.content)}</p>${link}${fileRow}${ctrl}</div>`;
+        }
+        function openDayExpand(meetingId, wd) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
+            const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
+            const entries = (meet.days || []).filter(d => d.weekday === wd);
+            document.getElementById('day-expand-title').innerHTML = `<i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> ${WEEKDAY_KO[wd]} 일별 업무 <span class="text-[10px] text-slate-400 font-bold">${entries.length}건</span>`;
+            const addBtn = canManage ? `<button onclick="closeModal('day-expand-modal'); openMeetingDayForm(${meet.id}, ${wd})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>` : '';
+            const cards = entries.length ? entries.map(en => meetingDayCardHTML(meet, en, wd, canManage)).join('') : `<p class="text-xs text-slate-300 text-center py-8">이 요일에 등록된 업무가 없습니다.</p>`;
+            document.getElementById('day-expand-body').innerHTML = `<div class="flex justify-end">${addBtn}</div>${cards}`;
+            openModal('day-expand-modal'); if (window.lucide) lucide.createIcons();
+        }
         const WEEKDAY_KO = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
         function openMeetingDetail(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet) return;
@@ -2319,15 +2356,9 @@
                 : usedDays.map(wd => {
                     const entries = days.filter(d => d.weekday === wd);
                     const isWeekend = wd >= 5;
-                    const cards = entries.map(en => {
-                        const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
-                        const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
-                        const fileRow = en.filePath ? `<div class="flex items-center gap-2 mt-2"><button onclick="viewMdayFile(${meet.id}, '${en.id}')" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[10px] font-bold text-blue-700"><i data-lucide="eye" class="w-3 h-3"></i><span class="truncate max-w-[180px]">${esc(en.fileName) || '첨부'}</span></button><button onclick="downloadMdayFile(${meet.id}, '${en.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3 h-3"></i></button></div>` : '';
-                        const ctrl = canManage ? `<div class="flex gap-3 mt-2 pt-2 border-t border-slate-100"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 삭제</button></div>` : '';
-                        return `<div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"><p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${esc(en.content)}</p>${link}${fileRow}${ctrl}</div>`;
-                    }).join('');
+                    const cards = entries.map(en => meetingDayCardHTML(meet, en, wd, canManage)).join('');
                     return `<div class="space-y-2">
-                        <div class="flex items-center gap-2"><span class="px-3 py-1 rounded-lg text-xs font-bold ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-600'}">${WEEKDAY_KO[wd]}</span><span class="text-[10px] text-slate-300 font-bold">${entries.length}건</span></div>
+                        <div class="flex items-center gap-2 cursor-pointer group" onclick="openDayExpand(${meet.id}, ${wd})" title="클릭하여 확대"><span class="px-3 py-1 rounded-lg text-xs font-bold ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-600'}">${WEEKDAY_KO[wd]}</span><span class="text-[10px] text-slate-300 font-bold">${entries.length}건</span><i data-lucide="maximize-2" class="w-3 h-3 text-slate-300 group-hover:text-indigo-500"></i></div>
                         <div class="space-y-2 pl-1">${cards}</div>
                     </div>`;
                 }).join('');
@@ -2597,11 +2628,15 @@
             const mtWrap = document.getElementById('dashboard-mytasks-wrap');
             const mtBox = document.getElementById('dashboard-mytasks');
             const mtCount = document.getElementById('dashboard-mytasks-count');
+            STATE._assignedIds = assigned.map(a => a.it.id);
             if (mtWrap && mtBox) {
                 if (assigned.length === 0) { mtWrap.classList.add('hidden'); mtBox.innerHTML = ''; }
                 else {
                     mtWrap.classList.remove('hidden');
-                    if (mtCount) mtCount.innerText = assigned.length;
+                    const seen = getSeenTasks();
+                    const unseen = assigned.filter(a => !seen.has(a.it.id)).length;
+                    if (mtCount) { mtCount.innerText = unseen; mtCount.classList.toggle('hidden', unseen === 0); }
+                    const ackBtn = document.getElementById('dashboard-mytasks-ack'); if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
                     mtBox.innerHTML = assigned.map(({ proj, it }) => {
                         const dept = STATE.departments.find(d => d.id === proj.deptId);
                         const done = it.done ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[9px] font-bold">완료</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[9px] font-bold">진행 필요</span>';
@@ -3101,7 +3136,16 @@
             if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
             if (id === 'add-project-modal') applyDeptLock('project-dept');
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
-            const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+            const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); makeModalResizable(m); }
+        }
+        function makeModalResizable(m) {
+            const panel = m.querySelector(':scope > div'); if (!panel) return;
+            panel.style.resize = 'both';
+            panel.style.overflow = 'auto';
+            panel.style.maxWidth = '98vw';
+            panel.style.maxHeight = '96vh';
+            if (!panel.style.minWidth) panel.style.minWidth = '300px';
+            if (!panel.style.minHeight) panel.style.minHeight = '180px';
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
 
@@ -3120,6 +3164,19 @@
         function initTheme() {
             let saved = null; try { saved = localStorage.getItem('wsp_theme'); } catch (e) { }
             applyTheme(saved === 'dark');
+        }
+        // ── 담당 업무 알림 확인 상태 (개인) ──────────────────────────────
+        function seenTasksKey() { return 'wsp_seen_tasks_' + (STATE.currentUser ? STATE.currentUser.id : 'anon'); }
+        function getSeenTasks() {
+            try { const raw = localStorage.getItem(seenTasksKey()); return new Set(raw ? JSON.parse(raw) : []); } catch (e) { return new Set(); }
+        }
+        function acknowledgeTasks() {
+            try {
+                const seen = getSeenTasks();
+                (STATE._assignedIds || []).forEach(id => seen.add(id));
+                localStorage.setItem(seenTasksKey(), JSON.stringify([...seen]));
+            } catch (e) { }
+            renderDashboardWidgets();
         }
 
     </script>
