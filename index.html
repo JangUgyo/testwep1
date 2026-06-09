@@ -38,6 +38,33 @@
         .sheet-html table { border-collapse: collapse; font-size: 12px; }
         .sheet-html td, .sheet-html th { border: 1px solid #e2e8f0; padding: 4px 8px; white-space: nowrap; }
         .sheet-html tr:first-child td { background: #f8fafc; font-weight: 700; }
+
+        /* ===== 다크 모드 ===== */
+        html.dark { color-scheme: dark; }
+        html.dark body { background-color: #0b1120 !important; color: #e2e8f0; }
+        html.dark * { border-color: #334155; }
+        html.dark aside { background-color: #0f172a !important; border-color: #1e293b !important; }
+        html.dark .bg-white { background-color: #1e293b !important; }
+        html.dark .bg-white\/30 { background-color: rgba(255,255,255,0.14) !important; }
+        html.dark .bg-slate-50, html.dark .bg-slate-100,
+        html.dark .bg-slate-50\/20, html.dark .bg-slate-50\/50, html.dark .bg-slate-50\/60,
+        html.dark .bg-slate-50\/70, html.dark .bg-slate-50\/80, html.dark .bg-slate-100\/70 { background-color: #172033 !important; }
+        html.dark .bg-\[\#F8FAFC\] { background-color: #0b1120 !important; }
+        html.dark .border-slate-200, html.dark .border-slate-100,
+        html.dark .border-slate-200\/80, html.dark .border-slate-200\/70, html.dark .border-slate-200\/60,
+        html.dark .border-slate-100\/60, html.dark .border-slate-100\/40 { border-color: #334155 !important; }
+        html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #334155 !important; }
+        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 { color: #e2e8f0 !important; }
+        html.dark .text-slate-600, html.dark .text-slate-500 { color: #cbd5e1 !important; }
+        html.dark .text-slate-400, html.dark .text-slate-300, html.dark .text-slate-200 { color: #94a3b8 !important; }
+        html.dark input, html.dark select, html.dark textarea { background-color: #0f172a !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+        html.dark input::placeholder, html.dark textarea::placeholder { color: #64748b !important; }
+        html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover,
+        html.dark .hover\:bg-slate-50\/70:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: #243044 !important; }
+        html.dark .shadow-sm, html.dark .shadow, html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl, html.dark .shadow-2xl { box-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
+        /* 문서 미리보기 본문은 밝게 유지(원본 가독성) */
+        html.dark #doc-preview-body { background: #e2e8f0; }
         /* Refined Sidebar Navigation Styling */
         .sidebar-item {
             display: flex;
@@ -267,6 +294,9 @@
                 </div>
                 <button onclick="handleUserLogout()" class="w-full py-2 border border-slate-200 hover:bg-rose-50 text-[10px] text-slate-500 hover:text-rose-600 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 사내 네트워크 로그아웃
+                </button>
+                <button onclick="toggleDarkMode()" id="darkmode-btn" class="w-full py-2 border border-slate-200 hover:bg-slate-100 text-[10px] text-slate-500 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
+                    <i data-lucide="moon" class="w-3.5 h-3.5"></i> <span id="darkmode-label">다크 모드</span>
                 </button>
             </div>
         </div>
@@ -798,6 +828,23 @@
         </div>
     </div>
 
+    <!-- 문서 수정 모달 -->
+    <div id="edit-doc-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
+            <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="file-pen-line" class="w-4 h-4 text-blue-600"></i><h4 class="font-bold text-sm text-slate-800">보고서 수정</h4></div>
+            <form onsubmit="handleSaveDocumentEdit(event)" class="p-5 space-y-4">
+                <input type="hidden" id="edit-doc-id">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">보고서 제목</label><input type="text" id="edit-doc-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="edit-doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="edit-doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
+                </div>
+                <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="edit-doc-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg" onchange="handleEditDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="edit-doc-file-status">파일 교체 (선택)</p></div>
+                <div class="flex gap-2"><button type="button" onclick="closeModal('edit-doc-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-blue-600 text-white text-xs font-bold">수정 저장</button></div>
+            </form>
+        </div>
+    </div>
+
     <!-- 문서 미리보기 / 다운로드 모달 -->
     <div id="doc-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border">
@@ -971,6 +1018,7 @@
 
         async function initApp() {
             lucide.createIcons();
+            initTheme();
             populateHeaderSelects();
             renderFilters();
             renderDeptOptions();
@@ -1221,7 +1269,7 @@
             });
         }
         function renderDeptOptions() {
-            const list = ['event-dept', 'doc-dept', 'profile-dept', 'project-dept', 'meeting-dept', 'signup-dept'];
+            const list = ['event-dept', 'doc-dept', 'edit-doc-dept', 'profile-dept', 'project-dept', 'meeting-dept', 'signup-dept'];
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
             const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML;
@@ -1391,7 +1439,7 @@
                 const fileBadge = hasFile ? `<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ` : '';
                 const tr = document.createElement('tr'); tr.className = "hover:bg-blue-50/40 transition-all text-xs cursor-pointer";
                 tr.onclick = () => viewDocument(doc.id);
-                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[10px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
+                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[10px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
                 tbody.appendChild(tr);
             });
             if (window.lucide) lucide.createIcons();
@@ -1503,6 +1551,40 @@
             if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.${error ? ' (' + error.message + ')' : ''}</div>`; dl.classList.add('hidden'); return; }
             const ext = (doc.fileType && doc.fileType !== 'memo') ? doc.fileType : (doc.title.indexOf('.') >= 0 ? doc.title.split('.').pop() : '');
             openFilePreview(doc.title, data.signedUrl, doc.fileMime || '', ext);
+        }
+        function openEditDocument(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            document.getElementById('edit-doc-id').value = doc.id;
+            document.getElementById('edit-doc-title').value = doc.title;
+            const ds = document.getElementById('edit-doc-dept'); if (ds) ds.value = doc.deptId;
+            document.getElementById('edit-doc-author').value = doc.author || '';
+            STATE.editDocFile = null;
+            const st = document.getElementById('edit-doc-file-status'); if (st) { st.innerText = doc.storagePath ? '현재 파일 유지 (교체하려면 클릭)' : '파일 첨부 (선택)'; st.classList.remove('text-indigo-600'); }
+            openModal('edit-doc-modal');
+        }
+        function handleEditDocFileSelection(e) {
+            const f = e.target.files[0]; if (!f) return; STATE.editDocFile = f;
+            const st = document.getElementById('edit-doc-file-status'); if (st) { st.innerText = `교체 파일: ${f.name} (${humanSize(f.size)})`; st.classList.add('text-indigo-600'); }
+        }
+        async function handleSaveDocumentEdit(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-doc-id').value);
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            const patch = { title: document.getElementById('edit-doc-title').value.trim(), dept_id: document.getElementById('edit-doc-dept').value, author: document.getElementById('edit-doc-author').value.trim() };
+            if (!patch.title) { showToast('입력 필요', '보고서 제목을 입력하세요.'); return; }
+            if (STATE.editDocFile) {
+                const f = STATE.editDocFile;
+                const newPath = safeStorageKey(f.name, '');
+                const { error: upErr } = await sb.storage.from('documents').upload(newPath, f, { contentType: f.type || 'application/octet-stream', upsert: false });
+                if (upErr) { showToast('교체 실패', upErr.message); return; }
+                if (doc.storagePath) { try { await sb.storage.from('documents').remove([doc.storagePath]); } catch (er) {} }
+                patch.storage_path = newPath; patch.file_mime = f.type || ''; patch.file_type = (f.name.split('.').pop() || 'file').toLowerCase(); patch.file_size = humanSize(f.size);
+            }
+            const { error } = await sb.from('documents').update(patch).eq('id', id);
+            if (error) { showToast('수정 실패', error.message); return; }
+            STATE.editDocFile = null;
+            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments();
+            closeModal('edit-doc-modal'); showToast('문서 수정', '보고서 정보가 수정되었습니다.');
         }
         async function deleteDocument(id) {
             const doc = STATE.documents.find(d => d.id === id);
@@ -2223,9 +2305,23 @@
         }
 
         // ── 라우터 / 네비게이션 가드 ─────────────────────────────────────
+        const TAB_META = {
+            'dashboard': { title: '종합 대시보드', desc: '사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.' },
+            'calendar': { title: '부서 통합 캘린더', desc: '전 부서의 일정을 한 화면에서 통합 관리합니다.' },
+            'management-progress': { title: '프로젝트 협업 관제 센터', desc: '부서별 프로젝트 진척을 칸반·간트 타임라인으로 관리합니다.' },
+            'weekly-meeting': { title: '주간 회의 대시보드', desc: '부서별 주간 업무 보고를 작성하고 공유합니다.' },
+            'documents': { title: '통합 보고 허브', desc: '사내 보고서를 등록·열람·수정·관리합니다.' },
+            'documents-pending': { title: '결재 대기 함', desc: '결재 대기 중인 문서를 확인합니다.' },
+            'documents-archive': { title: '보고 보관소', desc: '보관된 보고 문서를 조회합니다.' },
+            'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
+            'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
+            'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
+        };
         async function switchTab(tabId) {
             if (typeof tabId === 'string' && tabId.indexOf('custom_') === 0) { launchCustomFeature(tabId); return; }
             STATE.currentTab = tabId;
+            const meta = TAB_META[tabId];
+            if (meta) { const vt = document.getElementById('view-title'); if (vt) vt.innerText = meta.title; const vd = document.getElementById('view-description'); if (vd) vd.innerText = meta.desc; }
             const isAdmin = (STATE.profile.role === 'admin');
             const adminOnly = ['management-stats', 'management-logs'];
             document.getElementById('main-content-sections').classList.remove('hidden');
@@ -2286,6 +2382,23 @@
             const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
         }
         function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+
+        // ── 다크 모드 ────────────────────────────────────────────────────
+        function applyTheme(on) {
+            document.documentElement.classList.toggle('dark', !!on);
+            const lbl = document.getElementById('darkmode-label'); if (lbl) lbl.innerText = on ? '라이트 모드' : '다크 모드';
+            const btn = document.getElementById('darkmode-btn'); if (btn) { const ic = btn.querySelector('i'); if (ic) ic.setAttribute('data-lucide', on ? 'sun' : 'moon'); }
+            if (window.lucide) lucide.createIcons();
+        }
+        function toggleDarkMode() {
+            const on = !document.documentElement.classList.contains('dark');
+            applyTheme(on);
+            try { localStorage.setItem('wsp_theme', on ? 'dark' : 'light'); } catch (e) { }
+        }
+        function initTheme() {
+            let saved = null; try { saved = localStorage.getItem('wsp_theme'); } catch (e) { }
+            applyTheme(saved === 'dark');
+        }
 
     </script>
 </body>
