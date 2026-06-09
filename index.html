@@ -816,14 +816,48 @@
         </div>
     </div>
 
-    <!-- 주간 보고 상세 모달 -->
-    <div id="meeting-detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
-            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2">
+    <!-- 주간 보고 상세 모달 (대형 뷰) -->
+    <div id="meeting-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-6xl h-[92vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 주간 업무 보고 상세</h4>
-                <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="meeting-detail-body" class="p-6 space-y-4 overflow-y-auto"></div>
+            <div id="meeting-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- 프로젝트 상세 항목 추가/편집 -->
+    <div id="project-item-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
+            <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-indigo-600"></i><h4 id="project-item-modal-title" class="font-bold text-sm text-slate-800">상세 항목 추가</h4></div>
+            <form onsubmit="handleSaveProjectItem(event)" class="p-5 space-y-3">
+                <input type="hidden" id="pitem-project-id"><input type="hidden" id="pitem-id">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 정보 (항목명)</label><input type="text" id="pitem-info" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="pitem-manager" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일자</label><input type="date" id="pitem-start" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일자</label><input type="date" id="pitem-end" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                </div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="pitem-detail" rows="4" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div class="flex gap-2"><button type="button" onclick="closeModal('project-item-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 주간 일별 내용 추가/편집 -->
+    <div id="meeting-day-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
+            <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i><h4 id="mday-modal-title" class="font-bold text-sm text-slate-800">일별 내용 작성</h4></div>
+            <form onsubmit="handleSaveMeetingDay(event)" class="p-5 space-y-3">
+                <input type="hidden" id="mday-meeting-id"><input type="hidden" id="mday-entry-id">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">요일</label><select id="mday-weekday" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option><option value="3">목요일</option><option value="4">금요일</option><option value="5">토요일</option><option value="6">일요일</option></select></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">업무 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 프로젝트 (선택)</label><select id="mday-project" onchange="onMdayProjectChange()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 항목 (선택)</label><select id="mday-item" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="">(연결 안 함)</option></select></div>
+                <div class="flex gap-2"><button type="button" onclick="closeModal('meeting-day-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
+            </form>
         </div>
     </div>
 
@@ -860,14 +894,14 @@
         </div>
     </div>
 
-    <!-- 프로젝트 상세 모달 -->
-    <div id="project-detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border max-h-[92vh] flex flex-col">
-            <div class="px-5 py-4 border-b bg-slate-50 flex items-center justify-between gap-2">
-                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 프로젝트 상세</h4>
-                <button onclick="closeModal('project-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+    <!-- 프로젝트 상세 모달 (대형 뷰) -->
+    <div id="project-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-6xl h-[92vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 프로젝트 상세 현황</h4>
+                <button onclick="closeModal('project-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="project-detail-body" class="p-5 space-y-4 overflow-y-auto"></div>
+            <div id="project-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -1193,7 +1227,7 @@
         }
         async function reloadProjects() {
             const { data } = await sb.from('projects').select('*').order('id', { ascending: false });
-            STATE.projects = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, progress: r.progress, status: r.status, startDate: r.start_date, endDate: r.end_date, desc: r.descr, filePath: r.file_path, fileName: r.file_name, fileMime: r.file_mime }));
+            STATE.projects = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, progress: r.progress, status: r.status, startDate: r.start_date, endDate: r.end_date, desc: r.descr, filePath: r.file_path, fileName: r.file_name, fileMime: r.file_mime, items: Array.isArray(r.items) ? r.items : [] }));
         }
         async function reloadDocuments() {
             const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
@@ -1201,7 +1235,7 @@
         }
         async function reloadMeetings() {
             const { data } = await sb.from('weekly_meetings').select('*').order('id', { ascending: false });
-            STATE.weeklyMeetings = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, week: r.week, author: r.author, date: r.meet_date, content: r.content, image: r.image, fileName: r.file_name, filePath: r.file_path, fileMime: r.file_mime, title: r.title, decisions: r.decisions, actionItems: r.action_items, nextPlan: r.next_plan }));
+            STATE.weeklyMeetings = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, week: r.week, author: r.author, date: r.meet_date, content: r.content, image: r.image, fileName: r.file_name, filePath: r.file_path, fileMime: r.file_mime, title: r.title, decisions: r.decisions, actionItems: r.action_items, nextPlan: r.next_plan, days: Array.isArray(r.days) ? r.days : [] }));
         }
         async function reloadSettings() {
             const { data } = await sb.from('app_settings').select('*');
@@ -2002,7 +2036,8 @@
             STATE.projectUploadedFile = null; STATE.projectKeepFile = null;
             await reloadProjects(); renderProjects(); closeModal('add-project-modal'); showToast(id ? '프로젝트 수정' : '기획 수립', id ? '프로젝트가 수정되었습니다.' : '새 프로젝트가 배포되었습니다.');
         }
-        function openProjectDetail(id) {
+        function esc(s) { return (s == null ? '' : String(s)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function openProjectDetail(id, highlightItemId) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
             const dept = STATE.departments.find(d => d.id === proj.deptId);
             const statusKo = { paused: '대기', ongoing: '진행', completed: '완료' }[proj.status] || proj.status;
@@ -2010,28 +2045,100 @@
             const barFill = { paused: 'bg-slate-400', ongoing: 'bg-blue-500', completed: 'bg-emerald-500' }[proj.status] || 'bg-slate-400';
             const manage = canManageProject(proj);
             const fileBlock = proj.filePath
-                ? `<div class="space-y-2"><p class="text-[10px] font-bold text-slate-500">첨부 파일</p><div class="flex items-center gap-2"><button onclick="viewProjectFile(${proj.id})" class="flex-1 flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${proj.fileName || '첨부파일'} 미리보기</span></button><button onclick="downloadProjectFile(${proj.id})" class="p-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3.5 h-3.5"></i></button></div></div>`
-                : `<div class="text-[11px] text-slate-400">첨부된 파일이 없습니다.</div>`;
+                ? `<div class="flex items-center gap-2"><button onclick="viewProjectFile(${proj.id})" class="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i><span class="truncate max-w-[200px]">${esc(proj.fileName) || '첨부파일'}</span></button><button onclick="downloadProjectFile(${proj.id})" class="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3.5 h-3.5"></i></button></div>`
+                : `<span class="text-[11px] text-slate-400">첨부 파일 없음</span>`;
+            const items = proj.items || [];
+            const rows = items.length === 0
+                ? `<tr><td colspan="6" class="py-8 text-center text-slate-300 text-xs">등록된 상세 항목이 없습니다. ${manage ? '우측 상단 "+ 항목 추가"로 작성하세요.' : ''}</td></tr>`
+                : items.map(it => {
+                    const hl = (highlightItemId && it.id === highlightItemId) ? ' bg-amber-50' : '';
+                    const ctrl = manage ? `<div class="flex items-center gap-2 justify-end"><button onclick="openProjectItemForm(${proj.id}, '${it.id}')" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button><button onclick="deleteProjectItem(${proj.id}, '${it.id}')" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></div>` : '<span class="text-slate-300">-</span>';
+                    return `<tr id="pitem-row-${esc(it.id)}" class="border-t border-slate-100 align-top${hl}">
+                        <td class="p-3 font-bold text-slate-700">${esc(it.info)}</td>
+                        <td class="p-3 text-slate-600 whitespace-nowrap">${esc(it.manager) || '-'}</td>
+                        <td class="p-3 text-slate-500 font-mono whitespace-nowrap">${esc(it.start) || '-'}</td>
+                        <td class="p-3 text-slate-500 font-mono whitespace-nowrap">${esc(it.end) || '-'}</td>
+                        <td class="p-3 text-slate-600 whitespace-pre-line min-w-[220px]">${esc(it.detail) || '-'}</td>
+                        <td class="p-3 text-right whitespace-nowrap text-[11px]">${ctrl}</td>
+                    </tr>`;
+                }).join('');
+            const addBtn = manage ? `<button onclick="openProjectItemForm(${proj.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 항목 추가</button>` : '';
             const ctrl = manage
-                ? `<div class="flex gap-2 pt-2 border-t border-slate-100"><button onclick="openEditProject(${proj.id})" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 편집</button><button onclick="deleteProject(${proj.id}); closeModal('project-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>`
-                : `<div class="pt-2 border-t border-slate-100 text-center text-[10px] text-slate-300">타 부서 과제 · 열람 전용</div>`;
+                ? `<div class="flex gap-2"><button onclick="openEditProject(${proj.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 프로젝트 편집</button><button onclick="deleteProject(${proj.id}); closeModal('project-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>`
+                : `<span class="text-[10px] text-slate-300">타 부서 과제 · 열람 전용</span>`;
             document.getElementById('project-detail-body').innerHTML = `
-                <div class="flex items-start justify-between gap-3">
-                    <h3 class="text-base font-extrabold text-slate-800 leading-snug">${proj.title}</h3>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0 ${statusColor}">${statusKo}</span>
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-extrabold text-slate-800 leading-snug">${esc(proj.title)}</h3>
+                            <div class="flex items-center gap-2 flex-wrap text-[11px]">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${statusColor}">${statusKo}</span>
+                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                <span class="text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
+                            </div>
+                        </div>
+                        ${ctrl}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">공정률</span><span class="text-[11px] font-bold text-slate-700">${proj.progress}%</span></div><div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div></div>
+                        <div class="flex items-center gap-2">${fileBlock}</div>
+                    </div>
+                    <div class="space-y-1"><p class="text-[10px] font-bold text-slate-500">프로젝트 개요</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? esc(proj.desc) : '<span class=\'text-slate-300\'>등록된 개요가 없습니다.</span>'}</p></div>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap text-[11px]">
-                    <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                    <span class="text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
-                </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">공정률</span><span class="text-[11px] font-bold text-slate-700">${proj.progress}%</span></div>
-                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div>
-                </div>
-                <div class="space-y-1"><p class="text-[10px] font-bold text-slate-500">상세 요약</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? proj.desc : '<span class="text-slate-300">등록된 상세 내용이 없습니다.</span>'}</p></div>
-                ${fileBlock}
-                ${ctrl}`;
-            openModal('project-detail-modal');
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50/70">
+                        <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="table-2" class="w-4 h-4 text-indigo-500"></i> 프로젝트 상세 항목</h4>
+                        ${addBtn}
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase"><th class="p-3 text-left font-bold">프로젝트 정보</th><th class="p-3 text-left font-bold">담당자</th><th class="p-3 text-left font-bold">시작일자</th><th class="p-3 text-left font-bold">종료일자</th><th class="p-3 text-left font-bold">상세 내용</th><th class="p-3 text-right font-bold">관리</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+            openModal('project-detail-modal'); if (window.lucide) lucide.createIcons();
+            if (highlightItemId) { const r = document.getElementById('pitem-row-' + highlightItemId); if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }
+        async function persistProjectItems(projectId, items) {
+            const { error } = await sb.from('projects').update({ items }).eq('id', projectId);
+            if (error) { showToast('저장 실패', error.message); return false; }
+            const p = STATE.projects.find(x => x.id === projectId); if (p) p.items = items;
+            return true;
+        }
+        function openProjectItemForm(projectId, itemId) {
+            const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
+            if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 편집할 수 있습니다.'); return; }
+            document.getElementById('pitem-project-id').value = projectId;
+            document.getElementById('pitem-id').value = itemId || '';
+            const it = itemId ? (proj.items || []).find(x => x.id === itemId) : null;
+            document.getElementById('pitem-info').value = it ? it.info : '';
+            document.getElementById('pitem-manager').value = it ? (it.manager || '') : '';
+            document.getElementById('pitem-start').value = it ? (it.start || '') : '';
+            document.getElementById('pitem-end').value = it ? (it.end || '') : '';
+            document.getElementById('pitem-detail').value = it ? (it.detail || '') : '';
+            document.getElementById('project-item-modal-title').innerText = itemId ? '상세 항목 편집' : '상세 항목 추가';
+            openModal('project-item-modal');
+        }
+        async function handleSaveProjectItem(e) {
+            e.preventDefault();
+            const projectId = parseInt(document.getElementById('pitem-project-id').value);
+            const itemId = document.getElementById('pitem-id').value;
+            const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
+            const entry = { id: itemId || ('pi_' + Date.now()), info: document.getElementById('pitem-info').value.trim(), manager: document.getElementById('pitem-manager').value.trim(), start: document.getElementById('pitem-start').value, end: document.getElementById('pitem-end').value, detail: document.getElementById('pitem-detail').value.trim() };
+            let items = (proj.items || []).slice();
+            if (itemId) { const i = items.findIndex(x => x.id === itemId); if (i >= 0) items[i] = entry; else items.push(entry); }
+            else items.push(entry);
+            if (!(await persistProjectItems(projectId, items))) return;
+            await reloadProjects(); renderProjects(); closeModal('project-item-modal'); openProjectDetail(projectId, entry.id); showToast('저장 완료', '프로젝트 상세 항목이 저장되었습니다.');
+        }
+        async function deleteProjectItem(projectId, itemId) {
+            const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
+            if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 편집할 수 있습니다.'); return; }
+            if (!confirm('이 상세 항목을 삭제하시겠습니까?')) return;
+            const items = (proj.items || []).filter(x => x.id !== itemId);
+            if (!(await persistProjectItems(projectId, items))) return;
+            await reloadProjects(); renderProjects(); openProjectDetail(projectId); showToast('삭제', '상세 항목이 삭제되었습니다.');
         }
         async function viewProjectFile(id) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj || !proj.filePath) return;
@@ -2150,33 +2257,125 @@
             });
             if (window.lucide) lucide.createIcons();
         }
+        const WEEKDAY_KO = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
         function openMeetingDetail(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet) return;
             const dept = STATE.departments.find(d => d.id === meet.deptId);
             const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
             const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
-            const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="w-full max-h-64 object-cover cursor-pointer hover:opacity-90 transition rounded-lg border" title="클릭하여 크게 보기">` : '';
-            const fileChip = meet.filePath
-                ? `<button onclick="viewMeetingFile(${meet.id})" class="w-full flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${meet.fileName || '첨부파일'}</span><span class="text-[9px] text-blue-500">미리보기/다운로드 ›</span></button>`
-                : '';
-            const attachBlock = (img || fileChip) ? `<div class="space-y-2 pt-1">${img}${fileChip}</div>` : '';
+            const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="max-h-48 rounded-lg border object-cover cursor-pointer hover:opacity-90" title="크게 보기">` : '';
+            const fileChip = meet.filePath ? `<button onclick="viewMeetingFile(${meet.id})" class="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate max-w-[220px]">${esc(meet.fileName) || '첨부파일'}</span></button>` : '';
+            const days = meet.days || [];
+            const dayCols = WEEKDAY_KO.map((label, wd) => {
+                const entries = days.filter(d => d.weekday === wd);
+                const entryHtml = entries.length === 0
+                    ? `<p class="text-[10px] text-slate-300 py-2 text-center">내용 없음</p>`
+                    : entries.map(en => {
+                        const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
+                        const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="mt-1.5 inline-flex items-center gap-1 text-[9px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5 hover:bg-indigo-100"><i data-lucide="link" class="w-2.5 h-2.5"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
+                        const ctrl = canManage ? `<div class="flex gap-1.5 mt-1.5"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-[9px] text-slate-400 hover:text-indigo-600 font-bold">편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-[9px] text-slate-400 hover:text-rose-600 font-bold">삭제</button></div>` : '';
+                        return `<div class="bg-white border border-slate-200 rounded-lg p-2"><p class="text-[11px] text-slate-700 whitespace-pre-line leading-relaxed">${esc(en.content)}</p>${link}${ctrl}</div>`;
+                    }).join('');
+                const addBtn = canManage ? `<button onclick="openMeetingDayForm(${meet.id}, ${wd})" class="w-full mt-1.5 py-1 border border-dashed border-slate-200 rounded-lg text-[10px] text-slate-400 hover:text-indigo-600 hover:border-indigo-300 font-bold">+ 추가</button>` : '';
+                const isWeekend = wd >= 5;
+                return `<div class="flex flex-col min-w-[150px] flex-1">
+                    <div class="text-center text-[11px] font-bold py-1.5 rounded-t-lg ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-slate-100 text-slate-600'}">${label}</div>
+                    <div class="flex-1 bg-slate-50/60 border border-t-0 border-slate-100 rounded-b-lg p-1.5 space-y-1.5">${entryHtml}${addBtn}</div>
+                </div>`;
+            }).join('');
+            const sec = (icon, color, label, val) => val && val.trim() ? `<div class="space-y-1"><div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${esc(val)}</p></div>` : '';
             const ctrl = canManage
-                ? `<div class="flex gap-2 pt-2 border-t border-slate-100"><button onclick="openEditMeeting(${meet.id})" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
-                : `<div class="pt-2 border-t border-slate-100 text-center text-[10px] text-slate-300">타 부서 보고 · 열람 전용</div>`;
+                ? `<div class="flex gap-2"><button onclick="openEditMeeting(${meet.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 보고 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
+                : `<span class="text-[10px] text-slate-300">타 부서 보고 · 열람 전용</span>`;
             document.getElementById('meeting-detail-body').innerHTML = `
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                    <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
-                    <span class="text-[10px] text-slate-400 font-mono ml-auto">${meet.date || ''}</span>
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${meet.date || ''}</span>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-800 leading-snug">${esc(headline)}</h3>
+                            <p class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> 보고자 ${esc(meet.author) || '-'}</p>
+                        </div>
+                        ${ctrl}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pt-1">
+                        ${sec('list', 'text-slate-500', '주요 논의 내용', meet.content)}
+                        ${sec('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
+                        ${sec('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
+                        ${sec('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
+                    </div>
+                    ${(img || fileChip) ? `<div class="flex items-center gap-3 flex-wrap pt-1">${img}${fileChip}</div>` : ''}
                 </div>
-                <div><h3 class="text-base font-extrabold text-slate-800 leading-snug">${headline}</h3><p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> 보고자 ${meet.author || '-'}</p></div>
-                ${_meetSection('list', 'text-slate-500', '주요 논의 내용', meet.content)}
-                ${_meetSection('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
-                ${_meetSection('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
-                ${_meetSection('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
-                ${attachBlock}
-                ${ctrl}`;
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-5 space-y-3">
+                    <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4 text-indigo-500"></i> 주간 일별 업무 (월~일)</h4>
+                    <div class="flex gap-2 overflow-x-auto pb-2">${dayCols}</div>
+                </div>`;
             openModal('meeting-detail-modal'); if (window.lucide) lucide.createIcons();
+        }
+        async function persistMeetingDays(meetingId, days) {
+            const { error } = await sb.from('weekly_meetings').update({ days }).eq('id', meetingId);
+            if (error) { showToast('저장 실패', error.message); return false; }
+            const m = STATE.weeklyMeetings.find(x => x.id === meetingId); if (m) m.days = days;
+            return true;
+        }
+        function populateMdayProjectSelect(selectedProjectId) {
+            const sel = document.getElementById('mday-project'); if (!sel) return;
+            sel.innerHTML = `<option value="">(연결 안 함)</option>` + STATE.projects.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join('');
+            sel.value = selectedProjectId ? String(selectedProjectId) : '';
+            onMdayProjectChange(selectedProjectId);
+        }
+        function onMdayProjectChange(preselectItemId) {
+            const pid = parseInt(document.getElementById('mday-project').value);
+            const itemSel = document.getElementById('mday-item'); if (!itemSel) return;
+            const proj = STATE.projects.find(p => p.id === pid);
+            const opts = ['<option value="">(항목 연결 안 함)</option>'];
+            if (proj) (proj.items || []).forEach(it => opts.push(`<option value="${it.id}">${esc(it.info)}</option>`));
+            itemSel.innerHTML = opts.join('');
+            if (preselectItemId) itemSel.value = preselectItemId;
+        }
+        function openMeetingDayForm(meetingId, weekday, entryId) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
+            if (!(STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId)) { showToast('권한 없음', '본인 소속 부서의 보고만 편집할 수 있습니다.'); return; }
+            document.getElementById('mday-meeting-id').value = meetingId;
+            document.getElementById('mday-entry-id').value = entryId || '';
+            const en = entryId ? (meet.days || []).find(d => d.id === entryId) : null;
+            document.getElementById('mday-weekday').value = String(en ? en.weekday : (weekday || 0));
+            document.getElementById('mday-content').value = en ? en.content : '';
+            populateMdayProjectSelect(en ? en.projectId : '');
+            onMdayProjectChange(en ? en.projectItemId : '');
+            document.getElementById('mday-modal-title').innerText = entryId ? '일별 내용 편집' : `일별 내용 작성 (${WEEKDAY_KO[weekday || 0]})`;
+            openModal('meeting-day-modal');
+        }
+        async function handleSaveMeetingDay(e) {
+            e.preventDefault();
+            const meetingId = parseInt(document.getElementById('mday-meeting-id').value);
+            const entryId = document.getElementById('mday-entry-id').value;
+            const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
+            const pid = parseInt(document.getElementById('mday-project').value) || null;
+            const itemSel = document.getElementById('mday-item'); const itemId = itemSel.value || null;
+            const itemLabel = itemId ? (itemSel.options[itemSel.selectedIndex] ? itemSel.options[itemSel.selectedIndex].text : '') : '';
+            const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel };
+            let days = (meet.days || []).slice();
+            if (entryId) { const i = days.findIndex(d => d.id === entryId); if (i >= 0) days[i] = entry; else days.push(entry); }
+            else days.push(entry);
+            if (!(await persistMeetingDays(meetingId, days))) return;
+            await reloadMeetings(); closeModal('meeting-day-modal'); openMeetingDetail(meetingId); showToast('저장 완료', '일별 업무 내용이 저장되었습니다.');
+        }
+        async function deleteMeetingDay(meetingId, entryId) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
+            if (!(STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId)) { showToast('권한 없음', '본인 소속 부서의 보고만 편집할 수 있습니다.'); return; }
+            if (!confirm('이 일별 내용을 삭제하시겠습니까?')) return;
+            const days = (meet.days || []).filter(d => d.id !== entryId);
+            if (!(await persistMeetingDays(meetingId, days))) return;
+            await reloadMeetings(); openMeetingDetail(meetingId); showToast('삭제', '일별 내용이 삭제되었습니다.');
+        }
+        function gotoLinkedProject(projectId, itemId) {
+            closeModal('meeting-detail-modal');
+            switchTab('management-progress');
+            setTimeout(() => openProjectDetail(projectId, itemId || undefined), 60);
         }
         function populateMeetingWeekOptions() {
             const sel = document.getElementById('meeting-week'); if (!sel) return;
@@ -2797,4 +2996,3 @@
 
     </script>
 </body>
-</html>
