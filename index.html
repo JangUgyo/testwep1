@@ -260,6 +260,10 @@
                         <i data-lucide="clipboard-signature" class="w-4.5 h-4.5 text-indigo-600"></i>
                         <span class="font-semibold text-slate-800">주간 회의 대시보드</span>
                     </button>
+                    <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item">
+                        <i data-lucide="wrench" class="w-4.5 h-4.5 text-rose-500"></i>
+                        <span class="font-semibold text-slate-800">현장 지원 / AS</span>
+                    </button>
                 </div>
             </div>
 
@@ -349,6 +353,10 @@
             </div>
             
             <div class="flex items-center gap-4">
+                <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-all">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">0</span>
+                </button>
                 <div class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs">
                     <span class="text-[12px] font-bold text-slate-400">인증 등급:</span>
                     <span id="header-user-role-badge" class="font-bold text-slate-800">로딩 중</span>
@@ -393,12 +401,12 @@
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
-                        <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 내 담당 업무 알림
+                        <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 통합 알림 센터
                         <span id="dashboard-mytasks-count" class="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[12px] font-bold">0</span>
-                        <button onclick="acknowledgeTasks()" id="dashboard-mytasks-ack" class="ml-auto px-3 py-1 rounded-lg border border-slate-200 text-[13px] font-bold text-slate-500 hover:bg-slate-100">확인</button>
+                        <button onclick="acknowledgeTasks()" id="dashboard-mytasks-ack" class="ml-auto px-3 py-1 rounded-lg border border-slate-200 text-[13px] font-bold text-slate-500 hover:bg-slate-100">모두 확인</button>
                     </h3>
-                    <p class="text-[13px] text-slate-400">프로젝트 상세 항목에 내 이름이 담당자로 지정된 업무입니다. 클릭하면 해당 항목으로 이동합니다.</p>
-                    <div id="dashboard-mytasks" class="space-y-2"></div>
+                    <p class="text-[13px] text-slate-400">내 결재 요청·담당 업무·회의 후속조치·오늘 일정·마감 임박을 한곳에 모았습니다. 항목을 누르면 해당 화면으로 이동합니다.</p>
+                    <div id="dashboard-mytasks" class="space-y-4"></div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 space-y-6">
@@ -561,7 +569,7 @@
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-50 border-b">
-                            <tr><th class="px-5 py-3 text-xs font-bold text-slate-500">보고서 제목</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성부서</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성자</th><th class="px-5 py-3 text-xs font-bold text-slate-500">수정일</th><th class="px-5 py-3 text-xs font-bold text-slate-500 text-right">기능</th></tr>
+                            <tr><th class="px-5 py-3 text-xs font-bold text-slate-500">보고서 제목</th><th class="px-5 py-3 text-xs font-bold text-slate-500">상태</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성부서</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성자</th><th class="px-5 py-3 text-xs font-bold text-slate-500">수정일</th><th class="px-5 py-3 text-xs font-bold text-slate-500 text-right">기능</th></tr>
                         </thead>
                         <tbody id="document-list-body" class="divide-y divide-slate-100"></tbody>
                     </table>
@@ -664,17 +672,38 @@
                 </div>
             </section>
             
-            <section id="view-documents-pending" class="hidden">
-                <div class="py-24 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                    <i data-lucide="clipboard-list" class="w-10 h-10 mb-3 opacity-30 text-slate-600"></i>
-                    <p class="text-xs font-medium">검토 대기 및 결재 라인 처리를 대기하는 미결 문서 가 보관함입니다.</p>
+            <section id="view-documents-pending" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-3.5 border-b bg-amber-50/60 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-4 h-4 text-amber-600"></i><h3 class="font-bold text-sm text-slate-700">결재 대기 함</h3><span class="text-[12px] text-slate-400">검토·승인을 기다리는 문서</span></div>
+                    <div id="pending-docs-body"></div>
                 </div>
             </section>
-            
-            <section id="view-documents-archive" class="hidden">
-                <div class="py-24 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                    <i data-lucide="folder-archive" class="w-10 h-10 mb-3 opacity-30 text-slate-600"></i>
-                    <p class="text-xs font-medium">부서 전결 후 정식 등록 완료 처리된 사내 공문 아카이빙 폴더입니다.</p>
+
+            <section id="view-documents-archive" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-3.5 border-b bg-emerald-50/60 flex items-center gap-2"><i data-lucide="folder-archive" class="w-4 h-4 text-emerald-600"></i><h3 class="font-bold text-sm text-slate-700">승인 완료 보관소</h3><span class="text-[12px] text-slate-400">전결 처리되어 정식 등록된 문서</span></div>
+                    <div id="archive-docs-body"></div>
+                </div>
+            </section>
+
+            <section id="view-field-support" class="hidden space-y-5">
+                <div id="ticket-stats" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <input type="text" id="ticket-search" onkeyup="renderTickets()" placeholder="고객사·현장·장비·장애 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-60 outline-none focus:border-rose-300">
+                        <select id="ticket-filter-status" onchange="renderTickets()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 상태</option><option value="received">접수</option><option value="in_progress">진행중</option><option value="hold">보류</option><option value="done">완료</option></select>
+                        <select id="ticket-filter-urgency" onchange="renderTickets()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 긴급도</option><option value="critical">긴급</option><option value="high">높음</option><option value="normal">보통</option><option value="low">낮음</option></select>
+                        <select id="ticket-filter-dept" onchange="renderTickets()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
+                    </div>
+                    <button onclick="openTicketForm()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> AS 티켓 등록</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[14px] border-collapse">
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">긴급도</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">장비 / 장애내용</th><th class="px-4 py-3 text-left font-bold">담당자</th><th class="px-4 py-3 text-left font-bold">상태</th><th class="px-4 py-3 text-left font-bold">접수일</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                            <tbody id="ticket-list-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -859,7 +888,45 @@
         </div>
     </div>
 
-    <!-- 주간 일별 업무 요일 확대 -->
+    <!-- AS 티켓 등록/편집 -->
+    <div id="ticket-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[92vh] overflow-hidden border flex flex-col">
+            <div class="px-5 py-3.5 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0"><i data-lucide="wrench" class="w-4 h-4 text-rose-600"></i><h4 id="ticket-form-title" class="font-bold text-sm text-slate-800">AS 티켓 등록</h4></div>
+            <form onsubmit="handleSaveTicket(event)" class="p-5 space-y-3 overflow-y-auto">
+                <input type="hidden" id="ticket-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">고객사</label><input type="text" id="ticket-customer" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현장명</label><input type="text" id="ticket-site" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">장비명</label><input type="text" id="ticket-equipment" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="ticket-assignee" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">긴급도</label><select id="ticket-urgency" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"><option value="low">낮음</option><option value="normal" selected>보통</option><option value="high">높음</option><option value="critical">긴급</option></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">처리 상태</label><select id="ticket-status" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"><option value="received">접수</option><option value="in_progress">진행중</option><option value="hold">보류</option><option value="done">완료</option></select></div>
+                    <div class="col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="ticket-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                </div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">장애 내용</label><textarea id="ticket-issue" rows="3" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">처리 결과</label><textarea id="ticket-result" rows="2" placeholder="처리 완료 시 결과를 기록하세요." class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">현장 사진 / 첨부 (여러 장 가능)</label>
+                    <div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="ticket-photo-input" accept="image/*,.pdf" multiple onchange="handleTicketPhotoSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-sm text-slate-500" id="ticket-photo-status">클릭하여 사진/파일 추가</p></div>
+                    <div id="ticket-photo-chips" class="flex flex-wrap gap-2 mt-2"></div>
+                </div>
+                <div class="flex gap-2 pt-1"><button type="button" onclick="closeModal('ticket-form-modal')" class="flex-1 py-2 border text-sm font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-rose-600 text-white text-sm font-bold rounded-lg">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AS 티켓 상세 -->
+    <div id="ticket-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl h-[90vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="wrench" class="w-4 h-4 text-rose-600"></i> AS 티켓 상세</h4>
+                <button onclick="closeModal('ticket-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="ticket-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- AS 티켓 등록/편집 끝 -->
     <div id="day-expand-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-3 md:p-6">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl h-[80vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
@@ -960,6 +1027,9 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
+                </div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">등록 방식 (결재)</label><select id="doc-status-mode" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="pending">결재 요청 (결재대기)</option><option value="draft">임시저장</option><option value="approved">결재 없이 바로 등록(승인완료)</option></select></div>
+                <div class="hidden">
                 </div>
                 <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer"><input type="file" id="doc-file-input" accept=".pdf,.docx,.xlsx" onchange="handleDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="doc-file-status">클릭하여 보고서 업로드</p></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('add-doc-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-blue-600 text-white text-xs font-bold">작성 완료</button></div>
@@ -1124,7 +1194,7 @@
             ],
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
-            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [],
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [],
             ganttScale: 'year', ganttAnchor: null,
             permissions: {},
             mailplug: {
@@ -1158,7 +1228,7 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
@@ -1261,7 +1331,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1279,7 +1349,15 @@
         }
         async function reloadDocuments() {
             const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
-            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size, storagePath: r.storage_path, fileMime: r.file_mime }));
+            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size, storagePath: r.storage_path, fileMime: r.file_mime, status: r.status || 'approved', rejectReason: r.reject_reason || '', approver: r.approver || '', approvedAt: r.approved_at || '' }));
+        }
+        async function reloadTickets() {
+            try {
+                const { data, error } = await sb.from('tickets').select('*').order('id', { ascending: false });
+                if (error) { STATE.ticketsTableMissing = true; STATE.tickets = []; return; }
+                STATE.ticketsTableMissing = false;
+                STATE.tickets = (data || []).map(r => ({ id: r.id, customer: r.customer, site: r.site, equipment: r.equipment, issue: r.issue, urgency: r.urgency || 'normal', assignee: r.assignee, status: r.status || 'received', result: r.result, deptId: r.dept_id, author: r.author, photos: Array.isArray(r.photos) ? r.photos : [], createdAt: r.created_at }));
+            } catch (e) { STATE.ticketsTableMissing = true; STATE.tickets = []; }
         }
         async function reloadMeetings() {
             const { data } = await sb.from('weekly_meetings').select('*').order('id', { ascending: false });
@@ -1313,7 +1391,8 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sites' }, async () => { await reloadSites(); const sel = document.getElementById('event-site'); renderSiteOptions(sel ? sel.value : ''); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); if (STATE.currentTab === 'documents') filterDocs(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); refreshDocViews(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, async () => { await reloadTickets(); renderDashboardWidgets(); if (STATE.currentTab === 'field-support') renderTickets(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
@@ -1432,6 +1511,8 @@
             const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML;
             const meetFilter = document.getElementById('meeting-filter-dept'); if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + noCeoHTML;
             const projFilter = document.getElementById('project-filter-dept'); if (projFilter) { const keep = projFilter.value || 'all'; projFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; projFilter.value = [...projFilter.options].some(o => o.value === keep) ? keep : 'all'; }
+            const tDept = document.getElementById('ticket-dept'); if (tDept) tDept.innerHTML = optionsHTML;
+            const tFilter = document.getElementById('ticket-filter-dept'); if (tFilter) { const keep = tFilter.value || 'all'; tFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML; tFilter.value = [...tFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
         function populateHeaderSelects() {
@@ -1652,9 +1733,16 @@
         }
 
         // ── 문서 허브 ────────────────────────────────────────────────────
+        const DOC_STATUS = { draft: ['임시저장', 'bg-slate-100 text-slate-600 border-slate-200'], pending: ['결재대기', 'bg-amber-50 text-amber-700 border-amber-200'], approved: ['승인완료', 'bg-emerald-50 text-emerald-700 border-emerald-200'], rejected: ['반려', 'bg-rose-50 text-rose-700 border-rose-200'] };
+        function docStatusBadge(status) { const s = DOC_STATUS[status] || DOC_STATUS.approved; return `<span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${s[1]}">${s[0]}</span>`; }
+        function canApproveDoc(doc) {
+            if (STATE.profile.role === 'admin') return true;
+            return doc.deptId === STATE.profile.deptId && ['head', 'leader', 'ceo'].includes(STATE.profile.role);
+        }
+        function isDocAuthor(doc) { return (doc.author || '').trim() === (STATE.profile.name || '').trim(); }
         function renderDocuments(items = STATE.documents) {
             const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
-            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
+            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
             items.forEach(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
                 const hasFile = !!doc.storagePath;
@@ -1662,9 +1750,68 @@
                 const fileBadge = hasFile ? `<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ` : '';
                 const tr = document.createElement('tr'); tr.className = "hover:bg-blue-50/40 transition-all text-xs cursor-pointer";
                 tr.onclick = () => viewDocument(doc.id);
-                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[12px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
+                let actions = `<button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button>`;
+                if ((doc.status === 'draft' || doc.status === 'rejected') && (isDocAuthor(doc) || STATE.profile.role === 'admin')) actions += `<button onclick="submitDocForApproval(${doc.id})" class="text-amber-600 hover:text-amber-800 font-bold mr-3">결재요청</button>`;
+                if (doc.status === 'pending' && canApproveDoc(doc)) actions += `<button onclick="approveDoc(${doc.id})" class="text-emerald-600 hover:text-emerald-800 font-bold mr-3">승인</button><button onclick="rejectDoc(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold mr-3">반려</button>`;
+                actions += `<button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button>`;
+                const rejectNote = doc.status === 'rejected' && doc.rejectReason ? `<div class="text-[11px] text-rose-500 mt-0.5">반려 사유: ${esc(doc.rejectReason)}</div>` : '';
+                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${esc(doc.title)}<span class="text-[12px] text-slate-400 font-normal">${sizeTxt}</span>${rejectNote}</td><td class="p-3">${docStatusBadge(doc.status)}</td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${esc(doc.author) || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()">${actions}</td>`;
                 tbody.appendChild(tr);
             });
+            if (window.lucide) lucide.createIcons();
+        }
+        async function submitDocForApproval(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            if (!(isDocAuthor(doc) || STATE.profile.role === 'admin')) { showToast('권한 없음', '작성자 또는 관리자만 결재 요청할 수 있습니다.'); return; }
+            const { error } = await sb.from('documents').update({ status: 'pending', reject_reason: null }).eq('id', id);
+            if (error) { showToast('요청 실패', error.message); return; }
+            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('결재 요청', '문서가 결재대기 상태로 상신되었습니다.');
+        }
+        async function approveDoc(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            if (!canApproveDoc(doc)) { showToast('권한 없음', '결재 권한이 없습니다.'); return; }
+            const { error } = await sb.from('documents').update({ status: 'approved', approver: STATE.profile.name, approved_at: new Date().toISOString(), reject_reason: null }).eq('id', id);
+            if (error) { showToast('승인 실패', error.message); return; }
+            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('승인 완료', `[${doc.title}] 문서를 승인했습니다.`);
+        }
+        async function rejectDoc(id) {
+            const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            if (!canApproveDoc(doc)) { showToast('권한 없음', '결재 권한이 없습니다.'); return; }
+            const reason = prompt('반려 사유를 입력하세요.', ''); if (reason === null) return;
+            const { error } = await sb.from('documents').update({ status: 'rejected', approver: STATE.profile.name, reject_reason: reason.trim() }).eq('id', id);
+            if (error) { showToast('반려 실패', error.message); return; }
+            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('반려 처리', `[${doc.title}] 문서를 반려했습니다.`);
+        }
+        function refreshDocViews() {
+            if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments();
+            renderPendingDocs(); renderArchiveDocs();
+        }
+        function renderPendingDocs() {
+            const box = document.getElementById('pending-docs-body'); if (!box) return;
+            const list = STATE.documents.filter(d => d.status === 'pending');
+            if (list.length === 0) { box.innerHTML = `<div class="py-20 text-center text-slate-300 text-sm">결재 대기 중인 문서가 없습니다.</div>`; return; }
+            box.innerHTML = list.map(doc => {
+                const dept = STATE.departments.find(d => d.id === doc.deptId);
+                const canApp = canApproveDoc(doc);
+                const act = canApp ? `<button onclick="approveDoc(${doc.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">승인</button><button onclick="rejectDoc(${doc.id})" class="px-3 py-1.5 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">반려</button>` : `<span class="text-[12px] text-slate-400">결재 권한 없음</span>`;
+                return `<div class="flex items-center justify-between gap-3 p-4 border-b border-slate-100 hover:bg-slate-50">
+                    <div class="min-w-0 cursor-pointer" onclick="viewDocument(${doc.id})"><div class="font-bold text-slate-800 truncate flex items-center gap-2">${doc.storagePath ? '<i data-lucide=\'paperclip\' class=\'w-3.5 h-3.5 text-blue-500\'></i>' : ''}${esc(doc.title)}</div><div class="text-[12px] text-slate-400 mt-0.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '공통'}</span> ${esc(doc.author) || '-'} · ${doc.date || ''}</div></div>
+                    <div class="flex gap-2 flex-shrink-0">${act}</div>
+                </div>`;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+        function renderArchiveDocs() {
+            const box = document.getElementById('archive-docs-body'); if (!box) return;
+            const list = STATE.documents.filter(d => d.status === 'approved');
+            if (list.length === 0) { box.innerHTML = `<div class="py-20 text-center text-slate-300 text-sm">승인 완료된 문서가 없습니다.</div>`; return; }
+            box.innerHTML = list.map(doc => {
+                const dept = STATE.departments.find(d => d.id === doc.deptId);
+                return `<div class="flex items-center justify-between gap-3 p-4 border-b border-slate-100 hover:bg-slate-50 cursor-pointer" onclick="viewDocument(${doc.id})">
+                    <div class="min-w-0"><div class="font-bold text-slate-800 truncate flex items-center gap-2">${doc.storagePath ? '<i data-lucide=\'paperclip\' class=\'w-3.5 h-3.5 text-blue-500\'></i>' : ''}${esc(doc.title)}</div><div class="text-[12px] text-slate-400 mt-0.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '공통'}</span> ${esc(doc.author) || '-'} · 승인 ${doc.approver ? '(' + esc(doc.approver) + ')' : ''}</div></div>
+                    <span class="px-2 py-0.5 border rounded-md text-[12px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 flex-shrink-0">승인완료</span>
+                </div>`;
+            }).join('');
             if (window.lucide) lucide.createIcons();
         }
         function handleDocFileSelection(e) {
@@ -1687,11 +1834,16 @@
                 if (!title) title = f.name;
             }
             if (!title) { showToast('입력 필요', '보고서 제목을 입력하거나 파일을 첨부하세요.'); return; }
-            const { error } = await sb.from('documents').insert({ title, dept_id: dept, author, doc_date: formatDate(new Date()), file_type, file_size, storage_path, file_mime });
+            let status = (document.getElementById('doc-status-mode') || {}).value || 'pending';
+            const canSelfApprove = STATE.profile.role === 'admin' || ['head', 'leader', 'ceo'].includes(STATE.profile.role);
+            if (status === 'approved' && !canSelfApprove) status = 'pending';
+            const insertRow = { title, dept_id: dept, author, doc_date: formatDate(new Date()), file_type, file_size, storage_path, file_mime, status };
+            if (status === 'approved') { insertRow.approver = STATE.profile.name; insertRow.approved_at = new Date().toISOString(); }
+            const { error } = await sb.from('documents').insert(insertRow);
             if (error) { showToast('등록 실패', error.message); return; }
             STATE.uploadedDocFile = null;
-            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments();
-            closeModal('add-doc-modal'); showToast('문서 등록', f ? '파일이 안전하게 업로드되었습니다.' : '보고서 기록이 등록되었습니다.');
+            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets();
+            closeModal('add-doc-modal'); showToast('문서 등록', status === 'pending' ? '결재 요청(결재대기)으로 등록되었습니다.' : (f ? '파일이 안전하게 업로드되었습니다.' : '보고서 기록이 등록되었습니다.'));
             document.getElementById('doc-title').value = '';
             const st = document.getElementById('doc-file-status'); if (st) { st.innerText = '클릭하여 보고서 업로드'; st.classList.remove('text-indigo-600'); }
         }
@@ -2786,37 +2938,8 @@
             const isAdmin = STATE.profile.role === 'admin';
             const myDept = STATE.profile.deptId;
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
-            // 내 담당 업무 알림 (프로젝트 상세 항목의 담당자 = 내 이름)
-            const myName = (STATE.profile.name || '').trim();
-            const assigned = [];
-            if (myName) STATE.projects.forEach(p => (p.items || []).forEach(it => { if ((it.manager || '').trim() === myName) assigned.push({ proj: p, it }); }));
-            const mtWrap = document.getElementById('dashboard-mytasks-wrap');
-            const mtBox = document.getElementById('dashboard-mytasks');
-            const mtCount = document.getElementById('dashboard-mytasks-count');
-            STATE._assignedIds = assigned.map(a => a.it.id);
-            if (mtWrap && mtBox) {
-                if (assigned.length === 0) { mtWrap.classList.add('hidden'); mtBox.innerHTML = ''; }
-                else {
-                    mtWrap.classList.remove('hidden');
-                    const seen = getSeenTasks();
-                    const unseen = assigned.filter(a => !seen.has(a.it.id)).length;
-                    if (mtCount) { mtCount.innerText = unseen; mtCount.classList.toggle('hidden', unseen === 0); }
-                    const ackBtn = document.getElementById('dashboard-mytasks-ack'); if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
-                    mtBox.innerHTML = assigned.map(({ proj, it }) => {
-                        const dept = STATE.departments.find(d => d.id === proj.deptId);
-                        const done = it.done ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[11px] font-bold">완료</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[11px] font-bold">진행 필요</span>';
-                        const period = (it.start || it.end) ? `<span class="font-mono text-[12px] text-slate-400">${it.start || '-'} ~ ${it.end || '-'}</span>` : '';
-                        return `<div onclick="acknowledgeAndOpen(${proj.id}, '${it.id}')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all flex items-center justify-between gap-3">
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap"><strong class="text-sm text-slate-800 truncate ${it.done ? 'line-through opacity-60' : ''}">${esc(it.info)}</strong>${done}</div>
-                                <div class="text-[12px] text-slate-400 mt-0.5 flex items-center gap-1.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '전사'}</span> ${esc(proj.title)} ${period}</div>
-                                ${it.detail ? `<p class="text-[13px] text-slate-500 mt-1 truncate">${esc(it.detail)}</p>` : ''}
-                            </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
-                        </div>`;
-                    }).join('');
-                }
-            }
+            // 통합 알림 센터
+            renderNotificationCenter();
             // 상단 통계 카드 (소속 부서 기준, 관리자는 전사)
             const stats = document.getElementById('dashboard-stats');
             if (stats) {
@@ -3190,6 +3313,189 @@
             STATE.customFeatures = next; renderCustomFeaturesMenu(); switchTab('dashboard'); showToast('기능 제거', `[${feat.name}] 탭이 제거되었습니다.`);
         }
 
+        // ── 현장 지원 / AS 티켓 관리 ─────────────────────────────────────
+        const TICKET_STATUS = { received: ['접수', 'bg-slate-100 text-slate-600 border-slate-200'], in_progress: ['진행중', 'bg-blue-50 text-blue-700 border-blue-200'], hold: ['보류', 'bg-amber-50 text-amber-700 border-amber-200'], done: ['완료', 'bg-emerald-50 text-emerald-700 border-emerald-200'] };
+        const TICKET_URGENCY = { low: ['낮음', 'bg-slate-100 text-slate-500 border-slate-200'], normal: ['보통', 'bg-sky-50 text-sky-600 border-sky-200'], high: ['높음', 'bg-orange-50 text-orange-600 border-orange-200'], critical: ['긴급', 'bg-rose-600 text-white border-rose-600'] };
+        function ticketStatusBadge(s) { const v = TICKET_STATUS[s] || TICKET_STATUS.received; return `<span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${v[1]}">${v[0]}</span>`; }
+        function ticketUrgencyBadge(u) { const v = TICKET_URGENCY[u] || TICKET_URGENCY.normal; return `<span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${v[1]}">${v[0]}</span>`; }
+        function canManageTicket(t) { return STATE.profile.role === 'admin' || t.deptId === STATE.profile.deptId || (t.author || '').trim() === (STATE.profile.name || '').trim(); }
+        function renderTickets() {
+            const body = document.getElementById('ticket-list-body'); if (!body) return;
+            const statsBox = document.getElementById('ticket-stats');
+            if (STATE.ticketsTableMissing) {
+                body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-sm">AS 티켓 테이블이 아직 생성되지 않았습니다. 안내된 SQL을 실행한 뒤 새로고침하세요.</td></tr>`;
+                if (statsBox) statsBox.innerHTML = ''; return;
+            }
+            const all = STATE.tickets || [];
+            if (statsBox) {
+                const cnt = (s) => all.filter(t => t.status === s).length;
+                const cards = [['received', '접수', 'text-slate-600'], ['in_progress', '진행중', 'text-blue-600'], ['hold', '보류', 'text-amber-600'], ['done', '완료', 'text-emerald-600']];
+                statsBox.innerHTML = cards.map(([k, l, c]) => `<div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><div class="text-2xl font-extrabold ${c}">${cnt(k)}</div><div class="text-[13px] text-slate-400 font-medium mt-0.5">${l}</div></div>`).join('');
+            }
+            const q = (document.getElementById('ticket-search') || {}).value || '';
+            const fs = (document.getElementById('ticket-filter-status') || {}).value || 'all';
+            const fu = (document.getElementById('ticket-filter-urgency') || {}).value || 'all';
+            const fd = (document.getElementById('ticket-filter-dept') || {}).value || 'all';
+            const ql = q.trim().toLowerCase();
+            const list = all.filter(t => {
+                if (fs !== 'all' && t.status !== fs) return false;
+                if (fu !== 'all' && t.urgency !== fu) return false;
+                if (fd !== 'all' && t.deptId !== fd) return false;
+                if (ql) { const hay = `${t.customer || ''} ${t.site || ''} ${t.equipment || ''} ${t.issue || ''} ${t.assignee || ''}`.toLowerCase(); if (hay.indexOf(ql) < 0) return false; }
+                return true;
+            });
+            if (list.length === 0) { body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-sm">표시할 AS 티켓이 없습니다.</td></tr>`; return; }
+            body.innerHTML = list.map(t => {
+                const dept = STATE.departments.find(d => d.id === t.deptId);
+                const photoBadge = (t.photos && t.photos.length) ? `<span class="ml-1 text-[12px] text-slate-400"><i data-lucide="image" class="w-3 h-3 inline"></i> ${t.photos.length}</span>` : '';
+                const date = (t.createdAt || '').slice(0, 10);
+                return `<tr class="hover:bg-rose-50/30 transition-colors cursor-pointer align-top" onclick="openTicketDetail(${t.id})">
+                    <td class="px-4 py-3">${ticketUrgencyBadge(t.urgency)}</td>
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(t.customer) || '-'}</div><div class="text-[12px] text-slate-400">${esc(t.site) || ''}</div></td>
+                    <td class="px-4 py-3"><div class="font-semibold text-slate-700">${esc(t.equipment) || '-'}</div><div class="text-[12px] text-slate-500 truncate max-w-[260px]">${esc(t.issue) || ''}${photoBadge}</div></td>
+                    <td class="px-4 py-3 text-slate-600 whitespace-nowrap">${esc(t.assignee) || '-'}<div class="text-[12px] text-slate-400">${dept ? dept.name : ''}</div></td>
+                    <td class="px-4 py-3">${ticketStatusBadge(t.status)}</td>
+                    <td class="px-4 py-3 text-slate-400 font-mono text-[13px] whitespace-nowrap">${date}</td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]" onclick="event.stopPropagation()">${canManageTicket(t) ? `<button onclick="openTicketForm(${t.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="deleteTicket(${t.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : '<span class="text-slate-300">열람</span>'}</td>
+                </tr>`;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+        function handleTicketPhotoSelection(e) {
+            STATE.ticketForm = STATE.ticketForm || { keep: [], add: [] };
+            [...e.target.files].forEach(f => STATE.ticketForm.add.push(f));
+            renderTicketPhotoChips();
+            e.target.value = '';
+        }
+        function removeTicketKeepPhoto(i) { STATE.ticketForm.keep.splice(i, 1); renderTicketPhotoChips(); }
+        function removeTicketAddPhoto(i) { STATE.ticketForm.add.splice(i, 1); renderTicketPhotoChips(); }
+        function renderTicketPhotoChips() {
+            const box = document.getElementById('ticket-photo-chips'); if (!box) return;
+            const f = STATE.ticketForm || { keep: [], add: [] };
+            const chips = [];
+            f.keep.forEach((p, i) => chips.push(`<span class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-[12px]"><i data-lucide="paperclip" class="w-3 h-3"></i>${esc(p.name) || '파일'}<button type="button" onclick="removeTicketKeepPhoto(${i})" class="text-rose-400 hover:text-rose-600 font-bold ml-0.5">×</button></span>`));
+            f.add.forEach((file, i) => chips.push(`<span class="inline-flex items-center gap-1 px-2 py-1 bg-indigo-50 border border-indigo-200 rounded-lg text-[12px] text-indigo-700"><i data-lucide="plus" class="w-3 h-3"></i>${esc(file.name)}<button type="button" onclick="removeTicketAddPhoto(${i})" class="text-rose-400 hover:text-rose-600 font-bold ml-0.5">×</button></span>`));
+            box.innerHTML = chips.join('') || '<span class="text-[12px] text-slate-300">첨부된 사진/파일 없음</span>';
+            const st = document.getElementById('ticket-photo-status'); if (st) st.innerText = `클릭하여 사진/파일 추가 (${f.keep.length + f.add.length}개 첨부됨)`;
+            if (window.lucide) lucide.createIcons();
+        }
+        function openTicketForm(id) {
+            if (STATE.ticketsTableMissing) { showToast('준비 필요', 'AS 티켓 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            const t = id ? STATE.tickets.find(x => x.id === id) : null;
+            if (t && !canManageTicket(t)) { showToast('권한 없음', '본인 부서 또는 등록자만 편집할 수 있습니다.'); return; }
+            document.getElementById('ticket-id').value = id || '';
+            document.getElementById('ticket-customer').value = t ? (t.customer || '') : '';
+            document.getElementById('ticket-site').value = t ? (t.site || '') : '';
+            document.getElementById('ticket-equipment').value = t ? (t.equipment || '') : '';
+            document.getElementById('ticket-assignee').value = t ? (t.assignee || '') : (STATE.profile.name || '');
+            document.getElementById('ticket-urgency').value = t ? (t.urgency || 'normal') : 'normal';
+            document.getElementById('ticket-status').value = t ? (t.status || 'received') : 'received';
+            document.getElementById('ticket-issue').value = t ? (t.issue || '') : '';
+            document.getElementById('ticket-result').value = t ? (t.result || '') : '';
+            const dsel = document.getElementById('ticket-dept'); if (dsel) dsel.value = t ? (t.deptId || STATE.profile.deptId) : (STATE.profile.deptId || 'south_cs');
+            document.getElementById('ticket-form-title').innerText = id ? 'AS 티켓 편집' : 'AS 티켓 등록';
+            STATE.ticketForm = { keep: t ? (t.photos || []).slice() : [], add: [] };
+            renderTicketPhotoChips();
+            openModal('ticket-form-modal');
+        }
+        async function handleSaveTicket(e) {
+            e.preventDefault();
+            const id = document.getElementById('ticket-id').value;
+            const f = STATE.ticketForm || { keep: [], add: [] };
+            const photos = f.keep.slice();
+            for (const file of f.add) {
+                const path = safeStorageKey(file.name, 'tickets/');
+                const { error: upErr } = await sb.storage.from('documents').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+                if (upErr) { showToast('사진 업로드 실패', upErr.message); return; }
+                photos.push({ path, name: file.name, mime: file.type || '' });
+            }
+            const row = {
+                customer: document.getElementById('ticket-customer').value.trim(),
+                site: document.getElementById('ticket-site').value.trim(),
+                equipment: document.getElementById('ticket-equipment').value.trim(),
+                assignee: document.getElementById('ticket-assignee').value.trim(),
+                urgency: document.getElementById('ticket-urgency').value,
+                status: document.getElementById('ticket-status').value,
+                issue: document.getElementById('ticket-issue').value.trim(),
+                result: document.getElementById('ticket-result').value.trim(),
+                dept_id: document.getElementById('ticket-dept').value,
+                photos, updated_at: new Date().toISOString()
+            };
+            let error;
+            if (id) { ({ error } = await sb.from('tickets').update(row).eq('id', parseInt(id))); }
+            else { row.author = STATE.profile.name; ({ error } = await sb.from('tickets').insert(row)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            STATE.ticketForm = { keep: [], add: [] };
+            await reloadTickets(); renderTickets(); renderDashboardWidgets(); closeModal('ticket-form-modal');
+            showToast('저장 완료', id ? 'AS 티켓이 수정되었습니다.' : 'AS 티켓이 접수되었습니다.');
+        }
+        async function openTicketDetail(id) {
+            const t = STATE.tickets.find(x => x.id === id); if (!t) return;
+            const dept = STATE.departments.find(d => d.id === t.deptId);
+            const manage = canManageTicket(t);
+            const field = (label, val, pre) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 ${pre ? 'whitespace-pre-line leading-relaxed' : 'font-semibold'}">${esc(val) || '-'}</div></div>`;
+            const statusBtns = manage ? `<div class="flex gap-1.5 flex-wrap">${Object.keys(TICKET_STATUS).map(s => `<button onclick="setTicketStatus(${t.id},'${s}')" class="px-2.5 py-1 rounded-lg text-[12px] font-bold border ${t.status === s ? TICKET_STATUS[s][1] : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'}">${TICKET_STATUS[s][0]}</button>`).join('')}</div>` : ticketStatusBadge(t.status);
+            const ctrl = manage ? `<div class="flex gap-2"><button onclick="openTicketForm(${t.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 편집</button><button onclick="deleteTicket(${t.id}); closeModal('ticket-detail-modal')" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '';
+            document.getElementById('ticket-detail-body').innerHTML = `
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 flex-wrap">${ticketUrgencyBadge(t.urgency)}<span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span><span class="text-[12px] text-slate-400 font-mono">${(t.createdAt || '').slice(0, 10)}</span></div>
+                            <h3 class="text-xl font-extrabold text-slate-800">${esc(t.customer) || '(고객사 미지정)'} ${t.site ? '· ' + esc(t.site) : ''}</h3>
+                        </div>
+                        ${ctrl}
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${field('장비명', t.equipment)}
+                        ${field('담당자', t.assignee)}
+                        <div><div class="text-[12px] font-bold text-slate-400 mb-1">처리 상태</div>${statusBtns}</div>
+                        ${field('접수자', t.author)}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${field('장애 내용', t.issue, true)}
+                        ${field('처리 결과', t.result, true)}
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-3">
+                    <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-rose-500"></i> 현장 사진 / 첨부 (${(t.photos || []).length})</h4>
+                    <div id="ticket-photo-gallery" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                </div>`;
+            openModal('ticket-detail-modal'); if (window.lucide) lucide.createIcons();
+            renderTicketPhotoGallery(t);
+        }
+        async function renderTicketPhotoGallery(t) {
+            const box = document.getElementById('ticket-photo-gallery'); if (!box) return;
+            const photos = t.photos || [];
+            if (photos.length === 0) { box.innerHTML = '<span class="text-[13px] text-slate-300">첨부된 사진이 없습니다.</span>'; return; }
+            box.innerHTML = photos.map((p, i) => `<div id="tphoto-${t.id}-${i}" class="relative h-32 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer"><span class="inline-block w-5 h-5 border-2 border-slate-300 border-t-rose-500 rounded-full animate-spin"></span></div>`).join('');
+            for (let i = 0; i < photos.length; i++) {
+                const p = photos[i]; const cell = document.getElementById(`tphoto-${t.id}-${i}`); if (!cell) continue;
+                try {
+                    const { data, error } = await sb.storage.from('documents').createSignedUrl(p.path, 3600);
+                    if (error || !data) throw new Error('url');
+                    const url = data.signedUrl; const ext = (p.name && p.name.indexOf('.') >= 0) ? p.name.split('.').pop().toLowerCase() : '';
+                    const isImg = (p.mime || '').startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(ext);
+                    cell.onclick = () => openFilePreview(p.name || '첨부', url, p.mime || '', ext);
+                    cell.innerHTML = isImg ? `<img src="${url}" class="w-full h-full object-cover">` : fileIconHTML(ext);
+                } catch (e) { cell.innerHTML = fileIconHTML(''); }
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+        async function setTicketStatus(id, status) {
+            const t = STATE.tickets.find(x => x.id === id); if (!t || !canManageTicket(t)) { showToast('권한 없음', '상태를 변경할 수 없습니다.'); return; }
+            const { error } = await sb.from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) { showToast('변경 실패', error.message); return; }
+            t.status = status; await reloadTickets(); renderTickets(); openTicketDetail(id); showToast('상태 변경', `처리 상태를 [${TICKET_STATUS[status][0]}](으)로 변경했습니다.`);
+        }
+        async function deleteTicket(id) {
+            const t = STATE.tickets.find(x => x.id === id); if (!t || !canManageTicket(t)) { showToast('권한 없음', '삭제할 수 없습니다.'); return; }
+            if (!confirm('이 AS 티켓을 삭제하시겠습니까?')) return;
+            if (t.photos && t.photos.length) { try { await sb.storage.from('documents').remove(t.photos.map(p => p.path)); } catch (er) {} }
+            const { error } = await sb.from('tickets').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadTickets(); renderTickets(); renderDashboardWidgets(); showToast('삭제', 'AS 티켓이 삭제되었습니다.');
+        }
+
         // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {
             const sel = document.getElementById('mail-provider-select'); if (!sel) return;
@@ -3273,9 +3579,10 @@
             'management-progress': { title: '프로젝트 협업 관제 센터', desc: '부서별 프로젝트 진척을 칸반·간트 타임라인으로 관리합니다.' },
             'weekly-meeting': { title: '주간 회의 대시보드', desc: '부서별 주간 업무 보고를 작성하고 공유합니다.' },
             'documents': { title: '통합 보고 허브', desc: '사내 보고서를 등록·열람·수정·관리합니다.' },
-            'documents-pending': { title: '결재 대기 함', desc: '결재 대기 중인 문서를 확인합니다.' },
-            'documents-archive': { title: '보고 보관소', desc: '보관된 보고 문서를 조회합니다.' },
+            'documents-pending': { title: '결재 대기 함', desc: '결재 대기 중인 문서를 확인하고 승인·반려합니다.' },
+            'documents-archive': { title: '승인 완료 보관소', desc: '전결 처리되어 정식 등록된 보고 문서를 조회합니다.' },
             'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
+            'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
         };
@@ -3315,6 +3622,9 @@
             if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
             else if (tabId === 'calendar') renderCalendar();
             else if (tabId === 'documents') renderDocuments();
+            else if (tabId === 'documents-pending') renderPendingDocs();
+            else if (tabId === 'documents-archive') renderArchiveDocs();
+            else if (tabId === 'field-support') renderTickets();
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
             else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
@@ -3389,25 +3699,100 @@
             let saved = null; try { saved = localStorage.getItem('wsp_theme'); } catch (e) { }
             applyTheme(saved === 'dark');
         }
-        // ── 담당 업무 알림 확인 상태 (개인) ──────────────────────────────
-        function seenTasksKey() { return 'wsp_seen_tasks_' + (STATE.currentUser ? STATE.currentUser.id : 'anon'); }
+        // ── 통합 알림 센터 (개인 확인 상태) ──────────────────────────────
+        function seenTasksKey() { return 'wsp_seen_notif_' + (STATE.currentUser ? STATE.currentUser.id : 'anon'); }
         function getSeenTasks() {
             try { const raw = localStorage.getItem(seenTasksKey()); return new Set(raw ? JSON.parse(raw) : []); } catch (e) { return new Set(); }
         }
-        function acknowledgeAndOpen(projId, itemId) {
-            try { const seen = getSeenTasks(); (STATE._assignedIds || []).forEach(id => seen.add(id)); localStorage.setItem(seenTasksKey(), JSON.stringify([...seen])); } catch (e) { }
+        function buildNotifications() {
+            const isAdmin = STATE.profile.role === 'admin';
+            const myDept = STATE.profile.deptId;
+            const myName = (STATE.profile.name || '').trim();
+            const todayStr = formatDate(new Date());
+            const soon = new Date(); soon.setDate(soon.getDate() + 3); const soonStr = formatDate(soon);
+            const items = [];
+            // 1) 내가 결재할 문서
+            STATE.documents.filter(d => d.status === 'pending' && canApproveDoc(d)).forEach(d => {
+                items.push({ id: 'appr_' + d.id, group: '결재', icon: 'stamp', color: 'text-amber-600', title: d.title, sub: '결재 대기 · 승인/반려 필요', onclick: `notifOpen('doc', ${d.id})` });
+            });
+            // 2) 내가 올린 문서 반려됨
+            STATE.documents.filter(d => d.status === 'rejected' && (d.author || '').trim() === myName).forEach(d => {
+                items.push({ id: 'rej_' + d.id, group: '결재', icon: 'x-circle', color: 'text-rose-600', title: d.title, sub: '반려됨' + (d.rejectReason ? ' · ' + d.rejectReason : ''), onclick: `notifOpen('doc', ${d.id})` });
+            });
+            // 3) 내 담당 프로젝트 항목 + 마감/지연
+            if (myName) STATE.projects.forEach(p => (p.items || []).forEach(it => {
+                if ((it.manager || '').trim() !== myName) return;
+                let tag = '담당', col = 'text-indigo-600', ic = 'user-check', grp = '담당 · 후속조치';
+                if (!it.done && it.end) { if (it.end < todayStr) { tag = '지연'; col = 'text-rose-600'; ic = 'alarm-clock'; grp = '마감 · 지연'; } else if (it.end <= soonStr) { tag = '마감임박'; col = 'text-amber-600'; ic = 'alarm-clock'; grp = '마감 · 지연'; } }
+                if (it.done) return;
+                items.push({ id: 'task_' + it.id, group: grp, icon: ic, color: col, title: it.info, sub: `${p.title} · ${tag}${it.end ? ' · ~' + it.end : ''}`, onclick: `notifOpen('proj', ${p.id}, '${it.id}')` });
+            }));
+            // 4) 회의 후속조치 (일별 업무 담당자 = 나)
+            if (myName) STATE.weeklyMeetings.forEach(m => (m.days || []).forEach(en => {
+                if ((en.manager || '').trim() === myName) items.push({ id: 'mday_' + en.id, group: '담당 · 후속조치', icon: 'list-checks', color: 'text-indigo-600', title: en.taskName || en.content || '회의 후속조치', sub: `${m.week} ${WEEKDAY_KO[en.weekday] || ''} 후속조치`, onclick: `notifOpen('meeting', ${m.id})` });
+            }));
+            // 5) 내 담당 AS 티켓 (완료 외)
+            if (myName) (STATE.tickets || []).forEach(t => {
+                if (t.status !== 'done' && (t.assignee || '').trim() === myName) items.push({ id: 'tkt_' + t.id, group: '현장 / AS', icon: 'wrench', color: 'text-rose-500', title: `${t.customer || ''} ${t.equipment || ''}`.trim() || 'AS 티켓', sub: `${(TICKET_STATUS[t.status] || ['',''])[0]} · ${t.issue || ''}`.slice(0, 60), onclick: `notifOpen('ticket', ${t.id})` });
+            });
+            // 6) 오늘 일정
+            STATE.events.filter(e => (isAdmin || e.deptId === myDept) && e.startDate <= todayStr && e.endDate >= todayStr).forEach(e => {
+                items.push({ id: 'evt_' + e.id, group: '오늘 일정', icon: 'calendar', color: 'text-blue-600', title: e.title, sub: `${e.site ? '[' + e.site + '] ' : ''}${e.startDate} ~ ${e.endDate}`, onclick: `notifOpen('calendar')` });
+            });
+            return items;
+        }
+        function renderNotificationCenter() {
+            const wrap = document.getElementById('dashboard-mytasks-wrap');
+            const box = document.getElementById('dashboard-mytasks');
+            const countEl = document.getElementById('dashboard-mytasks-count');
+            const ackBtn = document.getElementById('dashboard-mytasks-ack');
+            const items = buildNotifications();
+            STATE._notifIds = items.map(n => n.id);
+            const seen = getSeenTasks();
+            const unseen = items.filter(n => !seen.has(n.id)).length;
+            // 헤더 종 배지
+            const bell = document.getElementById('notif-bell-count');
+            if (bell) { bell.innerText = unseen; bell.classList.toggle('hidden', unseen === 0); }
+            if (!wrap || !box) return;
+            if (items.length === 0) { wrap.classList.add('hidden'); box.innerHTML = ''; return; }
+            wrap.classList.remove('hidden');
+            if (countEl) { countEl.innerText = unseen; countEl.classList.toggle('hidden', unseen === 0); }
+            if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
+            const order = ['결재', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
+            const groups = {};
+            items.forEach(n => { (groups[n.group] = groups[n.group] || []).push(n); });
+            box.innerHTML = order.filter(g => groups[g]).map(g => {
+                const rows = groups[g].map(n => {
+                    const isNew = !seen.has(n.id);
+                    return `<div onclick="${n.onclick}" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all flex items-center justify-between gap-3">
+                        <div class="min-w-0 flex items-start gap-2.5">
+                            <i data-lucide="${n.icon}" class="w-4 h-4 ${n.color} mt-0.5 flex-shrink-0"></i>
+                            <div class="min-w-0"><div class="text-sm font-bold text-slate-800 truncate">${esc(n.title)} ${isNew ? '<span class=\'ml-1 inline-block w-2 h-2 rounded-full bg-rose-500 align-middle\'></span>' : ''}</div><div class="text-[12px] text-slate-400 truncate">${esc(n.sub)}</div></div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+                    </div>`;
+                }).join('');
+                return `<div class="space-y-1.5"><div class="text-[12px] font-bold text-slate-500 flex items-center gap-1.5">${esc(g)} <span class="text-slate-300">${groups[g].length}</span></div>${rows}</div>`;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+        function markAllNotifSeen() {
+            try { const seen = getSeenTasks(); (STATE._notifIds || []).forEach(id => seen.add(id)); localStorage.setItem(seenTasksKey(), JSON.stringify([...seen])); } catch (e) { }
+        }
+        function notifOpen(kind, id, itemId) {
+            markAllNotifSeen();
             const c = document.getElementById('dashboard-mytasks-count'); if (c) c.classList.add('hidden');
             const a = document.getElementById('dashboard-mytasks-ack'); if (a) a.classList.add('hidden');
-            gotoLinkedProject(projId, itemId);
+            const b = document.getElementById('notif-bell-count'); if (b) b.classList.add('hidden');
+            if (kind === 'doc') { switchTab('documents'); setTimeout(() => viewDocument(id), 60); }
+            else if (kind === 'proj') { openProjectDetail(id, itemId || undefined); }
+            else if (kind === 'meeting') { switchTab('weekly-meeting'); setTimeout(() => openMeetingDetail(id), 60); }
+            else if (kind === 'ticket') { switchTab('field-support'); setTimeout(() => openTicketDetail(id), 60); }
+            else if (kind === 'calendar') { switchTab('calendar'); }
         }
-        function acknowledgeTasks() {
-            try {
-                const seen = getSeenTasks();
-                (STATE._assignedIds || []).forEach(id => seen.add(id));
-                localStorage.setItem(seenTasksKey(), JSON.stringify([...seen]));
-            } catch (e) { }
-            renderDashboardWidgets();
-        }
+        function acknowledgeAndOpen(projId, itemId) { notifOpen('proj', projId, itemId); }
+        function acknowledgeTasks() { markAllNotifSeen(); renderDashboardWidgets(); }
+        function openNotifCenter() { switchTab('dashboard'); }
 
     </script>
 </body>
