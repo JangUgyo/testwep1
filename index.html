@@ -15,6 +15,9 @@
     <!-- 문서 미리보기 변환 라이브러리: Word(mammoth) / Excel(SheetJS) -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- 고품질 Word 렌더링: docx-preview (JSZip 의존) -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
@@ -1442,15 +1445,28 @@
             if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; return; }
             // PDF
             if (mime === 'application/pdf' || ext === 'pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; return; }
-            // Word(docx) → mammoth 변환
+            // Word(docx) → docx-preview(고품질) → mammoth → Office 뷰어 순으로 시도
             if (has('wordprocessingml') || ext === 'docx') {
-                if (typeof mammoth === 'undefined') { body.innerHTML = officeViewer(url); return; }
-                body.innerHTML = previewLoading('Word 문서를 변환하는 중입니다...');
-                try {
-                    const buf = await (await fetch(url)).arrayBuffer();
-                    const res = await mammoth.convertToHtml({ arrayBuffer: buf });
-                    body.innerHTML = `<div class="w-full h-full overflow-auto bg-slate-100 p-6"><div class="mx-auto bg-white shadow rounded-lg p-10 max-w-3xl docx-preview text-sm leading-relaxed text-slate-800">${res.value || '<p class=\'text-slate-400\'>표시할 텍스트 내용이 없습니다.</p>'}</div></div>`;
-                } catch (e) { body.innerHTML = officeViewer(url); }
+                body.innerHTML = previewLoading('Word 문서를 원본 형태로 렌더링하는 중입니다...');
+                let buf;
+                try { buf = await (await fetch(url)).arrayBuffer(); }
+                catch (e) { body.innerHTML = officeViewer(url); return; }
+                if (window.docx && typeof window.docx.renderAsync === 'function') {
+                    try {
+                        body.innerHTML = `<div id="docx-render-host" class="w-full h-full overflow-auto bg-slate-200 p-4"></div>`;
+                        const host = document.getElementById('docx-render-host');
+                        await window.docx.renderAsync(buf, host, null, { className: 'docx', inWrapper: true, breakPages: true, ignoreLastRenderedPageBreak: true, renderHeaders: true, renderFooters: true });
+                        return;
+                    } catch (e) { /* fall through */ }
+                }
+                if (typeof mammoth !== 'undefined') {
+                    try {
+                        const res = await mammoth.convertToHtml({ arrayBuffer: buf }, { convertImage: mammoth.images.imgElement(function (image) { return image.read('base64').then(function (b64) { return { src: 'data:' + image.contentType + ';base64,' + b64 }; }); }) });
+                        body.innerHTML = `<div class="w-full h-full overflow-auto bg-slate-100 p-6"><div class="mx-auto bg-white shadow rounded-lg p-10 max-w-3xl docx-preview text-sm leading-relaxed text-slate-800">${res.value || '<p class=\'text-slate-400\'>표시할 텍스트 내용이 없습니다.</p>'}</div></div>`;
+                        return;
+                    } catch (e) { /* fall through */ }
+                }
+                body.innerHTML = officeViewer(url);
                 return;
             }
             // Excel/CSV → SheetJS
