@@ -24,6 +24,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
+        /* 전체 가독성: 기준 글자 크기 상향 */
+        html { font-size: 17.5px; }
         body { 
             font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             overflow-x: hidden; 
@@ -162,11 +164,11 @@
             <!-- 로그인 폼 세션 -->
             <form id="auth-login-form" onsubmit="handleUserLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
+                    <label class="block text-[13px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
                     <input type="email" id="login-id" required placeholder="name@company.com" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호 (Password)</label>
+                    <label class="block text-[13px] font-bold text-slate-500 mb-1.5">비밀번호 (Password)</label>
                     <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10">
                 </div>
                 <button type="submit" class="w-full py-3 bg-slate-950 hover:bg-slate-850 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5">
@@ -174,7 +176,7 @@
                 </button>
 
                 <!-- 가이드라인 데크 수록 -->
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 space-y-1">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-[13px] text-slate-400 space-y-1">
                     <p class="font-bold text-slate-500">💡 이용 안내</p>
                     <p>• 처음 이용하시는 분은 <span class="font-bold text-blue-600">회원가입 신청</span> 탭에서 회사 이메일로 가입하세요.</p>
                     <p>• 가입 신청은 시스템 관리자(어드민) 승인 후 로그인할 수 있습니다.</p>
@@ -186,21 +188,21 @@
             <form id="auth-signup-form" onsubmit="handleUserSignup(event)" class="space-y-4 hidden">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
+                        <label class="block text-[13px] font-bold text-slate-500 mb-1.5">회사 이메일 (Email)</label>
                         <input type="email" id="signup-id" required placeholder="name@company.com" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">비밀번호 (6자+)</label>
+                        <label class="block text-[13px] font-bold text-slate-500 mb-1.5">비밀번호 (6자+)</label>
                         <input type="password" id="signup-password" required placeholder="Password" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">사원명</label>
+                        <label class="block text-[13px] font-bold text-slate-500 mb-1.5">사원명</label>
                         <input type="text" id="signup-name" required placeholder="성명 입력" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">직급 (수행역할)</label>
+                        <label class="block text-[13px] font-bold text-slate-500 mb-1.5">직급 (수행역할)</label>
                         <select id="signup-position" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white font-medium text-slate-600">
                             <option value="대표이사">대표이사 (CEO)</option>
                             <option value="부서장">부서장 (Head of Dept)</option>
@@ -210,7 +212,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">희망 소속 부서</label>
+                    <label class="block text-[13px] font-bold text-slate-500 mb-1.5">희망 소속 부서</label>
                     <select id="signup-dept" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none bg-white font-medium text-slate-600">
                     </select>
                 </div>
@@ -228,7 +230,7 @@
                 <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center text-white text-lg font-bold tracking-tight">W</div>
                 <div class="flex flex-col">
                     <span class="font-bold text-sm text-slate-800 tracking-tight">WorkSpace Pro</span>
-                    <span class="text-[10px] text-slate-400 font-medium">통합 지원 시스템</span>
+                    <span class="text-[12px] text-slate-400 font-medium">통합 지원 시스템</span>
                 </div>
             </div>
         </div>
@@ -307,7 +309,7 @@
         </div>
 
         <div class="p-4 border-t border-slate-200/60 bg-slate-50/50 space-y-3">
-            <button id="add-feature-btn" onclick="openModal('add-feature-modal')" class="w-full py-2.5 bg-slate-950 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
+            <button id="add-feature-btn" onclick="openAddFeatureFresh()" class="w-full py-2.5 bg-slate-950 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                 <span>시스템 기능 추가</span>
             </button>
@@ -317,14 +319,14 @@
                     <div id="user-avatar" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-bold shadow-inner">?</div>
                     <div class="overflow-hidden flex-1">
                         <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate font-mono">사용자 미설정</p>
-                        <p id="user-display-dept" class="text-[9px] text-slate-500 truncate font-medium">사원 등록 필요</p>
+                        <p id="user-display-dept" class="text-[11px] text-slate-500 truncate font-medium">사원 등록 필요</p>
                     </div>
                     <i data-lucide="cog" class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors"></i>
                 </div>
-                <button onclick="handleUserLogout()" class="w-full py-2 border border-slate-200 hover:bg-rose-50 text-[10px] text-slate-500 hover:text-rose-600 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
+                <button onclick="handleUserLogout()" class="w-full py-2 border border-slate-200 hover:bg-rose-50 text-[12px] text-slate-500 hover:text-rose-600 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 사내 네트워크 로그아웃
                 </button>
-                <button onclick="toggleDarkMode()" id="darkmode-btn" class="w-full py-2 border border-slate-200 hover:bg-slate-100 text-[10px] text-slate-500 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
+                <button onclick="toggleDarkMode()" id="darkmode-btn" class="w-full py-2 border border-slate-200 hover:bg-slate-100 text-[12px] text-slate-500 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all">
                     <i data-lucide="moon" class="w-3.5 h-3.5"></i> <span id="darkmode-label">다크 모드</span>
                 </button>
             </div>
@@ -336,14 +338,14 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h2 id="view-title" class="text-2xl font-bold text-slate-800 tracking-tight">종합 대시보드</h2>
-                    <span id="tab-maintenance-badge" class="hidden px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-bold rounded-lg animate-pulse">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
+                    <span id="tab-maintenance-badge" class="hidden px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-[12px] font-bold rounded-lg animate-pulse">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
                 </div>
                 <p id="view-description" class="text-slate-400 text-sm mt-1 leading-normal">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</p>
             </div>
             
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs">
-                    <span class="text-[10px] font-bold text-slate-400">인증 등급:</span>
+                    <span class="text-[12px] font-bold text-slate-400">인증 등급:</span>
                     <span id="header-user-role-badge" class="font-bold text-slate-800">로딩 중</span>
                 </div>
 
@@ -367,7 +369,7 @@
             <div class="w-20 h-20 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center mb-6 shadow-inner animate-pulse">
                 <i data-lucide="construction" class="w-10 h-10 text-amber-500"></i>
             </div>
-            <span class="px-3 py-1 bg-amber-500/10 text-amber-600 text-[10px] font-bold rounded-full border border-amber-300/50 tracking-widest mb-4">SYSTEM MAINTENANCE</span>
+            <span class="px-3 py-1 bg-amber-500/10 text-amber-600 text-[12px] font-bold rounded-full border border-amber-300/50 tracking-widest mb-4">SYSTEM MAINTENANCE</span>
             <h3 class="text-2xl font-extrabold text-slate-800">현재 시스템 점검 중입니다.</h3>
             <p class="text-base font-semibold text-slate-500 mt-2">불편을 드려 죄송합니다.</p>
             <p class="text-xs text-slate-400 mt-4 max-w-md mx-auto leading-relaxed">사내 인프라 고도화 및 안정적인 서비스 제공을 위한 기술 점검이 진행 중입니다. 점검이 완료되면 별도 조치 없이 정상 이용하실 수 있습니다.</p>
@@ -387,10 +389,10 @@
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
                         <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 내 담당 업무 알림
-                        <span id="dashboard-mytasks-count" class="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">0</span>
-                        <button onclick="acknowledgeTasks()" id="dashboard-mytasks-ack" class="ml-auto px-3 py-1 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-500 hover:bg-slate-100">확인</button>
+                        <span id="dashboard-mytasks-count" class="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[12px] font-bold">0</span>
+                        <button onclick="acknowledgeTasks()" id="dashboard-mytasks-ack" class="ml-auto px-3 py-1 rounded-lg border border-slate-200 text-[13px] font-bold text-slate-500 hover:bg-slate-100">확인</button>
                     </h3>
-                    <p class="text-[11px] text-slate-400">프로젝트 상세 항목에 내 이름이 담당자로 지정된 업무입니다. 클릭하면 해당 항목으로 이동합니다.</p>
+                    <p class="text-[13px] text-slate-400">프로젝트 상세 항목에 내 이름이 담당자로 지정된 업무입니다. 클릭하면 해당 항목으로 이동합니다.</p>
                     <div id="dashboard-mytasks" class="space-y-2"></div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -443,7 +445,7 @@
                         </div>
                         <div class="flex gap-1 items-center">
                             <button onclick="navigateMonth(-1)" class="p-1 hover:bg-slate-200 rounded"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                            <button onclick="navigateToday()" class="px-2.5 py-1 text-[10px] font-bold hover:bg-slate-200 rounded">오늘</button>
+                            <button onclick="navigateToday()" class="px-2.5 py-1 text-[12px] font-bold hover:bg-slate-200 rounded">오늘</button>
                             <button onclick="navigateMonth(1)" class="p-1 hover:bg-slate-200 rounded"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                         </div>
                     </div>
@@ -474,23 +476,23 @@
                     <div class="bg-slate-50/80 rounded-2xl border border-slate-200/70 min-h-[520px] flex flex-col overflow-hidden">
                         <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200/70">
                             <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span><span class="font-bold text-xs text-slate-600">대기 및 검토</span></div>
-                            <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="board-count-paused">0</span>
+                            <span class="text-[12px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="board-count-paused">0</span>
                         </div>
-                        <div id="board-paused-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
+                        <div id="board-paused-list" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)" ondrop="onKanbanDrop(event,'paused')" class="space-y-3 flex-1 overflow-y-auto p-3 transition-colors"></div>
                     </div>
                     <div class="bg-blue-50/40 rounded-2xl border border-blue-200/60 min-h-[520px] flex flex-col overflow-hidden">
                         <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-blue-200/50">
                             <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span><span class="font-bold text-xs text-blue-700">진행 중</span></div>
-                            <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full" id="board-count-ongoing">0</span>
+                            <span class="text-[12px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full" id="board-count-ongoing">0</span>
                         </div>
-                        <div id="board-ongoing-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
+                        <div id="board-ongoing-list" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)" ondrop="onKanbanDrop(event,'ongoing')" class="space-y-3 flex-1 overflow-y-auto p-3 transition-colors"></div>
                     </div>
                     <div class="bg-emerald-50/40 rounded-2xl border border-emerald-200/60 min-h-[520px] flex flex-col overflow-hidden">
                         <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-emerald-200/50">
                             <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="font-bold text-xs text-emerald-700">완료됨</span></div>
-                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full" id="board-count-completed">0</span>
+                            <span class="text-[12px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full" id="board-count-completed">0</span>
                         </div>
-                        <div id="board-completed-list" class="space-y-3 flex-1 overflow-y-auto p-3"></div>
+                        <div id="board-completed-list" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)" ondrop="onKanbanDrop(event,'completed')" class="space-y-3 flex-1 overflow-y-auto p-3 transition-colors"></div>
                     </div>
                 </div>
                 <div id="project-subview-list" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
@@ -510,12 +512,12 @@
                             <button onclick="todayGantt()" class="px-2.5 py-1 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 font-bold">오늘</button>
                         </div>
                         <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                            <button onclick="setGanttScale('month')" id="gantt-scale-month" class="px-3 py-1 text-[11px] font-bold rounded-md transition-all">1개월</button>
-                            <button onclick="setGanttScale('year')" id="gantt-scale-year" class="px-3 py-1 text-[11px] font-bold rounded-md transition-all">1년</button>
+                            <button onclick="setGanttScale('month')" id="gantt-scale-month" class="px-3 py-1 text-[13px] font-bold rounded-md transition-all">1개월</button>
+                            <button onclick="setGanttScale('year')" id="gantt-scale-year" class="px-3 py-1 text-[13px] font-bold rounded-md transition-all">1년</button>
                         </div>
                     </div>
                     <div id="gantt-chart-wrapper" class="overflow-x-auto min-w-full">
-                        <div class="grid grid-cols-12 border-b pb-2 text-[10px] font-bold text-slate-400 text-center">
+                        <div class="grid grid-cols-12 border-b pb-2 text-[12px] font-bold text-slate-400 text-center">
                             <div class="col-span-3 text-left pl-2">프로젝트 대상</div>
                             <div class="col-span-9" id="gantt-header-days"></div>
                         </div>
@@ -570,7 +572,7 @@
                         </h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 mb-1">연동 방식 선택</label>
+                                <label class="block text-[12px] font-bold text-slate-500 mb-1">연동 방식 선택</label>
                                 <select id="mail-provider-select" onchange="toggleMailFields()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:border-slate-400">
                                     <option value="mailplug">메일플러그 (Groupwear API)</option>
                                     <option value="gmail">구글 Gmail (OAuth 2.0 API)</option>
@@ -580,21 +582,21 @@
                             </div>
                             <div id="panel-api-config" class="space-y-3">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">메일플러그 회사 ID</label>
+                                    <label class="block text-[12px] font-bold text-slate-500 mb-1">메일플러그 회사 ID</label>
                                     <div class="flex items-center">
                                         <input type="text" id="mp-domain" placeholder="회사ID" class="flex-1 px-3 py-2 border border-slate-200 rounded-l-lg text-xs outline-none focus:border-slate-400">
-                                        <span class="bg-slate-100 border border-l-0 border-slate-200 px-3 py-2 text-[10px] text-slate-500 rounded-r-lg font-mono">.mailplug.com</span>
+                                        <span class="bg-slate-100 border border-l-0 border-slate-200 px-3 py-2 text-[12px] text-slate-500 rounded-r-lg font-mono">.mailplug.com</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">OpenAPI Client Key</label>
+                                    <label class="block text-[12px] font-bold text-slate-500 mb-1">OpenAPI Client Key</label>
                                     <input type="password" id="mp-api-key" placeholder="Client secret key" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:border-slate-400">
                                 </div>
                             </div>
                             <div id="panel-oauth-config" class="hidden space-y-3 bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
                                 <i data-lucide="shield-check" class="w-8 h-8 text-blue-500 mx-auto"></i>
-                                <p class="text-[11px] text-slate-600 font-semibold" id="oauth-prompt-text">보안 연동 토큰이 필요합니다.</p>
-                                <p class="text-[9px] text-slate-400">아이디/패스워드를 유출하지 않고 Google API/Microsoft Graph 규격을 통해 안전하게 토큰을 발급받습니다.</p>
+                                <p class="text-[13px] text-slate-600 font-semibold" id="oauth-prompt-text">보안 연동 토큰이 필요합니다.</p>
+                                <p class="text-[11px] text-slate-400">아이디/패스워드를 유출하지 않고 Google API/Microsoft Graph 규격을 통해 안전하게 토큰을 발급받습니다.</p>
                                 <button type="button" onclick="handleOAuthSimulation()" class="w-full mt-2 py-2 bg-slate-950 text-white font-bold text-xs rounded-lg hover:bg-slate-850 text-xs transition-all flex items-center justify-center gap-1">
                                     <i data-lucide="key" class="w-3.5 h-3.5"></i> <span id="oauth-btn-text">보안 OAuth 2.0 연결</span>
                                 </button>
@@ -602,37 +604,37 @@
                             <div id="panel-custom-imap" class="hidden space-y-3">
                                 <div class="grid grid-cols-3 gap-2">
                                     <div class="col-span-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">IMAP 수신 서버 주소</label>
+                                        <label class="block text-[12px] font-bold text-slate-500 mb-1">IMAP 수신 서버 주소</label>
                                         <input type="text" id="imap-host" placeholder="imap.yourcompany.com" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">IMAP 포트</label>
+                                        <label class="block text-[12px] font-bold text-slate-500 mb-1">IMAP 포트</label>
                                         <input type="text" id="imap-port" value="993" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2">
                                     <div class="col-span-2">
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">SMTP 발신 서버 주소</label>
+                                        <label class="block text-[12px] font-bold text-slate-500 mb-1">SMTP 발신 서버 주소</label>
                                         <input type="text" id="smtp-host" placeholder="smtp.yourcompany.com" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">SMTP 포트</label>
+                                        <label class="block text-[12px] font-bold text-slate-500 mb-1">SMTP 포트</label>
                                         <input type="text" id="smtp-port" value="465" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">이메일 주소</label>
+                                    <label class="block text-[12px] font-bold text-slate-500 mb-1">이메일 주소</label>
                                     <input type="email" id="custom-email" placeholder="id@company.com" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">접속 비밀번호</label>
+                                    <label class="block text-[12px] font-bold text-slate-500 mb-1">접속 비밀번호</label>
                                     <input type="password" id="custom-pass" placeholder="••••••••" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
                                 </div>
                             </div>
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase">보안 터널 세션</span>
-                                    <span id="mp-status-badge" class="px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50">연동 끊김</span>
+                                    <span class="text-[11px] font-bold text-slate-400 uppercase">보안 터널 세션</span>
+                                    <span id="mp-status-badge" class="px-2 py-0.5 text-[11px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50">연동 끊김</span>
                                 </div>
                             </div>
                             <div class="flex gap-2 pt-2">
@@ -647,7 +649,7 @@
                                 <i data-lucide="mail-open" class="w-4 h-4 text-blue-500"></i> 동기화 수신 메일 원장
                             </h3>
                             <div class="flex gap-2">
-                                <button onclick="triggerApprovalSync()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold rounded-md flex items-center gap-1 transition-all">
+                                <button onclick="triggerApprovalSync()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[12px] font-bold rounded-md flex items-center gap-1 transition-all">
                                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin-slow"></i> 수신 상태 수동 동기화
                                 </button>
                             </div>
@@ -681,9 +683,9 @@
                                 <i data-lucide="user-plus" class="text-indigo-600 w-4.5 h-4.5"></i>
                                 신입 가입 심사 대기열
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-1">회원가입 요청을 검증하고 사내 권한 역할을 수동으로 인가 배포합니다.</p>
+                            <p class="text-[13px] text-slate-400 mt-1">회원가입 요청을 검증하고 사내 권한 역할을 수동으로 인가 배포합니다.</p>
                         </div>
-                        <span class="px-2.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded border border-amber-200">심사 보류</span>
+                        <span class="px-2.5 py-0.5 bg-amber-50 text-amber-700 text-[12px] font-bold rounded border border-amber-200">심사 보류</span>
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                         <table class="w-full text-left border-collapse text-xs">
@@ -709,9 +711,9 @@
                                 <i data-lucide="users" class="text-rose-600 w-4.5 h-4.5"></i>
                                 전사 임직원 자격 통제 명부
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-1">포탈에 승인 등록되어 활동 중인 실무진 명부를 조회하고, 보안 위험 시 직무 자격을 영구 박탈 조치합니다.</p>
+                            <p class="text-[13px] text-slate-400 mt-1">포탈에 승인 등록되어 활동 중인 실무진 명부를 조회하고, 보안 위험 시 직무 자격을 영구 박탈 조치합니다.</p>
                         </div>
-                        <span class="px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[10px] font-bold rounded border border-rose-200">원장 잠금</span>
+                        <span class="px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[12px] font-bold rounded border border-rose-200">원장 잠금</span>
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                         <table class="w-full text-left border-collapse text-xs">
@@ -739,16 +741,16 @@
                         </h3>
                         <form onsubmit="handleUpdateAdminPassword(event)" class="space-y-4">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-500 mb-1.5">현재 마스터 비밀번호</label>
+                                <label class="block text-[13px] font-bold text-slate-500 mb-1.5">현재 마스터 비밀번호</label>
                                 <input type="password" id="admin-old-pw" required placeholder="기존 비밀번호 입력" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">신규 비밀번호</label>
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1.5">신규 비밀번호</label>
                                     <input type="password" id="admin-new-pw" required placeholder="새 비밀번호" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-500 mb-1.5">신규 비밀번호 재입력</label>
+                                    <label class="block text-[13px] font-bold text-slate-500 mb-1.5">신규 비밀번호 재입력</label>
                                     <input type="password" id="admin-new-pw-confirm" required placeholder="비밀번호 확인" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-slate-400">
                                 </div>
                             </div>
@@ -766,7 +768,7 @@
                                     <i data-lucide="shield-check" class="text-blue-600 w-4 h-4"></i>
                                     사내 조직 권한 통제 원장 (RBAC Matrix)
                                 </h3>
-                                <p class="text-[11px] text-slate-400 mt-1">각 사업부(부서)에 대한 플랫폼 서비스의 진입 및 조작 허용 상태를 실시간 제어 및 잠금 조치합니다.</p>
+                                <p class="text-[13px] text-slate-400 mt-1">각 사업부(부서)에 대한 플랫폼 서비스의 진입 및 조작 허용 상태를 실시간 제어 및 잠금 조치합니다.</p>
                             </div>
                         </div>
                         <div class="overflow-x-auto">
@@ -802,8 +804,9 @@
                         <h3 id="custom-feature-headline" class="font-bold text-sm text-slate-800">이식된 외부 시스템 기능</h3>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-slate-400 font-mono">보안 샌드박스 격리 실행 중</span>
-                        <button id="custom-feature-delete-btn" onclick="removeCustomFeature()" class="hidden px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all">기능 제거</button>
+                        <span class="text-[12px] text-slate-400 font-mono">보안 샌드박스 격리 실행 중</span>
+                        <button id="custom-feature-edit-btn" onclick="openEditFeature()" class="hidden px-2.5 py-1 bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded text-[12px] font-bold transition-all">기능 편집</button>
+                        <button id="custom-feature-delete-btn" onclick="removeCustomFeature()" class="hidden px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[12px] font-bold transition-all">기능 제거</button>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm h-[70vh] overflow-hidden p-2">
@@ -823,17 +826,17 @@
             <form onsubmit="handleNewMeeting(event)" class="p-6 space-y-4 overflow-y-auto">
                 <input type="hidden" id="meeting-id">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">대상 주차</label><select id="meeting-week" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="6월 1주차">6월 1주차</option><option value="6월 2주차" selected>6월 2주차</option><option value="6월 3주차">6월 3주차</option><option value="6월 4주차">6월 4주차</option></select></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">작성 부서</label><select id="meeting-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">대상 주차</label><select id="meeting-week" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="6월 1주차">6월 1주차</option><option value="6월 2주차" selected>6월 2주차</option><option value="6월 3주차">6월 3주차</option><option value="6월 4주차">6월 4주차</option></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성 부서</label><select id="meeting-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">회의 주제 / 보고 제목</label><input type="text" id="meeting-title" placeholder="예: 6월 2주차 수소사업부 정기 업무 보고" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="list" class="w-3 h-3 text-slate-400"></i> 주요 논의 내용 <span class="text-rose-400">*</span></label><textarea id="meeting-content" required rows="4" placeholder="이번 주 주요 진행 사항과 논의 내용을 입력하세요." class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> 주요 결정 / 합의 사항</label><textarea id="meeting-decisions" rows="2" placeholder="회의에서 확정된 결정 사항 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="folder-git" class="w-3 h-3 text-indigo-500"></i> 프로젝트</label><textarea id="meeting-actions" rows="2" placeholder="예: 수소추출기 설치 / 추출기 차압 점검 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="calendar-clock" class="w-3 h-3 text-amber-500"></i> 차주 계획</label><textarea id="meeting-next" rows="2" placeholder="다음 주 예정 업무 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">회의 주제 / 보고 제목</label><input type="text" id="meeting-title" placeholder="예: 6월 2주차 수소사업부 정기 업무 보고" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="list" class="w-3 h-3 text-slate-400"></i> 주요 논의 내용 <span class="text-rose-400">*</span></label><textarea id="meeting-content" required rows="4" placeholder="이번 주 주요 진행 사항과 논의 내용을 입력하세요." class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> 주요 결정 / 합의 사항</label><textarea id="meeting-decisions" rows="2" placeholder="회의에서 확정된 결정 사항 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="folder-git" class="w-3 h-3 text-indigo-500"></i> 프로젝트</label><textarea id="meeting-actions" rows="2" placeholder="예: 수소추출기 설치 / 추출기 차압 점검 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1 flex items-center gap-1"><i data-lucide="calendar-clock" class="w-3 h-3 text-amber-500"></i> 차주 계획</label><textarea id="meeting-next" rows="2" placeholder="다음 주 예정 업무 (선택)" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="border rounded-xl p-2.5 relative text-center text-[10px] hover:bg-slate-50"><input type="file" id="meeting-img-input" accept="image/*" onchange="handleMeetingImgSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><i data-lucide="image" class="w-3.5 h-3.5 inline text-slate-400"></i> <span id="meeting-img-status">사진 첨부</span></div>
-                    <div class="border rounded-xl p-2.5 relative text-center text-[10px] hover:bg-slate-50"><input type="file" id="meeting-file-input" accept=".pdf,.docx,.xlsx,.zip,.pptx" onchange="handleMeetingFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><i data-lucide="paperclip" class="w-3.5 h-3.5 inline text-slate-400"></i> <span id="meeting-file-status">문서 첨부</span></div>
+                    <div class="border rounded-xl p-2.5 relative text-center text-[12px] hover:bg-slate-50"><input type="file" id="meeting-img-input" accept="image/*" onchange="handleMeetingImgSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><i data-lucide="image" class="w-3.5 h-3.5 inline text-slate-400"></i> <span id="meeting-img-status">사진 첨부</span></div>
+                    <div class="border rounded-xl p-2.5 relative text-center text-[12px] hover:bg-slate-50"><input type="file" id="meeting-file-input" accept=".pdf,.docx,.xlsx,.zip,.pptx" onchange="handleMeetingFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><i data-lucide="paperclip" class="w-3.5 h-3.5 inline text-slate-400"></i> <span id="meeting-file-status">문서 첨부</span></div>
                 </div>
                 <div class="pt-1 flex gap-2"><button type="button" onclick="closeModal('add-meeting-modal')" class="flex-1 py-2.5 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2.5 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg transition-all">보고서 배포</button></div>
             </form>
@@ -868,14 +871,14 @@
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="table" class="w-4 h-4 text-indigo-600"></i><h4 id="project-item-modal-title" class="font-bold text-sm text-slate-800">상세 항목 추가</h4></div>
             <form onsubmit="handleSaveProjectItem(event)" class="p-5 space-y-3">
                 <input type="hidden" id="pitem-project-id"><input type="hidden" id="pitem-id">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 정보 (항목명)</label><input type="text" id="pitem-info" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">프로젝트 정보 (항목명)</label><input type="text" id="pitem-info" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="pitem-manager" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="pitem-manager" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                     <div></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일자</label><input type="date" id="pitem-start" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일자</label><input type="date" id="pitem-end" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">시작일자</label><input type="date" id="pitem-start" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">종료일자</label><input type="date" id="pitem-end" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="pitem-detail" rows="4" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="pitem-detail" rows="4" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('project-item-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
             </form>
         </div>
@@ -887,15 +890,15 @@
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i><h4 id="mday-modal-title" class="font-bold text-sm text-slate-800">일별 내용 작성</h4></div>
             <form onsubmit="handleSaveMeetingDay(event)" class="p-5 space-y-3">
                 <input type="hidden" id="mday-meeting-id"><input type="hidden" id="mday-entry-id">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">요일</label><select id="mday-weekday" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option><option value="3">목요일</option><option value="4">금요일</option><option value="5">토요일</option><option value="6">일요일</option></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">요일</label><select id="mday-weekday" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option><option value="3">목요일</option><option value="4">금요일</option><option value="5">토요일</option><option value="6">일요일</option></select></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">업무명</label><input type="text" id="mday-taskname" placeholder="예: 추출기 차압 점검" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="mday-manager" placeholder="예: 박과장" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">업무명</label><input type="text" id="mday-taskname" placeholder="예: 추출기 차압 점검" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="mday-manager" placeholder="예: 박과장" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 프로젝트 (선택)</label><select id="mday-project" onchange="onMdayProjectChange()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">연관 항목 (선택)</label><select id="mday-item" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="">(연결 안 함)</option></select></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="mday-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleMdayFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="mday-file-status">클릭하여 파일 첨부</p></div></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">연관 프로젝트 (선택)</label><select id="mday-project" onchange="onMdayProjectChange()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">연관 항목 (선택)</label><select id="mday-item" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="">(연결 안 함)</option></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="mday-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleMdayFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="mday-file-status">클릭하여 파일 첨부</p></div></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('meeting-day-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
             </form>
         </div>
@@ -917,18 +920,18 @@
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="folder-plus" class="w-4 h-4 text-indigo-600"></i><h4 id="project-modal-title" class="font-bold text-sm text-slate-800">신규 프로젝트 등록</h4></div>
             <form onsubmit="handleNewProject(event)" class="p-5 space-y-4 overflow-y-auto">
                 <input type="hidden" id="project-id">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 핵심 명칭</label><input type="text" id="project-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">프로젝트 핵심 명칭</label><input type="text" id="project-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 사업부</label><select id="project-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상태</label><select id="project-status" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="paused">대기</option><option value="ongoing">진행</option><option value="completed">완료</option></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 사업부</label><select id="project-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상태</label><select id="project-status" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="paused">대기</option><option value="ongoing">진행</option><option value="completed">완료</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="project-start" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="project-end" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="project-start" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="project-end" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">진행률 (%)</label><input type="number" id="project-progress-num" min="0" max="100" value="0" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 요약</label><textarea id="project-desc" rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="project-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleProjectFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="project-file-status">클릭하여 파일 첨부</p></div></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">진행률 (%)</label><input type="number" id="project-progress-num" min="0" max="100" value="0" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상세 요약</label><textarea id="project-desc" rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="project-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleProjectFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="project-file-status">클릭하여 파일 첨부</p></div></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('add-project-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
             </form>
         </div>
@@ -948,10 +951,10 @@
     <div id="add-doc-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <form onsubmit="handleNewDocument(event)" class="p-5 space-y-4">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">보고서 제목</label><input type="text" id="doc-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">보고서 제목</label><input type="text" id="doc-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
                 </div>
                 <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer"><input type="file" id="doc-file-input" accept=".pdf,.docx,.xlsx" onchange="handleDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="doc-file-status">클릭하여 보고서 업로드</p></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('add-doc-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-blue-600 text-white text-xs font-bold">작성 완료</button></div>
@@ -965,10 +968,10 @@
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="file-pen-line" class="w-4 h-4 text-blue-600"></i><h4 class="font-bold text-sm text-slate-800">보고서 수정</h4></div>
             <form onsubmit="handleSaveDocumentEdit(event)" class="p-5 space-y-4">
                 <input type="hidden" id="edit-doc-id">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">보고서 제목</label><input type="text" id="edit-doc-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">보고서 제목</label><input type="text" id="edit-doc-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="edit-doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="edit-doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서 분류</label><select id="edit-doc-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="edit-doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
                 </div>
                 <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="edit-doc-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg" onchange="handleEditDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="edit-doc-file-status">파일 교체 (선택)</p></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('edit-doc-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-blue-600 text-white text-xs font-bold">수정 저장</button></div>
@@ -982,8 +985,8 @@
             <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
                 <h4 id="doc-preview-title" class="font-bold text-sm text-slate-800 truncate pr-4">문서 미리보기</h4>
                 <div class="flex items-center gap-2 shrink-0">
-                    <a id="doc-preview-download" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> 다운로드</a>
-                    <button onclick="closeModal('doc-preview-modal')" class="px-3 py-1.5 border rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-100">닫기</button>
+                    <a id="doc-preview-download" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[13px] font-bold flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> 다운로드</a>
+                    <button onclick="closeModal('doc-preview-modal')" class="px-3 py-1.5 border rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-100">닫기</button>
                 </div>
             </div>
             <div id="doc-preview-body" class="flex-1 overflow-auto bg-slate-100 flex items-center justify-center"></div>
@@ -994,33 +997,33 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border max-h-[90vh] flex flex-col">
             <div class="px-5 py-4 border-b bg-slate-50 flex items-center gap-2">
                 <i data-lucide="blocks" class="w-4 h-4 text-blue-600"></i>
-                <h4 class="font-bold text-sm text-slate-800">시스템 기능(탭) 추가 · 관리자 전용</h4>
+                <h4 id="feature-modal-title" class="font-bold text-sm text-slate-800">시스템 기능(탭) 추가 · 관리자 전용</h4>
             </div>
             <form onsubmit="handleInstallFeature(event)" class="p-5 space-y-4 overflow-y-auto">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">메뉴 대분류(큰 틀) 선택 또는 생성</label>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">메뉴 대분류(큰 틀) 선택 또는 생성</label>
                     <select id="feature-group" onchange="toggleFeatureGroupNew()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white focus:border-blue-400"></select>
                     <input type="text" id="feature-group-new" placeholder="새 대분류 이름 입력 (예: 경영 분석)" class="hidden w-full mt-2 px-3 py-2 border rounded-lg text-xs outline-none focus:border-blue-400">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">기능(탭) 명칭</label>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">기능(탭) 명칭</label>
                     <input type="text" id="feature-name" required placeholder="예: 정비 완료 보고서, 사내 계산기" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:border-blue-400">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1.5">메뉴 표시 아이콘 선택</label>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1.5">메뉴 표시 아이콘 선택</label>
                     <input type="hidden" id="feature-icon" value="rocket">
                     <div id="feature-icon-grid" class="grid grid-cols-8 gap-1.5"></div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">방식 ① HTML 문서 파일 업로드</label>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">방식 ① HTML 문서 파일 업로드</label>
                     <div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="feature-file-input" accept=".html,.htm" onchange="handleFeatureFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="feature-file-status">클릭하여 .html 파일 업로드</p></div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">방식 ② 또는 HTML/코드 직접 붙여넣기</label>
-                    <textarea id="feature-code" rows="6" placeholder="<div>...</div> 형태의 HTML 또는 &lt;script&gt; 포함 코드를 붙여넣으세요." class="w-full px-3 py-2 border rounded-lg text-[11px] font-mono outline-none focus:border-blue-400"></textarea>
-                    <p class="text-[10px] text-slate-400 mt-1">파일과 코드를 둘 다 입력하면 업로드한 파일이 우선 적용됩니다. 추가된 기능은 보안 샌드박스에서 실행되며 모든 임직원 화면에 즉시 나타납니다.</p>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">방식 ② 또는 HTML/코드 직접 붙여넣기</label>
+                    <textarea id="feature-code" rows="6" placeholder="<div>...</div> 형태의 HTML 또는 &lt;script&gt; 포함 코드를 붙여넣으세요." class="w-full px-3 py-2 border rounded-lg text-[13px] font-mono outline-none focus:border-blue-400"></textarea>
+                    <p class="text-[12px] text-slate-400 mt-1">파일과 코드를 둘 다 입력하면 업로드한 파일이 우선 적용됩니다. 추가된 기능은 보안 샌드박스에서 실행되며 모든 임직원 화면에 즉시 나타납니다.</p>
                 </div>
-                <div class="flex gap-2 pt-1"><button type="button" onclick="closeModal('add-feature-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">설치 취소</button><button type="submit" class="flex-1 py-2 bg-slate-950 text-white text-xs font-bold rounded-lg">탭 생성 및 기능 배포</button></div>
+                <div class="flex gap-2 pt-1"><button type="button" onclick="closeModal('add-feature-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">설치 취소</button><button type="submit" id="feature-submit-btn" class="flex-1 py-2 bg-slate-950 text-white text-xs font-bold rounded-lg">탭 생성 및 기능 배포</button></div>
             </form>
         </div>
     </div>
@@ -1028,8 +1031,8 @@
     <div id="profile-setting-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border">
             <form onsubmit="handleSaveProfile(event)" class="p-5 space-y-4">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">성명</label><input type="text" id="profile-name" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">소속 부서</label><select id="profile-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">성명</label><input type="text" id="profile-name" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서</label><select id="profile-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 <div class="pt-3 flex gap-2"><button type="button" onclick="closeModal('profile-setting-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-slate-950 text-white text-xs font-bold">저장</button></div>
             </form>
         </div>
@@ -1041,20 +1044,20 @@
             <form onsubmit="handleSaveEvent(event)" class="p-5 space-y-4">
                 <input type="hidden" id="event-id">
                 <div class="text-sm font-bold text-slate-800" id="event-modal-title">새 일정 등록</div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">일정 제목</label><input type="text" id="event-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">일정 제목</label><input type="text" id="event-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">현장명 <span class="text-slate-300 font-normal">(선택)</span></label>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">현장명 <span class="text-slate-300 font-normal">(선택)</span></label>
                     <select id="event-site" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select>
                     <div class="flex gap-2 mt-2">
                         <input type="text" id="event-site-new" placeholder="새 현장명 추가 후 + 버튼" class="flex-1 px-3 py-1.5 border rounded-lg text-xs outline-none">
                         <button type="button" onclick="addSite()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1">추가한 현장명은 저장되어 다음에도 목록에 표시됩니다.</p>
+                    <p class="text-[12px] text-slate-400 mt-1">추가한 현장명은 저장되어 다음에도 목록에 표시됩니다.</p>
                 </div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 부서</label><select id="event-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="event-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="event-start" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="event-end" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="event-start" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="event-end" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
                 </div>
                 <div class="flex gap-2 pt-1">
                     <button type="button" id="event-delete-btn" onclick="deleteEventFromModal()" class="hidden px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button>
@@ -1070,9 +1073,9 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
             <form onsubmit="handleSaveNotice(event)" class="p-5 space-y-4">
                 <div class="text-sm font-bold text-slate-800">대시보드 공지 수정</div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="notice-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">표시 날짜</label><input type="text" id="notice-date" placeholder="2026.06.08" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">공지 내용</label><textarea id="notice-content" required rows="5" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="notice-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">표시 날짜</label><input type="text" id="notice-date" placeholder="2026.06.08" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">공지 내용</label><textarea id="notice-content" required rows="5" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('edit-notice-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg">공지 갱신</button></div>
             </form>
         </div>
@@ -1378,7 +1381,7 @@
             const u = STATE.currentUser;
             if (avatar) {
                 avatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
-                avatar.className = u ? "w-7 h-7 rounded-full bg-slate-950 flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
+                avatar.className = u ? "w-7 h-7 rounded-full bg-slate-950 flex items-center justify-center text-white text-[12px] font-bold shadow-sm"
                                      : "w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-bold shadow-inner";
             }
             if (dName) dName.innerText = u ? `${u.name} (${u.position})` : '사용자 미설정';
@@ -1484,7 +1487,7 @@
                     const textClass = isCurr ? 'text-slate-700' : 'text-slate-200';
                     const hDiv = document.createElement('div'); hDiv.className = `flex justify-between items-center px-2 py-1 select-none z-10 ${textClass}`;
                     hDiv.style.gridColumn = `${cIdx + 1}`; hDiv.style.gridRow = "1";
-                    hDiv.innerHTML = `<span class="${todayClass} text-[10px] font-semibold">${dayNum}</span><button onclick="quickAddEvent('${dStr}')" class="text-[9px] text-slate-300 hover:text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">등록</button>`;
+                    hDiv.innerHTML = `<span class="${todayClass} text-[12px] font-semibold">${dayNum}</span><button onclick="quickAddEvent('${dStr}')" class="text-[11px] text-slate-300 hover:text-slate-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">등록</button>`;
                     weekDiv.appendChild(hDiv);
                 });
                 placements.forEach(({ evt, s, e, t }) => {
@@ -1492,7 +1495,7 @@
                     const evEl = document.createElement('div');
                     const isCompleted = evt.endDate < formatDate(new Date());
                     const compClass = isCompleted ? 'line-through opacity-40' : '';
-                    evEl.className = `dept-tag ${dept ? dept.color : 'bg-slate-100 border-slate-300'} cursor-pointer text-left text-[11px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium ${compClass}`;
+                    evEl.className = `dept-tag ${dept ? dept.color : 'bg-slate-100 border-slate-300'} cursor-pointer text-left text-[13px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium ${compClass}`;
                     evEl.style.gridColumn = `${s + 1} / ${e + 2}`; evEl.style.gridRow = `${t + 2}`; evEl.style.margin = "2px 4px";
                     evEl.innerHTML = `<span>${isCompleted ? '✓ ' : ''}[${dept ? dept.name : '공통'}]</span>${evt.site ? ` [${evt.site}]` : ''} ${evt.title}`;
                     evEl.onclick = (el) => { el.stopPropagation(); editEvent(evt.id); };
@@ -1625,7 +1628,7 @@
             const container = document.getElementById('dashboard-notice-card'); if (!container) return;
             const canEdit = STATE.profile.role === 'admin';
             const n = STATE.dashboardNotice || { title: '', date: '', content: '' };
-            container.innerHTML = `<div class="flex items-center justify-between"><h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-blue-500"></i> ${n.title || ''}</h3><div class="flex items-center gap-3"><span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-md font-mono">${n.date || ''}</span>${canEdit ? `<button onclick="openEditNoticeModal()" class="text-[10px] text-blue-600 font-bold hover:underline">수정</button>` : ''}</div></div><p class="text-xs text-slate-500 leading-relaxed">${n.content || ''}</p>`;
+            container.innerHTML = `<div class="flex items-center justify-between"><h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4 text-blue-500"></i> ${n.title || ''}</h3><div class="flex items-center gap-3"><span class="text-[12px] bg-slate-100 px-2 py-0.5 rounded-md font-mono">${n.date || ''}</span>${canEdit ? `<button onclick="openEditNoticeModal()" class="text-[12px] text-blue-600 font-bold hover:underline">수정</button>` : ''}</div></div><p class="text-xs text-slate-500 leading-relaxed">${n.content || ''}</p>`;
             lucide.createIcons();
         }
         function openEditNoticeModal() {
@@ -1654,7 +1657,7 @@
                 const fileBadge = hasFile ? `<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ` : '';
                 const tr = document.createElement('tr'); tr.className = "hover:bg-blue-50/40 transition-all text-xs cursor-pointer";
                 tr.onclick = () => viewDocument(doc.id);
-                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[10px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
+                tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${doc.title}<span class="text-[12px] text-slate-400 font-normal">${sizeTxt}</span></td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${doc.author || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()"><button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button><button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button></td>`;
                 tbody.appendChild(tr);
             });
             if (window.lucide) lucide.createIcons();
@@ -1692,9 +1695,9 @@
         function officeViewer(url) { return `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}" class="w-full h-full" frameborder="0"></iframe>`; }
         function showSheet(i) {
             document.querySelectorAll('[id^="sheet-pane-"]').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('[id^="sheet-tab-"]').forEach(t => { t.className = 'px-3 py-1.5 text-[11px] font-bold rounded-t-lg text-slate-400 hover:text-slate-600'; });
+            document.querySelectorAll('[id^="sheet-tab-"]').forEach(t => { t.className = 'px-3 py-1.5 text-[13px] font-bold rounded-t-lg text-slate-400 hover:text-slate-600'; });
             const pane = document.getElementById('sheet-pane-' + i); if (pane) pane.classList.remove('hidden');
-            const tab = document.getElementById('sheet-tab-' + i); if (tab) tab.className = 'px-3 py-1.5 text-[11px] font-bold rounded-t-lg bg-white text-slate-800 border border-b-0';
+            const tab = document.getElementById('sheet-tab-' + i); if (tab) tab.className = 'px-3 py-1.5 text-[13px] font-bold rounded-t-lg bg-white text-slate-800 border border-b-0';
         }
         async function openFilePreview(title, url, mime, ext) {
             const body = document.getElementById('doc-preview-body');
@@ -1740,7 +1743,7 @@
                     const buf = await (await fetch(url)).arrayBuffer();
                     const wb = XLSX.read(buf, { type: 'array' });
                     const names = wb.SheetNames;
-                    const tabs = names.map((n, i) => `<button onclick="showSheet(${i})" id="sheet-tab-${i}" class="px-3 py-1.5 text-[11px] font-bold rounded-t-lg ${i === 0 ? 'bg-white text-slate-800 border border-b-0' : 'text-slate-400 hover:text-slate-600'}">${n}</button>`).join('');
+                    const tabs = names.map((n, i) => `<button onclick="showSheet(${i})" id="sheet-tab-${i}" class="px-3 py-1.5 text-[13px] font-bold rounded-t-lg ${i === 0 ? 'bg-white text-slate-800 border border-b-0' : 'text-slate-400 hover:text-slate-600'}">${n}</button>`).join('');
                     const panes = names.map((n, i) => `<div id="sheet-pane-${i}" class="${i === 0 ? '' : 'hidden'} overflow-auto bg-white border rounded-b-lg rounded-tr-lg p-2 sheet-html">${XLSX.utils.sheet_to_html(wb.Sheets[n])}</div>`).join('');
                     body.innerHTML = `<div class="w-full h-full overflow-auto p-4 bg-slate-100"><div class="flex gap-1 flex-wrap">${tabs}</div>${panes}</div>`;
                 } catch (e) { body.innerHTML = officeViewer(url); }
@@ -1830,6 +1833,26 @@
             document.getElementById(`project-subview-${viewId}`).classList.remove('hidden');
             renderProjects();
         }
+        function onKanbanDragStart(e, projId) {
+            STATE._dragProj = projId;
+            try { e.dataTransfer.setData('text/plain', String(projId)); e.dataTransfer.effectAllowed = 'move'; } catch (err) {}
+        }
+        function onKanbanDragOver(e) { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch (err) {} e.currentTarget.classList.add('bg-indigo-50'); }
+        function onKanbanDragLeave(e) { e.currentTarget.classList.remove('bg-indigo-50'); }
+        async function onKanbanDrop(e, status) {
+            e.preventDefault(); e.currentTarget.classList.remove('bg-indigo-50');
+            let id = STATE._dragProj; try { if (!id) id = parseInt(e.dataTransfer.getData('text/plain')); } catch (err) {}
+            id = parseInt(id); STATE._dragProj = null;
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            if (proj.status === status) return;
+            if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 이동할 수 있습니다.'); return; }
+            const statusKo = { paused: '대기 및 검토', ongoing: '진행 중', completed: '완료됨' }[status];
+            const { error } = await sb.from('projects').update({ status }).eq('id', id);
+            if (error) { showToast('이동 실패', error.message); return; }
+            proj.status = status;
+            await reloadProjects(); renderProjects(); renderDashboardWidgets();
+            showToast('상태 변경', `[${proj.title}] → ${statusKo} 단계로 이동했습니다.`);
+        }
         function projectsForView() {
             const fd = document.getElementById('project-filter-dept') ? document.getElementById('project-filter-dept').value : 'all';
             return STATE.projects
@@ -1860,20 +1883,21 @@
                     const manage = canManageProject(proj);
                     const div = document.createElement('div');
                     div.className = `bg-white p-4 rounded-xl border border-slate-200/80 border-l-4 ${lb} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all space-y-3`;
+                    if (manage) { div.setAttribute('draggable', 'true'); div.dataset.projId = proj.id; div.addEventListener('dragstart', (e) => onKanbanDragStart(e, proj.id)); div.style.cursor = 'grab'; }
                     const ctrlRow = manage ? `
                         <div class="flex items-center justify-end gap-2.5 pt-2.5 border-t border-slate-100">
-                            <button onclick="openDirectProgressModal(${proj.id})" class="text-[10px] text-indigo-600 hover:underline font-bold">진행도 수정</button>
-                            <button onclick="deleteProject(${proj.id})" class="text-[10px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                            <button onclick="openDirectProgressModal(${proj.id})" class="text-[12px] text-indigo-600 hover:underline font-bold">진행도 수정</button>
+                            <button onclick="deleteProject(${proj.id})" class="text-[12px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
                         </div>`
-                        : `<div class="pt-2.5 border-t border-slate-100 text-[9px] text-slate-300 text-center">타 부서 과제 · 열람 전용</div>`;
+                        : `<div class="pt-2.5 border-t border-slate-100 text-[11px] text-slate-300 text-center">타 부서 과제 · 열람 전용</div>`;
                     div.innerHTML = `
                         <h4 onclick="openProjectDetail(${proj.id})" class="font-bold text-[13px] text-slate-800 leading-snug cursor-pointer hover:text-indigo-600 transition-colors">${proj.title}</h4>
                         <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="px-2 py-0.5 border rounded-md text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                            <span class="text-[9px] text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
+                            <span class="px-2 py-0.5 border rounded-md text-[11px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                            <span class="text-[11px] text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
                         </div>
                         <div>
-                            <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">진행도</span><span class="text-[10px] font-bold ${txt}">${proj.progress}%</span></div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-[12px] text-slate-400 font-medium">진행도</span><span class="text-[12px] font-bold ${txt}">${proj.progress}%</span></div>
                             <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full transition-all duration-500" style="width:${proj.progress}%"></div></div>
                         </div>
                         ${ctrlRow}`;
@@ -1881,9 +1905,9 @@
                     else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
                     else if (proj.status === 'completed') { c.appendChild(div); cc++; }
                 });
-                if (pc === 0) p.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
-                if (oc === 0) o.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
-                if (cc === 0) c.innerHTML = `<div class="text-center text-[10px] text-slate-300 py-8">항목 없음</div>`;
+                if (pc === 0) p.innerHTML = `<div class="text-center text-[12px] text-slate-300 py-8">항목 없음</div>`;
+                if (oc === 0) o.innerHTML = `<div class="text-center text-[12px] text-slate-300 py-8">항목 없음</div>`;
+                if (cc === 0) c.innerHTML = `<div class="text-center text-[12px] text-slate-300 py-8">항목 없음</div>`;
                 document.getElementById('board-count-paused').innerText = pc;
                 document.getElementById('board-count-ongoing').innerText = oc;
                 document.getElementById('board-count-completed').innerText = cc;
@@ -1894,7 +1918,7 @@
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
                     const bar = statusFill[proj.status] || 'bg-slate-400';
                     const manage = canManageProject(proj);
-                    const delCell = manage ? `<button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[10px]">열람 전용</span>`;
+                    const delCell = manage ? `<button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[12px]">열람 전용</span>`;
                     const pctCell = manage ? `<button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button>` : `<span class="text-slate-500 font-mono font-bold">${proj.progress}%</span>`;
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
                     tr.innerHTML = `<td class="p-3 font-bold text-slate-700"><button onclick="openProjectDetail(${proj.id})" class="hover:text-indigo-600 hover:underline text-left">${proj.title}</button></td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
@@ -1923,8 +1947,8 @@
             if (!container) return; container.innerHTML = '';
             const scale = STATE.ganttScale || 'year';
             const anchor = STATE.ganttAnchor ? new Date(STATE.ganttAnchor) : new Date();
-            document.getElementById('gantt-scale-month').className = `px-3 py-1 text-[11px] font-bold rounded-md transition-all ${scale === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
-            document.getElementById('gantt-scale-year').className = `px-3 py-1 text-[11px] font-bold rounded-md transition-all ${scale === 'year' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
+            document.getElementById('gantt-scale-month').className = `px-3 py-1 text-[13px] font-bold rounded-md transition-all ${scale === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
+            document.getElementById('gantt-scale-year').className = `px-3 py-1 text-[13px] font-bold rounded-md transition-all ${scale === 'year' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
             const DAY = 86400000;
             const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
             let winStart, winEnd, segments = [], rangeLabel = '';
@@ -1945,7 +1969,7 @@
             const span = (winEnd - winStart) + DAY;
             const pct = (date) => ((date - winStart) / span) * 100;
             if (header) {
-                header.className = 'col-span-9 relative h-4 text-[9px] font-bold text-slate-500 select-none';
+                header.className = 'col-span-9 relative h-4 text-[11px] font-bold text-slate-500 select-none';
                 header.innerHTML = segments.map(s => `<span class="absolute -translate-x-1/2" style="left:${s.leftPct + (scale === 'year' ? (100 / 24) : 0)}%">${s.label}</span>`).join('');
             }
             const gridLines = segments.map(s => `<div class="absolute inset-y-0 border-l border-slate-100" style="left:${s.leftPct}%"></div>`).join('');
@@ -1960,7 +1984,7 @@
                 const width = Math.max(right - left, 1.2);
                 const durDays = Math.round((e - s) / DAY) + 1;
                 const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
-                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${esc(proj.title)}">${esc(proj.title)}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${gridLines}<div onclick="openProjectDetail(${proj.id})" onmouseenter="showGanttTooltip(event, ${proj.id})" onmousemove="moveEventTooltip(event)" onmouseleave="hideEventTooltip()" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
+                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[13px] truncate" title="${esc(proj.title)}">${esc(proj.title)}</div><div class="text-[11px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${gridLines}<div onclick="openProjectDetail(${proj.id})" onmouseenter="showGanttTooltip(event, ${proj.id})" onmousemove="moveEventTooltip(event)" onmouseleave="hideEventTooltip()" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[11px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
                 container.appendChild(row);
             });
             // 오늘 표시선
@@ -2001,7 +2025,7 @@
             }
             if (header) {
                 header.style.display = 'flex'; header.style.gridTemplateColumns = '';
-                header.className = 'col-span-9 flex text-[9px] font-bold text-slate-500 select-none';
+                header.className = 'col-span-9 flex text-[11px] font-bold text-slate-500 select-none';
                 header.innerHTML = months.map((mo, i) => `<div class="text-center border-l ${i === 0 ? 'border-transparent' : 'border-slate-200'} py-0.5" style="width:${mo.width}%">${mo.label}</div>`).join('');
             }
             const monthLines = months.map(mo => mo.leftPct).filter(x => x > 0.5);
@@ -2014,7 +2038,7 @@
                 const durDays = Math.round((e - s) / DAY) + 1;
                 const lines = monthLines.map(x => `<div class="absolute inset-y-0 border-l border-slate-100" style="left:${x}%"></div>`).join('');
                 const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
-                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${lines}<div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate} ~ ${proj.endDate} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
+                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[13px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[11px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${lines}<div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate} ~ ${proj.endDate} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[11px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
                 container.appendChild(row);
             });
         }
@@ -2113,7 +2137,7 @@
             const manage = canManageProject(proj);
             const fileBlock = proj.filePath
                 ? `<div class="max-w-[200px]">${attachSlot('project', proj.id)}</div>`
-                : `<span class="text-[11px] text-slate-400">첨부 파일 없음</span>`;
+                : `<span class="text-[13px] text-slate-400">첨부 파일 없음</span>`;
             const items = proj.items || [];
             const rows = items.length === 0
                 ? `<tr><td colspan="7" class="py-8 text-center text-slate-300 text-xs">등록된 상세 항목이 없습니다. ${manage ? '우측 상단 "+ 항목 추가"로 작성하세요.' : ''}</td></tr>`
@@ -2128,31 +2152,31 @@
                         <td class="p-3 text-slate-500 font-mono whitespace-nowrap">${esc(it.start) || '-'}</td>
                         <td class="p-3 text-slate-500 font-mono whitespace-nowrap">${esc(it.end) || '-'}</td>
                         <td class="p-3 text-slate-600 whitespace-pre-line min-w-[220px]">${esc(it.detail) || '-'}</td>
-                        <td class="p-3 text-right whitespace-nowrap text-[11px]">${ctrl}</td>
+                        <td class="p-3 text-right whitespace-nowrap text-[13px]">${ctrl}</td>
                     </tr>`;
                 }).join('');
-            const addBtn = manage ? `<button onclick="openProjectItemForm(${proj.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 항목 추가</button>` : '';
+            const addBtn = manage ? `<button onclick="openProjectItemForm(${proj.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 항목 추가</button>` : '';
             const ctrl = manage
                 ? `<div class="flex gap-2"><button onclick="openEditProject(${proj.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 프로젝트 편집</button><button onclick="deleteProject(${proj.id}); closeModal('project-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>`
-                : `<span class="text-[10px] text-slate-300">타 부서 과제 · 열람 전용</span>`;
+                : `<span class="text-[12px] text-slate-300">타 부서 과제 · 열람 전용</span>`;
             document.getElementById('project-detail-body').innerHTML = `
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="space-y-2">
                             <h3 class="text-xl font-extrabold text-slate-800 leading-snug">${esc(proj.title)}</h3>
-                            <div class="flex items-center gap-2 flex-wrap text-[11px]">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${statusColor}">${statusKo}</span>
-                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                            <div class="flex items-center gap-2 flex-wrap text-[13px]">
+                                <span class="px-2.5 py-1 rounded-full text-[12px] font-bold ${statusColor}">${statusKo}</span>
+                                <span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
                                 <span class="text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
                             </div>
                         </div>
                         ${ctrl}
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">진행도${items.length ? ` <span class='text-slate-300'>(완료 ${items.filter(i => i.done).length}/${items.length} 항목 자동 반영)</span>` : ''}</span><span class="text-[11px] font-bold text-slate-700">${proj.progress}%</span></div><div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div></div>
+                        <div><div class="flex justify-between items-center mb-1"><span class="text-[12px] text-slate-400 font-medium">진행도${items.length ? ` <span class='text-slate-300'>(완료 ${items.filter(i => i.done).length}/${items.length} 항목 자동 반영)</span>` : ''}</span><span class="text-[13px] font-bold text-slate-700">${proj.progress}%</span></div><div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div></div>
                         <div class="flex items-center gap-2">${fileBlock}</div>
                     </div>
-                    <div class="space-y-1"><p class="text-[10px] font-bold text-slate-500">프로젝트 개요</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? esc(proj.desc) : '<span class=\'text-slate-300\'>등록된 개요가 없습니다.</span>'}</p></div>
+                    <div class="space-y-1"><p class="text-[12px] font-bold text-slate-500">프로젝트 개요</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? esc(proj.desc) : '<span class=\'text-slate-300\'>등록된 개요가 없습니다.</span>'}</p></div>
                 </div>
                 <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50/70">
@@ -2161,7 +2185,7 @@
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs">
-                            <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase"><th class="p-3 text-center font-bold w-10">완료</th><th class="p-3 text-left font-bold">프로젝트 정보</th><th class="p-3 text-left font-bold">담당자</th><th class="p-3 text-left font-bold">시작일자</th><th class="p-3 text-left font-bold">종료일자</th><th class="p-3 text-left font-bold">상세 내용</th><th class="p-3 text-right font-bold">관리</th></tr></thead>
+                            <thead><tr class="bg-slate-200/70 text-slate-700 text-[12px]"><th class="p-3 text-center font-bold w-10">완료</th><th class="p-3 text-left font-bold">프로젝트 정보</th><th class="p-3 text-left font-bold">담당자</th><th class="p-3 text-left font-bold">시작일자</th><th class="p-3 text-left font-bold">종료일자</th><th class="p-3 text-left font-bold">상세 내용</th><th class="p-3 text-right font-bold">관리</th></tr></thead>
                             <tbody>${rows}</tbody>
                         </table>
                     </div>
@@ -2283,7 +2307,7 @@
         }
         const _meetSection = (icon, color, label, val) => val && val.trim() ? `
             <div class="space-y-1">
-                <div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div>
+                <div class="flex items-center gap-1.5 text-[12px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div>
                 <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${val}</p>
             </div>` : '';
         function renderWeeklyMeetings() {
@@ -2312,28 +2336,28 @@
                 const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
                 const attachInfo = (meet.image ? '🖼 사진 ' : '') + (meet.filePath ? '📎 첨부' : '');
                 const ctrlBtns = canManage
-                    ? `<button onclick="event.stopPropagation(); openEditMeeting(${meet.id})" class="text-[10px] text-indigo-500 hover:text-indigo-700 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="event.stopPropagation(); deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 철회</button>`
-                    : `<span class="text-[10px] text-slate-300">열람 전용</span>`;
+                    ? `<button onclick="event.stopPropagation(); openEditMeeting(${meet.id})" class="text-[12px] text-indigo-500 hover:text-indigo-700 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="event.stopPropagation(); deleteWeeklyMeeting(${meet.id})" class="text-[12px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 철회</button>`
+                    : `<span class="text-[12px] text-slate-300">열람 전용</span>`;
                 card.innerHTML = `
                     <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/60 cursor-pointer" onclick="openMeetingDetail(${meet.id})">
                         <span class="w-2 h-8 ${stripe} rounded-full"></span>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
+                                <span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                <span class="text-[12px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
                             </div>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-mono">${meet.date || ''}</span>
+                        <span class="text-[12px] text-slate-400 font-mono">${meet.date || ''}</span>
                     </div>
                     <div class="p-5 space-y-3.5">
                         <div class="cursor-pointer" onclick="openMeetingDetail(${meet.id})">
                             <h4 class="font-extrabold text-[15px] text-slate-800 leading-snug hover:text-indigo-600 transition-colors">${headline}</h4>
-                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-2"><span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${meet.author || '-'}</span>${attachInfo ? `<span class="text-slate-400">${attachInfo}</span>` : ''}</p>
+                            <p class="text-[12px] text-slate-400 mt-1 flex items-center gap-2"><span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${meet.author || '-'}</span>${attachInfo ? `<span class="text-slate-400">${attachInfo}</span>` : ''}</p>
                         </div>
                         ${_meetSection('list', 'text-slate-500', '주요 논의 내용', meet.content)}
                         ${_meetSection('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
                         <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
-                            <button onclick="openMeetingDetail(${meet.id})" class="text-[10px] text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="maximize-2" class="w-3 h-3"></i> 상세 보기</button>
+                            <button onclick="openMeetingDetail(${meet.id})" class="text-[12px] text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="maximize-2" class="w-3 h-3"></i> 상세 보기</button>
                             <div class="flex items-center gap-3">${ctrlBtns}</div>
                         </div>
                     </div>`;
@@ -2344,21 +2368,21 @@
         function meetingDayTableHTML(meet, wd, entries, canManage) {
             const rows = entries.map(en => {
                 const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
-                const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
-                const att = en.filePath ? `<div class="mt-1.5 w-28">${attachSlot('mday', meet.id, en.id, 'sm')}</div>` : '';
-                const linkCell = (link || att) ? `${link}${att}` : '<span class="text-slate-300">-</span>';
+                const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="inline-flex items-center gap-1 text-[12px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3.5 h-3.5"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '<span class="text-slate-300">-</span>';
+                const att = en.filePath ? `<div class="w-28">${attachSlot('mday', meet.id, en.id, 'sm')}</div>` : '<span class="text-slate-300">-</span>';
                 const ctrl = canManage ? `<div class="flex gap-2 justify-end whitespace-nowrap"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></div>` : '<span class="text-slate-300">-</span>';
                 return `<tr class="border-t border-slate-100 align-top">
-                    <td class="p-2.5 font-bold text-slate-700 whitespace-pre-line min-w-[110px]">${esc(en.taskName) || '<span class=\'text-slate-300\'>-</span>'}</td>
-                    <td class="p-2.5 text-slate-600 whitespace-nowrap">${esc(en.manager) || '-'}</td>
-                    <td class="p-2.5 text-slate-600 whitespace-pre-line min-w-[200px] leading-relaxed">${esc(en.content) || '-'}</td>
-                    <td class="p-2.5 min-w-[120px]">${linkCell}</td>
-                    <td class="p-2.5 text-right text-[11px]">${ctrl}</td>
+                    <td class="p-3 font-bold text-slate-700 whitespace-pre-line min-w-[110px]">${esc(en.taskName) || '<span class=\'text-slate-300\'>-</span>'}</td>
+                    <td class="p-3 text-slate-600 whitespace-nowrap">${esc(en.manager) || '-'}</td>
+                    <td class="p-3 text-slate-600 whitespace-pre-line min-w-[200px] leading-relaxed">${esc(en.content) || '-'}</td>
+                    <td class="p-3 min-w-[140px]">${link}</td>
+                    <td class="p-3 min-w-[120px]">${att}</td>
+                    <td class="p-3 text-right text-[13px]">${ctrl}</td>
                 </tr>`;
             }).join('');
             return `<div class="overflow-x-auto border border-slate-200 rounded-xl">
-                <table class="w-full text-xs">
-                    <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase"><th class="p-2.5 text-left font-bold">업무명</th><th class="p-2.5 text-left font-bold">담당자</th><th class="p-2.5 text-left font-bold">상세 내용</th><th class="p-2.5 text-left font-bold">연결 / 첨부</th><th class="p-2.5 text-right font-bold">관리</th></tr></thead>
+                <table class="w-full text-[13px]">
+                    <thead><tr class="bg-slate-200/70 text-slate-700 text-[12px]"><th class="p-3 text-left font-extrabold">업무명</th><th class="p-3 text-left font-extrabold">담당자</th><th class="p-3 text-left font-extrabold">상세 내용</th><th class="p-3 text-left font-extrabold">프로젝트</th><th class="p-3 text-left font-extrabold">첨부</th><th class="p-3 text-right font-extrabold">관리</th></tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
             </div>`;
@@ -2367,8 +2391,8 @@
             const meet = STATE.weeklyMeetings.find(m => m.id === meetingId); if (!meet) return;
             const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
             const entries = (meet.days || []).filter(d => d.weekday === wd);
-            document.getElementById('day-expand-title').innerHTML = `<i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> ${WEEKDAY_KO[wd]} 일별 업무 <span class="text-[10px] text-slate-400 font-bold">${entries.length}건</span>`;
-            const addBtn = canManage ? `<button onclick="closeModal('day-expand-modal'); openMeetingDayForm(${meet.id}, ${wd})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>` : '';
+            document.getElementById('day-expand-title').innerHTML = `<i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> ${WEEKDAY_KO[wd]} 일별 업무 <span class="text-[12px] text-slate-400 font-bold">${entries.length}건</span>`;
+            const addBtn = canManage ? `<button onclick="closeModal('day-expand-modal'); openMeetingDayForm(${meet.id}, ${wd})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>` : '';
             const cards = entries.length ? meetingDayTableHTML(meet, wd, entries, canManage) : `<p class="text-xs text-slate-300 text-center py-8">이 요일에 등록된 업무가 없습니다.</p>`;
             document.getElementById('day-expand-body').innerHTML = `<div class="flex justify-end">${addBtn}</div>${cards}`;
             openModal('day-expand-modal'); if (window.lucide) lucide.createIcons();
@@ -2391,16 +2415,16 @@
                     const entries = days.filter(d => d.weekday === wd);
                     const isWeekend = wd >= 5;
                     return `<div class="space-y-2">
-                        <div class="flex items-center gap-2 cursor-pointer group" onclick="openDayExpand(${meet.id}, ${wd})" title="클릭하여 확대"><span class="px-3 py-1 rounded-lg text-xs font-bold ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-600'}">${WEEKDAY_KO[wd]}</span><span class="text-[10px] text-slate-300 font-bold">${entries.length}건</span><i data-lucide="maximize-2" class="w-3 h-3 text-slate-300 group-hover:text-indigo-500"></i></div>
+                        <div class="flex items-center gap-2 cursor-pointer group" onclick="openDayExpand(${meet.id}, ${wd})" title="클릭하여 확대"><span class="px-3 py-1 rounded-lg text-xs font-bold ${isWeekend ? 'bg-rose-50 text-rose-500' : 'bg-indigo-50 text-indigo-600'}">${WEEKDAY_KO[wd]}</span><span class="text-[12px] text-slate-300 font-bold">${entries.length}건</span><i data-lucide="maximize-2" class="w-3 h-3 text-slate-300 group-hover:text-indigo-500"></i></div>
                         ${meetingDayTableHTML(meet, wd, entries, canManage)}
                     </div>`;
                 }).join('');
-            const sec = (icon, color, label, val) => val && val.trim() ? `<div class="space-y-1"><div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${esc(val)}</p></div>` : '';
+            const sec = (icon, color, label, val) => val && val.trim() ? `<div class="space-y-1"><div class="flex items-center gap-1.5 text-[12px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${esc(val)}</p></div>` : '';
             const ctrl = canManage
                 ? `<div class="flex gap-2 flex-shrink-0"><button onclick="openEditMeeting(${meet.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 보고 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
-                : `<span class="text-[10px] text-slate-300 flex-shrink-0">타 부서 보고 · 열람 전용</span>`;
-            const addDayBtn = canManage ? `<button onclick="openMeetingDayForm(${meet.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 일별 업무 추가</button>` : '';
-            const attachWrap = (img || fileThumb) ? `<div class="space-y-2 pt-2"><p class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><i data-lucide="paperclip" class="w-3 h-3"></i> 첨부 자료</p><div class="grid grid-cols-2 md:grid-cols-3 gap-3">${img ? `<div>${img}</div>` : ''}${fileThumb}</div></div>` : '';
+                : `<span class="text-[12px] text-slate-300 flex-shrink-0">타 부서 보고 · 열람 전용</span>`;
+            const addDayBtn = canManage ? `<button onclick="openMeetingDayForm(${meet.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 일별 업무 추가</button>` : '';
+            const attachWrap = (img || fileThumb) ? `<div class="space-y-2 pt-2"><p class="text-[12px] font-bold text-slate-500 flex items-center gap-1"><i data-lucide="paperclip" class="w-3 h-3"></i> 첨부 자료</p><div class="grid grid-cols-2 md:grid-cols-3 gap-3">${img ? `<div>${img}</div>` : ''}${fileThumb}</div></div>` : '';
             document.getElementById('meeting-detail-body').innerHTML = `
                 <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="flex">
@@ -2409,12 +2433,12 @@
                             <div class="flex items-start justify-between gap-3 flex-wrap">
                                 <div class="space-y-2 min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-600 text-white">${meet.week}</span>
-                                        <span class="text-[10px] text-slate-400 font-mono flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${meet.date || '-'}</span>
+                                        <span class="px-2.5 py-1 rounded-md text-[12px] font-bold border ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[12px] font-bold bg-indigo-600 text-white">${meet.week}</span>
+                                        <span class="text-[12px] text-slate-400 font-mono flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${meet.date || '-'}</span>
                                     </div>
                                     <h2 class="text-2xl font-extrabold text-slate-800 leading-tight">${esc(headline)}</h2>
-                                    <p class="text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="user-circle" class="w-3.5 h-3.5"></i> 보고자 <strong class="text-slate-700">${esc(meet.author) || '-'}</strong></p>
+                                    <p class="text-[13px] text-slate-500 flex items-center gap-1.5"><i data-lucide="user-circle" class="w-3.5 h-3.5"></i> 보고자 <strong class="text-slate-700">${esc(meet.author) || '-'}</strong></p>
                                 </div>
                                 ${ctrl}
                             </div>
@@ -2555,7 +2579,7 @@
         function fileIconHTML(ext) {
             const map = { pdf: 'file-text', docx: 'file-text', doc: 'file-text', xlsx: 'sheet', xls: 'sheet', csv: 'sheet', pptx: 'monitor-play', ppt: 'monitor-play', zip: 'file-archive' };
             const ic = map[ext] || 'file';
-            return `<div class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="${ic}" class="w-8 h-8"></i><span class="text-[10px] font-bold uppercase">${ext || '파일'}</span></div>`;
+            return `<div class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="${ic}" class="w-8 h-8"></i><span class="text-[12px] font-bold uppercase">${ext || '파일'}</span></div>`;
         }
         async function downloadStoragePath(path, name) {
             if (!path) return;
@@ -2582,7 +2606,7 @@
                 <div class="thumb-body relative w-full ${hCls} bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer" onclick="${info.view}">
                     <span class="inline-block w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></span>
                 </div>
-                <div class="absolute bottom-0 inset-x-0 bg-slate-900/75 text-white ${sm ? 'text-[8px] px-1 py-0.5' : 'text-[10px] px-2 py-1.5'} font-bold truncate flex items-center gap-1 pointer-events-none rounded-b-lg"><i data-lucide="paperclip" class="${sm ? 'w-2.5 h-2.5' : 'w-3 h-3'}"></i> ${escName}</div>
+                <div class="absolute bottom-0 inset-x-0 bg-slate-900/75 text-white ${sm ? 'text-[10px] px-1 py-0.5' : 'text-[12px] px-2 py-1.5'} font-bold truncate flex items-center gap-1 pointer-events-none rounded-b-lg"><i data-lucide="paperclip" class="${sm ? 'w-2.5 h-2.5' : 'w-3 h-3'}"></i> ${escName}</div>
                 <button onclick="downloadStoragePath('${safePath}','${escName.replace(/'/g, "\\'")}')" class="absolute top-1 right-1 ${sm ? 'p-1' : 'p-1.5'} bg-white/90 hover:bg-white border border-slate-200 rounded-lg text-slate-600 shadow" title="다운로드"><i data-lucide="download" class="${sm ? 'w-3 h-3' : 'w-3.5 h-3.5'}"></i></button>
             </div>`;
             const thumb = slot.querySelector('.thumb-body');
@@ -2774,13 +2798,13 @@
                     const ackBtn = document.getElementById('dashboard-mytasks-ack'); if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
                     mtBox.innerHTML = assigned.map(({ proj, it }) => {
                         const dept = STATE.departments.find(d => d.id === proj.deptId);
-                        const done = it.done ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[9px] font-bold">완료</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[9px] font-bold">진행 필요</span>';
-                        const period = (it.start || it.end) ? `<span class="font-mono text-[10px] text-slate-400">${it.start || '-'} ~ ${it.end || '-'}</span>` : '';
+                        const done = it.done ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[11px] font-bold">완료</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[11px] font-bold">진행 필요</span>';
+                        const period = (it.start || it.end) ? `<span class="font-mono text-[12px] text-slate-400">${it.start || '-'} ~ ${it.end || '-'}</span>` : '';
                         return `<div onclick="acknowledgeAndOpen(${proj.id}, '${it.id}')" class="p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all flex items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap"><strong class="text-sm text-slate-800 truncate ${it.done ? 'line-through opacity-60' : ''}">${esc(it.info)}</strong>${done}</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '전사'}</span> ${esc(proj.title)} ${period}</div>
-                                ${it.detail ? `<p class="text-[11px] text-slate-500 mt-1 truncate">${esc(it.detail)}</p>` : ''}
+                                <div class="text-[12px] text-slate-400 mt-0.5 flex items-center gap-1.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '전사'}</span> ${esc(proj.title)} ${period}</div>
+                                ${it.detail ? `<p class="text-[13px] text-slate-500 mt-1 truncate">${esc(it.detail)}</p>` : ''}
                             </div>
                             <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
                         </div>`;
@@ -2806,17 +2830,17 @@
                     const pending = STATE.users.filter(u => !u.approved).length;
                     cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
                 }
-                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all h-full"><div class="w-11 h-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="text-2xl font-extrabold text-slate-800 leading-none">${c.value}</div><div class="text-[11px] text-slate-400 font-medium mt-1">${c.label}</div></div></div></div>`).join('');
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all h-full"><div class="w-11 h-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="text-2xl font-extrabold text-slate-800 leading-none">${c.value}</div><div class="text-[13px] text-slate-400 font-medium mt-1">${c.label}</div></div></div></div>`).join('');
             }
             // 편지함 위젯
             const widget = document.getElementById('dashboard-mail-widget');
             if (widget) {
                 widget.innerHTML = '';
                 if (!STATE.mailplug.connected) {
-                    widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[10px]">연동 허용</button></div>`;
+                    widget.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs"><p>사서함 인프라 미연동</p><button onclick="switchTab('mail-integration')" class="mt-3 px-3 py-1 bg-slate-900 hover:bg-indigo-600 text-white rounded-md font-bold text-[12px]">연동 허용</button></div>`;
                 } else {
                     STATE.mailplug.emails.slice(0, 4).forEach(m => {
-                        widget.innerHTML += `<div class="py-2.5 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[10px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
+                        widget.innerHTML += `<div class="py-2.5 border-b last:border-0 text-xs cursor-pointer" onclick="switchTab('mail-integration')"><div class="flex justify-between text-[12px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-slate-700 truncate mt-0.5">${m.subject}</h5></div>`;
                     });
                 }
             }
@@ -2829,7 +2853,7 @@
                 if (upcoming.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">예정된 ${isAdmin ? '부서' : '우리 부서'} 일정이 없습니다.</div>`;
                 else upcoming.forEach(e => {
                     const dept = STATE.departments.find(d => d.id === e.deptId);
-                    snap.innerHTML += `<div class="py-2.5 text-xs flex justify-between items-center gap-2"><span class="flex items-center gap-2 min-w-0"><span class="px-1.5 py-0.5 border rounded text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'} flex-shrink-0">${dept ? dept.name : '공통'}</span>${e.site ? `<span class="text-[9px] text-slate-400 flex-shrink-0">[${e.site}]</span>` : ''}<strong class="truncate text-slate-700">${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400 flex-shrink-0">${e.startDate} ~ ${e.endDate}</span></div>`;
+                    snap.innerHTML += `<div class="py-2.5 text-xs flex justify-between items-center gap-2"><span class="flex items-center gap-2 min-w-0"><span class="px-1.5 py-0.5 border rounded text-[11px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'} flex-shrink-0">${dept ? dept.name : '공통'}</span>${e.site ? `<span class="text-[11px] text-slate-400 flex-shrink-0">[${e.site}]</span>` : ''}<strong class="truncate text-slate-700">${e.title}</strong></span><span class="font-mono text-[12px] text-slate-400 flex-shrink-0">${e.startDate} ~ ${e.endDate}</span></div>`;
                 });
             }
             // 프로젝트 진행 현황 (소속 부서 기준)
@@ -2843,7 +2867,7 @@
                 if (list.length === 0) psum.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">등록된 프로젝트가 없습니다.</div>`;
                 else list.forEach(proj => {
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
-                    psum.innerHTML += `<div class="space-y-1"><div class="flex justify-between items-center text-xs"><span class="font-semibold text-slate-700 truncate pr-2">${proj.title}</span><span class="font-mono font-bold text-slate-500 flex-shrink-0">${proj.progress}%</span></div><div class="flex items-center gap-2"><span class="text-[9px] text-slate-400 w-20 flex-shrink-0 truncate">${dept ? dept.name : '전사'}</span><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${fill[proj.status] || 'bg-slate-400'} rounded-full" style="width:${proj.progress}%"></div></div></div></div>`;
+                    psum.innerHTML += `<div class="space-y-1"><div class="flex justify-between items-center text-xs"><span class="font-semibold text-slate-700 truncate pr-2">${proj.title}</span><span class="font-mono font-bold text-slate-500 flex-shrink-0">${proj.progress}%</span></div><div class="flex items-center gap-2"><span class="text-[11px] text-slate-400 w-20 flex-shrink-0 truncate">${dept ? dept.name : '전사'}</span><div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${fill[proj.status] || 'bg-slate-400'} rounded-full" style="width:${proj.progress}%"></div></div></div></div>`;
                 });
             }
             // 최근 등록 보고서 (소속 부서 기준)
@@ -2855,7 +2879,7 @@
                 else recent.forEach(doc => {
                     const dept = STATE.departments.find(d => d.id === doc.deptId);
                     const clip = doc.storagePath ? `<i data-lucide="paperclip" class="w-3 h-3 inline text-blue-500"></i> ` : '';
-                    rdocs.innerHTML += `<div onclick="viewDocument(${doc.id})" class="py-2 px-2 -mx-2 rounded-lg hover:bg-slate-50 cursor-pointer text-xs flex justify-between items-center gap-2"><span class="truncate flex items-center gap-1 min-w-0">${clip}<span class="truncate text-slate-700 font-medium">${doc.title}</span></span><span class="text-[9px] text-slate-400 flex-shrink-0">${dept ? dept.name : '공통'}</span></div>`;
+                    rdocs.innerHTML += `<div onclick="viewDocument(${doc.id})" class="py-2 px-2 -mx-2 rounded-lg hover:bg-slate-50 cursor-pointer text-xs flex justify-between items-center gap-2"><span class="truncate flex items-center gap-1 min-w-0">${clip}<span class="truncate text-slate-700 font-medium">${doc.title}</span></span><span class="text-[11px] text-slate-400 flex-shrink-0">${dept ? dept.name : '공통'}</span></div>`;
                 });
             }
             if (window.lucide) lucide.createIcons();
@@ -2893,7 +2917,7 @@
             pending.forEach(user => {
                 const dept = STATE.departments.find(d => d.id === user.deptId);
                 const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50";
-                tr.innerHTML = `<td class="p-3 font-bold">${user.email || '(이메일 미표기)'}<div class="text-[10px] text-slate-400 font-normal">${user.name}</div></td><td class="p-3">${user.position}</td><td class="p-3 font-semibold">${dept ? dept.name : '미지정'}</td><td class="p-3"><select id="assign-role-${user.id}" class="px-2 py-1 border rounded bg-white text-xs outline-none"><option value="ceo">대표이사 (CEO)</option><option value="head">부서장 (Head)</option><option value="leader">팀장 (Leader)</option><option value="employee" selected>사원 (Employee)</option><option value="admin">시스템 관리자 (Admin)</option></select></td><td class="p-3 text-right space-x-1"><button onclick="approveUser('${user.id}')" class="px-2 py-1 bg-blue-600 text-white rounded text-[10px] font-bold">승인</button><button onclick="rejectUser('${user.id}')" class="px-2 py-1 border border-slate-200 text-slate-400 rounded text-[10px]">반려</button></td>`;
+                tr.innerHTML = `<td class="p-3 font-bold">${user.email || '(이메일 미표기)'}<div class="text-[12px] text-slate-400 font-normal">${user.name}</div></td><td class="p-3">${user.position}</td><td class="p-3 font-semibold">${dept ? dept.name : '미지정'}</td><td class="p-3"><select id="assign-role-${user.id}" class="px-2 py-1 border rounded bg-white text-xs outline-none"><option value="ceo">대표이사 (CEO)</option><option value="head">부서장 (Head)</option><option value="leader">팀장 (Leader)</option><option value="employee" selected>사원 (Employee)</option><option value="admin">시스템 관리자 (Admin)</option></select></td><td class="p-3 text-right space-x-1"><button onclick="approveUser('${user.id}')" class="px-2 py-1 bg-blue-600 text-white rounded text-[12px] font-bold">승인</button><button onclick="rejectUser('${user.id}')" class="px-2 py-1 border border-slate-200 text-slate-400 rounded text-[12px]">반려</button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -2918,15 +2942,15 @@
                 const tr = document.createElement('tr'); tr.className = "text-xs hover:bg-slate-50/50 transition-colors align-middle";
                 const deptOpts = STATE.departments.map(d => `<option value="${d.id}" ${d.id === user.deptId ? 'selected' : ''}>${d.name}</option>`).join('');
                 const roleOpts = ROLE_OPTIONS.map(([v, l]) => `<option value="${v}" ${v === user.role ? 'selected' : ''}>${l}</option>`).join('');
-                const termBtn = isSelf ? `<span class="text-[9px] text-emerald-600 font-bold px-2 py-1 bg-emerald-50 rounded-md border border-emerald-200">본인</span>`
-                    : `<button onclick="terminateUser('${user.id}')" class="px-2 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[10px] font-bold transition-all">해지</button>`;
+                const termBtn = isSelf ? `<span class="text-[11px] text-emerald-600 font-bold px-2 py-1 bg-emerald-50 rounded-md border border-emerald-200">본인</span>`
+                    : `<button onclick="terminateUser('${user.id}')" class="px-2 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white rounded text-[12px] font-bold transition-all">해지</button>`;
                 tr.innerHTML = `
                     <td class="p-3 font-bold text-slate-700">${user.email || '(미표기)'}</td>
                     <td class="p-3 font-semibold">${user.name}</td>
-                    <td class="p-3"><select id="edit-dept-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[11px] outline-none focus:border-indigo-400">${deptOpts}</select></td>
-                    <td class="p-3"><select id="edit-role-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[11px] outline-none focus:border-indigo-400">${roleOpts}</select></td>
-                    <td class="p-3"><input id="edit-pos-${user.id}" value="${user.position || ''}" class="w-20 px-2 py-1 border rounded-md text-[11px] outline-none focus:border-indigo-400"></td>
-                    <td class="p-3 text-right whitespace-nowrap"><button onclick="saveUserEdits('${user.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold mr-1.5 shadow-sm">저장</button>${termBtn}</td>`;
+                    <td class="p-3"><select id="edit-dept-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[13px] outline-none focus:border-indigo-400">${deptOpts}</select></td>
+                    <td class="p-3"><select id="edit-role-${user.id}" class="px-2 py-1 border rounded-md bg-white text-[13px] outline-none focus:border-indigo-400">${roleOpts}</select></td>
+                    <td class="p-3"><input id="edit-pos-${user.id}" value="${user.position || ''}" class="w-20 px-2 py-1 border rounded-md text-[13px] outline-none focus:border-indigo-400"></td>
+                    <td class="p-3 text-right whitespace-nowrap"><button onclick="saveUserEdits('${user.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[12px] font-bold mr-1.5 shadow-sm">저장</button>${termBtn}</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -3030,16 +3054,51 @@
             const html = STATE.uploadedFeatureHtml || pasted;
             if (!name) { showToast('입력 필요', '기능(탭) 명칭을 입력하세요.'); return; }
             if (!html) { showToast('입력 필요', 'HTML 파일을 업로드하거나 코드를 붙여넣으세요.'); return; }
-            const feat = { id: 'custom_' + Date.now(), name, icon, group, html };
-            const next = [...STATE.customFeatures, feat];
+            let next, savedId;
+            if (STATE.editingFeatureId) {
+                savedId = STATE.editingFeatureId;
+                next = STATE.customFeatures.map(f => f.id === savedId ? { ...f, name, icon, group, html } : f);
+            } else {
+                const feat = { id: 'custom_' + Date.now(), name, icon, group, html };
+                savedId = feat.id;
+                next = [...STATE.customFeatures, feat];
+            }
             const { error } = await sb.from('app_settings').upsert({ key: 'custom_features', value: next, updated_at: new Date().toISOString() });
             if (error) { showToast('배포 실패', error.message); return; }
+            const wasEditing = !!STATE.editingFeatureId;
             STATE.customFeatures = next;
-            renderCustomFeaturesMenu(); closeModal('add-feature-modal'); showToast('배포 완료', `[${group} › ${name}] 탭이 생성되어 전 임직원에게 적용되었습니다.`);
+            renderCustomFeaturesMenu(); closeModal('add-feature-modal');
+            showToast(wasEditing ? '수정 완료' : '배포 완료', `[${group} › ${name}] 기능이 ${wasEditing ? '수정' : '생성'}되어 전 임직원에게 적용되었습니다.`);
             document.getElementById('feature-name').value = ''; document.getElementById('feature-code').value = '';
             const gnew = document.getElementById('feature-group-new'); if (gnew) gnew.value = '';
             STATE.uploadedFeatureHtml = null; const fst = document.getElementById('feature-file-status'); if (fst) fst.innerText = '클릭하여 .html 파일 업로드';
-            launchCustomFeature(feat.id);
+            STATE.editingFeatureId = null;
+            launchCustomFeature(savedId);
+        }
+        function openAddFeatureFresh() {
+            STATE.editingFeatureId = null;
+            const title = document.getElementById('feature-modal-title'); if (title) title.innerText = '시스템 기능(탭) 추가 · 관리자 전용';
+            const submit = document.getElementById('feature-submit-btn'); if (submit) submit.innerText = '탭 생성 및 기능 배포';
+            document.getElementById('feature-name').value = ''; document.getElementById('feature-code').value = '';
+            document.getElementById('feature-icon').value = 'rocket';
+            STATE.uploadedFeatureHtml = null;
+            const fst = document.getElementById('feature-file-status'); if (fst) fst.innerText = '클릭하여 .html 파일 업로드';
+            openModal('add-feature-modal');
+        }
+        function openEditFeature() {
+            if (STATE.profile.role !== 'admin') { showToast('권한 없음', '관리자 전용 기능입니다.'); return; }
+            const id = STATE.currentCustomId; const feat = STATE.customFeatures.find(f => f.id === id); if (!feat) return;
+            STATE.editingFeatureId = id;
+            openModal('add-feature-modal');
+            const title = document.getElementById('feature-modal-title'); if (title) title.innerText = `기능 편집 · ${feat.name}`;
+            const submit = document.getElementById('feature-submit-btn'); if (submit) submit.innerText = '수정 내용 저장 및 배포';
+            document.getElementById('feature-name').value = feat.name || '';
+            document.getElementById('feature-icon').value = feat.icon || 'rocket'; renderFeatureIconGrid();
+            const sel = document.getElementById('feature-group');
+            if (sel) { const has = [...sel.options].some(o => o.value === feat.group); sel.value = has ? feat.group : feat.group; toggleFeatureGroupNew(); }
+            document.getElementById('feature-code').value = feat.html || '';
+            STATE.uploadedFeatureHtml = null;
+            const fst = document.getElementById('feature-file-status'); if (fst) fst.innerText = '현재 코드를 수정하거나, 새 .html 파일로 교체 업로드';
         }
         function makeFeatureButton(feat) {
             const btn = document.createElement('button'); btn.id = `nav-${feat.id}`; btn.className = "sidebar-item custom-feat-btn"; btn.onclick = () => launchCustomFeature(feat.id);
@@ -3108,6 +3167,7 @@
                 } catch (err) { try { iframe.removeAttribute('src'); iframe.srcdoc = feat.html; } catch (e2) {} }
             }
             const delBtn = document.getElementById('custom-feature-delete-btn'); if (delBtn) delBtn.classList.toggle('hidden', !isAdmin);
+            const editBtn = document.getElementById('custom-feature-edit-btn'); if (editBtn) editBtn.classList.toggle('hidden', !isAdmin);
             if (window.lucide) lucide.createIcons();
         }
         async function removeCustomFeature() {
@@ -3142,8 +3202,8 @@
         }
         function updateMailStatusBadge() {
             const badge = document.getElementById('mp-status-badge'); if (!badge) return;
-            if (STATE.mailplug.connected) { badge.innerText = '연동 활성'; badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200/50"; }
-            else { badge.innerText = '연동 끊김'; badge.className = "px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50"; }
+            if (STATE.mailplug.connected) { badge.innerText = '연동 활성'; badge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200/50"; }
+            else { badge.innerText = '연동 끊김'; badge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-200/50"; }
         }
         function handleOAuthSimulation() {
             STATE.mailplug.oauthConnected = true; toggleMailFields();
@@ -3183,7 +3243,7 @@
         function renderMailInbox() {
             const grid = document.getElementById('mailplug-grid'); if (!grid) return;
             if (!STATE.mailplug.connected) {
-                grid.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-16"><i data-lucide="mail-x" class="w-9 h-9 mb-3 opacity-30"></i><p class="text-xs font-medium">메일 서버가 연동되지 않았습니다.</p><p class="text-[10px] mt-1">좌측 패널에서 연동을 완료하면 수신 메일이 표시됩니다.</p></div>`;
+                grid.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-slate-400 py-16"><i data-lucide="mail-x" class="w-9 h-9 mb-3 opacity-30"></i><p class="text-xs font-medium">메일 서버가 연동되지 않았습니다.</p><p class="text-[12px] mt-1">좌측 패널에서 연동을 완료하면 수신 메일이 표시됩니다.</p></div>`;
                 lucide.createIcons(); return;
             }
             grid.innerHTML = '';
@@ -3191,7 +3251,7 @@
                 const row = document.createElement('div');
                 row.className = "p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-all cursor-pointer";
                 row.onclick = () => showToast(m.subject, m.content);
-                row.innerHTML = `<div class="flex justify-between items-center text-[10px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-xs text-slate-800 truncate mt-0.5">${m.subject}</h5><p class="text-[11px] text-slate-500 truncate mt-0.5">${m.content}</p>`;
+                row.innerHTML = `<div class="flex justify-between items-center text-[12px] text-slate-400"><span class="font-bold text-slate-600">${m.sender}</span><span>${m.time}</span></div><h5 class="font-bold text-xs text-slate-800 truncate mt-0.5">${m.subject}</h5><p class="text-[13px] text-slate-500 truncate mt-0.5">${m.content}</p>`;
                 grid.appendChild(row);
             });
         }
@@ -3258,7 +3318,7 @@
             const container = document.getElementById('toast-container'); if (!container) return;
             const toast = document.createElement('div');
             toast.className = "bg-white border border-slate-200 rounded-xl shadow-lg p-3.5 w-72 flex items-start gap-3 transition-all duration-300";
-            toast.innerHTML = `<div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0"><i data-lucide="bell" class="w-4 h-4"></i></div><div class="flex-1 min-w-0"><h5 class="text-xs font-bold text-slate-800">${title}</h5><p class="text-[11px] text-slate-500 mt-0.5 break-words">${message}</p></div>`;
+            toast.innerHTML = `<div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0"><i data-lucide="bell" class="w-4 h-4"></i></div><div class="flex-1 min-w-0"><h5 class="text-xs font-bold text-slate-800">${title}</h5><p class="text-[13px] text-slate-500 mt-0.5 break-words">${message}</p></div>`;
             container.appendChild(toast);
             if (window.lucide) lucide.createIcons();
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 3200);
