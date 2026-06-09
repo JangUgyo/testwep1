@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,9 @@
     <!-- 고품질 Word 렌더링: docx-preview (JSZip 의존) -->
     <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
+    <!-- PDF 첫 페이지 썸네일: pdf.js -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script>try { if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'; } catch (e) {}</script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
@@ -77,6 +80,11 @@
         /* 간트 오늘 표시선 */
         .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444; z-index: 5; }
         .gantt-today-line::after { content: '오늘'; position: absolute; top: -16px; left: -10px; font-size: 9px; font-weight: 700; color: #ef4444; }
+        /* 첨부 썸네일 내부 축소 렌더 */
+        .thumb-body .sheet-html table { border-collapse: collapse; font-size: 11px; background: #fff; }
+        .thumb-body .sheet-html td, .thumb-body .sheet-html th { border: 1px solid #e2e8f0; padding: 2px 5px; white-space: nowrap; }
+        .thumb-body .docx-wrapper { background: #fff !important; padding: 0 !important; box-shadow: none !important; }
+        .thumb-body .docx-wrapper > section.docx { box-shadow: none !important; margin: 0 !important; }
         /* 모달 크기 조절 그립 */
         .modal-resize-grip { position: absolute; right: 3px; bottom: 3px; width: 20px; height: 20px; cursor: nwse-resize; z-index: 20; border-right: 3px solid #94a3b8; border-bottom: 3px solid #94a3b8; border-bottom-right-radius: 6px; opacity: 0.5; transition: opacity 0.15s; }
         .modal-resize-grip:hover { opacity: 1; border-color: #6366f1; }
@@ -2100,7 +2108,7 @@
             const barFill = { paused: 'bg-slate-400', ongoing: 'bg-blue-500', completed: 'bg-emerald-500' }[proj.status] || 'bg-slate-400';
             const manage = canManageProject(proj);
             const fileBlock = proj.filePath
-                ? `<div class="flex items-center gap-2"><button onclick="viewProjectFile(${proj.id})" class="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i><span class="truncate max-w-[200px]">${esc(proj.fileName) || '첨부파일'}</span></button><button onclick="downloadProjectFile(${proj.id})" class="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3.5 h-3.5"></i></button></div>`
+                ? `<div class="max-w-[200px]">${attachSlot('project', proj.id)}</div>`
                 : `<span class="text-[11px] text-slate-400">첨부 파일 없음</span>`;
             const items = proj.items || [];
             const rows = items.length === 0
@@ -2155,6 +2163,7 @@
                     </div>
                 </div>`;
             openModal('project-detail-modal'); if (window.lucide) lucide.createIcons();
+            hydrateAttachmentPreviews(document.getElementById('project-detail-body'));
             if (highlightItemId) { const r = document.getElementById('pitem-row-' + highlightItemId); if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
         }
         async function persistProjectItems(projectId, items) {
@@ -2331,7 +2340,7 @@
         function meetingDayCardHTML(meet, en, wd, canManage) {
             const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
             const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-1 hover:bg-indigo-100"><i data-lucide="link" class="w-3 h-3"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '';
-            const fileRow = en.filePath ? `<div class="flex items-center gap-2 mt-2"><button onclick="viewMdayFile(${meet.id}, '${en.id}')" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[10px] font-bold text-blue-700"><i data-lucide="eye" class="w-3 h-3"></i><span class="truncate max-w-[180px]">${esc(en.fileName) || '첨부'}</span></button><button onclick="downloadMdayFile(${meet.id}, '${en.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3 h-3"></i></button></div>` : '';
+            const fileRow = en.filePath ? `<div class="mt-2 max-w-[220px]">${attachSlot('mday', meet.id, en.id)}</div>` : '';
             const ctrl = canManage ? `<div class="flex gap-3 mt-2 pt-2 border-t border-slate-100"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 삭제</button></div>` : '';
             return `<div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"><p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${esc(en.content)}</p>${link}${fileRow}${ctrl}</div>`;
         }
@@ -2344,6 +2353,7 @@
             const cards = entries.length ? entries.map(en => meetingDayCardHTML(meet, en, wd, canManage)).join('') : `<p class="text-xs text-slate-300 text-center py-8">이 요일에 등록된 업무가 없습니다.</p>`;
             document.getElementById('day-expand-body').innerHTML = `<div class="flex justify-end">${addBtn}</div>${cards}`;
             openModal('day-expand-modal'); if (window.lucide) lucide.createIcons();
+            hydrateAttachmentPreviews(document.getElementById('day-expand-body'));
         }
         const WEEKDAY_KO = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
         function openMeetingDetail(id) {
@@ -2351,8 +2361,9 @@
             const dept = STATE.departments.find(d => d.id === meet.deptId);
             const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
             const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
-            const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="max-h-48 rounded-lg border object-cover cursor-pointer hover:opacity-90" title="크게 보기">` : '';
-            const fileChip = meet.filePath ? `<button onclick="viewMeetingFile(${meet.id})" class="flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate max-w-[220px]">${esc(meet.fileName) || '첨부파일'}</span></button>` : '';
+            const stripe = { ceo: 'bg-slate-700', south_cs: 'bg-blue-500', strategy: 'bg-purple-500', hydrogen: 'bg-emerald-500', rnd: 'bg-amber-500', central_cs: 'bg-cyan-500', sales: 'bg-rose-500' }[meet.deptId] || 'bg-indigo-500';
+            const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="w-full h-44 rounded-lg border object-cover cursor-pointer hover:opacity-90" title="크게 보기">` : '';
+            const fileThumb = meet.filePath ? attachSlot('meeting', meet.id) : '';
             const days = meet.days || [];
             const usedDays = [...new Set(days.map(d => d.weekday))].sort((a, b) => a - b);
             const dayBlocks = usedDays.length === 0
@@ -2368,30 +2379,38 @@
                 }).join('');
             const sec = (icon, color, label, val) => val && val.trim() ? `<div class="space-y-1"><div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${esc(val)}</p></div>` : '';
             const ctrl = canManage
-                ? `<div class="flex gap-2"><button onclick="openEditMeeting(${meet.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 보고 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
-                : `<span class="text-[10px] text-slate-300">타 부서 보고 · 열람 전용</span>`;
+                ? `<div class="flex gap-2 flex-shrink-0"><button onclick="openEditMeeting(${meet.id})" class="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 보고 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
+                : `<span class="text-[10px] text-slate-300 flex-shrink-0">타 부서 보고 · 열람 전용</span>`;
             const addDayBtn = canManage ? `<button onclick="openMeetingDayForm(${meet.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 일별 업무 추가</button>` : '';
+            const attachWrap = (img || fileThumb) ? `<div class="space-y-2 pt-2"><p class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><i data-lucide="paperclip" class="w-3 h-3"></i> 첨부 자료</p><div class="grid grid-cols-2 md:grid-cols-3 gap-3">${img ? `<div>${img}</div>` : ''}${fileThumb}</div></div>` : '';
             document.getElementById('meeting-detail-body').innerHTML = `
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-3">
-                    <div class="flex items-start justify-between gap-3 flex-wrap">
-                        <div class="space-y-2">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
-                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
-                                <span class="text-[10px] text-slate-400 font-mono">${meet.date || ''}</span>
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="flex">
+                        <div class="w-2 flex-shrink-0 ${stripe}"></div>
+                        <div class="flex-1 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-start justify-between gap-3 flex-wrap">
+                                <div class="space-y-2 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold border ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-600 text-white">${meet.week}</span>
+                                        <span class="text-[10px] text-slate-400 font-mono flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${meet.date || '-'}</span>
+                                    </div>
+                                    <h2 class="text-2xl font-extrabold text-slate-800 leading-tight">${esc(headline)}</h2>
+                                    <p class="text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="user-circle" class="w-3.5 h-3.5"></i> 보고자 <strong class="text-slate-700">${esc(meet.author) || '-'}</strong></p>
+                                </div>
+                                ${ctrl}
                             </div>
-                            <h3 class="text-xl font-extrabold text-slate-800 leading-snug">${esc(headline)}</h3>
-                            <p class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> 보고자 ${esc(meet.author) || '-'}</p>
                         </div>
-                        ${ctrl}
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 pt-1">
-                        ${sec('list', 'text-slate-500', '주요 논의 내용', meet.content)}
-                        ${sec('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
-                        ${sec('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
-                        ${sec('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
+                    <div class="p-5 space-y-3 border-t border-slate-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                            ${sec('list', 'text-slate-500', '주요 논의 내용', meet.content)}
+                            ${sec('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
+                            ${sec('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
+                            ${sec('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
+                        </div>
+                        ${attachWrap}
                     </div>
-                    ${(img || fileChip) ? `<div class="flex items-center gap-3 flex-wrap pt-1">${img}${fileChip}</div>` : ''}
                 </div>
                 <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-5 space-y-3">
                     <div class="flex items-center justify-between">
@@ -2402,6 +2421,7 @@
                 </div>`;
             openModal('meeting-detail-modal'); if (window.lucide) lucide.createIcons();
             attachDragScroll(document.getElementById('mday-scroll'));
+            hydrateAttachmentPreviews(document.getElementById('meeting-detail-body'));
         }
         function attachDragScroll(el) {
             if (!el || el._dragBound) return; el._dragBound = true;
@@ -2503,6 +2523,96 @@
             const days = (meet.days || []).filter(d => d.id !== entryId);
             if (!(await persistMeetingDays(meetingId, days))) return;
             await reloadMeetings(); openMeetingDetail(meetingId); showToast('삭제', '일별 내용이 삭제되었습니다.');
+        }
+        // ── 첨부파일 썸네일 미리보기 엔진 ────────────────────────────────
+        function attachSlot(kind, id, eid) { return `<div class="attach-preview-slot" data-kind="${kind}" data-id="${id}" data-eid="${eid || ''}"></div>`; }
+        function resolveAttachInfo(kind, id, eid) {
+            if (kind === 'meeting') { const m = STATE.weeklyMeetings.find(x => x.id == id); if (!m || !m.filePath) return null; return { path: m.filePath, name: m.fileName, mime: m.fileMime, view: `viewMeetingFile(${id})` }; }
+            if (kind === 'mday') { const m = STATE.weeklyMeetings.find(x => x.id == id); if (!m) return null; const en = (m.days || []).find(d => d.id === eid); if (!en || !en.filePath) return null; return { path: en.filePath, name: en.fileName, mime: en.fileMime, view: `viewMdayFile(${id},'${eid}')` }; }
+            if (kind === 'project') { const p = STATE.projects.find(x => x.id == id); if (!p || !p.filePath) return null; return { path: p.filePath, name: p.fileName, mime: p.fileMime, view: `viewProjectFile(${id})` }; }
+            return null;
+        }
+        function fileIconHTML(ext) {
+            const map = { pdf: 'file-text', docx: 'file-text', doc: 'file-text', xlsx: 'sheet', xls: 'sheet', csv: 'sheet', pptx: 'monitor-play', ppt: 'monitor-play', zip: 'file-archive' };
+            const ic = map[ext] || 'file';
+            return `<div class="flex flex-col items-center gap-1 text-slate-400"><i data-lucide="${ic}" class="w-8 h-8"></i><span class="text-[10px] font-bold uppercase">${ext || '파일'}</span></div>`;
+        }
+        async function downloadStoragePath(path, name) {
+            if (!path) return;
+            const { data, error } = await sb.storage.from('documents').createSignedUrl(path, 3600, { download: name || true });
+            if (error || !data) { showToast('다운로드 실패', '파일을 불러오지 못했습니다.'); return; }
+            const a = document.createElement('a'); a.href = data.signedUrl; a.download = name || 'file'; document.body.appendChild(a); a.click(); a.remove();
+        }
+        function hydrateAttachmentPreviews(root) {
+            (root || document).querySelectorAll('.attach-preview-slot:not([data-hydrated])').forEach(slot => {
+                slot.dataset.hydrated = '1';
+                const info = resolveAttachInfo(slot.dataset.kind, slot.dataset.id, slot.dataset.eid);
+                if (!info) { slot.innerHTML = ''; return; }
+                renderAttachmentCard(slot, info);
+            });
+        }
+        async function renderAttachmentCard(slot, info) {
+            const ext = (info.name && info.name.indexOf('.') >= 0) ? info.name.split('.').pop().toLowerCase() : '';
+            const mime = (info.mime || '').toLowerCase();
+            const escName = esc(info.name || '첨부파일');
+            const safePath = (info.path || '').replace(/'/g, "\\'");
+            slot.innerHTML = `<div class="relative group">
+                <div class="thumb-body relative w-full h-44 bg-slate-100 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer" onclick="${info.view}">
+                    <span class="inline-block w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></span>
+                </div>
+                <div class="absolute bottom-0 inset-x-0 bg-slate-900/75 text-white text-[10px] font-bold px-2 py-1.5 truncate flex items-center gap-1 pointer-events-none rounded-b-lg"><i data-lucide="paperclip" class="w-3 h-3"></i> ${escName}</div>
+                <button onclick="downloadStoragePath('${safePath}','${escName.replace(/'/g, "\\'")}')" class="absolute top-2 right-2 p-1.5 bg-white/90 hover:bg-white border border-slate-200 rounded-lg text-slate-600 shadow" title="다운로드"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+            </div>`;
+            const thumb = slot.querySelector('.thumb-body');
+            try {
+                const { data, error } = await sb.storage.from('documents').createSignedUrl(info.path, 3600);
+                if (error || !data) throw new Error('url');
+                const url = data.signedUrl;
+                if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) {
+                    thumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+                } else if (mime === 'application/pdf' || ext === 'pdf') { await renderPdfThumb(thumb, url); }
+                else if (mime.indexOf('word') >= 0 || ext === 'docx') { await renderDocxThumb(thumb, url); }
+                else if (mime.indexOf('sheet') >= 0 || mime.indexOf('excel') >= 0 || ['xlsx', 'xls', 'csv'].includes(ext)) { await renderXlsxThumb(thumb, url); }
+                else { thumb.innerHTML = fileIconHTML(ext); }
+            } catch (e) { thumb.innerHTML = fileIconHTML(ext); }
+            if (window.lucide) lucide.createIcons();
+        }
+        async function renderPdfThumb(thumb, url) {
+            if (typeof pdfjsLib === 'undefined') { thumb.innerHTML = fileIconHTML('pdf'); return; }
+            const pdf = await pdfjsLib.getDocument({ url }).promise;
+            const page = await pdf.getPage(1);
+            const tw = thumb.clientWidth || 240;
+            const v1 = page.getViewport({ scale: 1 });
+            const scale = Math.max(tw / v1.width, 0.2);
+            const vp = page.getViewport({ scale });
+            const canvas = document.createElement('canvas'); canvas.width = vp.width; canvas.height = vp.height;
+            canvas.style.width = '100%'; canvas.style.height = 'auto'; canvas.style.display = 'block';
+            thumb.innerHTML = ''; thumb.style.alignItems = 'flex-start'; thumb.style.background = '#fff'; thumb.appendChild(canvas);
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        }
+        async function renderDocxThumb(thumb, url) {
+            if (typeof docx === 'undefined' || !docx.renderAsync) { thumb.innerHTML = fileIconHTML('docx'); return; }
+            const buf = await (await fetch(url)).arrayBuffer();
+            const inner = document.createElement('div'); inner.style.transformOrigin = 'top left'; inner.style.background = '#fff';
+            thumb.innerHTML = ''; thumb.style.alignItems = 'flex-start'; thumb.style.background = '#fff'; thumb.appendChild(inner);
+            await docx.renderAsync(buf, inner, null, { className: 'docx', inWrapper: true });
+            await new Promise(r => setTimeout(r, 30));
+            const rendered = inner.querySelector('.docx') || inner.firstElementChild || inner;
+            const rw = (rendered.getBoundingClientRect().width) || 794;
+            const tw = thumb.clientWidth || 240;
+            inner.style.transform = `scale(${Math.max(tw / rw, 0.1)})`;
+        }
+        async function renderXlsxThumb(thumb, url) {
+            if (typeof XLSX === 'undefined') { thumb.innerHTML = fileIconHTML('xlsx'); return; }
+            const buf = await (await fetch(url)).arrayBuffer();
+            const wb = XLSX.read(buf, { type: 'array' });
+            const html = XLSX.utils.sheet_to_html(wb.Sheets[wb.SheetNames[0]]);
+            const inner = document.createElement('div'); inner.className = 'sheet-html'; inner.style.transformOrigin = 'top left'; inner.style.background = '#fff'; inner.innerHTML = html;
+            thumb.innerHTML = ''; thumb.style.alignItems = 'flex-start'; thumb.style.background = '#fff'; thumb.appendChild(inner);
+            await new Promise(r => setTimeout(r, 20));
+            const rw = inner.scrollWidth || inner.getBoundingClientRect().width || 400;
+            const tw = thumb.clientWidth || 240;
+            if (rw > tw) inner.style.transform = `scale(${tw / rw})`;
         }
         function gotoLinkedProject(projectId, itemId) {
             // 탭 전환 없이 현재 화면(주간보고 등) 위에 프로젝트 상세를 띄움. 닫으면 아래 화면이 그대로 보임.
