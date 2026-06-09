@@ -39,30 +39,47 @@
         .sheet-html td, .sheet-html th { border: 1px solid #e2e8f0; padding: 4px 8px; white-space: nowrap; }
         .sheet-html tr:first-child td { background: #f8fafc; font-weight: 700; }
 
-        /* ===== 다크 모드 ===== */
+        /* ===== 다크 모드 (Claude 스타일 웜 다크) ===== */
         html.dark { color-scheme: dark; }
-        html.dark body { background-color: #0b1120 !important; color: #e2e8f0; }
-        html.dark * { border-color: #334155; }
-        html.dark aside { background-color: #0f172a !important; border-color: #1e293b !important; }
-        html.dark .bg-white { background-color: #1e293b !important; }
-        html.dark .bg-white\/30 { background-color: rgba(255,255,255,0.14) !important; }
+        html.dark body { background-color: #1f1e1d !important; color: #e9e7df; }
+        html.dark * { border-color: #3d3b38; }
+        html.dark aside { background-color: #262624 !important; border-color: #3a3835 !important; }
+        html.dark .bg-white { background-color: #30302e !important; }
+        html.dark .bg-white\/30 { background-color: rgba(255,255,255,0.10) !important; }
         html.dark .bg-slate-50, html.dark .bg-slate-100,
         html.dark .bg-slate-50\/20, html.dark .bg-slate-50\/50, html.dark .bg-slate-50\/60,
-        html.dark .bg-slate-50\/70, html.dark .bg-slate-50\/80, html.dark .bg-slate-100\/70 { background-color: #172033 !important; }
-        html.dark .bg-\[\#F8FAFC\] { background-color: #0b1120 !important; }
+        html.dark .bg-slate-50\/70, html.dark .bg-slate-50\/80, html.dark .bg-slate-100\/70 { background-color: #2a2926 !important; }
+        html.dark .bg-\[\#F8FAFC\] { background-color: #1f1e1d !important; }
+        html.dark .bg-slate-950, html.dark .bg-slate-900 { background-color: #46443f !important; }
         html.dark .border-slate-200, html.dark .border-slate-100,
         html.dark .border-slate-200\/80, html.dark .border-slate-200\/70, html.dark .border-slate-200\/60,
-        html.dark .border-slate-100\/60, html.dark .border-slate-100\/40 { border-color: #334155 !important; }
+        html.dark .border-slate-100\/60, html.dark .border-slate-100\/40 { border-color: #3d3b38 !important; }
         html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-        html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #334155 !important; }
-        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 { color: #e2e8f0 !important; }
-        html.dark .text-slate-600, html.dark .text-slate-500 { color: #cbd5e1 !important; }
-        html.dark .text-slate-400, html.dark .text-slate-300, html.dark .text-slate-200 { color: #94a3b8 !important; }
-        html.dark input, html.dark select, html.dark textarea { background-color: #0f172a !important; color: #e2e8f0 !important; border-color: #334155 !important; }
-        html.dark input::placeholder, html.dark textarea::placeholder { color: #64748b !important; }
+        html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #3d3b38 !important; }
+        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 { color: #f0eee7 !important; }
+        html.dark .text-slate-600, html.dark .text-slate-500 { color: #c9c6bd !important; }
+        html.dark .text-slate-400, html.dark .text-slate-300, html.dark .text-slate-200 { color: #94918a !important; }
+        html.dark input, html.dark select, html.dark textarea { background-color: #1f1e1d !important; color: #f0eee7 !important; border-color: #3d3b38 !important; }
+        html.dark input::placeholder, html.dark textarea::placeholder { color: #807d75 !important; }
         html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover,
-        html.dark .hover\:bg-slate-50\/70:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: #243044 !important; }
-        html.dark .shadow-sm, html.dark .shadow, html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl, html.dark .shadow-2xl { box-shadow: 0 1px 3px rgba(0,0,0,0.45) !important; }
+        html.dark .hover\:bg-slate-50\/70:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: #34322f !important; }
+        html.dark .shadow-sm, html.dark .shadow, html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl, html.dark .shadow-2xl { box-shadow: 0 1px 3px rgba(0,0,0,0.5) !important; }
+        html.dark #doc-preview-body { background: #e2e8f0; }
+        /* 사이드바 가독성 + 선택 표시 */
+        html.dark .sidebar-item { color: #c9c6bd; }
+        html.dark .sidebar-item span { color: #d8d5cc !important; }
+        html.dark .sidebar-item:hover { background-color: #34322f; color: #fdfcf7; }
+        html.dark .sidebar-item:hover span { color: #fdfcf7 !important; }
+        html.dark .sidebar-item.active { background-color: #3c3a36; box-shadow: inset 3px 0 0 #c96442; }
+        html.dark .sidebar-item.active span { color: #ffffff !important; font-weight: 600; }
+        html.dark .sidebar-group-title { color: #908d84; }
+        html.dark .sidebar-group-title span { color: #908d84 !important; }
+        /* 간트 오늘 표시선 */
+        .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444; z-index: 5; }
+        .gantt-today-line::after { content: '오늘'; position: absolute; top: -16px; left: -10px; font-size: 9px; font-weight: 700; color: #ef4444; }
+        /* 캘린더 일정 호버 툴팁 */
+        #cal-tooltip { position: fixed; z-index: 70; pointer-events: none; max-width: 260px; background: #0f172a; color: #f1f5f9; border-radius: 10px; padding: 10px 12px; font-size: 11px; line-height: 1.5; box-shadow: 0 8px 24px rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.12s; }
+        html.dark #cal-tooltip { background: #30302e; border: 1px solid #46443f; }
         /* 문서 미리보기 본문은 밝게 유지(원본 가독성) */
         html.dark #doc-preview-body { background: #e2e8f0; }
         /* Refined Sidebar Navigation Styling */
@@ -427,7 +444,7 @@
                             <button onclick="switchProgressSubView('gantt')" id="prog-subtab-gantt" class="progress-sub-tab text-xs font-semibold text-slate-400 border-b-2 border-transparent pb-0.5">Gantt 타임라인</button>
                         </div>
                     </div>
-                    <button onclick="openModal('add-project-modal')" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="plus-circle" class="w-4 h-4"></i> 새 프로젝트 기획안 등록</button>
+                    <button onclick="openAddProject()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="plus-circle" class="w-4 h-4"></i> 새 프로젝트 기획안 등록</button>
                 </div>
                 <div id="project-subview-board" class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div class="bg-slate-50/80 rounded-2xl border border-slate-200/70 min-h-[520px] flex flex-col overflow-hidden">
@@ -460,14 +477,25 @@
                         <tbody id="project-list-table-body" class="divide-y text-xs"></tbody>
                     </table>
                 </div>
-                <div id="project-subview-gantt" class="hidden bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
+                <div id="project-subview-gantt" class="hidden bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-2 text-xs">
+                            <button onclick="prevGantt()" class="px-2 py-1 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+                            <span id="gantt-range-label" class="font-bold text-slate-700 min-w-[120px] text-center">-</span>
+                            <button onclick="nextGantt()" class="px-2 py-1 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="todayGantt()" class="px-2.5 py-1 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 font-bold">오늘</button>
+                        </div>
+                        <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                            <button onclick="setGanttScale('month')" id="gantt-scale-month" class="px-3 py-1 text-[11px] font-bold rounded-md transition-all">1개월</button>
+                            <button onclick="setGanttScale('year')" id="gantt-scale-year" class="px-3 py-1 text-[11px] font-bold rounded-md transition-all">1년</button>
+                        </div>
+                    </div>
                     <div id="gantt-chart-wrapper" class="overflow-x-auto min-w-full">
                         <div class="grid grid-cols-12 border-b pb-2 text-[10px] font-bold text-slate-400 text-center">
                             <div class="col-span-3 text-left pl-2">프로젝트 대상</div>
-                            <!-- 가로형 30일 격자망 레이아웃 구조 정합화 -->
-                            <div class="col-span-9 grid gap-px text-[8px] font-mono select-none" id="gantt-header-days" style="grid-template-columns: repeat(30, minmax(0, 1fr));"></div>
+                            <div class="col-span-9" id="gantt-header-days"></div>
                         </div>
-                        <div id="gantt-rows-container" class="space-y-3 pt-2"></div>
+                        <div id="gantt-rows-container" class="relative space-y-3 pt-2"></div>
                     </div>
                 </div>
             </section>
@@ -479,9 +507,12 @@
                         <h3 class="font-bold text-base text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-signature" class="text-indigo-600 w-5 h-5"></i> 주간 부서 연례 회의록 및 부서별 일지</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">사내 각 부서의 주간 업무 성과를 문서화하고 공유합니다.</p>
                     </div>
-                    <div class="flex gap-2.5">
-                        <select id="meeting-filter-dept" onchange="renderWeeklyMeetings()" class="px-3 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
-                        <button onclick="openModal('add-meeting-modal')" class="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="pencil-line" class="w-4 h-4"></i> 주간 일지 작성하기</button>
+                    <div class="flex gap-2.5 flex-wrap">
+                        <select id="meeting-filter-year" onchange="renderWeeklyMeetings()" class="px-2.5 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
+                        <select id="meeting-filter-month" onchange="renderWeeklyMeetings()" class="px-2.5 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
+                        <select id="meeting-filter-week" onchange="renderWeeklyMeetings()" class="px-2.5 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
+                        <select id="meeting-filter-dept" onchange="renderWeeklyMeetings()" class="px-2.5 py-2 border rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"></select>
+                        <button onclick="openAddMeeting()" class="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="pencil-line" class="w-4 h-4"></i> 주간 일지 작성하기</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="weekly-meetings-container"></div>
@@ -763,9 +794,10 @@
         <div class="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2">
                 <i data-lucide="clipboard-list" class="w-4 h-4 text-indigo-600"></i>
-                <h4 class="font-bold text-sm text-slate-800">주간 업무 보고 작성</h4>
+                <h4 id="meeting-modal-title" class="font-bold text-sm text-slate-800">주간 업무 보고 작성</h4>
             </div>
             <form onsubmit="handleNewMeeting(event)" class="p-6 space-y-4 overflow-y-auto">
+                <input type="hidden" id="meeting-id">
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">대상 주차</label><select id="meeting-week" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="6월 1주차">6월 1주차</option><option value="6월 2주차" selected>6월 2주차</option><option value="6월 3주차">6월 3주차</option><option value="6월 4주차">6월 4주차</option></select></div>
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">작성 부서</label><select id="meeting-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
@@ -784,6 +816,17 @@
         </div>
     </div>
 
+    <!-- 주간 보고 상세 모달 -->
+    <div id="meeting-detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 주간 업무 보고 상세</h4>
+                <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="meeting-detail-body" class="p-6 space-y-4 overflow-y-auto"></div>
+        </div>
+    </div>
+
     <div id="update-progress-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 border">
             <form onsubmit="handleSaveDirectProgress(event)" class="space-y-4">
@@ -795,22 +838,36 @@
         </div>
     </div>
 
-    <div id="add-project-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border">
-            <form onsubmit="handleNewProject(event)" class="p-5 space-y-4">
+    <div id="add-project-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="folder-plus" class="w-4 h-4 text-indigo-600"></i><h4 id="project-modal-title" class="font-bold text-sm text-slate-800">신규 프로젝트 등록</h4></div>
+            <form onsubmit="handleNewProject(event)" class="p-5 space-y-4 overflow-y-auto">
+                <input type="hidden" id="project-id">
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">프로젝트 핵심 명칭</label><input type="text" id="project-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 사업부</label><select id="project-dept" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select></div>
-                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상태</label><select id="project-status" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="paused">대기</option><option value="ongoing">진행</option></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상태</label><select id="project-status" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="paused">대기</option><option value="ongoing">진행</option><option value="completed">완료</option></select></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="project-start" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="project-end" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
                 </div>
-                <input type="hidden" id="project-progress-num" value="0">
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">진행률 (%)</label><input type="number" id="project-progress-num" min="0" max="100" value="0" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">상세 요약</label><textarea id="project-desc" rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
-                <div class="flex gap-2"><button type="button" onclick="closeModal('add-project-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold">비즈니스 런칭</button></div>
+                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="project-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleProjectFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="project-file-status">클릭하여 파일 첨부</p></div></div>
+                <div class="flex gap-2"><button type="button" onclick="closeModal('add-project-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
             </form>
+        </div>
+    </div>
+
+    <!-- 프로젝트 상세 모달 -->
+    <div id="project-detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-5 py-4 border-b bg-slate-50 flex items-center justify-between gap-2">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 프로젝트 상세</h4>
+                <button onclick="closeModal('project-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="project-detail-body" class="p-5 space-y-4 overflow-y-auto"></div>
         </div>
     </div>
 
@@ -986,6 +1043,7 @@
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
             events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [],
+            ganttScale: 'year', ganttAnchor: null,
             permissions: {},
             mailplug: {
                 connected: false, provider: 'mailplug', domain: '', apiKey: '', oauthConnected: false,
@@ -1135,7 +1193,7 @@
         }
         async function reloadProjects() {
             const { data } = await sb.from('projects').select('*').order('id', { ascending: false });
-            STATE.projects = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, progress: r.progress, status: r.status, startDate: r.start_date, endDate: r.end_date, desc: r.descr }));
+            STATE.projects = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, progress: r.progress, status: r.status, startDate: r.start_date, endDate: r.end_date, desc: r.descr, filePath: r.file_path, fileName: r.file_name, fileMime: r.file_mime }));
         }
         async function reloadDocuments() {
             const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
@@ -1360,13 +1418,40 @@
                     evEl.style.gridColumn = `${s + 1} / ${e + 2}`; evEl.style.gridRow = `${t + 2}`; evEl.style.margin = "2px 4px";
                     evEl.innerHTML = `<span>${isCompleted ? '✓ ' : ''}[${dept ? dept.name : '공통'}]</span>${evt.site ? ` [${evt.site}]` : ''} ${evt.title}`;
                     evEl.onclick = (el) => { el.stopPropagation(); editEvent(evt.id); };
+                    evEl.onmouseenter = (ev) => showEventTooltip(ev, evt);
+                    evEl.onmousemove = (ev) => moveEventTooltip(ev);
+                    evEl.onmouseleave = hideEventTooltip;
                     weekDiv.appendChild(evEl);
                 });
                 grid.appendChild(weekDiv);
             }
         }
 
-        // ── 캘린더 일정 등록/수정/삭제 ───────────────────────────────────
+        // ── 캘린더 일정 호버 툴팁 ────────────────────────────────────────
+        function getCalTooltip() { let t = document.getElementById('cal-tooltip'); if (!t) { t = document.createElement('div'); t.id = 'cal-tooltip'; document.body.appendChild(t); } return t; }
+        function showEventTooltip(ev, evt) {
+            const dept = STATE.departments.find(d => d.id === evt.deptId);
+            const completed = evt.endDate < formatDate(new Date());
+            const t = getCalTooltip();
+            t.innerHTML = `<div style="font-weight:700;margin-bottom:4px">${evt.title}</div>`
+                + `<div>· 사업부: ${dept ? dept.name : '공통'}</div>`
+                + (evt.site ? `<div>· 현장명: ${evt.site}</div>` : '')
+                + `<div>· 기간: ${evt.startDate} ~ ${evt.endDate}</div>`
+                + `<div>· 상태: ${completed ? '완료' : '진행/예정'}</div>`;
+            t.style.opacity = '1';
+            moveEventTooltip(ev);
+        }
+        function moveEventTooltip(ev) {
+            const t = document.getElementById('cal-tooltip'); if (!t) return;
+            let x = ev.clientX + 14, y = ev.clientY + 14;
+            const w = t.offsetWidth || 240, h = t.offsetHeight || 80;
+            if (x + w > window.innerWidth - 10) x = ev.clientX - w - 14;
+            if (y + h > window.innerHeight - 10) y = ev.clientY - h - 14;
+            t.style.left = x + 'px'; t.style.top = y + 'px';
+        }
+        function hideEventTooltip() { const t = document.getElementById('cal-tooltip'); if (t) t.style.opacity = '0'; }
+
+        // ── 현장명(사이트) 옵션 ──────────────────────────────────────────
         function renderSiteOptions(selected) {
             const sel = document.getElementById('event-site'); if (!sel) return;
             const opts = ['<option value="">(현장명 미지정)</option>'].concat((STATE.sites || []).map(s => `<option value="${s.name}">${s.name}</option>`));
@@ -1681,7 +1766,7 @@
                         </div>`
                         : `<div class="pt-2.5 border-t border-slate-100 text-[9px] text-slate-300 text-center">타 부서 과제 · 열람 전용</div>`;
                     div.innerHTML = `
-                        <h4 class="font-bold text-[13px] text-slate-800 leading-snug">${proj.title}</h4>
+                        <h4 onclick="openProjectDetail(${proj.id})" class="font-bold text-[13px] text-slate-800 leading-snug cursor-pointer hover:text-indigo-600 transition-colors">${proj.title}</h4>
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="px-2 py-0.5 border rounded-md text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
                             <span class="text-[9px] text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
@@ -1711,15 +1796,82 @@
                     const delCell = manage ? `<button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[10px]">열람 전용</span>`;
                     const pctCell = manage ? `<button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button>` : `<span class="text-slate-500 font-mono font-bold">${proj.progress}%</span>`;
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
-                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${proj.title}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
+                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700"><button onclick="openProjectDetail(${proj.id})" class="hover:text-indigo-600 hover:underline text-left">${proj.title}</button></td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
                     tbody.appendChild(tr);
                 });
             } else if (v === 'gantt') {
                 renderGantt(statusFill);
             }
         }
-        // 실제 달력(연-월) 기준 간트 타임라인
+        // 실제 달력 기준 간트 (1개월 / 1년 스케일 + 오늘 표시선)
+        function setGanttScale(scale) { STATE.ganttScale = scale; STATE.ganttAnchor = new Date(); renderProjects(); }
+        function prevGantt() {
+            const a = STATE.ganttAnchor ? new Date(STATE.ganttAnchor) : new Date();
+            if (STATE.ganttScale === 'year') a.setFullYear(a.getFullYear() - 1); else a.setMonth(a.getMonth() - 1);
+            STATE.ganttAnchor = a; renderProjects();
+        }
+        function nextGantt() {
+            const a = STATE.ganttAnchor ? new Date(STATE.ganttAnchor) : new Date();
+            if (STATE.ganttScale === 'year') a.setFullYear(a.getFullYear() + 1); else a.setMonth(a.getMonth() + 1);
+            STATE.ganttAnchor = a; renderProjects();
+        }
+        function todayGantt() { STATE.ganttAnchor = new Date(); renderProjects(); }
         function renderGantt(statusFill) {
+            const header = document.getElementById('gantt-header-days');
+            const container = document.getElementById('gantt-rows-container');
+            if (!container) return; container.innerHTML = '';
+            const scale = STATE.ganttScale || 'year';
+            const anchor = STATE.ganttAnchor ? new Date(STATE.ganttAnchor) : new Date();
+            document.getElementById('gantt-scale-month').className = `px-3 py-1 text-[11px] font-bold rounded-md transition-all ${scale === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
+            document.getElementById('gantt-scale-year').className = `px-3 py-1 text-[11px] font-bold rounded-md transition-all ${scale === 'year' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`;
+            const DAY = 86400000;
+            const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+            let winStart, winEnd, segments = [], rangeLabel = '';
+            if (scale === 'month') {
+                winStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+                winEnd = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+                rangeLabel = `${winStart.getFullYear()}년 ${winStart.getMonth() + 1}월`;
+                const totalDays = Math.round((winEnd - winStart) / DAY) + 1;
+                for (let d = 1; d <= totalDays; d++) { if (d === 1 || d % 5 === 0 || d === totalDays) segments.push({ label: `${d}`, leftPct: ((d - 1) / totalDays) * 100, width: (1 / totalDays) * 100 }); }
+            } else {
+                winStart = new Date(anchor.getFullYear(), 0, 1);
+                winEnd = new Date(anchor.getFullYear(), 11, 31);
+                rangeLabel = `${winStart.getFullYear()}년`;
+                const totalDays = Math.round((winEnd - winStart) / DAY) + 1;
+                for (let m = 0; m < 12; m++) { const mStart = new Date(winStart.getFullYear(), m, 1); segments.push({ label: `${m + 1}월`, leftPct: (Math.round((mStart - winStart) / DAY) / totalDays) * 100 }); }
+            }
+            const lbl = document.getElementById('gantt-range-label'); if (lbl) lbl.innerText = rangeLabel;
+            const span = (winEnd - winStart) + DAY;
+            const pct = (date) => ((date - winStart) / span) * 100;
+            if (header) {
+                header.className = 'col-span-9 relative h-4 text-[9px] font-bold text-slate-500 select-none';
+                header.innerHTML = segments.map(s => `<span class="absolute -translate-x-1/2" style="left:${s.leftPct + (scale === 'year' ? (100 / 24) : 0)}%">${s.label}</span>`).join('');
+            }
+            const gridLines = segments.map(s => `<div class="absolute inset-y-0 border-l border-slate-100" style="left:${s.leftPct}%"></div>`).join('');
+            const dated = STATE.projects.filter(p => p.startDate && p.endDate);
+            const inWindow = dated.filter(p => !(parse(p.endDate) < winStart || parse(p.startDate) > winEnd));
+            if (inWindow.length === 0) { container.innerHTML = `<div class="text-center text-slate-300 text-xs py-10">이 기간에 표시할 프로젝트가 없습니다. (스케일/이동 버튼으로 조정)</div>`; }
+            inWindow.forEach(proj => {
+                const dept = STATE.departments.find(d => d.id === proj.deptId);
+                const barBg = statusFill[proj.status] || 'bg-slate-400';
+                const s = parse(proj.startDate), e = parse(proj.endDate);
+                let left = Math.max(pct(s), 0), right = Math.min(pct(new Date(e.getTime() + DAY)), 100);
+                const width = Math.max(right - left, 1.2);
+                const durDays = Math.round((e - s) / DAY) + 1;
+                const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
+                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[11px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[9px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${gridLines}<div onclick="openProjectDetail(${proj.id})" title="클릭하여 상세보기" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[9px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
+                container.appendChild(row);
+            });
+            // 오늘 표시선
+            const today = new Date(); const tPct = pct(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+            if (tPct >= 0 && tPct <= 100) {
+                const line = document.createElement('div'); line.className = 'gantt-today-line';
+                line.style.left = `calc(25% + ${tPct} * 0.75%)`;
+                container.appendChild(line);
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+        function renderGantt_OLD(statusFill) {
             const header = document.getElementById('gantt-header-days');
             const container = document.getElementById('gantt-rows-container');
             if (!container) return; container.innerHTML = '';
@@ -1786,19 +1938,115 @@
             if (error) { showToast('갱신 실패', error.message); return; }
             await reloadProjects(); closeModal('update-progress-modal'); renderProjects(); showToast('공정 갱신', '진척 수치가 동기화되었습니다.');
         }
+        function handleProjectFileSelection(e) {
+            const f = e.target.files[0]; if (!f) return; STATE.projectUploadedFile = f;
+            const st = document.getElementById('project-file-status'); if (st) { st.innerText = `첨부: ${f.name} (${humanSize(f.size)})`; st.classList.add('text-indigo-600'); }
+        }
+        function openAddProject() {
+            document.getElementById('project-id').value = '';
+            document.getElementById('project-title').value = '';
+            const ds = document.getElementById('project-dept'); if (ds) ds.selectedIndex = 0;
+            document.getElementById('project-status').value = 'paused';
+            document.getElementById('project-start').value = '';
+            document.getElementById('project-end').value = '';
+            document.getElementById('project-progress-num').value = 0;
+            document.getElementById('project-desc').value = '';
+            STATE.projectUploadedFile = null; STATE.projectKeepFile = null;
+            const st = document.getElementById('project-file-status'); if (st) { st.innerText = '클릭하여 파일 첨부'; st.classList.remove('text-indigo-600'); }
+            const t = document.getElementById('project-modal-title'); if (t) t.innerText = '신규 프로젝트 등록';
+            applyDeptLock('project-dept');
+            openModal('add-project-modal');
+        }
+        function openEditProject(id) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            if (!canManageProject(proj)) { showToast('수정 권한 없음', '본인 소속 부서의 프로젝트만 수정할 수 있습니다.'); return; }
+            closeModal('project-detail-modal');
+            document.getElementById('project-id').value = proj.id;
+            document.getElementById('project-title').value = proj.title;
+            document.getElementById('project-dept').value = proj.deptId;
+            document.getElementById('project-status').value = proj.status;
+            document.getElementById('project-start').value = proj.startDate || '';
+            document.getElementById('project-end').value = proj.endDate || '';
+            document.getElementById('project-progress-num').value = proj.progress;
+            document.getElementById('project-desc').value = proj.desc || '';
+            STATE.projectUploadedFile = null; STATE.projectKeepFile = { path: proj.filePath, name: proj.fileName, mime: proj.fileMime };
+            const st = document.getElementById('project-file-status'); if (st) { st.innerText = proj.filePath ? `현재 파일 유지: ${proj.fileName} (교체하려면 클릭)` : '클릭하여 파일 첨부'; st.classList.remove('text-indigo-600'); }
+            const t = document.getElementById('project-modal-title'); if (t) t.innerText = '프로젝트 수정';
+            applyDeptLock('project-dept');
+            openModal('add-project-modal');
+        }
         async function handleNewProject(e) {
             e.preventDefault();
+            const id = document.getElementById('project-id').value;
             const title = document.getElementById('project-title').value.trim();
             const dept = document.getElementById('project-dept').value;
             const status = document.getElementById('project-status').value;
             const s = document.getElementById('project-start').value || null;
             const end = document.getElementById('project-end').value || null;
             const desc = document.getElementById('project-desc').value;
+            let progress = parseInt(document.getElementById('project-progress-num').value); if (isNaN(progress)) progress = 0; progress = Math.max(0, Math.min(100, progress));
             if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 프로젝트만 등록할 수 있습니다.'); return; }
-            const { error } = await sb.from('projects').insert({ title, dept_id: dept, status, start_date: s, end_date: end, progress: 0, descr: desc });
-            if (error) { showToast('등록 실패', error.message); return; }
-            await reloadProjects(); renderProjects(); closeModal('add-project-modal'); showToast('기획 수립', '새 프로젝트가 배포되었습니다.');
+            const payload = { title, dept_id: dept, status, start_date: s, end_date: end, progress, descr: desc };
+            if (STATE.projectUploadedFile) {
+                const f = STATE.projectUploadedFile;
+                const path = safeStorageKey(f.name, 'projects/');
+                const { error: upErr } = await sb.storage.from('documents').upload(path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
+                if (upErr) { showToast('첨부 실패', upErr.message); return; }
+                if (id && STATE.projectKeepFile && STATE.projectKeepFile.path) { try { await sb.storage.from('documents').remove([STATE.projectKeepFile.path]); } catch (er) {} }
+                payload.file_path = path; payload.file_name = f.name; payload.file_mime = f.type || '';
+            }
+            let error;
+            if (id) { ({ error } = await sb.from('projects').update(payload).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('projects').insert(payload)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            STATE.projectUploadedFile = null; STATE.projectKeepFile = null;
+            await reloadProjects(); renderProjects(); closeModal('add-project-modal'); showToast(id ? '프로젝트 수정' : '기획 수립', id ? '프로젝트가 수정되었습니다.' : '새 프로젝트가 배포되었습니다.');
         }
+        function openProjectDetail(id) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            const dept = STATE.departments.find(d => d.id === proj.deptId);
+            const statusKo = { paused: '대기', ongoing: '진행', completed: '완료' }[proj.status] || proj.status;
+            const statusColor = { paused: 'bg-slate-100 text-slate-600', ongoing: 'bg-blue-50 text-blue-600', completed: 'bg-emerald-50 text-emerald-600' }[proj.status] || 'bg-slate-100';
+            const barFill = { paused: 'bg-slate-400', ongoing: 'bg-blue-500', completed: 'bg-emerald-500' }[proj.status] || 'bg-slate-400';
+            const manage = canManageProject(proj);
+            const fileBlock = proj.filePath
+                ? `<div class="space-y-2"><p class="text-[10px] font-bold text-slate-500">첨부 파일</p><div class="flex items-center gap-2"><button onclick="viewProjectFile(${proj.id})" class="flex-1 flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${proj.fileName || '첨부파일'} 미리보기</span></button><button onclick="downloadProjectFile(${proj.id})" class="p-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-600"><i data-lucide="download" class="w-3.5 h-3.5"></i></button></div></div>`
+                : `<div class="text-[11px] text-slate-400">첨부된 파일이 없습니다.</div>`;
+            const ctrl = manage
+                ? `<div class="flex gap-2 pt-2 border-t border-slate-100"><button onclick="openEditProject(${proj.id})" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 편집</button><button onclick="deleteProject(${proj.id}); closeModal('project-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>`
+                : `<div class="pt-2 border-t border-slate-100 text-center text-[10px] text-slate-300">타 부서 과제 · 열람 전용</div>`;
+            document.getElementById('project-detail-body').innerHTML = `
+                <div class="flex items-start justify-between gap-3">
+                    <h3 class="text-base font-extrabold text-slate-800 leading-snug">${proj.title}</h3>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold flex-shrink-0 ${statusColor}">${statusKo}</span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap text-[11px]">
+                    <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                    <span class="text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-slate-400 font-medium">공정률</span><span class="text-[11px] font-bold text-slate-700">${proj.progress}%</span></div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div>
+                </div>
+                <div class="space-y-1"><p class="text-[10px] font-bold text-slate-500">상세 요약</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? proj.desc : '<span class="text-slate-300">등록된 상세 내용이 없습니다.</span>'}</p></div>
+                ${fileBlock}
+                ${ctrl}`;
+            openModal('project-detail-modal');
+        }
+        async function viewProjectFile(id) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj || !proj.filePath) return;
+            const { data, error } = await sb.storage.from('documents').createSignedUrl(proj.filePath, 3600);
+            if (error || !data) { showToast('열람 실패', '파일을 불러오지 못했습니다.'); return; }
+            const ext = (proj.fileName && proj.fileName.indexOf('.') >= 0) ? proj.fileName.split('.').pop() : '';
+            openFilePreview(proj.fileName || '첨부파일', data.signedUrl, proj.fileMime || '', ext);
+        }
+        async function downloadProjectFile(id) {
+            const proj = STATE.projects.find(p => p.id === id); if (!proj || !proj.filePath) return;
+            const { data, error } = await sb.storage.from('documents').createSignedUrl(proj.filePath, 3600, { download: proj.fileName || true });
+            if (error || !data) { showToast('다운로드 실패', '파일을 불러오지 못했습니다.'); return; }
+            const a = document.createElement('a'); a.href = data.signedUrl; a.download = proj.fileName || 'file'; document.body.appendChild(a); a.click(); a.remove();
+        }
+        async function handleNewProject_legacy() {}
         async function deleteProject(id) {
             const proj = STATE.projects.find(p => p.id === id);
             if (proj && !canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 삭제할 수 있습니다.'); return; }
@@ -1820,34 +2068,63 @@
         }
 
         // ── 주간 회의 일지 ───────────────────────────────────────────────
+        function meetingYMW(m) {
+            const year = parseInt((m.date || '').slice(0, 4)) || null;
+            let month = null, week = null;
+            const wm = (m.week || '').match(/(\d+)\s*월\s*(\d+)\s*주/);
+            if (wm) { month = parseInt(wm[1]); week = parseInt(wm[2]); }
+            else { const mm = (m.date || '').match(/^\d{4}-(\d{2})/); if (mm) month = parseInt(mm[1]); }
+            return { year, month, week };
+        }
+        function populateMeetingFilters() {
+            const yearSel = document.getElementById('meeting-filter-year');
+            const monthSel = document.getElementById('meeting-filter-month');
+            const weekSel = document.getElementById('meeting-filter-week');
+            if (!yearSel || !monthSel || !weekSel) return;
+            const years = new Set(); years.add(new Date().getFullYear());
+            STATE.weeklyMeetings.forEach(m => { const y = (m.date || '').slice(0, 4); if (/^\d{4}$/.test(y)) years.add(parseInt(y)); });
+            const yearArr = [...years].sort((a, b) => b - a);
+            const keepY = yearSel.value || 'all';
+            yearSel.innerHTML = `<option value="all">전체 연도</option>` + yearArr.map(y => `<option value="${y}">${y}년</option>`).join('');
+            yearSel.value = [...yearSel.options].some(o => o.value === keepY) ? keepY : 'all';
+            if (!monthSel.dataset.filled) { monthSel.innerHTML = `<option value="all">전체 월</option>` + Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1}월</option>`).join(''); monthSel.dataset.filled = '1'; }
+            if (!weekSel.dataset.filled) { weekSel.innerHTML = `<option value="all">전체 주차</option>` + [1, 2, 3, 4, 5].map(w => `<option value="${w}">${w}주차</option>`).join(''); weekSel.dataset.filled = '1'; }
+        }
+        const _meetSection = (icon, color, label, val) => val && val.trim() ? `
+            <div class="space-y-1">
+                <div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div>
+                <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${val}</p>
+            </div>` : '';
         function renderWeeklyMeetings() {
+            populateMeetingFilters();
             const container = document.getElementById('weekly-meetings-container'); if (!container) return; container.innerHTML = '';
-            const filterDept = document.getElementById('meeting-filter-dept').value;
-            const filtered = STATE.weeklyMeetings.filter(m => filterDept === 'all' || m.deptId === filterDept);
-            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 text-xs font-medium"><i data-lucide="clipboard-list" class="w-8 h-8 mx-auto mb-3 opacity-30"></i><p>등록된 주간 업무 보고가 없습니다.</p></div>`; if (window.lucide) lucide.createIcons(); return; }
+            const fy = document.getElementById('meeting-filter-year').value;
+            const fmo = document.getElementById('meeting-filter-month').value;
+            const fw = document.getElementById('meeting-filter-week').value;
+            const fd = document.getElementById('meeting-filter-dept').value;
+            const filtered = STATE.weeklyMeetings.filter(m => {
+                if (fd !== 'all' && m.deptId !== fd) return false;
+                const y = meetingYMW(m);
+                if (fy !== 'all' && String(y.year) !== fy) return false;
+                if (fmo !== 'all' && String(y.month) !== fmo) return false;
+                if (fw !== 'all' && String(y.week) !== fw) return false;
+                return true;
+            });
+            if (filtered.length === 0) { container.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 text-xs font-medium"><i data-lucide="clipboard-list" class="w-8 h-8 mx-auto mb-3 opacity-30"></i><p>선택한 조건에 해당하는 주간 업무 보고가 없습니다.</p></div>`; if (window.lucide) lucide.createIcons(); return; }
             const accent = { ceo: 'bg-slate-700', south_cs: 'bg-blue-500', strategy: 'bg-purple-500', hydrogen: 'bg-emerald-500', rnd: 'bg-amber-500', central_cs: 'bg-cyan-500', sales: 'bg-rose-500' };
-            const section = (icon, color, label, val) => val && val.trim() ? `
-                <div class="space-y-1">
-                    <div class="flex items-center gap-1.5 text-[10px] font-bold ${color}"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i> ${label}</div>
-                    <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line pl-5">${val}</p>
-                </div>` : '';
             filtered.forEach(meet => {
                 const dept = STATE.departments.find(d => d.id === meet.deptId);
                 const stripe = accent[meet.deptId] || 'bg-slate-400';
                 const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
                 const card = document.createElement('div');
                 card.className = "bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden";
-                const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition rounded-lg border" title="클릭하여 크게 보기">` : '';
-                const fileChip = meet.filePath
-                    ? `<button onclick="viewMeetingFile(${meet.id})" class="w-full flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${meet.fileName || '첨부파일'}</span><span class="text-[9px] text-blue-500">열람/다운로드 ›</span></button>`
-                    : (meet.fileName ? `<div class="p-2 bg-slate-50 border rounded-lg text-[10px] font-bold text-slate-500 truncate">📎 ${meet.fileName}</div>` : '');
-                const delBtn = canManage
-                    ? `<button onclick="deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold transition-colors flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 보고 철회</button>`
-                    : `<span class="text-[10px] text-slate-300">열람 전용</span>`;
                 const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
-                const attachBlock = (img || fileChip) ? `<div class="space-y-2 pt-1">${img}${fileChip}</div>` : '';
+                const attachInfo = (meet.image ? '🖼 사진 ' : '') + (meet.filePath ? '📎 첨부' : '');
+                const ctrlBtns = canManage
+                    ? `<button onclick="event.stopPropagation(); openEditMeeting(${meet.id})" class="text-[10px] text-indigo-500 hover:text-indigo-700 font-bold flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> 편집</button><button onclick="event.stopPropagation(); deleteWeeklyMeeting(${meet.id})" class="text-[10px] text-slate-400 hover:text-rose-600 font-bold flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> 철회</button>`
+                    : `<span class="text-[10px] text-slate-300">열람 전용</span>`;
                 card.innerHTML = `
-                    <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/60">
+                    <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50/60 cursor-pointer" onclick="openMeetingDetail(${meet.id})">
                         <span class="w-2 h-8 ${stripe} rounded-full"></span>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
@@ -1858,20 +2135,94 @@
                         <span class="text-[10px] text-slate-400 font-mono">${meet.date || ''}</span>
                     </div>
                     <div class="p-5 space-y-3.5">
-                        <div>
-                            <h4 class="font-extrabold text-[15px] text-slate-800 leading-snug">${headline}</h4>
-                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> 보고자 ${meet.author || '-'}</p>
+                        <div class="cursor-pointer" onclick="openMeetingDetail(${meet.id})">
+                            <h4 class="font-extrabold text-[15px] text-slate-800 leading-snug hover:text-indigo-600 transition-colors">${headline}</h4>
+                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-2"><span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${meet.author || '-'}</span>${attachInfo ? `<span class="text-slate-400">${attachInfo}</span>` : ''}</p>
                         </div>
-                        ${section('list', 'text-slate-500', '주요 논의 내용', meet.content)}
-                        ${section('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
-                        ${section('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
-                        ${section('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
-                        ${attachBlock}
-                        <div class="text-right pt-2 border-t border-slate-50">${delBtn}</div>
+                        ${_meetSection('list', 'text-slate-500', '주요 논의 내용', meet.content)}
+                        ${_meetSection('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
+                        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
+                            <button onclick="openMeetingDetail(${meet.id})" class="text-[10px] text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-1"><i data-lucide="maximize-2" class="w-3 h-3"></i> 상세 보기</button>
+                            <div class="flex items-center gap-3">${ctrlBtns}</div>
+                        </div>
                     </div>`;
                 container.appendChild(card);
             });
             if (window.lucide) lucide.createIcons();
+        }
+        function openMeetingDetail(id) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet) return;
+            const dept = STATE.departments.find(d => d.id === meet.deptId);
+            const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
+            const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
+            const img = meet.image ? `<img src="${meet.image}" onclick="viewMeetingImage(${meet.id})" class="w-full max-h-64 object-cover cursor-pointer hover:opacity-90 transition rounded-lg border" title="클릭하여 크게 보기">` : '';
+            const fileChip = meet.filePath
+                ? `<button onclick="viewMeetingFile(${meet.id})" class="w-full flex items-center gap-2 p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[11px] font-bold text-blue-700 transition"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span class="truncate flex-1 text-left">${meet.fileName || '첨부파일'}</span><span class="text-[9px] text-blue-500">미리보기/다운로드 ›</span></button>`
+                : '';
+            const attachBlock = (img || fileChip) ? `<div class="space-y-2 pt-1">${img}${fileChip}</div>` : '';
+            const ctrl = canManage
+                ? `<div class="flex gap-2 pt-2 border-t border-slate-100"><button onclick="openEditMeeting(${meet.id})" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> 편집</button><button onclick="deleteWeeklyMeeting(${meet.id}); closeModal('meeting-detail-modal')" class="px-4 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">철회</button></div>`
+                : `<div class="pt-2 border-t border-slate-100 text-center text-[10px] text-slate-300">타 부서 보고 · 열람 전용</div>`;
+            document.getElementById('meeting-detail-body').innerHTML = `
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2 py-0.5 border rounded-md text-[10px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
+                    <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">${meet.week}</span>
+                    <span class="text-[10px] text-slate-400 font-mono ml-auto">${meet.date || ''}</span>
+                </div>
+                <div><h3 class="text-base font-extrabold text-slate-800 leading-snug">${headline}</h3><p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> 보고자 ${meet.author || '-'}</p></div>
+                ${_meetSection('list', 'text-slate-500', '주요 논의 내용', meet.content)}
+                ${_meetSection('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
+                ${_meetSection('target', 'text-indigo-600', '액션 아이템', meet.actionItems)}
+                ${_meetSection('calendar-clock', 'text-amber-600', '차주 계획', meet.nextPlan)}
+                ${attachBlock}
+                ${ctrl}`;
+            openModal('meeting-detail-modal'); if (window.lucide) lucide.createIcons();
+        }
+        function populateMeetingWeekOptions() {
+            const sel = document.getElementById('meeting-week'); if (!sel) return;
+            const mo = new Date().getMonth() + 1;
+            const keep = sel.value;
+            sel.innerHTML = [1, 2, 3, 4, 5].map(w => `<option value="${mo}월 ${w}주차">${mo}월 ${w}주차</option>`).join('');
+            if (keep && [...sel.options].some(o => o.value === keep)) sel.value = keep;
+        }
+        function resetMeetingForm() {
+            ['meeting-title', 'meeting-content', 'meeting-decisions', 'meeting-actions', 'meeting-next'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            document.getElementById('meeting-id').value = '';
+            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = ''; STATE.meetingUploadedFile = null; STATE.meetingKeepFile = null;
+            const i = document.getElementById('meeting-img-status'); if (i) i.innerText = '사진 첨부';
+            const f = document.getElementById('meeting-file-status'); if (f) f.innerText = '문서 첨부';
+        }
+        function openAddMeeting() {
+            resetMeetingForm();
+            populateMeetingWeekOptions();
+            const t = document.getElementById('meeting-modal-title'); if (t) t.innerText = '주간 업무 보고 작성';
+            applyDeptLock('meeting-dept');
+            openModal('add-meeting-modal');
+        }
+        function openEditMeeting(id) {
+            const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet) return;
+            if (!(STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId)) { showToast('수정 권한 없음', '본인 소속 부서의 보고만 수정할 수 있습니다.'); return; }
+            closeModal('meeting-detail-modal');
+            resetMeetingForm();
+            populateMeetingWeekOptions();
+            const wsel = document.getElementById('meeting-week');
+            if (![...wsel.options].some(o => o.value === meet.week)) { const o = document.createElement('option'); o.value = meet.week; o.text = meet.week; wsel.appendChild(o); }
+            wsel.value = meet.week;
+            document.getElementById('meeting-id').value = meet.id;
+            document.getElementById('meeting-dept').value = meet.deptId;
+            document.getElementById('meeting-title').value = meet.title || '';
+            document.getElementById('meeting-content').value = meet.content || '';
+            document.getElementById('meeting-decisions').value = meet.decisions || '';
+            document.getElementById('meeting-actions').value = meet.actionItems || '';
+            document.getElementById('meeting-next').value = meet.nextPlan || '';
+            STATE.meetingKeepFile = { path: meet.filePath, name: meet.fileName, mime: meet.fileMime, image: meet.image };
+            STATE.meetingUploadedImg = meet.image || '';
+            STATE.meetingUploadedFileName = meet.fileName || '';
+            const i = document.getElementById('meeting-img-status'); if (i) i.innerText = meet.image ? '사진 유지 (교체하려면 클릭)' : '사진 첨부';
+            const f = document.getElementById('meeting-file-status'); if (f) f.innerText = meet.fileName ? `파일 유지: ${meet.fileName}` : '문서 첨부';
+            const t = document.getElementById('meeting-modal-title'); if (t) t.innerText = '주간 보고 수정';
+            applyDeptLock('meeting-dept');
+            openModal('add-meeting-modal');
         }
         async function viewMeetingFile(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet || !meet.filePath) return;
@@ -1899,6 +2250,7 @@
         }
         async function handleNewMeeting(e) {
             e.preventDefault();
+            const id = document.getElementById('meeting-id').value;
             const week = document.getElementById('meeting-week').value;
             const dept = document.getElementById('meeting-dept').value;
             const title = document.getElementById('meeting-title').value.trim();
@@ -1908,21 +2260,26 @@
             const next = document.getElementById('meeting-next').value.trim();
             if (!content) { showToast('입력 필요', '주요 논의 내용을 입력하세요.'); return; }
             if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 회의록만 작성할 수 있습니다.'); return; }
-            let file_path = null, file_mime = null;
+            const keep = STATE.meetingKeepFile || {};
+            let file_path = id ? (keep.path || null) : null;
+            let file_mime = id ? (keep.mime || null) : null;
+            let file_name = id ? (keep.name || '') : '';
             if (STATE.meetingUploadedFile) {
                 const f = STATE.meetingUploadedFile;
-                file_path = safeStorageKey(f.name, 'meetings/');
-                const { error: upErr } = await sb.storage.from('documents').upload(file_path, f, { contentType: f.type || 'application/octet-stream', upsert: false });
+                const newPath = safeStorageKey(f.name, 'meetings/');
+                const { error: upErr } = await sb.storage.from('documents').upload(newPath, f, { contentType: f.type || 'application/octet-stream', upsert: false });
                 if (upErr) { showToast('첨부 업로드 실패', upErr.message); return; }
-                file_mime = f.type || '';
+                if (id && keep.path) { try { await sb.storage.from('documents').remove([keep.path]); } catch (er) {} }
+                file_path = newPath; file_mime = f.type || ''; file_name = f.name;
             }
-            const { error } = await sb.from('weekly_meetings').insert({ dept_id: dept, week, author: STATE.profile.name, meet_date: formatDate(new Date()), title: title || null, content, decisions: decisions || null, action_items: actions || null, next_plan: next || null, image: STATE.meetingUploadedImg || '', file_name: STATE.meetingUploadedFileName || '', file_path, file_mime });
-            if (error) { showToast('등록 실패', error.message); return; }
-            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = ''; STATE.meetingUploadedFile = null;
-            await reloadMeetings(); renderWeeklyMeetings(); closeModal('add-meeting-modal'); showToast('보고 배포', '주간 업무 보고가 등록되었습니다.');
-            ['meeting-title', 'meeting-content', 'meeting-decisions', 'meeting-actions', 'meeting-next'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-            const i = document.getElementById('meeting-img-status'); if (i) i.innerText = '사진 첨부';
-            const f = document.getElementById('meeting-file-status'); if (f) f.innerText = '문서 첨부';
+            const payload = { dept_id: dept, week, title: title || null, content, decisions: decisions || null, action_items: actions || null, next_plan: next || null, image: STATE.meetingUploadedImg || '', file_name: file_name || '', file_path, file_mime };
+            let error;
+            if (id) { ({ error } = await sb.from('weekly_meetings').update(payload).eq('id', parseInt(id))); }
+            else { payload.author = STATE.profile.name; payload.meet_date = formatDate(new Date()); ({ error } = await sb.from('weekly_meetings').insert(payload)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            STATE.meetingUploadedImg = ''; STATE.meetingUploadedFileName = ''; STATE.meetingUploadedFile = null; STATE.meetingKeepFile = null;
+            await reloadMeetings(); renderWeeklyMeetings(); closeModal('add-meeting-modal'); showToast(id ? '보고 수정' : '보고 배포', id ? '주간 업무 보고가 수정되었습니다.' : '주간 업무 보고가 등록되었습니다.');
+            resetMeetingForm();
         }
         async function deleteWeeklyMeeting(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id);
