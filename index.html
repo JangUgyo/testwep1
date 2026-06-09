@@ -911,6 +911,15 @@
                 <input type="hidden" id="event-id">
                 <div class="text-sm font-bold text-slate-800" id="event-modal-title">새 일정 등록</div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">일정 제목</label><input type="text" id="event-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">현장명 <span class="text-slate-300 font-normal">(선택)</span></label>
+                    <select id="event-site" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select>
+                    <div class="flex gap-2 mt-2">
+                        <input type="text" id="event-site-new" placeholder="새 현장명 추가 후 + 버튼" class="flex-1 px-3 py-1.5 border rounded-lg text-xs outline-none">
+                        <button type="button" onclick="addSite()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 추가</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">추가한 현장명은 저장되어 다음에도 목록에 표시됩니다.</p>
+                </div>
                 <div><label class="block text-[10px] font-bold text-slate-500 mb-1">담당 부서</label><select id="event-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[10px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="event-start" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
@@ -976,7 +985,7 @@
             ],
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
-            events: [], projects: [], documents: [], weeklyMeetings: [], users: [],
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [],
             permissions: {},
             mailplug: {
                 connected: false, provider: 'mailplug', domain: '', apiKey: '', oauthConnected: false,
@@ -1112,13 +1121,17 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
             const { data } = await sb.from('events').select('*').order('start_date', { ascending: true });
-            STATE.events = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, title: r.title, startDate: r.start_date, endDate: r.end_date }));
+            STATE.events = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, title: r.title, startDate: r.start_date, endDate: r.end_date, site: r.site || '' }));
             STATE.events.forEach(e => { if (STATE.visibility[e.deptId] === undefined) STATE.visibility[e.deptId] = true; });
+        }
+        async function reloadSites() {
+            const { data } = await sb.from('sites').select('*').order('name', { ascending: true });
+            STATE.sites = (data || []).map(r => ({ id: r.id, name: r.name }));
         }
         async function reloadProjects() {
             const { data } = await sb.from('projects').select('*').order('id', { ascending: false });
@@ -1158,6 +1171,7 @@
             if (STATE._rt) return;
             STATE._rt = sb.channel('portal-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'sites' }, async () => { await reloadSites(); const sel = document.getElementById('event-site'); renderSiteOptions(sel ? sel.value : ''); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); if (STATE.currentTab === 'documents') filterDocs(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
@@ -1344,7 +1358,7 @@
                     const compClass = isCompleted ? 'line-through opacity-40' : '';
                     evEl.className = `dept-tag ${dept ? dept.color : 'bg-slate-100 border-slate-300'} cursor-pointer text-left text-[11px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium ${compClass}`;
                     evEl.style.gridColumn = `${s + 1} / ${e + 2}`; evEl.style.gridRow = `${t + 2}`; evEl.style.margin = "2px 4px";
-                    evEl.innerHTML = `<span>${isCompleted ? '✓ ' : ''}[${dept ? dept.name : '공통'}]</span> ${evt.title}`;
+                    evEl.innerHTML = `<span>${isCompleted ? '✓ ' : ''}[${dept ? dept.name : '공통'}]</span>${evt.site ? ` [${evt.site}]` : ''} ${evt.title}`;
                     evEl.onclick = (el) => { el.stopPropagation(); editEvent(evt.id); };
                     weekDiv.appendChild(evEl);
                 });
@@ -1353,6 +1367,25 @@
         }
 
         // ── 캘린더 일정 등록/수정/삭제 ───────────────────────────────────
+        function renderSiteOptions(selected) {
+            const sel = document.getElementById('event-site'); if (!sel) return;
+            const opts = ['<option value="">(현장명 미지정)</option>'].concat((STATE.sites || []).map(s => `<option value="${s.name}">${s.name}</option>`));
+            sel.innerHTML = opts.join('');
+            sel.value = selected || '';
+        }
+        async function addSite() {
+            const inp = document.getElementById('event-site-new'); if (!inp) return;
+            const name = inp.value.trim();
+            if (!name) { showToast('입력 필요', '추가할 현장명을 입력하세요.'); return; }
+            if ((STATE.sites || []).some(s => s.name === name)) { renderSiteOptions(name); inp.value = ''; showToast('이미 존재', '이미 등록된 현장명입니다.'); return; }
+            const { error } = await sb.from('sites').insert({ name });
+            if (error) {
+                if ((error.code === '23505') || /duplicate|unique/i.test(error.message || '')) { await reloadSites(); renderSiteOptions(name); inp.value = ''; showToast('이미 존재', '이미 등록된 현장명입니다.'); return; }
+                showToast('추가 실패', error.message); return;
+            }
+            await reloadSites(); renderSiteOptions(name); inp.value = '';
+            showToast('현장명 추가', `[${name}] 현장이 목록에 저장되었습니다.`);
+        }
         function quickAddEvent(dateStr) {
             const d = dateStr || formatDate(new Date());
             const idEl = document.getElementById('event-id'); if (idEl) idEl.value = '';
@@ -1362,6 +1395,8 @@
             const endEl = document.getElementById('event-end'); if (endEl) endEl.value = d;
             const t = document.getElementById('event-modal-title'); if (t) t.innerText = '새 일정 등록';
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.add('hidden');
+            renderSiteOptions('');
+            const sn = document.getElementById('event-site-new'); if (sn) sn.value = '';
             applyDeptLock('event-dept');
             openModal('add-event-modal');
         }
@@ -1375,6 +1410,8 @@
             document.getElementById('event-dept').value = evt.deptId;
             document.getElementById('event-start').value = evt.startDate;
             document.getElementById('event-end').value = evt.endDate;
+            renderSiteOptions(evt.site || '');
+            const sn = document.getElementById('event-site-new'); if (sn) sn.value = '';
             const t = document.getElementById('event-modal-title'); if (t) t.innerText = '일정 수정';
             const del = document.getElementById('event-delete-btn'); if (del) del.classList.remove('hidden');
             applyDeptLock('event-dept');
@@ -1387,12 +1424,13 @@
             const deptId = document.getElementById('event-dept').value;
             const startDate = document.getElementById('event-start').value;
             const endDate = document.getElementById('event-end').value;
+            const site = (document.getElementById('event-site') ? document.getElementById('event-site').value : '') || null;
             if (!title || !startDate || !endDate) { showToast('입력 오류', '제목과 기간을 모두 입력하십시오.'); return; }
             if (endDate < startDate) { showToast('기간 오류', '종료일은 시작일 이후여야 합니다.'); return; }
             if (STATE.profile.role !== 'admin' && deptId !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 일정만 작성할 수 있습니다.'); return; }
             let error;
-            if (id) { ({ error } = await sb.from('events').update({ title, dept_id: deptId, start_date: startDate, end_date: endDate }).eq('id', parseInt(id))); }
-            else { ({ error } = await sb.from('events').insert({ title, dept_id: deptId, start_date: startDate, end_date: endDate })); }
+            if (id) { ({ error } = await sb.from('events').update({ title, dept_id: deptId, start_date: startDate, end_date: endDate, site }).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('events').insert({ title, dept_id: deptId, start_date: startDate, end_date: endDate, site })); }
             if (error) { showToast('저장 실패', error.message); return; }
             STATE.visibility[deptId] = true;
             await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); closeModal('add-event-modal');
@@ -1938,7 +1976,7 @@
                 if (upcoming.length === 0) snap.innerHTML = `<div class="text-center py-4 text-xs text-slate-300">예정된 부서 일정이 없습니다.</div>`;
                 else upcoming.forEach(e => {
                     const dept = STATE.departments.find(d => d.id === e.deptId);
-                    snap.innerHTML += `<div class="py-2.5 text-xs flex justify-between items-center gap-2"><span class="flex items-center gap-2 min-w-0"><span class="px-1.5 py-0.5 border rounded text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'} flex-shrink-0">${dept ? dept.name : '공통'}</span><strong class="truncate text-slate-700">${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400 flex-shrink-0">${e.startDate} ~ ${e.endDate}</span></div>`;
+                    snap.innerHTML += `<div class="py-2.5 text-xs flex justify-between items-center gap-2"><span class="flex items-center gap-2 min-w-0"><span class="px-1.5 py-0.5 border rounded text-[9px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'} flex-shrink-0">${dept ? dept.name : '공통'}</span>${e.site ? `<span class="text-[9px] text-slate-400 flex-shrink-0">[${e.site}]</span>` : ''}<strong class="truncate text-slate-700">${e.title}</strong></span><span class="font-mono text-[10px] text-slate-400 flex-shrink-0">${e.startDate} ~ ${e.endDate}</span></div>`;
                 });
             }
             // 프로젝트 진행 현황
