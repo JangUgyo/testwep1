@@ -12,6 +12,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 문서 미리보기 변환 라이브러리: Word(mammoth) / Excel(SheetJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
@@ -20,6 +23,18 @@
             overflow-x: hidden; 
             font-size: 15px; /* 전반적인 폰트 스케일 상향 조정 */
         }
+        /* 문서 미리보기 렌더링 스타일 */
+        .docx-preview h1 { font-size: 1.5rem; font-weight: 800; margin: 0.8em 0 0.4em; }
+        .docx-preview h2 { font-size: 1.25rem; font-weight: 700; margin: 0.7em 0 0.35em; }
+        .docx-preview h3 { font-size: 1.1rem; font-weight: 700; margin: 0.6em 0 0.3em; }
+        .docx-preview p { margin: 0.5em 0; }
+        .docx-preview ul, .docx-preview ol { margin: 0.5em 0 0.5em 1.4em; list-style: revert; }
+        .docx-preview table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+        .docx-preview td, .docx-preview th { border: 1px solid #cbd5e1; padding: 6px 10px; }
+        .docx-preview img { max-width: 100%; height: auto; }
+        .sheet-html table { border-collapse: collapse; font-size: 12px; }
+        .sheet-html td, .sheet-html th { border: 1px solid #e2e8f0; padding: 4px 8px; white-space: nowrap; }
+        .sheet-html tr:first-child td { background: #f8fafc; font-weight: 700; }
         /* Refined Sidebar Navigation Styling */
         .sidebar-item {
             display: flex;
@@ -1406,16 +1421,56 @@
             document.getElementById('doc-title').value = '';
             const st = document.getElementById('doc-file-status'); if (st) { st.innerText = '클릭하여 보고서 업로드'; st.classList.remove('text-indigo-600'); }
         }
-        function openFilePreview(title, url, mime) {
+        function previewLoading(msg) { return `<div class="text-slate-400 text-xs p-10 flex items-center gap-2"><span class="inline-block w-4 h-4 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></span>${msg}</div>`; }
+        function previewError(mime, ext) { return `<div class="text-center text-slate-500 text-xs p-10"><div class="text-4xl mb-3">📄</div>이 형식(${mime || ext || '알 수 없음'})은 브라우저에서 바로 미리보기가 어렵습니다.<br>상단의 <span class="font-bold text-blue-600">다운로드</span> 버튼으로 파일을 받아 확인하세요.</div>`; }
+        function officeViewer(url) { return `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}" class="w-full h-full" frameborder="0"></iframe>`; }
+        function showSheet(i) {
+            document.querySelectorAll('[id^="sheet-pane-"]').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('[id^="sheet-tab-"]').forEach(t => { t.className = 'px-3 py-1.5 text-[11px] font-bold rounded-t-lg text-slate-400 hover:text-slate-600'; });
+            const pane = document.getElementById('sheet-pane-' + i); if (pane) pane.classList.remove('hidden');
+            const tab = document.getElementById('sheet-tab-' + i); if (tab) tab.className = 'px-3 py-1.5 text-[11px] font-bold rounded-t-lg bg-white text-slate-800 border border-b-0';
+        }
+        async function openFilePreview(title, url, mime, ext) {
             const body = document.getElementById('doc-preview-body');
             const dl = document.getElementById('doc-preview-download');
             document.getElementById('doc-preview-title').innerText = title;
             dl.href = url; dl.classList.remove('hidden'); dl.setAttribute('download', title);
-            mime = mime || '';
-            if (mime.startsWith('image/')) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; }
-            else if (mime === 'application/pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; }
-            else { body.innerHTML = `<div class="text-center text-slate-500 text-xs p-10"><div class="text-4xl mb-3">📄</div>이 형식(${mime || '알 수 없음'})은 브라우저에서 바로 미리보기가 어렵습니다.<br>상단의 <span class="font-bold text-blue-600">다운로드</span> 버튼으로 파일을 받아 확인하세요.</div>`; }
             openModal('doc-preview-modal');
+            mime = (mime || '').toLowerCase(); ext = (ext || '').toLowerCase();
+            const has = (t) => mime.indexOf(t) >= 0;
+            // 이미지
+            if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; return; }
+            // PDF
+            if (mime === 'application/pdf' || ext === 'pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; return; }
+            // Word(docx) → mammoth 변환
+            if (has('wordprocessingml') || ext === 'docx') {
+                if (typeof mammoth === 'undefined') { body.innerHTML = officeViewer(url); return; }
+                body.innerHTML = previewLoading('Word 문서를 변환하는 중입니다...');
+                try {
+                    const buf = await (await fetch(url)).arrayBuffer();
+                    const res = await mammoth.convertToHtml({ arrayBuffer: buf });
+                    body.innerHTML = `<div class="w-full h-full overflow-auto bg-slate-100 p-6"><div class="mx-auto bg-white shadow rounded-lg p-10 max-w-3xl docx-preview text-sm leading-relaxed text-slate-800">${res.value || '<p class=\'text-slate-400\'>표시할 텍스트 내용이 없습니다.</p>'}</div></div>`;
+                } catch (e) { body.innerHTML = officeViewer(url); }
+                return;
+            }
+            // Excel/CSV → SheetJS
+            if (has('spreadsheetml') || has('ms-excel') || ['xlsx', 'xls', 'csv'].includes(ext)) {
+                if (typeof XLSX === 'undefined') { body.innerHTML = officeViewer(url); return; }
+                body.innerHTML = previewLoading('스프레드시트를 불러오는 중입니다...');
+                try {
+                    const buf = await (await fetch(url)).arrayBuffer();
+                    const wb = XLSX.read(buf, { type: 'array' });
+                    const names = wb.SheetNames;
+                    const tabs = names.map((n, i) => `<button onclick="showSheet(${i})" id="sheet-tab-${i}" class="px-3 py-1.5 text-[11px] font-bold rounded-t-lg ${i === 0 ? 'bg-white text-slate-800 border border-b-0' : 'text-slate-400 hover:text-slate-600'}">${n}</button>`).join('');
+                    const panes = names.map((n, i) => `<div id="sheet-pane-${i}" class="${i === 0 ? '' : 'hidden'} overflow-auto bg-white border rounded-b-lg rounded-tr-lg p-2 sheet-html">${XLSX.utils.sheet_to_html(wb.Sheets[n])}</div>`).join('');
+                    body.innerHTML = `<div class="w-full h-full overflow-auto p-4 bg-slate-100"><div class="flex gap-1 flex-wrap">${tabs}</div>${panes}</div>`;
+                } catch (e) { body.innerHTML = officeViewer(url); }
+                return;
+            }
+            // PowerPoint / 레거시 doc → Office Online 뷰어
+            if (['pptx', 'ppt', 'doc'].includes(ext) || has('presentationml') || has('msword')) { body.innerHTML = officeViewer(url); return; }
+            // 그 외
+            body.innerHTML = previewError(mime, ext);
         }
         async function viewDocument(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
@@ -1430,7 +1485,8 @@
             openModal('doc-preview-modal');
             const { data, error } = await sb.storage.from('documents').createSignedUrl(doc.storagePath, 3600);
             if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.${error ? ' (' + error.message + ')' : ''}</div>`; dl.classList.add('hidden'); return; }
-            openFilePreview(doc.title, data.signedUrl, doc.fileMime || '');
+            const ext = (doc.fileType && doc.fileType !== 'memo') ? doc.fileType : (doc.title.indexOf('.') >= 0 ? doc.title.split('.').pop() : '');
+            openFilePreview(doc.title, data.signedUrl, doc.fileMime || '', ext);
         }
         async function deleteDocument(id) {
             const doc = STATE.documents.find(d => d.id === id);
@@ -1689,7 +1745,8 @@
             openModal('doc-preview-modal');
             const { data, error } = await sb.storage.from('documents').createSignedUrl(meet.filePath, 3600);
             if (error || !data) { body.innerHTML = `<div class="text-rose-500 text-xs p-10">파일을 불러오지 못했습니다.</div>`; dl.classList.add('hidden'); return; }
-            openFilePreview(meet.fileName || '첨부파일', data.signedUrl, meet.fileMime || '');
+            const ext = (meet.fileName && meet.fileName.indexOf('.') >= 0) ? meet.fileName.split('.').pop() : '';
+            openFilePreview(meet.fileName || '첨부파일', data.signedUrl, meet.fileMime || '', ext);
         }
         function viewMeetingImage(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet || !meet.image) return;
