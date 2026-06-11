@@ -264,6 +264,10 @@
                         <i data-lucide="wrench" class="w-4.5 h-4.5 text-rose-500"></i>
                         <span class="font-semibold text-slate-800">현장 지원 / AS</span>
                     </button>
+                    <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item">
+                        <i data-lucide="server-cog" class="w-4.5 h-4.5 text-emerald-600"></i>
+                        <span class="font-semibold text-slate-800">설비 자산 대장</span>
+                    </button>
                 </div>
             </div>
 
@@ -353,6 +357,11 @@
             </div>
             
             <div class="flex items-center gap-4">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm w-72 outline-none focus:border-indigo-300 bg-white">
+                    <div id="global-search-results" class="hidden absolute top-full mt-1.5 left-0 w-[28rem] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
+                </div>
                 <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-all">
                     <i data-lucide="bell" class="w-5 h-5"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">0</span>
@@ -399,6 +408,11 @@
             <!-- 대시보드 탭 -->
             <section id="view-dashboard" class="space-y-6">
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
+                </div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
                         <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 통합 알림 센터
@@ -824,10 +838,37 @@
                 </div>
             </section>
             
-            <section id="view-management-logs" class="hidden">
-                <div class="py-24 border-2 border-dashed border-rose-200/60 bg-rose-50/10 rounded-2xl flex flex-col items-center justify-center text-rose-500">
-                    <i data-lucide="fingerprint" class="w-10 h-10 mb-3 opacity-30 text-rose-500"></i>
-                    <p class="text-xs font-semibold text-rose-600">실시간 데이터 조작 이력, 접근 시도 IP 차단 통계 및 감사 원장 기획부 구역입니다.</p>
+            <section id="view-management-logs" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-3.5 border-b bg-rose-50/50 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2"><i data-lucide="fingerprint" class="w-4 h-4 text-rose-600"></i><h3 class="font-bold text-sm text-slate-700">보안 감사 원장</h3><span class="text-[12px] text-slate-400">관리 행위·결재·삭제·권한 변경 자동 기록</span></div>
+                        <select id="audit-filter-action" onchange="renderAuditLogs()" class="px-2.5 py-1.5 border rounded-lg text-[13px] bg-white outline-none"><option value="all">전체 유형</option></select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[13px]">
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[12px]"><th class="px-4 py-2.5 text-left font-bold">일시</th><th class="px-4 py-2.5 text-left font-bold">수행자</th><th class="px-4 py-2.5 text-left font-bold">행위</th><th class="px-4 py-2.5 text-left font-bold">대상</th><th class="px-4 py-2.5 text-left font-bold">상세</th></tr></thead>
+                            <tbody id="audit-log-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-assets" class="hidden space-y-5">
+                <div id="asset-stats" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <input type="text" id="asset-search" onkeyup="renderAssets()" placeholder="설비·현장·고객사 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-56 outline-none focus:border-emerald-300">
+                        <select id="asset-filter-pm" onchange="renderAssets()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 점검 상태</option><option value="overdue">점검 지연</option><option value="due">점검 임박(7일)</option><option value="ok">정상</option></select>
+                    </div>
+                    <button onclick="openAssetForm()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 설비 등록</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[14px]">
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">설비명</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">정기점검</th><th class="px-4 py-3 text-left font-bold">최근 점검일</th><th class="px-4 py-3 text-left font-bold">다음 점검</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                            <tbody id="asset-list-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
             
@@ -885,6 +926,26 @@
                 <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="meeting-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- 설비 등록/편집 -->
+    <div id="asset-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] overflow-hidden border flex flex-col">
+            <div class="px-5 py-3.5 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0"><i data-lucide="server-cog" class="w-4 h-4 text-emerald-600"></i><h4 id="asset-form-title" class="font-bold text-sm text-slate-800">설비 등록</h4></div>
+            <form onsubmit="handleSaveAsset(event)" class="p-5 space-y-3 overflow-y-auto">
+                <input type="hidden" id="asset-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">설비명</label><input type="text" id="asset-name" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">모델 / 시리얼</label><input type="text" id="asset-model" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">고객사</label><input type="text" id="asset-customer" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현장명</label><input type="text" id="asset-site" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">점검 주기 (일)</label><input type="number" id="asset-pm-cycle" min="0" placeholder="예: 90 (0=미사용)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">최근 점검일</label><input type="date" id="asset-last-pm" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
+                </div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">비고</label><textarea id="asset-notes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                <div class="flex gap-2 pt-1"><button type="button" onclick="closeModal('asset-form-modal')" class="flex-1 py-2 border text-sm font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg">저장</button></div>
+            </form>
         </div>
     </div>
 
@@ -1029,6 +1090,16 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성자</label><input type="text" id="doc-author" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none"></div>
                 </div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">등록 방식 (결재)</label><select id="doc-status-mode" class="w-full px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"><option value="pending">결재 요청 (결재대기)</option><option value="draft">임시저장</option><option value="approved">결재 없이 바로 등록(승인완료)</option></select></div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">결재선 지정 (순서대로 승인)</label>
+                    <div class="flex gap-2"><select id="doc-approver-select" class="flex-1 px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select><button type="button" onclick="addDocApprover()" class="px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg">추가</button></div>
+                    <div id="doc-approver-chips" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-500 mb-1">열람자 지정 (등록·승인 시 알림)</label>
+                    <div class="flex gap-2"><select id="doc-viewer-select" class="flex-1 px-3 py-1.5 border rounded-lg text-xs outline-none bg-white"></select><button type="button" onclick="addDocViewer()" class="px-3 py-1.5 bg-slate-600 text-white text-xs font-bold rounded-lg">추가</button></div>
+                    <div id="doc-viewer-chips" class="flex flex-wrap gap-1.5 mt-2"></div>
+                </div>
                 <div class="hidden">
                 </div>
                 <div class="border-2 border-dashed rounded-xl p-4 text-center relative cursor-pointer"><input type="file" id="doc-file-input" accept=".pdf,.docx,.xlsx" onchange="handleDocFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-600" id="doc-file-status">클릭하여 보고서 업로드</p></div>
@@ -1194,7 +1265,7 @@
             ],
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
-            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [],
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [], assets: [], auditLogs: [],
             ganttScale: 'year', ganttAnchor: null,
             permissions: {},
             mailplug: {
@@ -1228,7 +1299,7 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
@@ -1331,7 +1402,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1349,7 +1420,7 @@
         }
         async function reloadDocuments() {
             const { data } = await sb.from('documents').select('*').order('id', { ascending: false });
-            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size, storagePath: r.storage_path, fileMime: r.file_mime, status: r.status || 'approved', rejectReason: r.reject_reason || '', approver: r.approver || '', approvedAt: r.approved_at || '' }));
+            STATE.documents = (data || []).map(r => ({ id: r.id, title: r.title, deptId: r.dept_id, author: r.author, date: r.doc_date, fileType: r.file_type, fileSize: r.file_size, storagePath: r.storage_path, fileMime: r.file_mime, status: r.status || 'approved', rejectReason: r.reject_reason || '', approver: r.approver || '', approvedAt: r.approved_at || '', approvers: Array.isArray(r.approvers) ? r.approvers : [], viewers: Array.isArray(r.viewers) ? r.viewers : [] }));
         }
         async function reloadTickets() {
             try {
@@ -1393,6 +1464,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); refreshDocViews(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, async () => { await reloadTickets(); renderDashboardWidgets(); if (STATE.currentTab === 'field-support') renderTickets(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, async () => { await reloadAssets(); renderDashboardWidgets(); if (STATE.currentTab === 'assets') renderAssets(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
@@ -1736,6 +1808,12 @@
         const DOC_STATUS = { draft: ['임시저장', 'bg-slate-100 text-slate-600 border-slate-200'], pending: ['결재대기', 'bg-amber-50 text-amber-700 border-amber-200'], approved: ['승인완료', 'bg-emerald-50 text-emerald-700 border-emerald-200'], rejected: ['반려', 'bg-rose-50 text-rose-700 border-rose-200'] };
         function docStatusBadge(status) { const s = DOC_STATUS[status] || DOC_STATUS.approved; return `<span class="px-2 py-0.5 border rounded-md text-[12px] font-bold ${s[1]}">${s[0]}</span>`; }
         function canApproveDoc(doc) {
+            const line = doc.approvers || [];
+            if (line.length > 0) {
+                const cur = currentApproverOf(doc);
+                if (cur && STATE.currentUser && cur.id === STATE.currentUser.id) return true;
+                return STATE.profile.role === 'admin';
+            }
             if (STATE.profile.role === 'admin') return true;
             return doc.deptId === STATE.profile.deptId && ['head', 'leader', 'ceo'].includes(STATE.profile.role);
         }
@@ -1763,23 +1841,41 @@
         async function submitDocForApproval(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
             if (!(isDocAuthor(doc) || STATE.profile.role === 'admin')) { showToast('권한 없음', '작성자 또는 관리자만 결재 요청할 수 있습니다.'); return; }
-            const { error } = await sb.from('documents').update({ status: 'pending', reject_reason: null }).eq('id', id);
+            const line = (doc.approvers || []).map(a => Object.assign({}, a, { status: 'pending', at: null }));
+            const { error } = await sb.from('documents').update({ status: 'pending', reject_reason: null, approvers: line }).eq('id', id);
             if (error) { showToast('요청 실패', error.message); return; }
+            logAudit('doc_submit', doc.title, '');
             await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('결재 요청', '문서가 결재대기 상태로 상신되었습니다.');
         }
         async function approveDoc(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
-            if (!canApproveDoc(doc)) { showToast('권한 없음', '결재 권한이 없습니다.'); return; }
-            const { error } = await sb.from('documents').update({ status: 'approved', approver: STATE.profile.name, approved_at: new Date().toISOString(), reject_reason: null }).eq('id', id);
+            if (!canApproveDoc(doc)) { showToast('권한 없음', '결재 권한이 없습니다. (현재 차례 결재자만 승인 가능)'); return; }
+            const line = (doc.approvers || []).map(a => Object.assign({}, a));
+            let patch;
+            if (line.length > 0) {
+                const cur = line.find(a => a.status === 'pending');
+                if (cur) { cur.status = 'approved'; cur.at = new Date().toISOString(); cur.by = STATE.profile.name; }
+                const remaining = line.some(a => a.status === 'pending');
+                patch = remaining ? { approvers: line } : { approvers: line, status: 'approved', approver: STATE.profile.name, approved_at: new Date().toISOString(), reject_reason: null };
+                var msg = remaining ? `${(line.filter(a=>a.status==='approved').length)}차 승인 완료. 다음 결재자 차례입니다.` : '최종 승인되어 보관소로 이동했습니다.';
+            } else {
+                patch = { status: 'approved', approver: STATE.profile.name, approved_at: new Date().toISOString(), reject_reason: null };
+                var msg = `[${doc.title}] 문서를 승인했습니다.`;
+            }
+            const { error } = await sb.from('documents').update(patch).eq('id', id);
             if (error) { showToast('승인 실패', error.message); return; }
-            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('승인 완료', `[${doc.title}] 문서를 승인했습니다.`);
+            logAudit('doc_approve', doc.title, msg);
+            await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('승인', msg);
         }
         async function rejectDoc(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
             if (!canApproveDoc(doc)) { showToast('권한 없음', '결재 권한이 없습니다.'); return; }
             const reason = prompt('반려 사유를 입력하세요.', ''); if (reason === null) return;
-            const { error } = await sb.from('documents').update({ status: 'rejected', approver: STATE.profile.name, reject_reason: reason.trim() }).eq('id', id);
+            const line = (doc.approvers || []).map(a => Object.assign({}, a));
+            const cur = line.find(a => a.status === 'pending'); if (cur) { cur.status = 'rejected'; cur.at = new Date().toISOString(); cur.by = STATE.profile.name; }
+            const { error } = await sb.from('documents').update({ status: 'rejected', approver: STATE.profile.name, reject_reason: reason.trim(), approvers: line }).eq('id', id);
             if (error) { showToast('반려 실패', error.message); return; }
+            logAudit('doc_reject', doc.title, reason.trim());
             await reloadDocuments(); refreshDocViews(); renderDashboardWidgets(); showToast('반려 처리', `[${doc.title}] 문서를 반려했습니다.`);
         }
         function refreshDocViews() {
@@ -1795,7 +1891,7 @@
                 const canApp = canApproveDoc(doc);
                 const act = canApp ? `<button onclick="approveDoc(${doc.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">승인</button><button onclick="rejectDoc(${doc.id})" class="px-3 py-1.5 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">반려</button>` : `<span class="text-[12px] text-slate-400">결재 권한 없음</span>`;
                 return `<div class="flex items-center justify-between gap-3 p-4 border-b border-slate-100 hover:bg-slate-50">
-                    <div class="min-w-0 cursor-pointer" onclick="viewDocument(${doc.id})"><div class="font-bold text-slate-800 truncate flex items-center gap-2">${doc.storagePath ? '<i data-lucide=\'paperclip\' class=\'w-3.5 h-3.5 text-blue-500\'></i>' : ''}${esc(doc.title)}</div><div class="text-[12px] text-slate-400 mt-0.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '공통'}</span> ${esc(doc.author) || '-'} · ${doc.date || ''}</div></div>
+                    <div class="min-w-0 cursor-pointer" onclick="viewDocument(${doc.id})"><div class="font-bold text-slate-800 truncate flex items-center gap-2">${doc.storagePath ? '<i data-lucide=\'paperclip\' class=\'w-3.5 h-3.5 text-blue-500\'></i>' : ''}${esc(doc.title)}</div><div class="text-[12px] text-slate-400 mt-0.5"><span class="px-1.5 py-0.5 border rounded ${dept ? dept.textTheme : 'bg-slate-100'} font-bold">${dept ? dept.name : '공통'}</span> ${esc(doc.author) || '-'} · ${doc.date || ''}${(doc.approvers||[]).length ? ` · 결재선: ${approverLineLabel(doc)} <strong class='text-amber-600'>(현재 ${(currentApproverOf(doc)||{}).name || '-'} 차례)</strong>` : ''}</div></div>
                     <div class="flex gap-2 flex-shrink-0">${act}</div>
                 </div>`;
             }).join('');
@@ -1837,11 +1933,13 @@
             let status = (document.getElementById('doc-status-mode') || {}).value || 'pending';
             const canSelfApprove = STATE.profile.role === 'admin' || ['head', 'leader', 'ceo'].includes(STATE.profile.role);
             if (status === 'approved' && !canSelfApprove) status = 'pending';
-            const insertRow = { title, dept_id: dept, author, doc_date: formatDate(new Date()), file_type, file_size, storage_path, file_mime, status };
+            const insertRow = { title, dept_id: dept, author, doc_date: formatDate(new Date()), file_type, file_size, storage_path, file_mime, status, approvers: (STATE.docApprovers || []), viewers: (STATE.docViewers || []) };
+            if ((STATE.docApprovers || []).length > 0 && status === 'approved') { insertRow.status = 'pending'; status = 'pending'; }
             if (status === 'approved') { insertRow.approver = STATE.profile.name; insertRow.approved_at = new Date().toISOString(); }
             const { error } = await sb.from('documents').insert(insertRow);
             if (error) { showToast('등록 실패', error.message); return; }
-            STATE.uploadedDocFile = null;
+            STATE.uploadedDocFile = null; STATE.docApprovers = []; STATE.docViewers = []; renderDocPeopleChips();
+            if (status === 'pending') logAudit('doc_submit', title, '신규 등록 상신');
             await reloadDocuments(); refreshDocViews(); renderDashboardWidgets();
             closeModal('add-doc-modal'); showToast('문서 등록', status === 'pending' ? '결재 요청(결재대기)으로 등록되었습니다.' : (f ? '파일이 안전하게 업로드되었습니다.' : '보고서 기록이 등록되었습니다.'));
             document.getElementById('doc-title').value = '';
@@ -1966,7 +2064,8 @@
             if (doc && doc.storagePath) { try { await sb.storage.from('documents').remove([doc.storagePath]); } catch (e) {} }
             const { error } = await sb.from('documents').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
-            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments(); showToast('기안 폐기', '해당 서류가 소거되었습니다.');
+            await reloadDocuments(); if (STATE.currentTab === 'documents') filterDocs(); else renderDocuments(); logAudit('doc_delete', doc ? doc.title : ('#' + id), '');
+            showToast('기안 폐기', '해당 서류가 소거되었습니다.');
         }
         function filterDocs() {
             const q = (document.getElementById('doc-search') ? document.getElementById('doc-search').value : '').toLowerCase().trim();
@@ -2424,7 +2523,8 @@
             if (proj && !canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 삭제할 수 있습니다.'); return; }
             const { error } = await sb.from('projects').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
-            await reloadProjects(); renderProjects(); showToast('기획 철회', '해당 과제가 소거되었습니다.');
+            await reloadProjects(); renderProjects(); logAudit('project_delete', proj ? proj.title : ('#' + id), '');
+            showToast('기획 철회', '해당 과제가 소거되었습니다.');
         }
         async function moveProjectStatus(id, dir) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
@@ -2930,7 +3030,8 @@
             if (meet && meet.filePath) { try { await sb.storage.from('documents').remove([meet.filePath]); } catch (e) {} }
             const { error } = await sb.from('weekly_meetings').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
-            await reloadMeetings(); renderWeeklyMeetings(); showToast('기록 소거', '주간 회의록이 말소되었습니다.');
+            await reloadMeetings(); renderWeeklyMeetings(); logAudit('meeting_delete', '#'+id, '');
+            showToast('기록 소거', '주간 회의록이 말소되었습니다.');
         }
 
         // ── 대시보드 위젯 ────────────────────────────────────────────────
@@ -2940,6 +3041,7 @@
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
             // 통합 알림 센터
             renderNotificationCenter();
+            renderDashboardCharts();
             // 상단 통계 카드 (소속 부서 기준, 관리자는 전사)
             const stats = document.getElementById('dashboard-stats');
             if (stats) {
@@ -3054,12 +3156,13 @@
             const sel = document.getElementById(`assign-role-${id}`); const r = sel ? sel.value : 'employee';
             const { error } = await sb.from('profiles').update({ approved: true, role: r }).eq('id', id);
             if (error) { showToast('승인 실패', error.message); return; }
-            await reloadProfiles(); renderPendingUsers(); renderActiveUsers(); showToast('신원 확인', '임직원 가입이 승인되었습니다.');
+            await reloadProfiles(); renderPendingUsers(); renderActiveUsers(); logAudit('user_approve', id, '가입 승인');
+            showToast('신원 확인', '임직원 가입이 승인되었습니다.');
         }
         async function rejectUser(id) {
             const { error } = await sb.from('profiles').delete().eq('id', id);
             if (error) { showToast('반려 실패', error.message); return; }
-            await reloadProfiles(); renderPendingUsers(); showToast('기각', '가입 신청을 반려했습니다.');
+            await reloadProfiles(); renderPendingUsers(); logAudit('user_reject', id, '가입 반려'); showToast('기각', '가입 신청을 반려했습니다.');
         }
         const ROLE_OPTIONS = [['ceo', '대표이사'], ['head', '부서장'], ['leader', '팀장'], ['employee', '사원'], ['admin', '관리자']];
         function renderActiveUsers() {
@@ -3101,6 +3204,7 @@
                 STATE.profile.role = role; STATE.profile.deptId = dept; if (name) STATE.profile.name = name;
                 refreshRoleScopedUI(); updateProfileUI(); if (role !== 'admin') switchTab('dashboard');
             }
+            logAudit('user_edit', (STATE.users.find(u=>u.id===id)||{}).name || id, `부서 ${dept} · 등급 ${role} · 직급 ${pos}`);
             showToast('정보 갱신', '임직원 정보가 수정되었습니다. (모든 접속자에게 실시간 반영)');
         }
         async function terminateUser(id) {
@@ -3108,6 +3212,7 @@
             if (!confirm(`[보안 통제] 임직원 [${name}]의 포탈 접속 자격을 회수하고 명부에서 제명하시겠습니까?`)) return;
             const { error } = await sb.from('profiles').delete().eq('id', id);
             if (error) { showToast('해지 실패', error.message); return; }
+            logAudit('user_terminate', name, '');
             await reloadProfiles(); renderActiveUsers(); renderPendingUsers(); showToast('자격 해지', `[${name}] 계정의 접속 권한이 회수되었습니다.`);
         }
         async function handleUpdateAdminPassword(e) {
@@ -3201,7 +3306,7 @@
             const wasEditing = !!STATE.editingFeatureId;
             STATE.customFeatures = next;
             renderCustomFeaturesMenu(); closeModal('add-feature-modal');
-            showToast(wasEditing ? '수정 완료' : '배포 완료', `[${group} › ${name}] 기능이 ${wasEditing ? '수정' : '생성'}되어 전 임직원에게 적용되었습니다.`);
+            logAudit(wasEditing ? 'feature_edit' : 'feature_deploy', name, group); showToast(wasEditing ? '수정 완료' : '배포 완료', `[${group} › ${name}] 기능이 ${wasEditing ? '수정' : '생성'}되어 전 임직원에게 적용되었습니다.`);
             document.getElementById('feature-name').value = ''; document.getElementById('feature-code').value = '';
             const gnew = document.getElementById('feature-group-new'); if (gnew) gnew.value = '';
             STATE.uploadedFeatureHtml = null; const fst = document.getElementById('feature-file-status'); if (fst) fst.innerText = '클릭하여 .html 파일 업로드';
@@ -3310,7 +3415,8 @@
             const next = STATE.customFeatures.filter(f => f.id !== id);
             const { error } = await sb.from('app_settings').upsert({ key: 'custom_features', value: next, updated_at: new Date().toISOString() });
             if (error) { showToast('제거 실패', error.message); return; }
-            STATE.customFeatures = next; renderCustomFeaturesMenu(); switchTab('dashboard'); showToast('기능 제거', `[${feat.name}] 탭이 제거되었습니다.`);
+            STATE.customFeatures = next; renderCustomFeaturesMenu(); switchTab('dashboard'); logAudit('feature_remove', (feat&&feat.name)||'', '');
+            showToast('기능 제거', `[${feat.name}] 탭이 제거되었습니다.`);
         }
 
         // ── 현장 지원 / AS 티켓 관리 ─────────────────────────────────────
@@ -3493,8 +3599,234 @@
             if (t.photos && t.photos.length) { try { await sb.storage.from('documents').remove(t.photos.map(p => p.path)); } catch (er) {} }
             const { error } = await sb.from('tickets').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
+            logAudit('ticket_delete', `${t.customer||''} ${t.equipment||''}`.trim(), t.issue||'');
             await reloadTickets(); renderTickets(); renderDashboardWidgets(); showToast('삭제', 'AS 티켓이 삭제되었습니다.');
         }
+
+        // ── 결재선 / 열람자 ──────────────────────────────────────────────
+        function populateDocPeoplePickers() {
+            const people = STATE.users.filter(u => u.approved && u.id !== (STATE.currentUser && STATE.currentUser.id));
+            const opts = `<option value="">(선택)</option>` + people.map(u => `<option value="${u.id}">${esc(u.name)} (${(STATE.departments.find(d => d.id === u.deptId) || {}).name || '-'} · ${esc(u.position) || ''})</option>`).join('');
+            const a = document.getElementById('doc-approver-select'); if (a) a.innerHTML = opts;
+            const v = document.getElementById('doc-viewer-select'); if (v) v.innerHTML = opts;
+        }
+        function addDocApprover() {
+            const sel = document.getElementById('doc-approver-select'); const id = sel.value; if (!id) return;
+            STATE.docApprovers = STATE.docApprovers || [];
+            if (STATE.docApprovers.some(x => x.id === id)) { showToast('중복', '이미 결재선에 포함된 사람입니다.'); return; }
+            const u = STATE.users.find(x => x.id === id); if (!u) return;
+            STATE.docApprovers.push({ id: u.id, name: u.name, status: 'pending', at: null });
+            renderDocPeopleChips();
+        }
+        function addDocViewer() {
+            const sel = document.getElementById('doc-viewer-select'); const id = sel.value; if (!id) return;
+            STATE.docViewers = STATE.docViewers || [];
+            if (STATE.docViewers.some(x => x.id === id)) { showToast('중복', '이미 열람자에 포함된 사람입니다.'); return; }
+            const u = STATE.users.find(x => x.id === id); if (!u) return;
+            STATE.docViewers.push({ id: u.id, name: u.name });
+            renderDocPeopleChips();
+        }
+        function removeDocApprover(i) { STATE.docApprovers.splice(i, 1); renderDocPeopleChips(); }
+        function removeDocViewer(i) { STATE.docViewers.splice(i, 1); renderDocPeopleChips(); }
+        function renderDocPeopleChips() {
+            const aBox = document.getElementById('doc-approver-chips');
+            if (aBox) aBox.innerHTML = (STATE.docApprovers || []).map((p, i) => `<span class="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[12px] font-bold text-amber-700">${i + 1}차 ${esc(p.name)}<button type="button" onclick="removeDocApprover(${i})" class="text-rose-400 hover:text-rose-600 ml-0.5">×</button></span>`).join('') || '<span class="text-[12px] text-slate-300">미지정 시 부서장/관리자가 결재</span>';
+            const vBox = document.getElementById('doc-viewer-chips');
+            if (vBox) vBox.innerHTML = (STATE.docViewers || []).map((p, i) => `<span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-200 rounded-lg text-[12px] font-bold text-sky-700">${esc(p.name)}<button type="button" onclick="removeDocViewer(${i})" class="text-rose-400 hover:text-rose-600 ml-0.5">×</button></span>`).join('') || '<span class="text-[12px] text-slate-300">지정된 열람자 없음</span>';
+        }
+        function currentApproverOf(doc) {
+            const line = doc.approvers || [];
+            return line.find(a => a.status === 'pending') || null;
+        }
+        function approverLineLabel(doc) {
+            const line = doc.approvers || []; if (!line.length) return '';
+            return line.map((a, i) => `${a.status === 'approved' ? '✓' : (a.status === 'rejected' ? '✗' : '')}${esc(a.name)}`).join(' → ');
+        }
+
+        // ── 보안 감사 원장 ───────────────────────────────────────────────
+        const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회' };
+        async function logAudit(action, target, detail) {
+            try { await sb.from('audit_logs').insert({ actor: STATE.profile.name || '', actor_email: (STATE.currentUser || {}).email || '', action, target: target || '', detail: detail || '' }); } catch (e) { }
+        }
+        async function reloadAuditLogs() {
+            try {
+                const { data, error } = await sb.from('audit_logs').select('*').order('id', { ascending: false });
+                if (error) { STATE.auditTableMissing = true; STATE.auditLogs = []; return; }
+                STATE.auditTableMissing = false;
+                STATE.auditLogs = (data || []).slice(0, 300);
+            } catch (e) { STATE.auditTableMissing = true; STATE.auditLogs = []; }
+        }
+        function renderAuditLogs() {
+            const body = document.getElementById('audit-log-body'); if (!body) return;
+            const fsel = document.getElementById('audit-filter-action');
+            if (fsel && fsel.options.length <= 1) fsel.innerHTML = `<option value="all">전체 유형</option>` + Object.entries(AUDIT_ACTIONS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+            if (STATE.auditTableMissing) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-sm">감사 로그 테이블이 아직 없습니다. 안내된 SQL을 실행하세요.</td></tr>`; return; }
+            const fv = fsel ? fsel.value : 'all';
+            const list = STATE.auditLogs.filter(l => fv === 'all' || l.action === fv);
+            if (list.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-sm">기록된 감사 로그가 없습니다.</td></tr>`; return; }
+            body.innerHTML = list.map(l => `<tr class="hover:bg-rose-50/20 align-top"><td class="px-4 py-2.5 font-mono text-[12px] text-slate-400 whitespace-nowrap">${(l.created_at || '').replace('T', ' ').slice(0, 19)}</td><td class="px-4 py-2.5 font-bold text-slate-700 whitespace-nowrap">${esc(l.actor)}<div class="text-[11px] text-slate-400 font-normal">${esc(l.actor_email)}</div></td><td class="px-4 py-2.5 whitespace-nowrap"><span class="px-2 py-0.5 border rounded-md text-[12px] font-bold bg-slate-100 text-slate-600">${AUDIT_ACTIONS[l.action] || esc(l.action)}</span></td><td class="px-4 py-2.5 text-slate-700">${esc(l.target)}</td><td class="px-4 py-2.5 text-slate-500">${esc(l.detail)}</td></tr>`).join('');
+        }
+
+        // ── 설비 자산 대장 + 정기점검(PM) ────────────────────────────────
+        async function reloadAssets() {
+            try {
+                const { data, error } = await sb.from('assets').select('*').order('id', { ascending: false });
+                if (error) { STATE.assetsTableMissing = true; STATE.assets = []; return; }
+                STATE.assetsTableMissing = false;
+                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '' }));
+            } catch (e) { STATE.assetsTableMissing = true; STATE.assets = []; }
+        }
+        function assetPmInfo(a) {
+            if (!a.pmCycle || !a.lastPm) return { state: 'none', next: '', dday: null };
+            const [y, m, d] = a.lastPm.split('-').map(Number);
+            const next = new Date(y, m - 1, d); next.setDate(next.getDate() + a.pmCycle);
+            const nextStr = formatDate(next);
+            const today = formatDate(new Date());
+            const dday = Math.round((next - new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) / 86400000);
+            let state = 'ok'; if (nextStr < today) state = 'overdue'; else if (dday <= 7) state = 'due';
+            return { state, next: nextStr, dday };
+        }
+        function assetPmBadge(a) {
+            const info = assetPmInfo(a);
+            if (info.state === 'none') return '<span class="px-2 py-0.5 border rounded-md text-[12px] text-slate-400 bg-slate-50">미사용</span>';
+            if (info.state === 'overdue') return `<span class="px-2 py-0.5 border border-rose-200 rounded-md text-[12px] font-bold bg-rose-50 text-rose-600">지연 ${Math.abs(info.dday)}일</span>`;
+            if (info.state === 'due') return `<span class="px-2 py-0.5 border border-amber-200 rounded-md text-[12px] font-bold bg-amber-50 text-amber-700">D-${info.dday}</span>`;
+            return `<span class="px-2 py-0.5 border border-emerald-200 rounded-md text-[12px] font-bold bg-emerald-50 text-emerald-700">정상</span>`;
+        }
+        function renderAssets() {
+            const body = document.getElementById('asset-list-body'); if (!body) return;
+            const statsBox = document.getElementById('asset-stats');
+            if (STATE.assetsTableMissing) { body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">설비 테이블이 아직 없습니다. 안내된 SQL을 실행하세요.</td></tr>`; if (statsBox) statsBox.innerHTML = ''; return; }
+            const all = STATE.assets || [];
+            if (statsBox) {
+                const cnt = (s) => all.filter(a => assetPmInfo(a).state === s).length;
+                statsBox.innerHTML = [['전체 설비', all.length, 'text-slate-700'], ['점검 지연', cnt('overdue'), 'text-rose-600'], ['점검 임박', cnt('due'), 'text-amber-600'], ['정상', cnt('ok'), 'text-emerald-600']].map(([l, v, c]) => `<div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><div class="text-2xl font-extrabold ${c}">${v}</div><div class="text-[13px] text-slate-400 font-medium mt-0.5">${l}</div></div>`).join('');
+            }
+            const q = ((document.getElementById('asset-search') || {}).value || '').trim().toLowerCase();
+            const fp = (document.getElementById('asset-filter-pm') || {}).value || 'all';
+            const list = all.filter(a => {
+                if (fp !== 'all' && assetPmInfo(a).state !== fp) return false;
+                if (q) { const hay = `${a.name || ''} ${a.customer || ''} ${a.site || ''} ${a.model || ''}`.toLowerCase(); if (hay.indexOf(q) < 0) return false; }
+                return true;
+            });
+            if (list.length === 0) { body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">표시할 설비가 없습니다.</td></tr>`; return; }
+            body.innerHTML = list.map(a => {
+                const info = assetPmInfo(a);
+                return `<tr class="hover:bg-emerald-50/20 align-top">
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(a.name)}</div><div class="text-[12px] text-slate-400">${esc(a.model) || ''}</div></td>
+                    <td class="px-4 py-3"><div class="font-semibold text-slate-700">${esc(a.customer) || '-'}</div><div class="text-[12px] text-slate-400">${esc(a.site) || ''}</div></td>
+                    <td class="px-4 py-3">${assetPmBadge(a)}<div class="text-[12px] text-slate-400 mt-0.5">${a.pmCycle ? '주기 ' + a.pmCycle + '일' : ''}</div></td>
+                    <td class="px-4 py-3 font-mono text-[13px] text-slate-500">${a.lastPm || '-'}</td>
+                    <td class="px-4 py-3 font-mono text-[13px] ${info.state === 'overdue' ? 'text-rose-600 font-bold' : 'text-slate-500'}">${info.next || '-'}</td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">
+                        <button onclick="createTicketFromAsset(${a.id})" class="text-rose-500 hover:text-rose-700 font-bold mr-2">AS 접수</button>
+                        <button onclick="markAssetPmDone(${a.id})" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">점검 완료</button>
+                        <button onclick="openAssetForm(${a.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button>
+                        <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                    </td>
+                </tr>`;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+        function openAssetForm(id) {
+            if (STATE.assetsTableMissing) { showToast('준비 필요', '설비 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            const a = id ? STATE.assets.find(x => x.id === id) : null;
+            document.getElementById('asset-id').value = id || '';
+            document.getElementById('asset-name').value = a ? (a.name || '') : '';
+            document.getElementById('asset-model').value = a ? (a.model || '') : '';
+            document.getElementById('asset-customer').value = a ? (a.customer || '') : '';
+            document.getElementById('asset-site').value = a ? (a.site || '') : '';
+            document.getElementById('asset-pm-cycle').value = a ? (a.pmCycle || '') : '';
+            document.getElementById('asset-last-pm').value = a ? (a.lastPm || '') : '';
+            document.getElementById('asset-notes').value = a ? (a.notes || '') : '';
+            document.getElementById('asset-form-title').innerText = id ? '설비 편집' : '설비 등록';
+            openModal('asset-form-modal');
+        }
+        async function handleSaveAsset(e) {
+            e.preventDefault();
+            const id = document.getElementById('asset-id').value;
+            const row = { name: document.getElementById('asset-name').value.trim(), model: document.getElementById('asset-model').value.trim(), customer: document.getElementById('asset-customer').value.trim(), site: document.getElementById('asset-site').value.trim(), pm_cycle: parseInt(document.getElementById('asset-pm-cycle').value) || 0, last_pm: document.getElementById('asset-last-pm').value || null, notes: document.getElementById('asset-notes').value.trim() };
+            let error;
+            if (id) { ({ error } = await sb.from('assets').update(row).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('assets').insert(row)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            await reloadAssets(); renderAssets(); renderDashboardWidgets(); closeModal('asset-form-modal');
+            showToast('저장 완료', id ? '설비 정보가 수정되었습니다.' : '설비가 등록되었습니다.');
+        }
+        async function markAssetPmDone(id) {
+            const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            if (!confirm(`[${a.name}] 정기점검을 오늘 완료 처리하시겠습니까?`)) return;
+            const { error } = await sb.from('assets').update({ last_pm: formatDate(new Date()) }).eq('id', id);
+            if (error) { showToast('처리 실패', error.message); return; }
+            await reloadAssets(); renderAssets(); renderDashboardWidgets(); showToast('점검 완료', `[${a.name}] 최근 점검일이 오늘로 갱신되었습니다.`);
+        }
+        async function deleteAsset(id) {
+            const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            if (!confirm(`설비 [${a.name}] 을(를) 대장에서 삭제하시겠습니까?`)) return;
+            const { error } = await sb.from('assets').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            logAudit('asset_delete', a.name, `${a.customer || ''} ${a.site || ''}`.trim());
+            await reloadAssets(); renderAssets(); renderDashboardWidgets(); showToast('삭제', '설비가 삭제되었습니다.');
+        }
+        function createTicketFromAsset(id) {
+            const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            switchTab('field-support');
+            setTimeout(() => {
+                openTicketForm();
+                document.getElementById('ticket-customer').value = a.customer || '';
+                document.getElementById('ticket-site').value = a.site || '';
+                document.getElementById('ticket-equipment').value = a.name || '';
+            }, 80);
+        }
+
+        // ── 대시보드 차트 ────────────────────────────────────────────────
+        STATE._charts = {};
+        function drawChart(id, cfg) {
+            const el = document.getElementById(id); if (!el || typeof Chart === 'undefined') return;
+            if (STATE._charts[id]) { try { STATE._charts[id].destroy(); } catch (e) { } }
+            try { STATE._charts[id] = new Chart(el.getContext('2d'), cfg); } catch (e) { }
+        }
+        function renderDashboardCharts() {
+            const isAdmin = STATE.profile.role === 'admin';
+            const myDept = STATE.profile.deptId;
+            const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
+            const projs = scope(STATE.projects);
+            const sCnt = (s) => projs.filter(p => p.status === s).length;
+            drawChart('chart-proj-status', { type: 'doughnut', data: { labels: ['대기', '진행', '완료'], datasets: [{ data: [sCnt('paused'), sCnt('ongoing'), sCnt('completed')], backgroundColor: ['#94a3b8', '#3b82f6', '#10b981'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } } } });
+            const depts = STATE.departments.filter(d => d.id !== 'ceo');
+            const avg = depts.map(d => { const list = STATE.projects.filter(p => p.deptId === d.id); return list.length ? Math.round(list.reduce((s, p) => s + (p.progress || 0), 0) / list.length) : 0; });
+            drawChart('chart-dept-progress', { type: 'bar', data: { labels: depts.map(d => d.name), datasets: [{ data: avg, backgroundColor: '#6366f1', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 10 } } } }, plugins: { legend: { display: false } } } });
+            const tks = STATE.tickets || [];
+            const tCnt = (s) => tks.filter(t => t.status === s).length;
+            drawChart('chart-ticket-status', { type: 'bar', data: { labels: ['접수', '진행중', '보류', '완료'], datasets: [{ data: [tCnt('received'), tCnt('in_progress'), tCnt('hold'), tCnt('done')], backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#10b981'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } } }, plugins: { legend: { display: false } } } });
+        }
+
+        // ── 전역 통합 검색 ───────────────────────────────────────────────
+        function runGlobalSearch() {
+            const inp = document.getElementById('global-search'); const box = document.getElementById('global-search-results');
+            if (!inp || !box) return;
+            const q = inp.value.trim().toLowerCase();
+            if (q.length < 1) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+            const results = [];
+            STATE.projects.forEach(p => { if (`${p.title} ${p.desc || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '프로젝트', color: 'bg-blue-50 text-blue-600', title: p.title, sub: `${(STATE.departments.find(d => d.id === p.deptId) || {}).name || ''} · ${p.progress}%`, onclick: `gsOpen('proj',${p.id})` }); });
+            STATE.documents.forEach(d => { if (`${d.title} ${d.author || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '문서', color: 'bg-slate-100 text-slate-600', title: d.title, sub: `${esc(d.author) || ''} · ${(DOC_STATUS[d.status] || ['',''])[0]}`, onclick: `gsOpen('doc',${d.id})` }); });
+            STATE.weeklyMeetings.forEach(m => { if (`${m.title || ''} ${m.week} ${m.content || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '주간보고', color: 'bg-indigo-50 text-indigo-600', title: m.title || m.week, sub: `${m.week} · ${esc(m.author) || ''}`, onclick: `gsOpen('meeting',${m.id})` }); });
+            (STATE.tickets || []).forEach(t => { if (`${t.customer || ''} ${t.site || ''} ${t.equipment || ''} ${t.issue || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: 'AS', color: 'bg-rose-50 text-rose-600', title: `${t.customer || ''} ${t.equipment || ''}`.trim(), sub: (t.issue || '').slice(0, 40), onclick: `gsOpen('ticket',${t.id})` }); });
+            (STATE.assets || []).forEach(a => { if (`${a.name || ''} ${a.customer || ''} ${a.site || ''} ${a.model || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '설비', color: 'bg-emerald-50 text-emerald-600', title: a.name, sub: `${a.customer || ''} ${a.site || ''}`.trim(), onclick: `gsOpen('asset',${a.id})` }); });
+            if (results.length === 0) { box.innerHTML = `<div class="p-4 text-center text-[13px] text-slate-300">검색 결과가 없습니다.</div>`; box.classList.remove('hidden'); return; }
+            box.innerHTML = results.slice(0, 20).map(r => `<div onclick="${r.onclick}" class="px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer flex items-center gap-3 border-b border-slate-50 last:border-0"><span class="px-1.5 py-0.5 rounded text-[11px] font-bold flex-shrink-0 ${r.color}">${r.type}</span><div class="min-w-0"><div class="text-sm font-bold text-slate-800 truncate">${esc(r.title)}</div><div class="text-[12px] text-slate-400 truncate">${r.sub}</div></div></div>`).join('');
+            box.classList.remove('hidden');
+        }
+        function gsClose() { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); const inp = document.getElementById('global-search'); if (inp) inp.value = ''; }
+        function gsOpen(kind, id) {
+            gsClose();
+            if (kind === 'proj') openProjectDetail(id);
+            else if (kind === 'doc') { switchTab('documents'); setTimeout(() => viewDocument(id), 60); }
+            else if (kind === 'meeting') { switchTab('weekly-meeting'); setTimeout(() => openMeetingDetail(id), 60); }
+            else if (kind === 'ticket') { switchTab('field-support'); setTimeout(() => openTicketDetail(id), 60); }
+            else if (kind === 'asset') { switchTab('assets'); }
+        }
+        document.addEventListener('click', (e) => { const wrap = e.target.closest && e.target.closest('#global-search, #global-search-results'); if (!wrap) { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); } });
 
         // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {
@@ -3583,6 +3915,7 @@
             'documents-archive': { title: '승인 완료 보관소', desc: '전결 처리되어 정식 등록된 보고 문서를 조회합니다.' },
             'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
             'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
+            'assets': { title: '설비 자산 대장', desc: '현장 설비 자산과 정기점검(PM) 일정을 관리합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
         };
@@ -3625,6 +3958,8 @@
             else if (tabId === 'documents-pending') renderPendingDocs();
             else if (tabId === 'documents-archive') renderArchiveDocs();
             else if (tabId === 'field-support') renderTickets();
+            else if (tabId === 'assets') renderAssets();
+            else if (tabId === 'management-logs') { await reloadAuditLogs(); renderAuditLogs(); }
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
             else if (tabId === 'mail-integration') { toggleMailFields(); renderMailInbox(); }
@@ -3644,6 +3979,7 @@
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 3200);
         }
         function openModal(id) {
+            if (id === 'add-doc-modal') { STATE.docApprovers = STATE.docApprovers || []; STATE.docViewers = STATE.docViewers || []; populateDocPeoplePickers(); renderDocPeopleChips(); }
             if (id === 'profile-setting-modal' && STATE.currentUser) {
                 const n = document.getElementById('profile-name'); if (n) n.value = STATE.currentUser.name;
                 const d = document.getElementById('profile-dept'); if (d) d.value = STATE.currentUser.deptId;
@@ -3711,9 +4047,19 @@
             const todayStr = formatDate(new Date());
             const soon = new Date(); soon.setDate(soon.getDate() + 3); const soonStr = formatDate(soon);
             const items = [];
-            // 1) 내가 결재할 문서
-            STATE.documents.filter(d => d.status === 'pending' && canApproveDoc(d)).forEach(d => {
-                items.push({ id: 'appr_' + d.id, group: '결재', icon: 'stamp', color: 'text-amber-600', title: d.title, sub: '결재 대기 · 승인/반려 필요', onclick: `notifOpen('doc', ${d.id})` });
+            // 1) 내가 결재할 문서 (결재선이 있으면 내 차례일 때만)
+            STATE.documents.filter(d => d.status === 'pending').forEach(d => {
+                const line = d.approvers || [];
+                const cur = currentApproverOf(d);
+                const myTurn = line.length > 0 ? (cur && STATE.currentUser && cur.id === STATE.currentUser.id) : canApproveDoc(d);
+                if (myTurn) items.push({ id: 'appr_' + d.id, group: '결재', icon: 'stamp', color: 'text-amber-600', title: d.title, sub: line.length ? `내 결재 차례 (${line.filter(a=>a.status==='approved').length + 1}/${line.length}차)` : '결재 대기 · 승인/반려 필요', onclick: `notifOpen('doc', ${d.id})` });
+            });
+            // 1-2) 내가 열람자로 지정된 문서
+            if (STATE.currentUser) STATE.documents.forEach(d => {
+                if ((d.viewers || []).some(v => v.id === STATE.currentUser.id)) {
+                    const st = (DOC_STATUS[d.status] || ['',''])[0];
+                    items.push({ id: 'view_' + d.id + '_' + d.status, group: '열람', icon: 'eye', color: 'text-sky-600', title: d.title, sub: `열람 지정 문서 · ${st} · ${esc(d.author) || ''}`, onclick: `notifOpen('doc', ${d.id})` });
+                }
             });
             // 2) 내가 올린 문서 반려됨
             STATE.documents.filter(d => d.status === 'rejected' && (d.author || '').trim() === myName).forEach(d => {
@@ -3734,6 +4080,12 @@
             // 5) 내 담당 AS 티켓 (완료 외)
             if (myName) (STATE.tickets || []).forEach(t => {
                 if (t.status !== 'done' && (t.assignee || '').trim() === myName) items.push({ id: 'tkt_' + t.id, group: '현장 / AS', icon: 'wrench', color: 'text-rose-500', title: `${t.customer || ''} ${t.equipment || ''}`.trim() || 'AS 티켓', sub: `${(TICKET_STATUS[t.status] || ['',''])[0]} · ${t.issue || ''}`.slice(0, 60), onclick: `notifOpen('ticket', ${t.id})` });
+            });
+            // 5-2) 정기점검 도래/지연 설비
+            (STATE.assets || []).forEach(a => {
+                const info = assetPmInfo(a);
+                if (info.state === 'overdue') items.push({ id: 'pm_' + a.id + '_' + info.next, group: '마감 · 지연', icon: 'server-cog', color: 'text-rose-600', title: a.name, sub: `정기점검 지연 (${info.next} 예정) · ${a.site || ''}`, onclick: `notifOpen('asset', ${a.id})` });
+                else if (info.state === 'due') items.push({ id: 'pm_' + a.id + '_' + info.next, group: '마감 · 지연', icon: 'server-cog', color: 'text-amber-600', title: a.name, sub: `정기점검 D-${info.dday} (${info.next}) · ${a.site || ''}`, onclick: `notifOpen('asset', ${a.id})` });
             });
             // 6) 오늘 일정
             STATE.events.filter(e => (isAdmin || e.deptId === myDept) && e.startDate <= todayStr && e.endDate >= todayStr).forEach(e => {
@@ -3758,7 +4110,7 @@
             wrap.classList.remove('hidden');
             if (countEl) { countEl.innerText = unseen; countEl.classList.toggle('hidden', unseen === 0); }
             if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
-            const order = ['결재', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
+            const order = ['결재', '열람', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
             const groups = {};
             items.forEach(n => { (groups[n.group] = groups[n.group] || []).push(n); });
             box.innerHTML = order.filter(g => groups[g]).map(g => {
@@ -3788,6 +4140,7 @@
             else if (kind === 'proj') { openProjectDetail(id, itemId || undefined); }
             else if (kind === 'meeting') { switchTab('weekly-meeting'); setTimeout(() => openMeetingDetail(id), 60); }
             else if (kind === 'ticket') { switchTab('field-support'); setTimeout(() => openTicketDetail(id), 60); }
+            else if (kind === 'asset') { switchTab('assets'); }
             else if (kind === 'calendar') { switchTab('calendar'); }
         }
         function acknowledgeAndOpen(projId, itemId) { notifOpen('proj', projId, itemId); }
