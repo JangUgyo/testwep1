@@ -119,10 +119,22 @@
             margin-bottom: 8px;
         }
         /* 사이드바: 고정 폭(루트 글자크기 영향 X), 콘텐츠 글씨만 확대되도록 */
-        #app-sidebar { width: 226px; }
+        #app-sidebar { width: 226px; transition: transform 0.25s ease; }
         #app-sidebar .logo-title { font-size: 14px; }
         #app-sidebar .logo-sub { font-size: 11px; }
         #main-area { margin-left: 226px; }
+        /* 모바일(≤1023px): 사이드바를 오프캔버스로 전환, 햄버거로 토글 */
+        @media (max-width: 1023px) {
+            html { font-size: 16px; }
+            #app-sidebar { transform: translateX(-100%); box-shadow: 0 10px 40px rgba(0,0,0,0.18); }
+            #app-sidebar.open { transform: translateX(0); }
+            #main-area { margin-left: 0; padding: 1.25rem; }
+            #sidebar-backdrop.show { display: block; }
+        }
+        @media (min-width: 1024px) {
+            #mobile-hamburger { display: none; }
+            #sidebar-backdrop { display: none !important; }
+        }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -220,7 +232,8 @@
     </div>
 
     <!-- 사이드바 (Sidebar) -->
-    <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-30">
+    <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden"></div>
+    <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
         <div class="p-6 border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center text-white text-lg font-bold tracking-tight">W</div>
@@ -338,21 +351,25 @@
     </aside>
 
     <main id="main-area" class="flex-1 p-10">
-        <header class="flex justify-between items-center mb-10 border-b border-slate-100 pb-5">
-            <div>
-                <div class="flex items-center gap-2">
-                    <h2 id="view-title" class="text-2xl font-bold text-slate-800 tracking-tight">종합 대시보드</h2>
-                    <span id="tab-maintenance-badge" class="hidden px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-[12px] font-bold rounded-lg animate-pulse">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
+        <header class="flex justify-between items-center mb-7 lg:mb-10 border-b border-slate-100 pb-5 gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <button id="mobile-hamburger" onclick="toggleSidebar()" class="w-10 h-10 flex-shrink-0 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="menu" class="w-5 h-5"></i></button>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h2 id="view-title" class="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight truncate">종합 대시보드</h2>
+                        <span id="tab-maintenance-badge" class="hidden px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-[12px] font-bold rounded-lg animate-pulse">⚠️ 서비스 점검 작동 중 (일반 사용자 진입 제한)</span>
+                    </div>
+                    <p id="view-description" class="hidden sm:block text-slate-400 text-sm mt-1 leading-normal">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</p>
                 </div>
-                <p id="view-description" class="text-slate-400 text-sm mt-1 leading-normal">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</p>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="relative">
+            <div class="flex items-center gap-2 lg:gap-4 flex-shrink-0">
+                <div class="relative hidden md:block">
                     <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm w-72 outline-none focus:border-indigo-300 bg-white">
-                    <div id="global-search-results" class="hidden absolute top-full mt-1.5 left-0 w-[28rem] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm w-56 xl:w-72 outline-none focus:border-indigo-300 bg-white">
+                    <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
+                <button onclick="openMobileSearch()" class="md:hidden w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500"><i data-lucide="search" class="w-5 h-5"></i></button>
                 <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-all">
                     <i data-lucide="bell" class="w-5 h-5"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">0</span>
@@ -572,12 +589,14 @@
                     <button onclick="openModal('add-doc-modal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5"><i data-lucide="file-plus" class="w-4 h-4"></i> 보고서 등록</button>
                 </div>
                 <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left border-collapse">
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[640px]">
                         <thead class="bg-slate-50 border-b">
                             <tr><th class="px-5 py-3 text-xs font-bold text-slate-500">보고서 제목</th><th class="px-5 py-3 text-xs font-bold text-slate-500">상태</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성부서</th><th class="px-5 py-3 text-xs font-bold text-slate-500">작성자</th><th class="px-5 py-3 text-xs font-bold text-slate-500">수정일</th><th class="px-5 py-3 text-xs font-bold text-slate-500 text-right">기능</th></tr>
                         </thead>
                         <tbody id="document-list-body" class="divide-y divide-slate-100"></tbody>
                     </table>
+                  </div>
                 </div>
             </section>
 
@@ -917,6 +936,18 @@
                 <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="meeting-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
+    <!-- 모바일 통합 검색 -->
+    <div id="mobile-search-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-start justify-center z-[95] p-4 pt-16">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border flex flex-col max-h-[80vh]">
+            <div class="p-3 border-b flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 ml-1"></i>
+                <input type="text" id="mobile-global-search" onkeyup="runGlobalSearchMobile()" placeholder="프로젝트·문서·보고·AS·설비 검색" class="flex-1 px-2 py-2 text-sm outline-none">
+                <button onclick="closeModal('mobile-search-modal')" class="text-slate-400 hover:text-slate-700 px-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="mobile-global-search-results" class="overflow-y-auto"><div class="p-6 text-center text-[13px] text-slate-300">검색어를 입력하세요.</div></div>
         </div>
     </div>
 
@@ -3860,24 +3891,35 @@
         }
 
         // ── 전역 통합 검색 ───────────────────────────────────────────────
-        function runGlobalSearch() {
-            const inp = document.getElementById('global-search'); const box = document.getElementById('global-search-results');
-            if (!inp || !box) return;
-            const q = inp.value.trim().toLowerCase();
-            if (q.length < 1) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+        function buildSearchResults(q) {
+            q = (q || '').trim().toLowerCase();
+            if (q.length < 1) return null;
             const results = [];
             STATE.projects.forEach(p => { if (`${p.title} ${p.desc || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '프로젝트', color: 'bg-blue-50 text-blue-600', title: p.title, sub: `${(STATE.departments.find(d => d.id === p.deptId) || {}).name || ''} · ${p.progress}%`, onclick: `gsOpen('proj',${p.id})` }); });
-            STATE.documents.forEach(d => { if (`${d.title} ${d.author || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '문서', color: 'bg-slate-100 text-slate-600', title: d.title, sub: `${esc(d.author) || ''} · ${(DOC_STATUS[d.status] || ['',''])[0]}`, onclick: `gsOpen('doc',${d.id})` }); });
+            STATE.documents.forEach(d => { if (`${d.title} ${d.author || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '문서', color: 'bg-slate-100 text-slate-600', title: d.title, sub: `${esc(d.author) || ''} · ${(DOC_STATUS[d.status] || ['', ''])[0]}`, onclick: `gsOpen('doc',${d.id})` }); });
             STATE.weeklyMeetings.forEach(m => { if (`${m.title || ''} ${m.week} ${m.content || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '주간보고', color: 'bg-indigo-50 text-indigo-600', title: m.title || m.week, sub: `${m.week} · ${esc(m.author) || ''}`, onclick: `gsOpen('meeting',${m.id})` }); });
             (STATE.tickets || []).forEach(t => { if (`${t.customer || ''} ${t.site || ''} ${t.equipment || ''} ${t.issue || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: 'AS', color: 'bg-rose-50 text-rose-600', title: `${t.customer || ''} ${t.equipment || ''}`.trim(), sub: (t.issue || '').slice(0, 40), onclick: `gsOpen('ticket',${t.id})` }); });
             (STATE.assets || []).forEach(a => { if (`${a.name || ''} ${a.customer || ''} ${a.site || ''} ${a.model || ''}`.toLowerCase().indexOf(q) >= 0) results.push({ type: '설비', color: 'bg-emerald-50 text-emerald-600', title: a.name, sub: `${a.customer || ''} ${a.site || ''}`.trim(), onclick: `gsOpen('asset',${a.id})` }); });
-            if (results.length === 0) { box.innerHTML = `<div class="p-4 text-center text-[13px] text-slate-300">검색 결과가 없습니다.</div>`; box.classList.remove('hidden'); return; }
-            box.innerHTML = results.slice(0, 20).map(r => `<div onclick="${r.onclick}" class="px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer flex items-center gap-3 border-b border-slate-50 last:border-0"><span class="px-1.5 py-0.5 rounded text-[11px] font-bold flex-shrink-0 ${r.color}">${r.type}</span><div class="min-w-0"><div class="text-sm font-bold text-slate-800 truncate">${esc(r.title)}</div><div class="text-[12px] text-slate-400 truncate">${r.sub}</div></div></div>`).join('');
-            box.classList.remove('hidden');
+            if (results.length === 0) return `<div class="p-4 text-center text-[13px] text-slate-300">검색 결과가 없습니다.</div>`;
+            return results.slice(0, 20).map(r => `<div onclick="${r.onclick}" class="px-4 py-2.5 hover:bg-indigo-50/50 cursor-pointer flex items-center gap-3 border-b border-slate-50 last:border-0"><span class="px-1.5 py-0.5 rounded text-[11px] font-bold flex-shrink-0 ${r.color}">${r.type}</span><div class="min-w-0"><div class="text-sm font-bold text-slate-800 truncate">${esc(r.title)}</div><div class="text-[12px] text-slate-400 truncate">${r.sub}</div></div></div>`).join('');
+        }
+        function runGlobalSearch() {
+            const inp = document.getElementById('global-search'); const box = document.getElementById('global-search-results');
+            if (!inp || !box) return;
+            const html = buildSearchResults(inp.value);
+            if (html === null) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+            box.innerHTML = html; box.classList.remove('hidden');
+        }
+        function openMobileSearch() { openModal('mobile-search-modal'); setTimeout(() => { const i = document.getElementById('mobile-global-search'); if (i) i.focus(); }, 50); }
+        function runGlobalSearchMobile() {
+            const inp = document.getElementById('mobile-global-search'); const box = document.getElementById('mobile-global-search-results');
+            if (!inp || !box) return;
+            const html = buildSearchResults(inp.value);
+            box.innerHTML = html === null ? '<div class="p-6 text-center text-[13px] text-slate-300">검색어를 입력하세요.</div>' : html;
         }
         function gsClose() { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); const inp = document.getElementById('global-search'); if (inp) inp.value = ''; }
         function gsOpen(kind, id) {
-            gsClose();
+            gsClose(); closeModal('mobile-search-modal');
             if (kind === 'proj') openProjectDetail(id);
             else if (kind === 'doc') { switchTab('documents'); setTimeout(() => viewDocument(id), 60); }
             else if (kind === 'meeting') { switchTab('weekly-meeting'); setTimeout(() => openMeetingDetail(id), 60); }
@@ -3885,6 +3927,10 @@
             else if (kind === 'asset') { switchTab('assets'); }
         }
         document.addEventListener('click', (e) => { const wrap = e.target.closest && e.target.closest('#global-search, #global-search-results'); if (!wrap) { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); } });
+
+        // ── 모바일 사이드바 토글 ─────────────────────────────────────────
+        function toggleSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (!sb) return; const open = sb.classList.toggle('open'); if (bd) bd.classList.toggle('hidden', !open); }
+        function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); }
 
         // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {
@@ -3978,8 +4024,9 @@
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
         };
         async function switchTab(tabId) {
-            if (typeof tabId === 'string' && tabId.indexOf('custom_') === 0) { launchCustomFeature(tabId); return; }
+            if (typeof tabId === 'string' && tabId.indexOf('custom_') === 0) { launchCustomFeature(tabId); closeSidebar(); return; }
             STATE.currentTab = tabId;
+            closeSidebar();
             const meta = TAB_META[tabId];
             if (meta) { const vt = document.getElementById('view-title'); if (vt) vt.innerText = meta.title; const vd = document.getElementById('view-description'); if (vd) vd.innerText = meta.desc; }
             const isAdmin = (STATE.profile.role === 'admin');
