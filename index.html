@@ -6,21 +6,12 @@
     <title>WorkSpace Pro - Enterprise Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 문서 미리보기 변환 라이브러리: Word(mammoth) / Excel(SheetJS) -->
-    <script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <!-- 고품질 Word 렌더링: docx-preview (JSZip 의존) -->
-    <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
-    <!-- PDF 첫 페이지 썸네일: pdf.js -->
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-    <script>try { if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'; } catch (e) {}</script>
+    <!-- 무거운 라이브러리(chart.js, mammoth, SheetJS, jszip, docx-preview, pdf.js)는
+         초기 로딩을 가볍게 하기 위해 실제 사용 시점에 지연 로딩(lazy-load)합니다. (ensure*() 참조) -->
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;750;700&display=swap" rel="stylesheet">
     <style>
@@ -1240,6 +1231,35 @@
         const SUPABASE_KEY = 'sb_publishable_jITajlme_6lZvA-wHzXLZg__w0-ktoT';
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // ── 무거운 라이브러리 지연 로딩(lazy-load) ───────────────────────
+        const LIB_URLS = {
+            chart: 'https://cdn.jsdelivr.net/npm/chart.js',
+            mammoth: 'https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js',
+            xlsx: 'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js',
+            jszip: 'https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js',
+            docx: 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js',
+            pdfjs: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+            pdfworker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
+        };
+        const _libCache = {};
+        function loadScript(url) {
+            if (_libCache[url]) return _libCache[url];
+            _libCache[url] = new Promise((resolve, reject) => {
+                try {
+                    const s = document.createElement('script'); s.src = url; s.async = true;
+                    s.onload = () => resolve(true);
+                    s.onerror = () => reject(new Error('script load failed: ' + url));
+                    document.head.appendChild(s);
+                } catch (e) { reject(e); }
+            });
+            return _libCache[url];
+        }
+        async function ensureChart() { if (window.Chart) return; await loadScript(LIB_URLS.chart); }
+        async function ensureXlsx() { if (window.XLSX) return; await loadScript(LIB_URLS.xlsx); }
+        async function ensureMammoth() { if (window.mammoth) return; await loadScript(LIB_URLS.mammoth); }
+        async function ensureDocx() { if (window.docx && window.docx.renderAsync) return; if (!window.JSZip) await loadScript(LIB_URLS.jszip); await loadScript(LIB_URLS.docx); }
+        async function ensurePdf() { if (window.pdfjsLib) return; await loadScript(LIB_URLS.pdfjs); try { if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = LIB_URLS.pdfworker; } catch (e) { } }
+
         // 전역 날짜 유틸리티
         function addDays(date, days) { const r = new Date(date); r.setDate(r.getDate() + days); return r; }
         function formatDate(date) {
@@ -1969,6 +1989,7 @@
             // Word(docx) → docx-preview(고품질) → mammoth → Office 뷰어 순으로 시도
             if (has('wordprocessingml') || ext === 'docx') {
                 body.innerHTML = previewLoading('Word 문서를 원본 형태로 렌더링하는 중입니다...');
+                try { await ensureDocx(); } catch (e) { }
                 let buf;
                 try { buf = await (await fetch(url)).arrayBuffer(); }
                 catch (e) { body.innerHTML = officeViewer(url); return; }
@@ -1980,6 +2001,7 @@
                         return;
                     } catch (e) { /* fall through */ }
                 }
+                try { await ensureMammoth(); } catch (e) { }
                 if (typeof mammoth !== 'undefined') {
                     try {
                         const res = await mammoth.convertToHtml({ arrayBuffer: buf }, { convertImage: mammoth.images.imgElement(function (image) { return image.read('base64').then(function (b64) { return { src: 'data:' + image.contentType + ';base64,' + b64 }; }); }) });
@@ -1992,6 +2014,7 @@
             }
             // Excel/CSV → SheetJS
             if (has('spreadsheetml') || has('ms-excel') || ['xlsx', 'xls', 'csv'].includes(ext)) {
+                try { await ensureXlsx(); } catch (e) { }
                 if (typeof XLSX === 'undefined') { body.innerHTML = officeViewer(url); return; }
                 body.innerHTML = previewLoading('스프레드시트를 불러오는 중입니다...');
                 try {
@@ -2882,6 +2905,7 @@
             if (window.lucide) lucide.createIcons();
         }
         async function renderPdfThumb(thumb, url) {
+            try { await ensurePdf(); } catch (e) { }
             if (typeof pdfjsLib === 'undefined') { thumb.innerHTML = fileIconHTML('pdf'); return; }
             const pdf = await pdfjsLib.getDocument({ url }).promise;
             const page = await pdf.getPage(1);
@@ -2895,6 +2919,7 @@
             await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
         }
         async function renderDocxThumb(thumb, url) {
+            try { await ensureDocx(); } catch (e) { }
             if (typeof docx === 'undefined' || !docx.renderAsync) { thumb.innerHTML = fileIconHTML('docx'); return; }
             const buf = await (await fetch(url)).arrayBuffer();
             const inner = document.createElement('div'); inner.style.transformOrigin = 'top left'; inner.style.background = '#fff';
@@ -2907,6 +2932,7 @@
             inner.style.transform = `scale(${Math.max(tw / rw, 0.1)})`;
         }
         async function renderXlsxThumb(thumb, url) {
+            try { await ensureXlsx(); } catch (e) { }
             if (typeof XLSX === 'undefined') { thumb.innerHTML = fileIconHTML('xlsx'); return; }
             const buf = await (await fetch(url)).arrayBuffer();
             const wb = XLSX.read(buf, { type: 'array' });
@@ -3786,7 +3812,8 @@
             if (STATE._charts[id]) { try { STATE._charts[id].destroy(); } catch (e) { } }
             try { STATE._charts[id] = new Chart(el.getContext('2d'), cfg); } catch (e) { }
         }
-        function renderDashboardCharts() {
+        async function renderDashboardCharts() {
+            await ensureChart(); if (typeof Chart === 'undefined') return;
             const isAdmin = STATE.profile.role === 'admin';
             const myDept = STATE.profile.deptId;
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
