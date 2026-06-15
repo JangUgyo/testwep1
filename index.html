@@ -115,6 +115,9 @@
         html.dark .bg-indigo-50\/40, html.dark .bg-indigo-50\/50, html.dark .bg-blue-50\/40, html.dark .bg-blue-50\/30, html.dark .hover\:bg-indigo-50\/40:hover, html.dark .hover\:bg-indigo-50\/50:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: rgba(99,102,241,0.12) !important; }
         /* 다크모드: 옅은 상태 칩 가독성 보정 */
         html.dark .wsp-chip.bg-slate-100 { background-color: #3a3835 !important; color: #d8d5cc !important; }
+        /* 주간 보고 상세: 다크모드에서 밝은 그라데이션 배너 → 어둡게(제목 가독성) */
+        html.dark .meeting-detail-banner { background-image: none !important; background-color: #2a2926 !important; }
+        html.dark .meeting-detail-banner h2 { color: #f5f3ec !important; }
         /* Refined Sidebar Navigation Styling */
         .sidebar-item {
             display: flex;
@@ -733,7 +736,15 @@
 
             <section id="view-documents-archive" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-3.5 border-b bg-emerald-50/60 flex items-center gap-2"><i data-lucide="folder-archive" class="w-4 h-4 text-emerald-600"></i><h3 class="font-bold text-sm text-slate-700">승인 완료 보관소</h3><span class="text-[12px] text-slate-400">전결 처리되어 정식 등록된 문서</span></div>
+                    <div class="px-5 py-3.5 border-b bg-emerald-50/60 flex flex-wrap items-center gap-2">
+                        <i data-lucide="folder-archive" class="w-4 h-4 text-emerald-600"></i><h3 class="font-bold text-sm text-slate-700">승인 완료 보관소</h3>
+                        <div class="flex gap-2 ml-auto">
+                            <select id="archive-filter-dept" onchange="archiveApplyFilter()" class="px-2.5 py-1.5 border rounded-lg text-[13px] bg-white outline-none"></select>
+                            <select id="archive-filter-type" onchange="archiveApplyFilter()" class="px-2.5 py-1.5 border rounded-lg text-[13px] bg-white outline-none">
+                                <option value="all">전체 종류</option><option value="pdf">PDF</option><option value="word">Word</option><option value="excel">Excel</option><option value="image">이미지</option><option value="etc">기타/메모</option>
+                            </select>
+                        </div>
+                    </div>
                     <div id="archive-docs-body"></div>
                 </div>
             </section>
@@ -903,7 +914,7 @@
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-[14px]">
-                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">설비명</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">정기점검</th><th class="px-4 py-3 text-left font-bold">최근 점검일</th><th class="px-4 py-3 text-left font-bold">다음 점검</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">설비명</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">담당 / 부서</th><th class="px-4 py-3 text-left font-bold">정기점검</th><th class="px-4 py-3 text-left font-bold">다음 점검</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
                             <tbody id="asset-list-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
@@ -979,6 +990,17 @@
         </div>
     </div>
 
+    <!-- 설비 상세 -->
+    <div id="asset-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="server-cog" class="w-4 h-4 text-emerald-600"></i> 설비 상세</h4>
+                <button onclick="closeModal('asset-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="asset-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+
     <!-- 설비 등록/편집 -->
     <div id="asset-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] overflow-hidden border flex flex-col">
@@ -992,6 +1014,9 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현장명</label><input type="text" id="asset-site" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">점검 주기 (일)</label><input type="number" id="asset-pm-cycle" min="0" placeholder="예: 90 (0=미사용)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">최근 점검일</label><input type="date" id="asset-last-pm" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="asset-assignee" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">직책</label><input type="text" id="asset-position" placeholder="예: 책임/선임" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div class="col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="asset-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                 </div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">비고</label><textarea id="asset-notes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
                 <div class="flex gap-2 pt-1"><button type="button" onclick="closeModal('asset-form-modal')" class="flex-1 py-2 border text-sm font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg">저장</button></div>
@@ -1228,7 +1253,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border">
             <form onsubmit="handleSaveProfile(event)" class="p-5 space-y-4">
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">성명</label><input type="text" id="profile-name" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서</label><select id="profile-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">소속 부서 <span class="text-[11px] text-slate-400 font-normal">(변경은 관리자만 가능)</span></label><select id="profile-dept" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
                 <div class="pt-3 flex gap-2"><button type="button" onclick="closeModal('profile-setting-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-slate-950 text-white text-xs font-bold">저장</button></div>
             </form>
         </div>
@@ -1635,8 +1660,10 @@
             e.preventDefault();
             if (!STATE.currentUser) return;
             const name = document.getElementById('profile-name').value.trim();
-            const deptId = document.getElementById('profile-dept').value;
-            const { error } = await sb.from('profiles').update({ name, dept_id: deptId }).eq('id', STATE.currentUser.id);
+            const isAdmin = STATE.profile.role === 'admin';
+            const deptId = isAdmin ? document.getElementById('profile-dept').value : STATE.currentUser.deptId;
+            const patch = isAdmin ? { name, dept_id: deptId } : { name };
+            const { error } = await sb.from('profiles').update(patch).eq('id', STATE.currentUser.id);
             if (error) { showToast('저장 실패', error.message); return; }
             STATE.currentUser.name = name; STATE.currentUser.deptId = deptId;
             STATE.profile.name = name; STATE.profile.deptId = deptId;
@@ -1653,16 +1680,26 @@
             });
         }
         function renderDeptOptions() {
-            const list = ['event-dept', 'profile-dept', 'signup-dept'];
+            const isAdmin = STATE.profile && STATE.profile.role === 'admin';
+            const myDept = STATE.profile && STATE.profile.deptId;
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-            // 프로젝트/주간회의/통합보고허브에서는 대표이사(ceo) 제외
             const noCeoHTML = STATE.departments.filter(d => d.id !== 'ceo').map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-            list.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
-            ['project-dept', 'meeting-dept', 'doc-dept', 'edit-doc-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = noCeoHTML; });
+            const ownDept = STATE.departments.find(d => d.id === myDept);
+            const ownHTML = ownDept ? `<option value="${ownDept.id}">${ownDept.name}</option>` : '';
+            // 입력(작성) 셀렉트: 관리자는 전체, 일반 직원은 본인 부서만 (본인 부서만 작성)
+            const inputAll = isAdmin ? optionsHTML : (ownHTML || optionsHTML);
+            const inputNoCeo = isAdmin ? noCeoHTML : (ownHTML || noCeoHTML);
+            // profile-dept(소속부서)·signup-dept는 전체 목록 유지(권한은 별도 제어)
+            ['event-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = inputAll; });
+            ['profile-dept', 'signup-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
+            ['project-dept', 'meeting-dept', 'doc-dept', 'edit-doc-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = inputNoCeo; });
+            const tDept = document.getElementById('ticket-dept'); if (tDept) tDept.innerHTML = inputAll;
+            const aDept = document.getElementById('asset-dept'); if (aDept) aDept.innerHTML = inputAll;
+            // 필터 셀렉트: 항상 전체 부서(조회/필터는 전 부서 허용)
             const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML;
+            const archFilter = document.getElementById('archive-filter-dept'); if (archFilter) { const keep = archFilter.value || 'all'; archFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; archFilter.value = [...archFilter.options].some(o => o.value === keep) ? keep : 'all'; }
             const meetFilter = document.getElementById('meeting-filter-dept'); if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + noCeoHTML;
             const projFilter = document.getElementById('project-filter-dept'); if (projFilter) { const keep = projFilter.value || 'all'; projFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; projFilter.value = [...projFilter.options].some(o => o.value === keep) ? keep : 'all'; }
-            const tDept = document.getElementById('ticket-dept'); if (tDept) tDept.innerHTML = optionsHTML;
             const tFilter = document.getElementById('ticket-filter-dept'); if (tFilter) { const keep = tFilter.value || 'all'; tFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML; tFilter.value = [...tFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
@@ -1906,6 +1943,7 @@
             if (STATE.profile.role === 'admin') return true;
             return doc.deptId === STATE.profile.deptId && ['head', 'leader', 'ceo'].includes(STATE.profile.role);
         }
+        function canManageDoc(doc) { return STATE.profile.role === 'admin' || (doc && doc.deptId === STATE.profile.deptId); }
         function isDocAuthor(doc) { return (doc.author || '').trim() === (STATE.profile.name || '').trim(); }
         function renderDocuments(items = STATE.documents) {
             const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
@@ -1921,7 +1959,7 @@
                 let actions = `<button onclick="viewDocument(${doc.id})" class="text-blue-600 hover:text-blue-800 font-bold mr-3">열람</button>`;
                 if ((doc.status === 'draft' || doc.status === 'rejected') && (isDocAuthor(doc) || STATE.profile.role === 'admin')) actions += `<button onclick="submitDocForApproval(${doc.id})" class="text-amber-600 hover:text-amber-800 font-bold mr-3">결재요청</button>`;
                 if (doc.status === 'pending' && canApproveDoc(doc)) actions += `<button onclick="approveDoc(${doc.id})" class="text-emerald-600 hover:text-emerald-800 font-bold mr-3">승인</button><button onclick="rejectDoc(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold mr-3">반려</button>`;
-                actions += `<button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button>`;
+                if (canManageDoc(doc)) actions += `<button onclick="openEditDocument(${doc.id})" class="text-slate-500 hover:text-slate-800 font-bold mr-3">수정</button><button onclick="deleteDocument(${doc.id})" class="text-rose-500 hover:text-rose-700 font-bold">삭제</button>`;
                 const rejectNote = doc.status === 'rejected' && doc.rejectReason ? `<div class="text-[11px] text-rose-500 mt-0.5">반려 사유: ${esc(doc.rejectReason)}</div>` : '';
                 tr.innerHTML = `<td class="p-3 font-semibold text-slate-800">${fileBadge}${esc(doc.title)}<span class="text-[12px] text-slate-400 font-normal">${sizeTxt}</span>${rejectNote}</td><td class="p-3">${docStatusBadge(doc.status)}</td><td class="p-3"><span class="px-2 py-0.5 border rounded text-[12px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '공통'}</span></td><td class="p-3 font-medium text-slate-500">${esc(doc.author) || '-'}</td><td class="p-3 text-slate-400 font-mono">${doc.date || ''}</td><td class="p-3 text-right whitespace-nowrap" onclick="event.stopPropagation()">${actions}</td>`;
                 tbody.appendChild(tr);
@@ -1975,8 +2013,8 @@
         }
         function renderPendingDocs() {
             const box = document.getElementById('pending-docs-body'); if (!box) return;
-            const list = STATE.documents.filter(d => d.status === 'pending');
-            if (list.length === 0) { box.innerHTML = `<div class="wsp-empty">결재 대기 중인 문서가 없습니다.</div>`; return; }
+            const list = STATE.documents.filter(d => d.status === 'pending' && canApproveDoc(d));
+            if (list.length === 0) { box.innerHTML = `<div class="wsp-empty">현재 내가 결재할 문서가 없습니다.</div>`; return; }
             box.innerHTML = list.slice(0, pageCount('pendingDocs')).map(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
                 const canApp = canApproveDoc(doc);
@@ -1988,10 +2026,21 @@
             }).join('') + moreDivHTML(list.length, 'pendingDocs');
             if (window.lucide) lucide.createIcons();
         }
+        function docTypeCategory(doc) {
+            const ext = (doc.fileType || (doc.title && doc.title.indexOf('.') >= 0 ? doc.title.split('.').pop() : '') || '').toLowerCase();
+            if (ext === 'pdf') return 'pdf';
+            if (['doc', 'docx'].includes(ext)) return 'word';
+            if (['xls', 'xlsx', 'csv'].includes(ext)) return 'excel';
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(ext)) return 'image';
+            return 'etc';
+        }
+        function archiveApplyFilter() { resetPage('archiveDocs'); renderArchiveDocs(); }
         function renderArchiveDocs() {
             const box = document.getElementById('archive-docs-body'); if (!box) return;
-            const list = STATE.documents.filter(d => d.status === 'approved');
-            if (list.length === 0) { box.innerHTML = `<div class="wsp-empty">승인 완료된 문서가 없습니다.</div>`; return; }
+            const fd = (document.getElementById('archive-filter-dept') || {}).value || 'all';
+            const ft = (document.getElementById('archive-filter-type') || {}).value || 'all';
+            const list = STATE.documents.filter(d => d.status === 'approved' && (fd === 'all' || d.deptId === fd) && (ft === 'all' || docTypeCategory(d) === ft));
+            if (list.length === 0) { box.innerHTML = `<div class="wsp-empty">조건에 맞는 승인 완료 문서가 없습니다.</div>`; return; }
             box.innerHTML = list.slice(0, pageCount('archiveDocs')).map(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
                 return `<div class="flex items-center justify-between gap-3 p-4 border-b border-slate-100 hover:bg-slate-50 cursor-pointer" onclick="viewDocument(${doc.id})">
@@ -2121,6 +2170,7 @@
         }
         function openEditDocument(id) {
             const doc = STATE.documents.find(d => d.id === id); if (!doc) return;
+            if (!canManageDoc(doc)) { showToast('권한 없음', '본인 부서의 보고서만 수정할 수 있습니다.'); return; }
             document.getElementById('edit-doc-id').value = doc.id;
             document.getElementById('edit-doc-title').value = doc.title;
             const ds = document.getElementById('edit-doc-dept'); if (ds) ds.value = doc.deptId;
@@ -2155,6 +2205,7 @@
         }
         async function deleteDocument(id) {
             const doc = STATE.documents.find(d => d.id === id);
+            if (doc && !canManageDoc(doc)) { showToast('권한 없음', '본인 부서의 보고서만 삭제할 수 있습니다.'); return; }
             if (doc && doc.storagePath) { try { await sb.storage.from('documents').remove([doc.storagePath]); } catch (e) {} }
             const { error } = await sb.from('documents').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
@@ -2804,7 +2855,7 @@
                 <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="flex">
                         <div class="w-2 flex-shrink-0 ${stripe}"></div>
-                        <div class="flex-1 px-6 py-5 bg-gradient-to-r from-slate-50 to-white">
+                        <div class="flex-1 px-6 py-5 bg-gradient-to-r from-slate-50 to-white meeting-detail-banner">
                             <div class="flex items-start justify-between gap-3 flex-wrap">
                                 <div class="space-y-2 min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
@@ -3797,7 +3848,7 @@
                 const { data, error } = await sb.from('assets').select('*').order('id', { ascending: false }).limit(1000);
                 if (error) { STATE.assetsTableMissing = true; STATE.assets = []; return; }
                 STATE.assetsTableMissing = false;
-                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '' }));
+                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '', assignee: r.assignee || '', position: r.position || '', deptId: r.dept_id || '' }));
             } catch (e) { STATE.assetsTableMissing = true; STATE.assets = []; }
         }
         function assetPmInfo(a) {
@@ -3836,27 +3887,30 @@
             if (list.length === 0) { body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">표시할 설비가 없습니다.</td></tr>`; return; }
             body.innerHTML = list.slice(0, pageCount('assets')).map(a => {
                 const info = assetPmInfo(a);
-                return `<tr class="hover:bg-emerald-50/20 align-top">
+                const dept = STATE.departments.find(d => d.id === a.deptId);
+                const manage = canManageAsset(a);
+                const mgrLine = `${esc(a.assignee) || '-'}${a.position ? ' <span class=\'text-[12px] text-slate-400\'>' + esc(a.position) + '</span>' : ''}`;
+                const actions = manage
+                    ? `<button onclick="event.stopPropagation();createTicketFromAsset(${a.id})" class="text-rose-500 hover:text-rose-700 font-bold mr-2">AS 접수</button><button onclick="event.stopPropagation();markAssetPmDone(${a.id})" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">점검 완료</button><button onclick="event.stopPropagation();openAssetForm(${a.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="event.stopPropagation();deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>`
+                    : `<span class="text-slate-300">열람</span>`;
+                return `<tr class="hover:bg-emerald-50/20 align-top cursor-pointer" onclick="openAssetDetail(${a.id})">
                     <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(a.name)}</div><div class="text-[12px] text-slate-400">${esc(a.model) || ''}</div></td>
                     <td class="px-4 py-3"><div class="font-semibold text-slate-700">${esc(a.customer) || '-'}</div><div class="text-[12px] text-slate-400">${esc(a.site) || ''}</div></td>
+                    <td class="px-4 py-3"><div class="text-slate-700">${mgrLine}</div><div class="text-[12px] text-slate-400">${dept ? dept.name : '-'}</div></td>
                     <td class="px-4 py-3">${assetPmBadge(a)}<div class="text-[12px] text-slate-400 mt-0.5">${a.pmCycle ? '주기 ' + a.pmCycle + '일' : ''}</div></td>
-                    <td class="px-4 py-3 font-mono text-[13px] text-slate-500">${a.lastPm || '-'}</td>
                     <td class="px-4 py-3 font-mono text-[13px] ${info.state === 'overdue' ? 'text-rose-600 font-bold' : 'text-slate-500'}">${info.next || '-'}</td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">
-                        <button onclick="createTicketFromAsset(${a.id})" class="text-rose-500 hover:text-rose-700 font-bold mr-2">AS 접수</button>
-                        <button onclick="markAssetPmDone(${a.id})" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">점검 완료</button>
-                        <button onclick="openAssetForm(${a.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button>
-                        <button onclick="deleteAsset(${a.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>
-                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actions}</td>
                 </tr>`;
             }).join('');
             body.insertAdjacentHTML('beforeend', moreRowHTML(list.length, 'assets', 6));
             if (window.lucide) lucide.createIcons();
         }
         function assetsApplyFilter() { resetPage('assets'); renderAssets(); }
+        function canManageAsset(a) { return STATE.profile.role === 'admin' || (a && a.deptId === STATE.profile.deptId); }
         function openAssetForm(id) {
             if (STATE.assetsTableMissing) { showToast('준비 필요', '설비 테이블 생성 SQL을 먼저 실행하세요.'); return; }
             const a = id ? STATE.assets.find(x => x.id === id) : null;
+            if (a && !canManageAsset(a)) { showToast('권한 없음', '본인 부서의 설비만 편집할 수 있습니다.'); return; }
             document.getElementById('asset-id').value = id || '';
             document.getElementById('asset-name').value = a ? (a.name || '') : '';
             document.getElementById('asset-model').value = a ? (a.model || '') : '';
@@ -3864,6 +3918,9 @@
             document.getElementById('asset-site').value = a ? (a.site || '') : '';
             document.getElementById('asset-pm-cycle').value = a ? (a.pmCycle || '') : '';
             document.getElementById('asset-last-pm').value = a ? (a.lastPm || '') : '';
+            document.getElementById('asset-assignee').value = a ? (a.assignee || '') : (STATE.profile.name || '');
+            document.getElementById('asset-position').value = a ? (a.position || '') : (STATE.profile.position || '');
+            const dsel = document.getElementById('asset-dept'); if (dsel) dsel.value = a ? (a.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('asset-notes').value = a ? (a.notes || '') : '';
             document.getElementById('asset-form-title').innerText = id ? '설비 편집' : '설비 등록';
             openModal('asset-form-modal');
@@ -3871,7 +3928,7 @@
         async function handleSaveAsset(e) {
             e.preventDefault();
             const id = document.getElementById('asset-id').value;
-            const row = { name: document.getElementById('asset-name').value.trim(), model: document.getElementById('asset-model').value.trim(), customer: document.getElementById('asset-customer').value.trim(), site: document.getElementById('asset-site').value.trim(), pm_cycle: parseInt(document.getElementById('asset-pm-cycle').value) || 0, last_pm: document.getElementById('asset-last-pm').value || null, notes: document.getElementById('asset-notes').value.trim() };
+            const row = { name: document.getElementById('asset-name').value.trim(), model: document.getElementById('asset-model').value.trim(), customer: document.getElementById('asset-customer').value.trim(), site: document.getElementById('asset-site').value.trim(), pm_cycle: parseInt(document.getElementById('asset-pm-cycle').value) || 0, last_pm: document.getElementById('asset-last-pm').value || null, notes: document.getElementById('asset-notes').value.trim(), assignee: document.getElementById('asset-assignee').value.trim(), position: document.getElementById('asset-position').value.trim(), dept_id: document.getElementById('asset-dept').value };
             let error;
             if (id) { ({ error } = await sb.from('assets').update(row).eq('id', parseInt(id))); }
             else { ({ error } = await sb.from('assets').insert(row)); }
@@ -3881,18 +3938,51 @@
         }
         async function markAssetPmDone(id) {
             const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            if (!canManageAsset(a)) { showToast('권한 없음', '본인 부서의 설비만 처리할 수 있습니다.'); return; }
             if (!confirm(`[${a.name}] 정기점검을 오늘 완료 처리하시겠습니까?`)) return;
             const { error } = await sb.from('assets').update({ last_pm: formatDate(new Date()) }).eq('id', id);
             if (error) { showToast('처리 실패', error.message); return; }
-            await reloadAssets(); renderAssets(); renderDashboardWidgets(); showToast('점검 완료', `[${a.name}] 최근 점검일이 오늘로 갱신되었습니다.`);
+            await reloadAssets(); renderAssets(); renderDashboardWidgets(); if (!document.getElementById('asset-detail-modal').classList.contains('hidden')) openAssetDetail(id); showToast('점검 완료', `[${a.name}] 최근 점검일이 오늘로 갱신되었습니다.`);
         }
         async function deleteAsset(id) {
             const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            if (!canManageAsset(a)) { showToast('권한 없음', '본인 부서의 설비만 삭제할 수 있습니다.'); return; }
             if (!confirm(`설비 [${a.name}] 을(를) 대장에서 삭제하시겠습니까?`)) return;
             const { error } = await sb.from('assets').delete().eq('id', id);
             if (error) { showToast('삭제 실패', error.message); return; }
             logAudit('asset_delete', a.name, `${a.customer || ''} ${a.site || ''}`.trim());
-            await reloadAssets(); renderAssets(); renderDashboardWidgets(); showToast('삭제', '설비가 삭제되었습니다.');
+            await reloadAssets(); renderAssets(); renderDashboardWidgets(); closeModal('asset-detail-modal'); showToast('삭제', '설비가 삭제되었습니다.');
+        }
+        function openAssetDetail(id) {
+            const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            const dept = STATE.departments.find(d => d.id === a.deptId);
+            const info = assetPmInfo(a);
+            const manage = canManageAsset(a);
+            const field = (label, val, pre) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 ${pre ? 'whitespace-pre-line leading-relaxed' : 'font-semibold'}">${esc(val) || '-'}</div></div>`;
+            const ctrl = manage ? `<div class="flex gap-2 flex-wrap"><button onclick="createTicketFromAsset(${a.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">AS 접수</button><button onclick="markAssetPmDone(${a.id})" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">점검 완료</button><button onclick="openAssetForm(${a.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg">편집</button><button onclick="deleteAsset(${a.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '<span class="text-[12px] text-slate-400">본인 부서 설비만 관리할 수 있습니다.</span>';
+            document.getElementById('asset-detail-body').innerHTML = `
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 flex-wrap">${assetPmBadge(a)}<span class="wsp-chip ${dept ? dept.textTheme : 'bg-slate-100 text-slate-600 border-slate-200'}">${dept ? dept.name : '부서 미지정'}</span></div>
+                            <h3 class="text-xl font-extrabold text-slate-800">${esc(a.name)}</h3>
+                            <div class="text-[13px] text-slate-400">${esc(a.model) || '모델 미등록'}</div>
+                        </div>
+                        ${ctrl}
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        ${field('고객사', a.customer)}
+                        ${field('현장명', a.site)}
+                        ${field('담당자', a.assignee)}
+                        ${field('직책', a.position)}
+                        ${field('점검 주기', a.pmCycle ? a.pmCycle + '일' : '미사용')}
+                        ${field('최근 점검일', a.lastPm)}
+                        ${field('다음 점검 예정', info.next || '-')}
+                        ${field('점검 상태', info.state === 'overdue' ? '지연' : info.state === 'due' ? '임박' : info.state === 'ok' ? '정상' : '미사용')}
+                    </div>
+                    ${a.notes ? `<div class="border-t border-slate-100 pt-3">${field('비고', a.notes, true)}</div>` : ''}
+                </div>`;
+            openModal('asset-detail-modal'); if (window.lucide) lucide.createIcons();
         }
         function createTicketFromAsset(id) {
             const a = STATE.assets.find(x => x.id === id); if (!a) return;
@@ -4129,7 +4219,7 @@
             if (id === 'add-doc-modal') { STATE.docApprovers = STATE.docApprovers || []; STATE.docViewers = STATE.docViewers || []; populateDocPeoplePickers(); renderDocPeopleChips(); }
             if (id === 'profile-setting-modal' && STATE.currentUser) {
                 const n = document.getElementById('profile-name'); if (n) n.value = STATE.currentUser.name;
-                const d = document.getElementById('profile-dept'); if (d) d.value = STATE.currentUser.deptId;
+                const d = document.getElementById('profile-dept'); if (d) { d.value = STATE.currentUser.deptId; const adm = STATE.profile.role === 'admin'; d.disabled = !adm; d.classList.toggle('opacity-60', !adm); d.classList.toggle('cursor-not-allowed', !adm); }
             }
             if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
             if (id === 'add-project-modal') applyDeptLock('project-dept');
