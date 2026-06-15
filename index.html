@@ -2053,7 +2053,7 @@
             const dsel = document.getElementById('inventory-dept'); if (dsel) dsel.value = it ? (it.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('inventory-notes').value = it ? it.notes : '';
             document.getElementById('inventory-form-title').innerText = id ? '품목 편집' : '품목 등록';
-            openModal('inventory-form-modal');
+            closeModal('inventory-detail-modal'); openModal('inventory-form-modal'); // 상세 위에서 편집 시 가림 방지
         }
         async function handleSaveInventoryItem(e) {
             e.preventDefault();
@@ -2281,7 +2281,7 @@
                 remarks: t && t.remarks.length ? t.remarks.slice() : []
             };
             renderTradeLines(); renderTradeRemarks();
-            openModal('trade-form-modal');
+            closeModal('trade-detail-modal'); openModal('trade-form-modal'); // 상세 위에서 편집 시 가림 방지
         }
         function addTradeLine(sub) { STATE.tradeDraft.items.push({ description: '', notes: '', unit: '', qty: 1, unitPrice: 0, sub: !!sub }); renderTradeLines(); }
         function removeTradeLine(idx) { STATE.tradeDraft.items.splice(idx, 1); if (!STATE.tradeDraft.items.length) STATE.tradeDraft.items.push({ description: '', notes: '', unit: '', qty: 1, unitPrice: 0, sub: false }); renderTradeLines(); }
@@ -4853,7 +4853,7 @@
             document.getElementById('ticket-form-title').innerText = id ? 'AS 티켓 편집' : 'AS 티켓 등록';
             STATE.ticketForm = { keep: t ? (t.photos || []).slice() : [], add: [] };
             renderTicketPhotoChips();
-            openModal('ticket-form-modal');
+            closeModal('ticket-detail-modal'); openModal('ticket-form-modal'); // 상세 위에서 편집 시 가림 방지
         }
         async function handleSaveTicket(e) {
             e.preventDefault();
@@ -5115,7 +5115,7 @@
             const dsel = document.getElementById('asset-dept'); if (dsel) dsel.value = a ? (a.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('asset-notes').value = a ? (a.notes || '') : '';
             document.getElementById('asset-form-title').innerText = id ? '설비 편집' : '설비 등록';
-            openModal('asset-form-modal');
+            closeModal('asset-detail-modal'); openModal('asset-form-modal'); // 상세 위에서 편집 시 가림 방지
         }
         async function handleSaveAsset(e) {
             e.preventDefault();
