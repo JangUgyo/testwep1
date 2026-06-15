@@ -109,7 +109,7 @@
         /* 빈 상태(공통) */
         .wsp-empty { padding: 4rem 1rem; text-align: center; color: #94a3b8; font-size: 13px; }
         /* 다크모드: 옅은 컬러 배경 띠 보정(헤더/행 호버) */
-        html.dark .bg-amber-50\/60, html.dark .bg-amber-50\/50 { background-color: rgba(245,158,11,0.10) !important; }
+        html.dark .bg-amber-50\/60, html.dark .bg-amber-50\/50, html.dark .bg-amber-50\/30, html.dark .hover\:bg-amber-50\/30:hover { background-color: rgba(245,158,11,0.10) !important; }
         html.dark .bg-emerald-50\/60, html.dark .bg-emerald-50\/20, html.dark .hover\:bg-emerald-50\/20:hover { background-color: rgba(16,185,129,0.10) !important; }
         html.dark .bg-rose-50\/50, html.dark .bg-rose-50\/30, html.dark .bg-rose-50\/20, html.dark .bg-rose-50\/10, html.dark .hover\:bg-rose-50\/30:hover, html.dark .hover\:bg-rose-50\/20:hover { background-color: rgba(244,63,94,0.10) !important; }
         html.dark .bg-indigo-50\/40, html.dark .bg-indigo-50\/50, html.dark .bg-blue-50\/40, html.dark .bg-blue-50\/30, html.dark .hover\:bg-indigo-50\/40:hover, html.dark .hover\:bg-indigo-50\/50:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: rgba(99,102,241,0.12) !important; }
@@ -303,6 +303,10 @@
                     <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item">
                         <i data-lucide="server-cog" class="w-4.5 h-4.5 text-emerald-600"></i>
                         <span class="font-semibold text-slate-800">설비 자산 대장</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
+                        <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
+                        <span class="font-semibold text-slate-800">재고 관리</span>
                     </button>
                 </div>
             </div>
@@ -922,6 +926,29 @@
                 </div>
             </section>
             
+            <section id="view-inventory" class="hidden space-y-5">
+                <div id="inventory-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <input type="text" id="inventory-search" onkeyup="inventoryApplyFilter()" placeholder="품목·코드·거래처 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-full sm:w-56 outline-none focus:border-amber-300">
+                        <select id="inventory-filter-cat" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 분류</option></select>
+                        <select id="inventory-filter-dept" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
+                        <label class="flex items-center gap-1.5 text-sm text-slate-600 px-2 py-2 border rounded-xl bg-white cursor-pointer"><input type="checkbox" id="inventory-filter-low" onchange="inventoryApplyFilter()" class="accent-amber-600"> 부족만</label>
+                    </div>
+                    <button onclick="openInventoryForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 품목 등록</button>
+                </div>
+                <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[14px]">
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">품목 / 코드</th><th class="px-4 py-3 text-left font-bold">분류</th><th class="px-4 py-3 text-right font-bold">현재고</th><th class="px-4 py-3 text-right font-bold">안전재고</th><th class="px-4 py-3 text-right font-bold">단가</th><th class="px-4 py-3 text-left font-bold">거래처 / 부서</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                            <tbody id="inventory-list-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="inventory-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
             <section id="view-custom-feature" class="hidden space-y-4">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -988,6 +1015,68 @@
                 <button onclick="closeModal('mobile-search-modal')" class="text-slate-400 hover:text-slate-700 px-1"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="mobile-global-search-results" class="overflow-y-auto"><div class="p-6 text-center text-[13px] text-slate-300">검색어를 입력하세요.</div></div>
+        </div>
+    </div>
+
+    <!-- 재고: 품목 등록/편집 -->
+    <div id="inventory-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0">
+                <i data-lucide="package" class="w-4 h-4 text-amber-600"></i>
+                <h4 id="inventory-form-title" class="font-bold text-sm text-slate-800">품목 등록</h4>
+            </div>
+            <form onsubmit="handleSaveInventoryItem(event)" class="p-6 space-y-4 overflow-y-auto">
+                <input type="hidden" id="inventory-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="sm:col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">품목명 <span class="text-rose-400">*</span></label><input type="text" id="inventory-name" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">품목 코드(SKU)</label><input type="text" id="inventory-sku" placeholder="예: A-1001" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">분류</label><input type="text" id="inventory-category" placeholder="예: 부품 / 소모품" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단위</label><input type="text" id="inventory-unit" placeholder="예: EA / BOX / kg" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현재고</label><input type="number" id="inventory-stock" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">안전재고(부족 기준)</label><input type="number" id="inventory-safe" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단가(원)</label><input type="number" id="inventory-price" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">거래처(공급처)</label><input type="text" id="inventory-supplier" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">보관 위치</label><input type="text" id="inventory-location" placeholder="예: A동 2층 선반3" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div class="sm:col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="inventory-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                    <div class="sm:col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">비고</label><textarea id="inventory-notes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('inventory-form-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 재고: 입고/출고 처리 -->
+    <div id="stock-move-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[75] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2">
+                <i data-lucide="arrow-down-up" class="w-4 h-4 text-amber-600"></i>
+                <h4 id="stock-move-title" class="font-bold text-sm text-slate-800">입고 / 출고 처리</h4>
+            </div>
+            <form onsubmit="handleStockMove(event)" class="p-6 space-y-4">
+                <input type="hidden" id="stock-move-item-id">
+                <input type="hidden" id="stock-move-kind">
+                <div id="stock-move-item-info" class="text-[13px] text-slate-500 bg-slate-50 rounded-lg p-3"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">수량 <span class="text-rose-400">*</span></label><input type="number" id="stock-move-qty" step="any" min="0" required placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">사유 / 메모</label><input type="text" id="stock-move-reason" placeholder="예: 정기 발주 입고 / 현장 출고" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('stock-move-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                    <button type="submit" id="stock-move-submit" class="flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold">처리</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 재고: 품목 상세 -->
+    <div id="inventory-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="package-search" class="w-4 h-4 text-amber-600"></i> 품목 상세</h4>
+                <button onclick="closeModal('inventory-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="inventory-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -1415,7 +1504,7 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
@@ -1521,7 +1610,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1575,15 +1664,217 @@
         }
 
         // ── 실시간 동기화 (Supabase Realtime) ────────────────────────────
+        // ════════════ 재고 관리 ════════════
+        function fmtNum(n) { n = Number(n || 0); return (Math.round(n * 100) / 100).toLocaleString('ko-KR'); }
+        function canManageInventory(it) { return STATE.profile.role === 'admin' || (it && it.deptId === STATE.profile.deptId); }
+        function isLowStock(it) { return Number(it.safeStock) > 0 && Number(it.stock) <= Number(it.safeStock); }
+        async function reloadInventory() {
+            const { data, error } = await sb.from('inventory_items').select('*').order('name', { ascending: true }).limit(1000);
+            if (error) { STATE.inventoryTableMissing = true; STATE.inventory = []; return; }
+            STATE.inventoryTableMissing = false;
+            STATE.inventory = (data || []).map(r => ({ id: r.id, sku: r.sku || '', name: r.name, category: r.category || '', unit: r.unit || 'EA', stock: Number(r.stock) || 0, safeStock: Number(r.safe_stock) || 0, unitPrice: Number(r.unit_price) || 0, supplier: r.supplier || '', location: r.location || '', deptId: r.dept_id || '', notes: r.notes || '' }));
+        }
+        async function reloadStockMoves() {
+            const { data, error } = await sb.from('stock_moves').select('*').order('created_at', { ascending: false }).limit(1000);
+            if (error) { STATE.stockMoves = []; return; }
+            STATE.stockMoves = (data || []).map(r => ({ id: r.id, itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, reason: r.reason || '', actor: r.actor || '', actorId: r.actor_id || '', deptId: r.dept_id || '', balanceAfter: r.balance_after, createdAt: r.created_at }));
+        }
+        function inventoryApplyFilter() { resetPage('inventory'); renderInventory(); }
+        function renderInventory() {
+            const list0 = STATE.inventory || [];
+            // 분류 필터 옵션 채우기
+            const catSel = document.getElementById('inventory-filter-cat');
+            if (catSel) { const cats = [...new Set(list0.map(i => i.category).filter(Boolean))].sort(); const keep = catSel.value || 'all'; catSel.innerHTML = `<option value="all">전체 분류</option>` + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join(''); catSel.value = [...catSel.options].some(o => o.value === keep) ? keep : 'all'; }
+            const fc = (document.getElementById('inventory-filter-cat') || {}).value || 'all';
+            const fd = (document.getElementById('inventory-filter-dept') || {}).value || 'all';
+            const flow = (document.getElementById('inventory-filter-low') || {}).checked;
+            const q = ((document.getElementById('inventory-search') || {}).value || '').trim().toLowerCase();
+            const list = list0.filter(i =>
+                (fc === 'all' || i.category === fc) &&
+                (fd === 'all' || i.deptId === fd) &&
+                (!flow || isLowStock(i)) &&
+                (!q || (i.name + ' ' + i.sku + ' ' + i.supplier).toLowerCase().indexOf(q) >= 0)
+            );
+            // 통계
+            const stats = document.getElementById('inventory-stats');
+            if (stats) {
+                const lowCnt = list0.filter(isLowStock).length;
+                const totalQty = list0.reduce((s, i) => s + Number(i.stock), 0);
+                const totalVal = list0.reduce((s, i) => s + Number(i.stock) * Number(i.unitPrice), 0);
+                const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
+                stats.innerHTML = card('총 품목', fmtNum(list0.length), '등록된 품목 수', 'text-slate-800') + card('재고 부족', fmtNum(lowCnt), '안전재고 이하', lowCnt ? 'text-rose-600' : 'text-slate-800') + card('재고 총수량', fmtNum(totalQty), '전체 수량 합계', 'text-slate-800') + card('재고 총액', '₩' + fmtNum(totalVal), '현재고 × 단가', 'text-amber-600');
+            }
+            // 표(데스크탑)
+            const body = document.getElementById('inventory-list-body');
+            const cards = document.getElementById('inventory-card-list');
+            if (list.length === 0) {
+                if (body) body.innerHTML = `<tr><td colspan="7" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
+                if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">조건에 맞는 품목이 없습니다.</div>`;
+                return;
+            }
+            const shown = list.slice(0, pageCount('inventory'));
+            const actionsFor = (i) => {
+                const manage = canManageInventory(i);
+                return manage
+                    ? `<button onclick="event.stopPropagation();openStockMove(${i.id},'in')" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">입고</button><button onclick="event.stopPropagation();openStockMove(${i.id},'out')" class="text-rose-500 hover:text-rose-700 font-bold mr-2">출고</button><button onclick="event.stopPropagation();openInventoryForm(${i.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="event.stopPropagation();deleteInventoryItem(${i.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>`
+                    : `<span class="text-slate-300">열람</span>`;
+            };
+            if (body) body.innerHTML = shown.map(i => {
+                const dept = STATE.departments.find(d => d.id === i.deptId);
+                const low = isLowStock(i);
+                return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
+                    <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
+                    <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(i.stock)}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${low ? ' ' + chip('부족', 'danger') : ''}</td>
+                    <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}</td>
+                    <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(i)}</td>
+                </tr>`;
+            }).join('') + moreRowHTML(list.length, 'inventory', 7);
+            // 카드(모바일)
+            if (cards) cards.innerHTML = shown.map(i => {
+                const dept = STATE.departments.find(d => d.id === i.deptId);
+                const low = isLowStock(i);
+                return `<div class="bg-white rounded-2xl border ${low ? 'border-rose-200' : 'border-slate-200'} shadow-sm p-4 space-y-2" onclick="openInventoryDetail(${i.id})">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0"><div class="font-bold text-slate-800 truncate">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'} ${i.category ? '· ' + esc(i.category) : ''}</div></div>
+                        ${low ? chip('부족', 'danger') : chip('정상', 'success')}
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(i.stock)}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)} (안전 ${fmtNum(i.safeStock)})</span></div>
+                        <div class="text-[12px] text-slate-400 text-right">${esc(i.supplier) || ''}<br>${dept ? esc(dept.name) : ''}</div>
+                    </div>
+                    <div class="flex gap-2 pt-1 text-[13px]" onclick="event.stopPropagation()">${actionsFor(i)}</div>
+                </div>`;
+            }).join('') + (list.length > pageCount('inventory') ? `<div class="sm:col-span-2">${moreDivHTML(list.length, 'inventory')}</div>` : '');
+            if (window.lucide) lucide.createIcons();
+        }
+        function openInventoryForm(id) {
+            if (STATE.inventoryTableMissing) { showToast('준비 필요', '재고 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            const it = id ? STATE.inventory.find(x => x.id === id) : null;
+            if (it && !canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 편집할 수 있습니다.'); return; }
+            document.getElementById('inventory-id').value = id || '';
+            document.getElementById('inventory-name').value = it ? it.name : '';
+            document.getElementById('inventory-sku').value = it ? it.sku : '';
+            document.getElementById('inventory-category').value = it ? it.category : '';
+            document.getElementById('inventory-unit').value = it ? it.unit : 'EA';
+            document.getElementById('inventory-stock').value = it ? it.stock : '';
+            document.getElementById('inventory-safe').value = it ? it.safeStock : '';
+            document.getElementById('inventory-price').value = it ? it.unitPrice : '';
+            document.getElementById('inventory-supplier').value = it ? it.supplier : '';
+            document.getElementById('inventory-location').value = it ? it.location : '';
+            const dsel = document.getElementById('inventory-dept'); if (dsel) dsel.value = it ? (it.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
+            document.getElementById('inventory-notes').value = it ? it.notes : '';
+            document.getElementById('inventory-form-title').innerText = id ? '품목 편집' : '품목 등록';
+            openModal('inventory-form-modal');
+        }
+        async function handleSaveInventoryItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('inventory-id').value;
+            const row = { name: document.getElementById('inventory-name').value.trim(), sku: document.getElementById('inventory-sku').value.trim(), category: document.getElementById('inventory-category').value.trim(), unit: document.getElementById('inventory-unit').value.trim() || 'EA', stock: parseFloat(document.getElementById('inventory-stock').value) || 0, safe_stock: parseFloat(document.getElementById('inventory-safe').value) || 0, unit_price: parseFloat(document.getElementById('inventory-price').value) || 0, supplier: document.getElementById('inventory-supplier').value.trim(), location: document.getElementById('inventory-location').value.trim(), dept_id: document.getElementById('inventory-dept').value, notes: document.getElementById('inventory-notes').value.trim() };
+            let error;
+            if (id) { ({ error } = await sb.from('inventory_items').update(row).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('inventory_items').insert(row)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            logAudit(id ? 'inventory_update' : 'inventory_create', row.name, `${row.category || ''} ${fmtNum(row.stock)}${row.unit}`.trim());
+            await reloadInventory(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-form-modal');
+            showToast('저장 완료', id ? '품목 정보가 수정되었습니다.' : '품목이 등록되었습니다.');
+        }
+        function openStockMove(itemId, kind) {
+            const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
+            if (!canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 처리할 수 있습니다.'); return; }
+            document.getElementById('stock-move-item-id').value = itemId;
+            document.getElementById('stock-move-kind').value = kind;
+            document.getElementById('stock-move-qty').value = '';
+            document.getElementById('stock-move-reason').value = '';
+            document.getElementById('stock-move-title').innerText = kind === 'in' ? '입고 처리' : '출고 처리';
+            document.getElementById('stock-move-item-info').innerHTML = `<b>${esc(it.name)}</b> <span class="text-slate-400">${esc(it.sku)}</span><br>현재고 <b>${fmtNum(it.stock)}</b> ${esc(it.unit)}`;
+            const btn = document.getElementById('stock-move-submit');
+            btn.className = `flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold ${kind === 'in' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`;
+            btn.innerText = kind === 'in' ? '입고 처리' : '출고 처리';
+            openModal('stock-move-modal');
+        }
+        async function freshStock(itemId) {
+            try { const { data, error } = await sb.from('inventory_items').select('stock').eq('id', itemId).single(); if (!error && data && data.stock !== undefined && data.stock !== null) return Number(data.stock); } catch (e) { }
+            const it = STATE.inventory.find(x => x.id === itemId); return it ? Number(it.stock) : 0;
+        }
+        async function handleStockMove(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('stock-move-item-id').value);
+            const kind = document.getElementById('stock-move-kind').value;
+            const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
+            const qty = parseFloat(document.getElementById('stock-move-qty').value);
+            if (!(qty > 0)) { showToast('수량 확인', '0보다 큰 수량을 입력하세요.'); return; }
+            const reason = document.getElementById('stock-move-reason').value.trim();
+            // 최신 재고를 다시 읽어 가감(동시 처리 보호)
+            const cur = await freshStock(itemId);
+            const next = kind === 'in' ? cur + qty : cur - qty;
+            if (next < 0) { showToast('재고 부족', `출고 수량이 현재고(${fmtNum(cur)})보다 많습니다.`); return; }
+            const { error: uErr } = await sb.from('inventory_items').update({ stock: next }).eq('id', itemId);
+            if (uErr) { showToast('처리 실패', uErr.message); return; }
+            await sb.from('stock_moves').insert({ item_id: itemId, kind, qty, reason, actor: STATE.profile.name, actor_id: STATE.currentUser ? STATE.currentUser.id : null, dept_id: it.deptId, balance_after: next });
+            logAudit(kind === 'in' ? 'stock_in' : 'stock_out', it.name, `${fmtNum(qty)}${it.unit} → 잔량 ${fmtNum(next)}`);
+            await reloadInventory(); await reloadStockMoves(); renderInventory(); renderDashboardWidgets(); closeModal('stock-move-modal');
+            if (!document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(itemId);
+            showToast(kind === 'in' ? '입고 완료' : '출고 완료', `${esc(it.name)} 잔량 ${fmtNum(next)} ${esc(it.unit)}`);
+        }
+        function openInventoryDetail(id) {
+            const it = STATE.inventory.find(x => x.id === id); if (!it) return;
+            STATE._openDetail = { type: 'inventory', id };
+            const dept = STATE.departments.find(d => d.id === it.deptId);
+            const low = isLowStock(it);
+            const manage = canManageInventory(it);
+            const field = (label, val) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 font-semibold">${val}</div></div>`;
+            const moves = (STATE.stockMoves || []).filter(m => m.itemId === id).slice(0, 12);
+            const moveRows = moves.length ? moves.map(m => `<tr class="border-t border-slate-100"><td class="py-2 pr-2">${(m.createdAt || '').slice(0, 10)}</td><td class="py-2 pr-2">${m.kind === 'in' ? chip('입고', 'success') : (m.kind === 'out' ? chip('출고', 'danger') : chip('조정', 'neutral'))}</td><td class="py-2 pr-2 text-right font-bold ${m.kind === 'out' ? 'text-rose-600' : 'text-emerald-600'}">${m.kind === 'out' ? '-' : '+'}${fmtNum(m.qty)}</td><td class="py-2 pr-2 text-right text-slate-500">${m.balanceAfter != null ? fmtNum(m.balanceAfter) : '-'}</td><td class="py-2 text-slate-500 truncate">${esc(m.actor) || ''} ${m.reason ? '· ' + esc(m.reason) : ''}</td></tr>`).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-300 text-[13px]">입출고 이력이 없습니다.</td></tr>`;
+            const ctrl = manage ? `<div class="flex gap-2 flex-wrap"><button onclick="openStockMove(${it.id},'in')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">입고</button><button onclick="openStockMove(${it.id},'out')" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg">출고</button><button onclick="openInventoryForm(${it.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg">편집</button><button onclick="deleteInventoryItem(${it.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '<span class="text-[12px] text-slate-400">본인 부서 품목만 관리할 수 있습니다.</span>';
+            document.getElementById('inventory-detail-body').innerHTML = `
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 flex-wrap">${low ? chip('재고 부족', 'danger') : chip('정상', 'success')}<span class="wsp-chip ${dept ? dept.textTheme : 'bg-slate-100 text-slate-600 border-slate-200'}">${dept ? esc(dept.name) : '부서 미지정'}</span></div>
+                            <h3 class="text-xl font-extrabold text-slate-800">${esc(it.name)}</h3>
+                            <div class="text-[13px] text-slate-400 font-mono">${esc(it.sku) || '코드 미등록'} ${it.category ? '· ' + esc(it.category) : ''}</div>
+                        </div>
+                        ${ctrl}
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${field('현재고', `<span class="${low ? 'text-rose-600' : ''}">${fmtNum(it.stock)} ${esc(it.unit)}</span>`)}
+                        ${field('안전재고', fmtNum(it.safeStock) + ' ' + esc(it.unit))}
+                        ${field('단가', '₩' + fmtNum(it.unitPrice))}
+                        ${field('재고 금액', '₩' + fmtNum(it.stock * it.unitPrice))}
+                        ${field('거래처', esc(it.supplier) || '-')}
+                        ${field('보관 위치', esc(it.location) || '-')}
+                    </div>
+                    ${it.notes ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-0.5">비고</div><div class="text-sm text-slate-700 whitespace-pre-line">${esc(it.notes)}</div></div>` : ''}
+                </div>
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                    <div class="text-[13px] font-bold text-slate-600 mb-2 flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4 text-amber-600"></i> 최근 입출고 이력</div>
+                    <div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left"><th class="py-1 pr-2 font-semibold">일자</th><th class="py-1 pr-2 font-semibold">구분</th><th class="py-1 pr-2 font-semibold text-right">수량</th><th class="py-1 pr-2 font-semibold text-right">잔량</th><th class="py-1 font-semibold">처리/사유</th></tr></thead><tbody>${moveRows}</tbody></table></div>
+                </div>`;
+            openModal('inventory-detail-modal'); if (window.lucide) lucide.createIcons();
+        }
+        async function deleteInventoryItem(id) {
+            const it = STATE.inventory.find(x => x.id === id); if (!it) return;
+            if (!canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 삭제할 수 있습니다.'); return; }
+            if (!confirm(`품목 [${it.name}] 을(를) 삭제하시겠습니까?`)) return;
+            const { error } = await sb.from('inventory_items').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            logAudit('inventory_delete', it.name, '');
+            await reloadInventory(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-detail-modal');
+            showToast('삭제', '품목이 삭제되었습니다.');
+        }
+
         // 열려 있는 상세 모달을 다른 사용자의 변경에 맞춰 실시간 갱신
         function refreshOpenDetail(type) {
             const od = STATE._openDetail; if (!od || od.type !== type) return;
-            const modalId = { project: 'project-detail-modal', meeting: 'meeting-detail-modal', ticket: 'ticket-detail-modal', asset: 'asset-detail-modal' }[type];
+            const modalId = { project: 'project-detail-modal', meeting: 'meeting-detail-modal', ticket: 'ticket-detail-modal', asset: 'asset-detail-modal', inventory: 'inventory-detail-modal' }[type];
             const modal = document.getElementById(modalId); if (!modal || modal.classList.contains('hidden')) return;
-            const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [] };
+            const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [], inventory: STATE.inventory || [] };
             const exists = (lists[type] || []).some(r => r.id === od.id);
             if (!exists) { closeModal(modalId); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
-            const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail }[type];
+            const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail, inventory: openInventoryDetail }[type];
             try { fn(od.id); } catch (e) { }
         }
         function setupRealtime() {
@@ -1596,6 +1887,8 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, async () => { await reloadTickets(); renderDashboardWidgets(); if (STATE.currentTab === 'field-support') renderTickets(); refreshOpenDetail('ticket'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, async () => { await reloadAssets(); renderDashboardWidgets(); if (STATE.currentTab === 'assets') renderAssets(); refreshOpenDetail('asset'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); renderDashboardWidgets(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); refreshOpenDetail('meeting'); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, async () => { await reloadInventory(); renderDashboardWidgets(); if (STATE.currentTab === 'inventory') renderInventory(); refreshOpenDetail('inventory'); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
@@ -1726,12 +2019,14 @@
             ['project-dept', 'meeting-dept', 'doc-dept', 'edit-doc-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = inputNoCeo; });
             const tDept = document.getElementById('ticket-dept'); if (tDept) tDept.innerHTML = inputAll;
             const aDept = document.getElementById('asset-dept'); if (aDept) aDept.innerHTML = inputAll;
+            const invDept = document.getElementById('inventory-dept'); if (invDept) invDept.innerHTML = inputAll;
             // 필터 셀렉트: 항상 전체 부서(조회/필터는 전 부서 허용)
             const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML;
             const archFilter = document.getElementById('archive-filter-dept'); if (archFilter) { const keep = archFilter.value || 'all'; archFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; archFilter.value = [...archFilter.options].some(o => o.value === keep) ? keep : 'all'; }
             const meetFilter = document.getElementById('meeting-filter-dept'); if (meetFilter) meetFilter.innerHTML = `<option value="all">전체 부서 보기</option>` + noCeoHTML;
             const projFilter = document.getElementById('project-filter-dept'); if (projFilter) { const keep = projFilter.value || 'all'; projFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; projFilter.value = [...projFilter.options].some(o => o.value === keep) ? keep : 'all'; }
             const tFilter = document.getElementById('ticket-filter-dept'); if (tFilter) { const keep = tFilter.value || 'all'; tFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML; tFilter.value = [...tFilter.options].some(o => o.value === keep) ? keep : 'all'; }
+            const invFilter = document.getElementById('inventory-filter-dept'); if (invFilter) { const keep = invFilter.value || 'all'; invFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; invFilter.value = [...invFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
         // ── 담당자 선택기(직원 선택 + 직접 입력 병행) ───────────────────
@@ -3955,7 +4250,7 @@
         }
 
         // ── 보안 감사 원장 ───────────────────────────────────────────────
-        const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회' };
+        const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회', inventory_create: '품목 등록', inventory_update: '품목 수정', inventory_delete: '품목 삭제', stock_in: '입고', stock_out: '출고' };
         async function logAudit(action, target, detail) {
             try { await sb.from('audit_logs').insert({ actor: STATE.profile.name || '', actor_email: (STATE.currentUser || {}).email || '', action, target: target || '', detail: detail || '' }); } catch (e) { }
         }
@@ -4292,6 +4587,7 @@
             'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
             'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
             'assets': { title: '설비 자산 대장', desc: '현장 설비 자산과 정기점검(PM) 일정을 관리합니다.' },
+            'inventory': { title: '재고 관리', desc: '품목 재고 현황과 입고·출고를 실시간으로 관리합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
         };
@@ -4336,6 +4632,7 @@
             else if (tabId === 'documents-archive') { resetPage('archiveDocs'); renderArchiveDocs(); }
             else if (tabId === 'field-support') { resetPage('tickets'); renderTickets(); }
             else if (tabId === 'assets') { resetPage('assets'); renderAssets(); }
+            else if (tabId === 'inventory') { resetPage('inventory'); renderInventory(); }
             else if (tabId === 'management-logs') { resetPage('audit'); await reloadAuditLogs(); renderAuditLogs(); }
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
