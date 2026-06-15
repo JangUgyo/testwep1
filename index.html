@@ -2575,6 +2575,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, async () => { await reloadInventory(); renderDashboardWidgets(); if (STATE.currentTab === 'inventory') renderInventory(); refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_options' }, async () => { await reloadInventoryOptions(); if (!document.getElementById('inventory-options-modal').classList.contains('hidden')) renderInventoryOptions(); syncInventoryFormOptions(); })
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, async () => { if (STATE.currentTab === 'management-logs') { await reloadAuditLogs(); renderAuditLogs(); } })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'trade_documents' }, async () => { await reloadTrade(); renderDashboardWidgets(); if (STATE.currentTab === 'trade') renderTrade(); refreshOpenDetail('trade'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
@@ -4920,8 +4921,15 @@
 
         // ── 보안 감사 원장 ───────────────────────────────────────────────
         const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회', inventory_create: '품목 등록', inventory_update: '품목 수정', inventory_delete: '품목 삭제', stock_in: '입고', stock_out: '출고', trade_create: '발주/견적 작성', trade_update: '발주/견적 수정', trade_delete: '발주/견적 삭제' };
-        async function logAudit(action, target, detail) {
-            try { await sb.from('audit_logs').insert({ actor: STATE.profile.name || '', actor_email: (STATE.currentUser || {}).email || '', action, target: target || '', detail: detail || '' }); } catch (e) { }
+        // 감사 로그는 이제 DB 트리거가 실제 사용자로 자동 기록합니다(위변조·누락 불가). 클라이언트 기록은 비활성화.
+        async function logAudit(action, target, detail) { /* no-op: server-side audit triggers */ }
+        const AUDIT_ENTITY = { profiles: '직원', projects: '프로젝트', documents: '문서', weekly_meetings: '주간보고', tickets: 'AS 티켓', assets: '설비', inventory_items: '재고 품목', trade_documents: '발주/견적', sites: '현장', inventory_options: '재고 옵션', app_settings: '설정', events: '일정', stock_moves: '입출고' };
+        const AUDIT_OP = { insert: '등록', update: '수정', delete: '삭제' };
+        function auditLabel(action) {
+            if (AUDIT_ACTIONS[action]) return AUDIT_ACTIONS[action]; // 구버전(클라이언트 기록) 로그 호환
+            const m = (action || '').match(/^(.*)_(insert|update|delete)$/);
+            if (m && AUDIT_ENTITY[m[1]]) return AUDIT_ENTITY[m[1]] + ' ' + (AUDIT_OP[m[2]] || m[2]);
+            return action || '';
         }
         async function reloadAuditLogs() {
             try {
@@ -4935,12 +4943,17 @@
         function renderAuditLogs() {
             const body = document.getElementById('audit-log-body'); if (!body) return;
             const fsel = document.getElementById('audit-filter-action');
-            if (fsel && fsel.options.length <= 1) fsel.innerHTML = `<option value="all">전체 유형</option>` + Object.entries(AUDIT_ACTIONS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+            if (fsel) {
+                const keep = fsel.value || 'all';
+                const actions = [...new Set((STATE.auditLogs || []).map(l => l.action).filter(Boolean))].sort();
+                fsel.innerHTML = `<option value="all">전체 유형</option>` + actions.map(a => `<option value="${esc(a)}">${esc(auditLabel(a))}</option>`).join('');
+                fsel.value = [...fsel.options].some(o => o.value === keep) ? keep : 'all';
+            }
             if (STATE.auditTableMissing) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-sm">감사 로그 테이블이 아직 없습니다. 안내된 SQL을 실행하세요.</td></tr>`; return; }
             const fv = fsel ? fsel.value : 'all';
             const list = STATE.auditLogs.filter(l => fv === 'all' || l.action === fv);
             if (list.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 text-sm">기록된 감사 로그가 없습니다.</td></tr>`; return; }
-            body.innerHTML = list.slice(0, pageCount('audit')).map(l => `<tr class="hover:bg-rose-50/20 align-top"><td class="px-4 py-2.5 font-mono text-[12px] text-slate-400 whitespace-nowrap">${(l.created_at || '').replace('T', ' ').slice(0, 19)}</td><td class="px-4 py-2.5 font-bold text-slate-700 whitespace-nowrap">${esc(l.actor)}<div class="text-[11px] text-slate-400 font-normal">${esc(l.actor_email)}</div></td><td class="px-4 py-2.5 whitespace-nowrap">${chip(AUDIT_ACTIONS[l.action] || esc(l.action), 'neutral')}</td><td class="px-4 py-2.5 text-slate-700">${esc(l.target)}</td><td class="px-4 py-2.5 text-slate-500">${esc(l.detail)}</td></tr>`).join('');
+            body.innerHTML = list.slice(0, pageCount('audit')).map(l => `<tr class="hover:bg-rose-50/20 align-top"><td class="px-4 py-2.5 font-mono text-[12px] text-slate-400 whitespace-nowrap">${(l.created_at || '').replace('T', ' ').slice(0, 19)}</td><td class="px-4 py-2.5 font-bold text-slate-700 whitespace-nowrap">${esc(l.actor) || '<span class=\"text-slate-300\">시스템</span>'}<div class="text-[11px] text-slate-400 font-normal">${esc(l.actor_email)}</div></td><td class="px-4 py-2.5 whitespace-nowrap">${chip(esc(auditLabel(l.action)), 'neutral')}</td><td class="px-4 py-2.5 text-slate-700">${esc(l.target)}</td><td class="px-4 py-2.5 text-slate-500">${esc(l.detail)}</td></tr>`).join('');
             body.insertAdjacentHTML('beforeend', moreRowHTML(list.length, 'audit', 5));
         }
 
