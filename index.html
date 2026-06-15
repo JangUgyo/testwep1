@@ -1575,16 +1575,27 @@
         }
 
         // ── 실시간 동기화 (Supabase Realtime) ────────────────────────────
+        // 열려 있는 상세 모달을 다른 사용자의 변경에 맞춰 실시간 갱신
+        function refreshOpenDetail(type) {
+            const od = STATE._openDetail; if (!od || od.type !== type) return;
+            const modalId = { project: 'project-detail-modal', meeting: 'meeting-detail-modal', ticket: 'ticket-detail-modal', asset: 'asset-detail-modal' }[type];
+            const modal = document.getElementById(modalId); if (!modal || modal.classList.contains('hidden')) return;
+            const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [] };
+            const exists = (lists[type] || []).some(r => r.id === od.id);
+            if (!exists) { closeModal(modalId); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
+            const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail }[type];
+            try { fn(od.id); } catch (e) { }
+        }
         function setupRealtime() {
             if (STATE._rt) return;
             STATE._rt = sb.channel('portal-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sites' }, async () => { await reloadSites(); const sel = document.getElementById('event-site'); renderSiteOptions(sel ? sel.value : ''); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => { await reloadProjects(); renderDashboardWidgets(); if (STATE.currentTab === 'management-progress') renderProjects(); refreshOpenDetail('project'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => { await reloadDocuments(); renderDashboardWidgets(); refreshDocViews(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, async () => { await reloadTickets(); renderDashboardWidgets(); if (STATE.currentTab === 'field-support') renderTickets(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, async () => { await reloadAssets(); renderDashboardWidgets(); if (STATE.currentTab === 'assets') renderAssets(); })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, async () => { await reloadTickets(); renderDashboardWidgets(); if (STATE.currentTab === 'field-support') renderTickets(); refreshOpenDetail('ticket'); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, async () => { await reloadAssets(); renderDashboardWidgets(); if (STATE.currentTab === 'assets') renderAssets(); refreshOpenDetail('asset'); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); renderDashboardWidgets(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); refreshOpenDetail('meeting'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
@@ -2663,6 +2674,7 @@
         }
         function openProjectDetail(id, highlightItemId) {
             const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
+            STATE._openDetail = { type: 'project', id };
             const dept = STATE.departments.find(d => d.id === proj.deptId);
             const statusKo = { paused: '대기', ongoing: '진행', completed: '완료' }[proj.status] || proj.status;
             const statusColor = { paused: 'bg-slate-100 text-slate-600', ongoing: 'bg-blue-50 text-blue-600', completed: 'bg-emerald-50 text-emerald-600' }[proj.status] || 'bg-slate-100';
@@ -2949,6 +2961,7 @@
         const WEEKDAY_KO = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
         function openMeetingDetail(id) {
             const meet = STATE.weeklyMeetings.find(m => m.id === id); if (!meet) return;
+            STATE._openDetail = { type: 'meeting', id };
             const dept = STATE.departments.find(d => d.id === meet.deptId);
             const canManage = STATE.profile.role === 'admin' || meet.deptId === STATE.profile.deptId;
             const headline = (meet.title && meet.title.trim()) ? meet.title : `${meet.week} 주간 업무 보고`;
@@ -3834,6 +3847,7 @@
         }
         async function openTicketDetail(id) {
             const t = STATE.tickets.find(x => x.id === id); if (!t) return;
+            STATE._openDetail = { type: 'ticket', id };
             const dept = STATE.departments.find(d => d.id === t.deptId);
             const manage = canManageTicket(t);
             const field = (label, val, pre) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 ${pre ? 'whitespace-pre-line leading-relaxed' : 'font-semibold'}">${esc(val) || '-'}</div></div>`;
@@ -4080,6 +4094,7 @@
         }
         function openAssetDetail(id) {
             const a = STATE.assets.find(x => x.id === id); if (!a) return;
+            STATE._openDetail = { type: 'asset', id };
             const dept = STATE.departments.find(d => d.id === a.deptId);
             const info = assetPmInfo(a);
             const manage = canManageAsset(a);
