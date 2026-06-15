@@ -110,6 +110,9 @@
         .wsp-empty { padding: 4rem 1rem; text-align: center; color: #94a3b8; font-size: 13px; }
         /* 다크모드: 옅은 컬러 배경 띠 보정(헤더/행 호버) */
         html.dark .bg-amber-50\/60, html.dark .bg-amber-50\/50, html.dark .bg-amber-50\/30, html.dark .hover\:bg-amber-50\/30:hover { background-color: rgba(245,158,11,0.10) !important; }
+        .wsp-doc-paper { background:#ffffff !important; color:#1e293b; }
+        html.dark .wsp-doc-paper { background:#ffffff !important; }
+        html.dark .wsp-doc-paper * { border-color:#e6e8ec; }
         html.dark .bg-emerald-50\/60, html.dark .bg-emerald-50\/20, html.dark .hover\:bg-emerald-50\/20:hover { background-color: rgba(16,185,129,0.10) !important; }
         html.dark .bg-rose-50\/50, html.dark .bg-rose-50\/30, html.dark .bg-rose-50\/20, html.dark .bg-rose-50\/10, html.dark .hover\:bg-rose-50\/30:hover, html.dark .hover\:bg-rose-50\/20:hover { background-color: rgba(244,63,94,0.10) !important; }
         html.dark .bg-indigo-50\/40, html.dark .bg-indigo-50\/50, html.dark .bg-blue-50\/40, html.dark .bg-blue-50\/30, html.dark .hover\:bg-indigo-50\/40:hover, html.dark .hover\:bg-indigo-50\/50:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: rgba(99,102,241,0.12) !important; }
@@ -1071,7 +1074,7 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">PAYMENT (결제조건)</label><input type="text" id="trade-payment" placeholder="예: 100% AFTER DELIVERY" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">DELIVERY (납기)</label><input type="text" id="trade-delivery" placeholder="예: 2 weeks after PO" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">TERMS</label><input type="text" id="trade-terms" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">VALIDITY (유효기간)</label><input type="text" id="trade-validity" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">VALIDITY (유효기간)</label><input type="date" id="trade-validity" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
                     <div class="sm:col-span-2 border-t border-slate-100 pt-3 mt-1">
                         <div class="text-[12px] font-bold text-slate-500 mb-1.5">발행 연락처 <span class="text-slate-400 font-normal">(문서 하단에 표시 · 비우면 회사 기본값 사용 · 회신용 개인 연락처 입력 가능)</span></div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -1571,7 +1574,7 @@
             <form onsubmit="handleSaveNotice(event)" class="p-5 space-y-4">
                 <div class="text-sm font-bold text-slate-800">대시보드 공지 수정</div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">공지 제목</label><input type="text" id="notice-title" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">표시 날짜</label><input type="text" id="notice-date" placeholder="2026.06.08" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">표시 날짜</label><input type="date" id="notice-date" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">공지 내용</label><textarea id="notice-content" required rows="5" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('edit-notice-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg">공지 갱신</button></div>
             </form>
@@ -2064,10 +2067,6 @@
             btn.innerText = kind === 'in' ? '입고 처리' : '출고 처리';
             openModal('stock-move-modal');
         }
-        async function freshStock(itemId) {
-            try { const { data, error } = await sb.from('inventory_items').select('stock').eq('id', itemId).single(); if (!error && data && data.stock !== undefined && data.stock !== null) return Number(data.stock); } catch (e) { }
-            const it = STATE.inventory.find(x => x.id === itemId); return it ? Number(it.stock) : 0;
-        }
         async function handleStockMove(e) {
             e.preventDefault();
             const itemId = parseInt(document.getElementById('stock-move-item-id').value);
@@ -2076,17 +2075,21 @@
             const qty = parseFloat(document.getElementById('stock-move-qty').value);
             if (!(qty > 0)) { showToast('수량 확인', '0보다 큰 수량을 입력하세요.'); return; }
             const reason = document.getElementById('stock-move-reason').value.trim();
-            // 최신 재고를 다시 읽어 가감(동시 처리 보호)
-            const cur = await freshStock(itemId);
-            const next = kind === 'in' ? cur + qty : cur - qty;
-            if (next < 0) { showToast('재고 부족', `출고 수량이 현재고(${fmtNum(cur)})보다 많습니다.`); return; }
-            const { error: uErr } = await sb.from('inventory_items').update({ stock: next }).eq('id', itemId);
-            if (uErr) { showToast('처리 실패', uErr.message); return; }
-            await sb.from('stock_moves').insert({ item_id: itemId, kind, qty, reason, actor: STATE.profile.name, actor_id: STATE.currentUser ? STATE.currentUser.id : null, dept_id: it.deptId, balance_after: next });
-            logAudit(kind === 'in' ? 'stock_in' : 'stock_out', it.name, `${fmtNum(qty)}${it.unit} → 잔량 ${fmtNum(next)}`);
+            // 서버 함수로 원자적 처리(행 잠금): 동시 입·출고에도 수치가 어긋나지 않음
+            const { data, error } = await sb.rpc('apply_stock_move', { p_item_id: itemId, p_kind: kind, p_qty: qty, p_reason: reason });
+            if (error) {
+                const m = (error.message || '').toLowerCase();
+                if (m.indexOf('insufficient') >= 0) showToast('재고 부족', `출고 수량이 현재고보다 많습니다.`);
+                else if (m.indexOf('forbidden') >= 0) showToast('권한 없음', '본인 부서의 품목만 처리할 수 있습니다.');
+                else if (m.indexOf('does not exist') >= 0 || m.indexOf('apply_stock_move') >= 0 || m.indexOf('function') >= 0) showToast('준비 필요', '재고 처리 함수(apply_stock_move) 생성 SQL을 먼저 실행하세요.');
+                else showToast('처리 실패', error.message);
+                return;
+            }
+            const next = data && data.stock != null ? Number(data.stock) : null;
+            logAudit(kind === 'in' ? 'stock_in' : 'stock_out', it.name, `${fmtNum(qty)}${it.unit}${next != null ? ' → 잔량 ' + fmtNum(next) : ''}`);
             await reloadInventory(); await reloadStockMoves(); renderInventory(); renderDashboardWidgets(); closeModal('stock-move-modal');
             if (!document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(itemId);
-            showToast(kind === 'in' ? '입고 완료' : '출고 완료', `${esc(it.name)} 잔량 ${fmtNum(next)} ${esc(it.unit)}`);
+            showToast(kind === 'in' ? '입고 완료' : '출고 완료', `${esc(it.name)}${next != null ? ' 잔량 ' + fmtNum(next) + ' ' + esc(it.unit) : ''}`);
         }
         function openInventoryDetail(id) {
             const it = STATE.inventory.find(x => x.id === id); if (!it) return;
@@ -2268,19 +2271,20 @@
         function renderTradeLines() {
             const wrap = document.getElementById('trade-lines'); if (!wrap) return;
             const invList = (STATE.inventory || []).map(i => `<option value="${esc(i.name)}">`).join('');
+            const unitList = ((STATE.invOptions && STATE.invOptions.unit) || []).map(u => `<option value="${esc(u.value)}">`).join('');
             wrap.innerHTML = STATE.tradeDraft.items.map((it, i) => {
                 const amount = (Number(it.qty) || 0) * (Number(it.unitPrice) || 0);
                 return `<div class="flex gap-1.5 items-center px-2 py-1.5 ${it.sub ? 'bg-slate-50/70' : ''}">
                     <span class="w-9 text-center"><input type="checkbox" ${it.sub ? 'checked' : ''} onchange="toggleTradeLineSub(${i}, this.checked)" title="세부항목" class="accent-slate-500"></span>
                     <input value="${esc(it.description)}" list="trade-inv-list" oninput="updateTradeLine(${i},'description',this.value)" placeholder="${it.sub ? '└ 세부 내역' : '항목 설명'}" class="flex-1 min-w-0 px-2 py-1.5 border rounded-lg text-[13px] outline-none ${it.sub ? 'ml-3 text-slate-600' : 'font-semibold'}">
                     <input value="${esc(it.notes)}" oninput="updateTradeLine(${i},'notes',this.value)" placeholder="비고" class="w-24 px-2 py-1.5 border rounded-lg text-[13px] outline-none">
-                    <input value="${esc(it.unit)}" oninput="updateTradeLine(${i},'unit',this.value)" placeholder="EA" class="w-14 px-1.5 py-1.5 border rounded-lg text-[13px] text-center outline-none">
+                    <input value="${esc(it.unit)}" list="trade-unit-list" oninput="updateTradeLine(${i},'unit',this.value)" placeholder="EA" class="w-16 px-1.5 py-1.5 border rounded-lg text-[13px] text-center outline-none">
                     <input type="number" step="any" value="${it.qty}" oninput="updateTradeLine(${i},'qty',this.value)" class="w-14 px-1.5 py-1.5 border rounded-lg text-[13px] text-right outline-none">
                     <input type="number" step="any" value="${it.unitPrice}" oninput="updateTradeLine(${i},'unitPrice',this.value)" class="w-28 px-1.5 py-1.5 border rounded-lg text-[13px] text-right outline-none">
                     <div id="trade-amt-${i}" class="w-28 text-right text-[12px] font-mono ${it.sub ? 'text-slate-400' : 'text-slate-700'}">${fmtNum(amount)}</div>
                     <button type="button" onclick="removeTradeLine(${i})" class="w-7 text-slate-300 hover:text-rose-500 flex justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>`;
-            }).join('') + `<datalist id="trade-inv-list">${invList}</datalist>`;
+            }).join('') + `<datalist id="trade-inv-list">${invList}</datalist><datalist id="trade-unit-list">${unitList}</datalist>`;
             refreshTradeTotals();
             if (window.lucide) lucide.createIcons();
         }
@@ -2454,7 +2458,7 @@
                     ${manage ? `<button onclick="openTradeForm(${t.id})" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold rounded-lg">편집</button><button onclick="deleteTrade(${t.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button>` : ''}
                 </div></div>`;
             const doc2 = tradeDocHTML(t);
-            document.getElementById('trade-detail-body').innerHTML = ctrl + `<div class="bg-white border border-slate-200 rounded-xl p-5 overflow-x-auto"><div style="min-width:640px">${doc2.cover}<div style="height:1px;background:#e2e8f0;margin:24px 0"></div>${doc2.detail}</div></div>`;
+            document.getElementById('trade-detail-body').innerHTML = ctrl + `<div class="wsp-doc-paper border border-slate-200 rounded-xl p-5 overflow-x-auto shadow-sm"><div style="min-width:640px">${doc2.cover}<div style="height:1px;background:#e2e8f0;margin:24px 0"></div>${doc2.detail}</div></div>`;
             openModal('trade-detail-modal'); if (window.lucide) lucide.createIcons();
         }
         async function setTradeStatus(id, status) {
