@@ -1018,6 +1018,43 @@
         </div>
     </div>
 
+    <!-- 재고: 기준정보(품목명/분류/단위) 옵션 관리 -->
+    <div id="inventory-options-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border max-h-[90vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="settings-2" class="w-4 h-4 text-amber-600"></i> 옵션 관리 (기준정보)</h4>
+                <button onclick="closeModal('inventory-options-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-5 overflow-y-auto">
+                <div>
+                    <div class="text-[13px] font-bold text-slate-700 mb-2">분류 <span class="text-[11px] text-slate-400 font-normal">(코드=SKU 접두어)</span></div>
+                    <div class="flex gap-1.5 mb-2">
+                        <input type="text" id="invopt-category-value" placeholder="분류명" class="flex-1 min-w-0 px-2.5 py-1.5 border rounded-lg text-[13px] outline-none">
+                        <input type="text" id="invopt-category-code" placeholder="코드" maxlength="6" class="w-16 px-2.5 py-1.5 border rounded-lg text-[13px] outline-none font-mono uppercase">
+                        <button onclick="addInventoryOption('category')" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] font-bold">추가</button>
+                    </div>
+                    <div id="invopt-category-list" class="space-y-1.5"></div>
+                </div>
+                <div>
+                    <div class="text-[13px] font-bold text-slate-700 mb-2">단위</div>
+                    <div class="flex gap-1.5 mb-2">
+                        <input type="text" id="invopt-unit-value" placeholder="단위 (예: EA)" class="flex-1 min-w-0 px-2.5 py-1.5 border rounded-lg text-[13px] outline-none">
+                        <button onclick="addInventoryOption('unit')" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] font-bold">추가</button>
+                    </div>
+                    <div id="invopt-unit-list" class="space-y-1.5"></div>
+                </div>
+                <div>
+                    <div class="text-[13px] font-bold text-slate-700 mb-2">품목명</div>
+                    <div class="flex gap-1.5 mb-2">
+                        <input type="text" id="invopt-name-value" placeholder="품목명" class="flex-1 min-w-0 px-2.5 py-1.5 border rounded-lg text-[13px] outline-none">
+                        <button onclick="addInventoryOption('name')" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] font-bold">추가</button>
+                    </div>
+                    <div id="invopt-name-list" class="space-y-1.5"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 재고: 품목 등록/편집 -->
     <div id="inventory-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
@@ -1028,10 +1065,13 @@
             <form onsubmit="handleSaveInventoryItem(event)" class="p-6 space-y-4 overflow-y-auto">
                 <input type="hidden" id="inventory-id">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="sm:col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">품목명 <span class="text-rose-400">*</span></label><input type="text" id="inventory-name" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">품목 코드(SKU)</label><input type="text" id="inventory-sku" placeholder="예: A-1001" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">분류</label><input type="text" id="inventory-category" placeholder="예: 부품 / 소모품" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단위</label><input type="text" id="inventory-unit" placeholder="예: EA / BOX / kg" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div class="sm:col-span-2 flex items-end justify-between gap-2">
+                        <div class="flex-1"><label class="block text-[12px] font-bold text-slate-500 mb-1">품목명 <span class="text-rose-400">*</span></label><select id="inventory-name" required class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                        <button type="button" onclick="openInventoryOptions()" class="px-3 py-2 border border-amber-200 text-amber-700 hover:bg-amber-50 rounded-lg text-[12px] font-bold whitespace-nowrap flex items-center gap-1"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i> 옵션 관리</button>
+                    </div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">품목 코드(SKU) <span class="text-[11px] text-slate-400 font-normal">(자동 생성)</span></label><input type="text" id="inventory-sku" readonly placeholder="분류 선택 시 자동 생성" class="w-full px-3 py-2 border rounded-lg text-sm outline-none bg-slate-50 text-slate-500 font-mono"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">분류</label><select id="inventory-category" onchange="regenInventorySku()" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단위</label><select id="inventory-unit" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현재고</label><input type="number" id="inventory-stock" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">안전재고(부족 기준)</label><input type="number" id="inventory-safe" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단가(원)</label><input type="number" id="inventory-price" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
@@ -1610,7 +1650,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1678,6 +1718,96 @@
             const { data, error } = await sb.from('stock_moves').select('*').order('created_at', { ascending: false }).limit(1000);
             if (error) { STATE.stockMoves = []; return; }
             STATE.stockMoves = (data || []).map(r => ({ id: r.id, itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, reason: r.reason || '', actor: r.actor || '', actorId: r.actor_id || '', deptId: r.dept_id || '', balanceAfter: r.balance_after, createdAt: r.created_at }));
+        }
+        async function reloadInventoryOptions() {
+            STATE.invOptions = STATE.invOptions || { category: [], unit: [], name: [] };
+            const { data, error } = await sb.from('inventory_options').select('*').order('value', { ascending: true });
+            if (error) { STATE.invOptionsMissing = true; return; }
+            STATE.invOptionsMissing = false;
+            const o = { category: [], unit: [], name: [] };
+            (data || []).forEach(r => { if (o[r.kind]) o[r.kind].push({ id: r.id, value: r.value, code: r.code || '' }); });
+            STATE.invOptions = o;
+        }
+        // SKU 자동 생성: 분류 코드 + 4자리 일련번호 (예: PT-0001)
+        function nextSkuForCode(code) {
+            code = (code || 'GEN').toString().toUpperCase().replace(/[^A-Z0-9]/g, '') || 'GEN';
+            let max = 0;
+            (STATE.inventory || []).forEach(i => { const s = (i.sku || '').toUpperCase(); const dash = s.lastIndexOf('-'); if (dash > 0 && s.slice(0, dash) === code) { const n = parseInt(s.slice(dash + 1)); if (!isNaN(n)) max = Math.max(max, n); } });
+            return code + '-' + String(max + 1).padStart(4, '0');
+        }
+        function regenInventorySku() {
+            if (document.getElementById('inventory-id').value) return; // 편집 시 기존 코드 유지
+            const catVal = (document.getElementById('inventory-category') || {}).value || '';
+            const opt = (STATE.invOptions.category || []).find(c => c.value === catVal);
+            const code = opt && opt.code ? opt.code : (catVal ? 'GEN' : '');
+            const skuEl = document.getElementById('inventory-sku');
+            skuEl.value = code ? nextSkuForCode(code) : '';
+        }
+        function populateInventoryOptionSelects(curName, curCat, curUnit) {
+            const opts = STATE.invOptions || { category: [], unit: [], name: [] };
+            const fill = (id, arr, cur, placeholder) => {
+                const el = document.getElementById(id); if (!el) return;
+                const list = arr.map(o => `<option value="${esc(o.value)}">${esc(o.value)}</option>`).join('');
+                el.innerHTML = `<option value="">${placeholder}</option>` + list;
+                // 기존 값이 목록에 없으면(과거 자유입력 데이터) 임시 옵션으로 추가해 보존
+                if (cur && !arr.some(o => o.value === cur)) el.innerHTML += `<option value="${esc(cur)}">${esc(cur)} (기존)</option>`;
+                el.value = cur || '';
+            };
+            fill('inventory-name', opts.name || [], curName, '품목명 선택');
+            fill('inventory-category', opts.category || [], curCat, '분류 선택');
+            fill('inventory-unit', opts.unit || [], curUnit, '단위 선택');
+        }
+        function openInventoryOptions() {
+            if (STATE.invOptionsMissing) { showToast('준비 필요', '옵션 테이블(inventory_options) 생성 SQL을 먼저 실행하세요.'); return; }
+            renderInventoryOptions();
+            openModal('inventory-options-modal');
+        }
+        function renderInventoryOptions() {
+            const opts = STATE.invOptions || { category: [], unit: [], name: [] };
+            const row = (o, kind) => `<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 border border-slate-200 rounded-lg text-[13px]">
+                <div class="min-w-0 truncate"><span class="font-semibold text-slate-700">${esc(o.value)}</span>${kind === 'category' && o.code ? ` <span class="text-[11px] text-amber-600 font-mono">${esc(o.code)}</span>` : ''}</div>
+                <div class="flex gap-1.5 flex-shrink-0">
+                    <button onclick="editInventoryOption(${o.id},'${kind}')" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button>
+                    <button onclick="deleteInventoryOption(${o.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                </div></div>`;
+            const setList = (id, arr, kind) => { const el = document.getElementById(id); if (el) el.innerHTML = arr.length ? arr.map(o => row(o, kind)).join('') : `<div class="text-[12px] text-slate-300 py-2 text-center">등록된 항목 없음</div>`; };
+            setList('invopt-category-list', opts.category || [], 'category');
+            setList('invopt-unit-list', opts.unit || [], 'unit');
+            setList('invopt-name-list', opts.name || [], 'name');
+            if (window.lucide) lucide.createIcons();
+        }
+        async function addInventoryOption(kind) {
+            const value = (document.getElementById('invopt-' + kind + '-value').value || '').trim();
+            if (!value) { showToast('입력 필요', '값을 입력하세요.'); return; }
+            const row = { kind, value };
+            if (kind === 'category') { const code = (document.getElementById('invopt-category-code').value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); row.code = code || null; }
+            const { error } = await sb.from('inventory_options').insert(row);
+            if (error) { showToast('추가 실패', error.message); return; }
+            document.getElementById('invopt-' + kind + '-value').value = '';
+            if (kind === 'category') document.getElementById('invopt-category-code').value = '';
+            await reloadInventoryOptions(); renderInventoryOptions(); syncInventoryFormOptions();
+        }
+        async function editInventoryOption(id, kind) {
+            const cur = (STATE.invOptions[kind] || []).find(o => o.id === id); if (!cur) return;
+            const nv = prompt('이름 수정', cur.value); if (nv === null) return;
+            const patch = { value: nv.trim() || cur.value };
+            if (kind === 'category') { const nc = prompt('분류 코드(SKU 접두어, 영문/숫자)', cur.code || ''); if (nc !== null) patch.code = (nc.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') || null); }
+            const { error } = await sb.from('inventory_options').update(patch).eq('id', id);
+            if (error) { showToast('수정 실패', error.message); return; }
+            await reloadInventoryOptions(); renderInventoryOptions(); syncInventoryFormOptions();
+        }
+        async function deleteInventoryOption(id) {
+            if (!confirm('이 옵션을 삭제하시겠습니까? (이미 등록된 품목 데이터는 그대로 유지됩니다.)')) return;
+            const { error } = await sb.from('inventory_options').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadInventoryOptions(); renderInventoryOptions(); syncInventoryFormOptions();
+        }
+        // 옵션 변경 시, 품목 폼이 열려 있으면 선택지 즉시 갱신(현재 선택값 보존)
+        function syncInventoryFormOptions() {
+            const formOpen = !document.getElementById('inventory-form-modal').classList.contains('hidden');
+            if (!formOpen) return;
+            const n = document.getElementById('inventory-name').value, c = document.getElementById('inventory-category').value, u = document.getElementById('inventory-unit').value;
+            populateInventoryOptionSelects(n, c, u);
         }
         function inventoryApplyFilter() { resetPage('inventory'); renderInventory(); }
         function renderInventory() {
@@ -1755,10 +1885,8 @@
             const it = id ? STATE.inventory.find(x => x.id === id) : null;
             if (it && !canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 편집할 수 있습니다.'); return; }
             document.getElementById('inventory-id').value = id || '';
-            document.getElementById('inventory-name').value = it ? it.name : '';
+            populateInventoryOptionSelects(it ? it.name : '', it ? it.category : '', it ? it.unit : '');
             document.getElementById('inventory-sku').value = it ? it.sku : '';
-            document.getElementById('inventory-category').value = it ? it.category : '';
-            document.getElementById('inventory-unit').value = it ? it.unit : 'EA';
             document.getElementById('inventory-stock').value = it ? it.stock : '';
             document.getElementById('inventory-safe').value = it ? it.safeStock : '';
             document.getElementById('inventory-price').value = it ? it.unitPrice : '';
@@ -1772,7 +1900,11 @@
         async function handleSaveInventoryItem(e) {
             e.preventDefault();
             const id = document.getElementById('inventory-id').value;
-            const row = { name: document.getElementById('inventory-name').value.trim(), sku: document.getElementById('inventory-sku').value.trim(), category: document.getElementById('inventory-category').value.trim(), unit: document.getElementById('inventory-unit').value.trim() || 'EA', stock: parseFloat(document.getElementById('inventory-stock').value) || 0, safe_stock: parseFloat(document.getElementById('inventory-safe').value) || 0, unit_price: parseFloat(document.getElementById('inventory-price').value) || 0, supplier: document.getElementById('inventory-supplier').value.trim(), location: document.getElementById('inventory-location').value.trim(), dept_id: document.getElementById('inventory-dept').value, notes: document.getElementById('inventory-notes').value.trim() };
+            if (!id && !document.getElementById('inventory-sku').value) regenInventorySku();
+            let sku = document.getElementById('inventory-sku').value.trim();
+            if (!id && !sku) sku = nextSkuForCode('GEN');
+            const row = { name: document.getElementById('inventory-name').value.trim(), sku: sku, category: document.getElementById('inventory-category').value.trim(), unit: document.getElementById('inventory-unit').value.trim() || 'EA', stock: parseFloat(document.getElementById('inventory-stock').value) || 0, safe_stock: parseFloat(document.getElementById('inventory-safe').value) || 0, unit_price: parseFloat(document.getElementById('inventory-price').value) || 0, supplier: document.getElementById('inventory-supplier').value.trim(), location: document.getElementById('inventory-location').value.trim(), dept_id: document.getElementById('inventory-dept').value, notes: document.getElementById('inventory-notes').value.trim() };
+            if (!row.name) { showToast('입력 필요', '품목명을 선택하세요. (없으면 "옵션 관리"에서 추가)'); return; }
             let error;
             if (id) { ({ error } = await sb.from('inventory_items').update(row).eq('id', parseInt(id))); }
             else { ({ error } = await sb.from('inventory_items').insert(row)); }
@@ -1889,6 +2021,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_meetings' }, async () => { await reloadMeetings(); renderDashboardWidgets(); if (STATE.currentTab === 'weekly-meeting') renderWeeklyMeetings(); refreshOpenDetail('meeting'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, async () => { await reloadInventory(); renderDashboardWidgets(); if (STATE.currentTab === 'inventory') renderInventory(); refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_options' }, async () => { await reloadInventoryOptions(); if (!document.getElementById('inventory-options-modal').classList.contains('hidden')) renderInventoryOptions(); syncInventoryFormOptions(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
