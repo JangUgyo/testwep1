@@ -2653,6 +2653,16 @@
             hydrateAttachmentPreviews(document.getElementById('project-detail-body'));
             if (highlightItemId) { const r = document.getElementById('pitem-row-' + highlightItemId); if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
         }
+        // ── 동시 편집 보호: 저장 직전 DB 최신본을 다시 읽어 '내 항목만' 병합 ──
+        async function freshProjectItems(projectId) {
+            try { const { data, error } = await sb.from('projects').select('items').eq('id', projectId).single(); if (!error && data && Array.isArray(data.items)) return data.items.slice(); } catch (e) { }
+            const p = STATE.projects.find(x => x.id === projectId); return p ? (p.items || []).slice() : [];
+        }
+        async function freshMeetingDays(meetingId) {
+            try { const { data, error } = await sb.from('weekly_meetings').select('days').eq('id', meetingId).single(); if (!error && data && Array.isArray(data.days)) return data.days.slice(); } catch (e) { }
+            const m = STATE.weeklyMeetings.find(x => x.id === meetingId); return m ? (m.days || []).slice() : [];
+        }
+        function upsertById(arr, entry) { const i = arr.findIndex(x => x.id === entry.id); if (i >= 0) arr[i] = entry; else arr.push(entry); return arr; }
         async function persistProjectItems(projectId, items) {
             const { error } = await sb.from('projects').update({ items }).eq('id', projectId);
             if (error) { showToast('저장 실패', error.message); return false; }
@@ -2662,7 +2672,8 @@
         async function toggleProjectItemDone(projectId, itemId, checked) {
             const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
             if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 변경할 수 있습니다.'); openProjectDetail(projectId); return; }
-            const items = (proj.items || []).map(it => it.id === itemId ? Object.assign({}, it, { done: !!checked }) : it);
+            // 최신본을 다시 읽어 해당 항목만 토글 → 다른 사람의 동시 편집 보존
+            const items = (await freshProjectItems(projectId)).map(it => it.id === itemId ? Object.assign({}, it, { done: !!checked }) : it);
             const total = items.length;
             const done = items.filter(it => it.done).length;
             const progress = total ? Math.round((done / total) * 100) : proj.progress;
@@ -2694,9 +2705,10 @@
             const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
             const _pm = readPerson('pitem-manager-select', 'pitem-manager-custom');
             const entry = { id: itemId || ('pi_' + Date.now()), info: document.getElementById('pitem-info').value.trim(), manager: _pm.name, managerId: _pm.id, start: document.getElementById('pitem-start').value, end: document.getElementById('pitem-end').value, detail: document.getElementById('pitem-detail').value.trim() };
-            let items = (proj.items || []).slice();
-            if (itemId) { const i = items.findIndex(x => x.id === itemId); if (i >= 0) items[i] = entry; else items.push(entry); }
-            else items.push(entry);
+            // 최신본을 다시 읽어 이 항목만 반영(동시 편집 보존). 기존 항목이면 done 값 유지
+            const items = await freshProjectItems(projectId);
+            const prev = items.find(x => x.id === entry.id); if (prev && prev.done !== undefined) entry.done = prev.done;
+            upsertById(items, entry);
             if (!(await persistProjectItems(projectId, items))) return;
             await reloadProjects(); renderProjects(); renderDashboardWidgets(); closeModal('project-item-modal'); openProjectDetail(projectId, entry.id); showToast('저장 완료', '프로젝트 상세 항목이 저장되었습니다.');
         }
@@ -2704,7 +2716,7 @@
             const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
             if (!canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 편집할 수 있습니다.'); return; }
             if (!confirm('이 상세 항목을 삭제하시겠습니까?')) return;
-            const items = (proj.items || []).filter(x => x.id !== itemId);
+            const items = (await freshProjectItems(projectId)).filter(x => x.id !== itemId);
             if (!(await persistProjectItems(projectId, items))) return;
             await reloadProjects(); renderProjects(); openProjectDetail(projectId); showToast('삭제', '상세 항목이 삭제되었습니다.');
         }
@@ -2999,9 +3011,9 @@
             }
             const _mm = readPerson('mday-manager-select', 'mday-manager-custom');
             const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), taskName: document.getElementById('mday-taskname').value.trim(), manager: _mm.name, managerId: _mm.id, content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel, filePath, fileName, fileMime };
-            let days = (meet.days || []).slice();
-            if (entryId) { const i = days.findIndex(d => d.id === entryId); if (i >= 0) days[i] = entry; else days.push(entry); }
-            else days.push(entry);
+            // 최신본을 다시 읽어 이 항목만 반영(동시 편집 보존)
+            const days = await freshMeetingDays(meetingId);
+            upsertById(days, entry);
             if (!(await persistMeetingDays(meetingId, days))) return;
             STATE.mdayFile = null; STATE.mdayKeepFile = null;
             await reloadMeetings(); closeModal('meeting-day-modal'); openMeetingDetail(meetingId); showToast('저장 완료', '일별 업무 내용이 저장되었습니다.');
@@ -3027,7 +3039,7 @@
             if (!confirm('이 일별 내용을 삭제하시겠습니까?')) return;
             const target = (meet.days || []).find(d => d.id === entryId);
             if (target && target.filePath) { try { await sb.storage.from('documents').remove([target.filePath]); } catch (er) {} }
-            const days = (meet.days || []).filter(d => d.id !== entryId);
+            const days = (await freshMeetingDays(meetingId)).filter(d => d.id !== entryId);
             if (!(await persistMeetingDays(meetingId, days))) return;
             await reloadMeetings(); openMeetingDetail(meetingId); showToast('삭제', '일별 내용이 삭제되었습니다.');
         }
