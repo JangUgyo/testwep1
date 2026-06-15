@@ -308,6 +308,10 @@
                         <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
                         <span class="font-semibold text-slate-800">재고 관리</span>
                     </button>
+                    <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
+                        <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
+                        <span class="font-semibold text-slate-800">발주 · 견적</span>
+                    </button>
                 </div>
             </div>
 
@@ -926,6 +930,31 @@
                 </div>
             </section>
             
+            <section id="view-trade" class="hidden space-y-5">
+                <div id="trade-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <input type="text" id="trade-search" onkeyup="tradeApplyFilter()" placeholder="문서번호·거래처·품목 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-full sm:w-56 outline-none focus:border-teal-300">
+                        <select id="trade-filter-kind" onchange="tradeApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 종류</option><option value="po">발주서</option><option value="quote">견적서</option></select>
+                        <select id="trade-filter-status" onchange="tradeApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 상태</option><option value="draft">작성</option><option value="issued">발행</option><option value="done">완료</option></select>
+                        <select id="trade-filter-dept" onchange="tradeApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openTradeForm(null,'po')" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 발주서</button>
+                        <button onclick="openTradeForm(null,'quote')" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 견적서</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[14px]">
+                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">종류 / 문서번호</th><th class="px-4 py-3 text-left font-bold">거래처</th><th class="px-4 py-3 text-left font-bold">일자</th><th class="px-4 py-3 text-right font-bold">합계금액</th><th class="px-4 py-3 text-left font-bold">상태 / 부서</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                            <tbody id="trade-list-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="trade-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
             <section id="view-inventory" class="hidden space-y-5">
                 <div id="inventory-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
                 <div class="flex flex-wrap justify-between items-center gap-3">
@@ -1015,6 +1044,56 @@
                 <button onclick="closeModal('mobile-search-modal')" class="text-slate-400 hover:text-slate-700 px-1"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="mobile-global-search-results" class="overflow-y-auto"><div class="p-6 text-center text-[13px] text-slate-300">검색어를 입력하세요.</div></div>
+        </div>
+    </div>
+
+    <!-- 발주/견적: 작성/편집 -->
+    <div id="trade-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0">
+                <i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i>
+                <h4 id="trade-form-title" class="font-bold text-sm text-slate-800">발주서 작성</h4>
+            </div>
+            <form onsubmit="handleSaveTrade(event)" class="p-6 space-y-4 overflow-y-auto">
+                <input type="hidden" id="trade-id">
+                <input type="hidden" id="trade-kind">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="trade-partner-label">거래처(공급처)</label><input type="text" id="trade-partner" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당/연락처</label><input type="text" id="trade-contact" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">작성일</label><input type="date" id="trade-date" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="trade-due-label">납기/유효기한</label><input type="date" id="trade-due" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
+                    <div class="sm:col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="trade-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-[12px] font-bold text-slate-500">품목 명세</label>
+                        <button type="button" onclick="addTradeLine()" class="text-[12px] text-teal-600 hover:text-teal-800 font-bold flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 품목 추가</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div id="trade-lines" class="space-y-1.5 min-w-[520px]"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-t border-slate-100 pt-3">
+                    <label class="flex items-center gap-1.5 text-[13px] text-slate-600"><input type="checkbox" id="trade-vat" onchange="renderTradeLines()" class="accent-teal-600"> 부가세(VAT 10%) 포함</label>
+                    <div id="trade-totals" class="text-right text-sm"></div>
+                </div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">비고</label><textarea id="trade-notes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('trade-form-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 발주/견적: 상세(문서 보기) -->
+    <div id="trade-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[92vh] overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i> <span id="trade-detail-heading">문서 상세</span></h4>
+                <button onclick="closeModal('trade-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="trade-detail-body" class="p-6 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -1242,17 +1321,6 @@
         </div>
     </div>
 
-    <div id="update-progress-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 border">
-            <form onsubmit="handleSaveDirectProgress(event)" class="space-y-4">
-                <input type="hidden" id="direct-progress-project-id">
-                <div class="text-xs font-bold text-slate-800 truncate" id="direct-progress-title">진행도 수정</div>
-                <input type="number" id="direct-progress-value" min="0" max="100" required class="w-full px-4 py-2 border rounded-xl text-center text-sm font-bold text-indigo-600 outline-none">
-                <div class="flex gap-2"><button type="button" onclick="closeModal('update-progress-modal')" class="flex-1 py-2 border text-xs">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold">적용</button></div>
-            </form>
-        </div>
-    </div>
-
     <div id="add-project-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border max-h-[92vh] flex flex-col">
             <div class="px-5 py-3 border-b bg-slate-50 flex items-center gap-2"><i data-lucide="folder-plus" class="w-4 h-4 text-indigo-600"></i><h4 id="project-modal-title" class="font-bold text-sm text-slate-800">신규 프로젝트 등록</h4></div>
@@ -1267,7 +1335,6 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">시작일</label><input type="date" id="project-start" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">종료일</label><input type="date" id="project-end" class="w-full px-3 py-2 border rounded-lg text-xs text-slate-700 bg-white"></div>
                 </div>
-                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">진행률 (%)</label><input type="number" id="project-progress-num" min="0" max="100" value="0" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상세 요약</label><textarea id="project-desc" rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">첨부 파일 (선택)</label><div class="border-2 border-dashed rounded-xl p-3 text-center relative cursor-pointer hover:bg-slate-50"><input type="file" id="project-file-input" accept=".pdf,.docx,.xlsx,.xls,.csv,.pptx,.png,.jpg,.jpeg,.zip" onchange="handleProjectFileSelection(event)" class="absolute inset-0 opacity-0 cursor-pointer"><p class="text-xs text-slate-500" id="project-file-status">클릭하여 파일 첨부</p></div></div>
                 <div class="flex gap-2"><button type="button" onclick="closeModal('add-project-modal')" class="flex-1 py-2 border text-xs font-bold rounded-lg">취소</button><button type="submit" class="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">저장</button></div>
@@ -1544,7 +1611,7 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false, 'trade': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
@@ -1650,7 +1717,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1998,15 +2065,255 @@
             showToast('삭제', '품목이 삭제되었습니다.');
         }
 
+        // ════════════ 발주 · 견적 ════════════
+        const TRADE_KIND = { po: ['발주서', 'warn'], quote: ['견적서', 'info'] };
+        const TRADE_STATUS = { draft: ['작성', 'neutral'], issued: ['발행', 'info'], done: ['완료', 'success'] };
+        function canManageTrade(t) { return STATE.profile.role === 'admin' || (t && t.deptId === STATE.profile.deptId); }
+        async function reloadTrade() {
+            const { data, error } = await sb.from('trade_documents').select('*').order('created_at', { ascending: false }).limit(1000);
+            if (error) { STATE.tradeTableMissing = true; STATE.trade = []; return; }
+            STATE.tradeTableMissing = false;
+            STATE.trade = (data || []).map(r => ({ id: r.id, kind: r.kind, docNo: r.doc_no || '', partner: r.partner || '', contact: r.partner_contact || '', docDate: r.doc_date || '', dueDate: r.due_date || '', status: r.status || 'draft', items: Array.isArray(r.items) ? r.items : [], vat: !!r.vat, subtotal: Number(r.subtotal) || 0, tax: Number(r.tax) || 0, total: Number(r.total) || 0, notes: r.notes || '', author: r.author || '', authorId: r.author_id || '', deptId: r.dept_id || '', createdAt: r.created_at }));
+        }
+        function tradeApplyFilter() { resetPage('trade'); renderTrade(); }
+        function tradeKindChip(k) { const v = TRADE_KIND[k] || TRADE_KIND.po; return chip(v[0], v[1]); }
+        function tradeStatusChip(s) { const v = TRADE_STATUS[s] || TRADE_STATUS.draft; return chip(v[0], v[1]); }
+        function renderTrade() {
+            const list0 = STATE.trade || [];
+            const fk = (document.getElementById('trade-filter-kind') || {}).value || 'all';
+            const fs = (document.getElementById('trade-filter-status') || {}).value || 'all';
+            const fd = (document.getElementById('trade-filter-dept') || {}).value || 'all';
+            const q = ((document.getElementById('trade-search') || {}).value || '').trim().toLowerCase();
+            const list = list0.filter(t =>
+                (fk === 'all' || t.kind === fk) && (fs === 'all' || t.status === fs) && (fd === 'all' || t.deptId === fd) &&
+                (!q || (t.docNo + ' ' + t.partner + ' ' + (t.items || []).map(i => i.name).join(' ')).toLowerCase().indexOf(q) >= 0));
+            const stats = document.getElementById('trade-stats');
+            if (stats) {
+                const poCnt = list0.filter(t => t.kind === 'po').length;
+                const qtCnt = list0.filter(t => t.kind === 'quote').length;
+                const draftCnt = list0.filter(t => t.status === 'draft').length;
+                const sumTotal = list0.reduce((s, t) => s + Number(t.total), 0);
+                const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
+                stats.innerHTML = card('발주서', fmtNum(poCnt), '건', 'text-amber-600') + card('견적서', fmtNum(qtCnt), '건', 'text-sky-600') + card('작성 중', fmtNum(draftCnt), '미발행 문서', draftCnt ? 'text-slate-800' : 'text-slate-800') + card('총 금액', '₩' + fmtNum(sumTotal), '전체 합계', 'text-teal-600');
+            }
+            const body = document.getElementById('trade-list-body');
+            const cards = document.getElementById('trade-card-list');
+            if (list.length === 0) {
+                if (body) body.innerHTML = `<tr><td colspan="6" class="wsp-empty">문서가 없습니다.</td></tr>`;
+                if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">문서가 없습니다.</div>`;
+                return;
+            }
+            const shown = list.slice(0, pageCount('trade'));
+            const actionsFor = (t) => canManageTrade(t)
+                ? `<button onclick="event.stopPropagation();openTradeForm(${t.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="event.stopPropagation();deleteTrade(${t.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>`
+                : `<span class="text-slate-300">열람</span>`;
+            if (body) body.innerHTML = shown.map(t => {
+                const dept = STATE.departments.find(d => d.id === t.deptId);
+                return `<tr class="hover:bg-teal-50/30 align-top cursor-pointer" onclick="openTradeDetail(${t.id})">
+                    <td class="px-4 py-3">${tradeKindChip(t.kind)}<div class="text-[12px] text-slate-500 font-mono mt-1">${esc(t.docNo)}</div></td>
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(t.partner) || '-'}</div><div class="text-[12px] text-slate-400">${esc(t.contact) || ''}</div></td>
+                    <td class="px-4 py-3 text-slate-500 font-mono text-[13px]">${t.docDate || '-'}</td>
+                    <td class="px-4 py-3 text-right font-bold text-slate-800">₩${fmtNum(t.total)}</td>
+                    <td class="px-4 py-3">${tradeStatusChip(t.status)}<div class="text-[12px] text-slate-400 mt-0.5">${dept ? esc(dept.name) : '-'}</div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(t)}</td>
+                </tr>`;
+            }).join('') + moreRowHTML(list.length, 'trade', 6);
+            if (cards) cards.innerHTML = shown.map(t => {
+                const dept = STATE.departments.find(d => d.id === t.deptId);
+                return `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2" onclick="openTradeDetail(${t.id})">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">${tradeKindChip(t.kind)}<div class="text-[12px] text-slate-500 font-mono mt-1">${esc(t.docNo)}</div></div>
+                        ${tradeStatusChip(t.status)}
+                    </div>
+                    <div class="font-bold text-slate-800 truncate">${esc(t.partner) || '-'}</div>
+                    <div class="flex items-end justify-between">
+                        <div class="text-[12px] text-slate-400">${t.docDate || ''} · ${dept ? esc(dept.name) : ''}</div>
+                        <div class="text-lg font-extrabold text-slate-800">₩${fmtNum(t.total)}</div>
+                    </div>
+                    <div class="flex gap-2 pt-1 text-[13px]" onclick="event.stopPropagation()">${actionsFor(t)}</div>
+                </div>`;
+            }).join('') + (list.length > pageCount('trade') ? `<div class="sm:col-span-2">${moreDivHTML(list.length, 'trade')}</div>` : '');
+            if (window.lucide) lucide.createIcons();
+        }
+        // 문서번호 자동 생성: PO-YYYYMM-#### / QT-YYYYMM-####
+        function nextTradeNo(kind) {
+            const pre = kind === 'po' ? 'PO' : 'QT';
+            const d = new Date(); const ym = '' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0');
+            const prefix = pre + '-' + ym + '-';
+            let max = 0;
+            (STATE.trade || []).forEach(t => { if ((t.docNo || '').indexOf(prefix) === 0) { const n = parseInt(t.docNo.slice(prefix.length)); if (!isNaN(n)) max = Math.max(max, n); } });
+            return prefix + String(max + 1).padStart(4, '0');
+        }
+        function openTradeForm(id, kind) {
+            if (STATE.tradeTableMissing) { showToast('준비 필요', '발주/견적 테이블(trade_documents) 생성 SQL을 먼저 실행하세요.'); return; }
+            const t = id ? STATE.trade.find(x => x.id === id) : null;
+            if (t && !canManageTrade(t)) { showToast('권한 없음', '본인 부서의 문서만 편집할 수 있습니다.'); return; }
+            kind = t ? t.kind : (kind || 'po');
+            document.getElementById('trade-id').value = id || '';
+            document.getElementById('trade-kind').value = kind;
+            const isPo = kind === 'po';
+            document.getElementById('trade-form-title').innerText = (id ? '' : '신규 ') + (isPo ? '발주서' : '견적서') + (id ? ' 편집' : ' 작성');
+            document.getElementById('trade-partner-label').innerText = isPo ? '거래처(공급처)' : '고객사';
+            document.getElementById('trade-due-label').innerText = isPo ? '납기일' : '유효기한';
+            document.getElementById('trade-partner').value = t ? t.partner : '';
+            document.getElementById('trade-contact').value = t ? t.contact : '';
+            document.getElementById('trade-date').value = t ? t.docDate : formatDate(new Date());
+            document.getElementById('trade-due').value = t ? t.dueDate : '';
+            const dsel = document.getElementById('trade-dept'); if (dsel) dsel.value = t ? (t.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
+            document.getElementById('trade-vat').checked = t ? t.vat : false;
+            document.getElementById('trade-notes').value = t ? t.notes : '';
+            STATE.tradeDraft = { items: t && t.items.length ? t.items.map(x => ({ itemId: x.itemId || '', name: x.name || '', sku: x.sku || '', qty: Number(x.qty) || 0, unitPrice: Number(x.unitPrice) || 0 })) : [{ itemId: '', name: '', sku: '', qty: 1, unitPrice: 0 }] };
+            renderTradeLines();
+            openModal('trade-form-modal');
+        }
+        function addTradeLine() { STATE.tradeDraft.items.push({ itemId: '', name: '', sku: '', qty: 1, unitPrice: 0 }); renderTradeLines(); }
+        function removeTradeLine(idx) { STATE.tradeDraft.items.splice(idx, 1); if (!STATE.tradeDraft.items.length) STATE.tradeDraft.items.push({ itemId: '', name: '', sku: '', qty: 1, unitPrice: 0 }); renderTradeLines(); }
+        function updateTradeLine(idx, field, val) { const it = STATE.tradeDraft.items[idx]; if (!it) return; it[field] = (field === 'qty' || field === 'unitPrice') ? (parseFloat(val) || 0) : val; refreshTradeTotals(); }
+        function onTradeItemSelect(idx, val) {
+            const it = STATE.tradeDraft.items[idx]; if (!it) return;
+            if (val === '__custom__' || val === '') { it.itemId = ''; }
+            else { const inv = (STATE.inventory || []).find(x => String(x.id) === String(val)); if (inv) { it.itemId = inv.id; it.name = inv.name; it.sku = inv.sku; it.unitPrice = Number(inv.unitPrice) || 0; } }
+            renderTradeLines();
+        }
+        function renderTradeLines() {
+            const wrap = document.getElementById('trade-lines'); if (!wrap) return;
+            const invOpts = (STATE.inventory || []).map(i => `<option value="${i.id}">${esc(i.name)}${i.sku ? ' (' + esc(i.sku) + ')' : ''}</option>`).join('');
+            wrap.innerHTML = STATE.tradeDraft.items.map((it, i) => {
+                const sel = it.itemId ? String(it.itemId) : (it.name ? '__custom__' : '');
+                const amount = (Number(it.qty) || 0) * (Number(it.unitPrice) || 0);
+                return `<div class="grid grid-cols-12 gap-1.5 items-center">
+                    <select onchange="onTradeItemSelect(${i}, this.value)" class="col-span-4 px-2 py-1.5 border rounded-lg text-[13px] bg-white outline-none">
+                        <option value="">품목 선택</option>${invOpts}<option value="__custom__" ${sel === '__custom__' ? 'selected' : ''}>+ 직접 입력</option>
+                    </select>
+                    <input value="${esc(it.name)}" oninput="updateTradeLine(${i},'name',this.value)" placeholder="품목명" class="col-span-3 px-2 py-1.5 border rounded-lg text-[13px] outline-none">
+                    <input type="number" step="any" min="0" value="${it.qty}" oninput="updateTradeLine(${i},'qty',this.value)" title="수량" class="col-span-1 px-1.5 py-1.5 border rounded-lg text-[13px] text-right outline-none">
+                    <input type="number" step="any" min="0" value="${it.unitPrice}" oninput="updateTradeLine(${i},'unitPrice',this.value)" title="단가" class="col-span-2 px-1.5 py-1.5 border rounded-lg text-[13px] text-right outline-none">
+                    <div id="trade-amt-${i}" class="col-span-1 text-right text-[12px] font-mono text-slate-600">${fmtNum(amount)}</div>
+                    <button type="button" onclick="removeTradeLine(${i})" class="col-span-1 text-slate-300 hover:text-rose-500 flex justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>`;
+            }).join('');
+            // 셀렉트에 현재 품목 선택 반영
+            STATE.tradeDraft.items.forEach((it, i) => { if (it.itemId) { const s = wrap.children[i] && wrap.children[i].querySelector('select'); if (s) s.value = String(it.itemId); } });
+            refreshTradeTotals();
+            if (window.lucide) lucide.createIcons();
+        }
+        function computeTradeTotals() {
+            const subtotal = STATE.tradeDraft.items.reduce((s, it) => s + (Number(it.qty) || 0) * (Number(it.unitPrice) || 0), 0);
+            const vat = document.getElementById('trade-vat').checked;
+            const tax = vat ? Math.round(subtotal * 0.1) : 0;
+            return { subtotal, tax, total: subtotal + tax, vat };
+        }
+        function refreshTradeTotals() {
+            STATE.tradeDraft.items.forEach((it, i) => { const el = document.getElementById('trade-amt-' + i); if (el) el.innerText = fmtNum((Number(it.qty) || 0) * (Number(it.unitPrice) || 0)); });
+            const t = computeTradeTotals();
+            const box = document.getElementById('trade-totals');
+            if (box) box.innerHTML = `<div class="text-slate-500">공급가 <b class="text-slate-700">₩${fmtNum(t.subtotal)}</b></div>${t.vat ? `<div class="text-slate-500">부가세 <b class="text-slate-700">₩${fmtNum(t.tax)}</b></div>` : ''}<div class="text-base font-extrabold text-teal-700 mt-0.5">합계 ₩${fmtNum(t.total)}</div>`;
+        }
+        async function handleSaveTrade(e) {
+            e.preventDefault();
+            const id = document.getElementById('trade-id').value;
+            const kind = document.getElementById('trade-kind').value;
+            const items = STATE.tradeDraft.items.filter(it => (it.name || '').trim() && Number(it.qty) > 0).map(it => ({ itemId: it.itemId || '', name: it.name.trim(), sku: it.sku || '', qty: Number(it.qty) || 0, unitPrice: Number(it.unitPrice) || 0, amount: (Number(it.qty) || 0) * (Number(it.unitPrice) || 0) }));
+            if (!items.length) { showToast('품목 필요', '품목명과 수량이 있는 명세를 1건 이상 입력하세요.'); return; }
+            const t = computeTradeTotals();
+            const existing = id ? STATE.trade.find(x => x.id === parseInt(id)) : null;
+            const row = { kind, doc_no: existing ? existing.docNo : nextTradeNo(kind), partner: document.getElementById('trade-partner').value.trim(), partner_contact: document.getElementById('trade-contact').value.trim(), doc_date: document.getElementById('trade-date').value || null, due_date: document.getElementById('trade-due').value || null, status: existing ? existing.status : 'draft', items, vat: t.vat, subtotal: t.subtotal, tax: t.tax, total: t.total, notes: document.getElementById('trade-notes').value.trim(), author: STATE.profile.name, author_id: STATE.currentUser ? STATE.currentUser.id : null, dept_id: document.getElementById('trade-dept').value };
+            let error;
+            if (id) { ({ error } = await sb.from('trade_documents').update(row).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('trade_documents').insert(row)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            logAudit(id ? 'trade_update' : 'trade_create', row.doc_no, `${TRADE_KIND[kind][0]} · ${row.partner} · ₩${fmtNum(row.total)}`);
+            await reloadTrade(); renderTrade(); renderDashboardWidgets(); closeModal('trade-form-modal');
+            showToast('저장 완료', `${TRADE_KIND[kind][0]} ${row.doc_no} 저장됨`);
+        }
+        function tradeDocHTML(t, forPrint) {
+            const dept = STATE.departments.find(d => d.id === t.deptId);
+            const isPo = t.kind === 'po';
+            const rows = (t.items || []).map((it, i) => `<tr>
+                <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center">${i + 1}</td>
+                <td style="padding:6px 8px;border:1px solid #e2e8f0">${esc(it.name)}${it.sku ? ' <span style="color:#94a3b8;font-size:11px">' + esc(it.sku) + '</span>' : ''}</td>
+                <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:right">${fmtNum(it.qty)}</td>
+                <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:right">₩${fmtNum(it.unitPrice)}</td>
+                <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:right">₩${fmtNum(it.amount)}</td></tr>`).join('');
+            return `<div style="font-family:sans-serif;color:#0f172a;max-width:720px;margin:0 auto">
+                <div style="text-align:center;font-size:26px;font-weight:800;letter-spacing:8px;margin-bottom:4px">${isPo ? '발 주 서' : '견 적 서'}</div>
+                <div style="text-align:center;color:#64748b;font-size:12px;margin-bottom:16px">문서번호 ${esc(t.docNo)}</div>
+                <table style="width:100%;font-size:13px;margin-bottom:14px"><tr>
+                    <td style="vertical-align:top;width:55%">
+                        <div style="color:#64748b;font-size:11px">${isPo ? '공급처' : '고객사'}</div>
+                        <div style="font-size:18px;font-weight:700">${esc(t.partner) || '-'}</div>
+                        <div style="color:#475569">${esc(t.contact) || ''}</div>
+                    </td>
+                    <td style="vertical-align:top">
+                        <div>작성일: <b>${t.docDate || '-'}</b></div>
+                        <div>${isPo ? '납기일' : '유효기한'}: <b>${t.dueDate || '-'}</b></div>
+                        <div>담당부서: <b>${dept ? esc(dept.name) : '-'}</b></div>
+                        <div>작성자: <b>${esc(t.author) || '-'}</b></div>
+                    </td></tr></table>
+                <table style="width:100%;border-collapse:collapse;font-size:13px">
+                    <thead><tr style="background:#f1f5f9">
+                        <th style="padding:6px 8px;border:1px solid #e2e8f0;width:36px">No</th>
+                        <th style="padding:6px 8px;border:1px solid #e2e8f0;text-align:left">품목</th>
+                        <th style="padding:6px 8px;border:1px solid #e2e8f0;width:70px">수량</th>
+                        <th style="padding:6px 8px;border:1px solid #e2e8f0;width:100px">단가</th>
+                        <th style="padding:6px 8px;border:1px solid #e2e8f0;width:120px">금액</th>
+                    </tr></thead><tbody>${rows}</tbody></table>
+                <table style="width:100%;font-size:13px;margin-top:10px"><tr><td></td><td style="width:240px">
+                    <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#64748b">공급가액</span><b>₩${fmtNum(t.subtotal)}</b></div>
+                    ${t.vat ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:#64748b">부가세(10%)</span><b>₩${fmtNum(t.tax)}</b></div>` : ''}
+                    <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:2px solid #0f172a;margin-top:4px;font-size:16px;font-weight:800;color:#0f766e"><span>합계</span><span>₩${fmtNum(t.total)}</span></div>
+                </td></tr></table>
+                ${t.notes ? `<div style="margin-top:12px;font-size:12px;color:#475569"><b>비고</b><br>${esc(t.notes)}</div>` : ''}
+            </div>`;
+        }
+        function openTradeDetail(id) {
+            const t = STATE.trade.find(x => x.id === id); if (!t) return;
+            STATE._openDetail = { type: 'trade', id };
+            const manage = canManageTrade(t);
+            document.getElementById('trade-detail-heading').innerText = `${TRADE_KIND[t.kind][0]} ${t.docNo}`;
+            const statusBtns = manage ? `<div class="flex gap-1.5 flex-wrap">${Object.keys(TRADE_STATUS).map(s => `<button onclick="setTradeStatus(${t.id},'${s}')" class="px-2.5 py-1 rounded-lg text-[12px] font-bold border ${t.status === s ? CHIP_TONES[TRADE_STATUS[s][1]] : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'}">${TRADE_STATUS[s][0]}</button>`).join('')}</div>` : tradeStatusChip(t.status);
+            const ctrl = `<div class="flex flex-wrap items-center gap-2 mb-4">
+                ${statusBtns}
+                <div class="flex gap-2 ml-auto">
+                    <button onclick="printTradeDoc(${t.id})" class="px-3 py-2 bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold rounded-lg flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> 인쇄 / PDF</button>
+                    ${manage ? `<button onclick="openTradeForm(${t.id})" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold rounded-lg">편집</button><button onclick="deleteTrade(${t.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button>` : ''}
+                </div></div>`;
+            document.getElementById('trade-detail-body').innerHTML = ctrl + `<div class="bg-white border border-slate-200 rounded-xl p-5 overflow-x-auto">${tradeDocHTML(t)}</div>`;
+            openModal('trade-detail-modal'); if (window.lucide) lucide.createIcons();
+        }
+        async function setTradeStatus(id, status) {
+            const t = STATE.trade.find(x => x.id === id); if (!t) return;
+            if (!canManageTrade(t)) { showToast('권한 없음', '본인 부서의 문서만 변경할 수 있습니다.'); return; }
+            const { error } = await sb.from('trade_documents').update({ status }).eq('id', id);
+            if (error) { showToast('변경 실패', error.message); return; }
+            await reloadTrade(); renderTrade(); if (!document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(id);
+            showToast('상태 변경', `${TRADE_STATUS[status][0]} 상태로 변경되었습니다.`);
+        }
+        async function deleteTrade(id) {
+            const t = STATE.trade.find(x => x.id === id); if (!t) return;
+            if (!canManageTrade(t)) { showToast('권한 없음', '본인 부서의 문서만 삭제할 수 있습니다.'); return; }
+            if (!confirm(`${TRADE_KIND[t.kind][0]} ${t.docNo} 을(를) 삭제하시겠습니까?`)) return;
+            const { error } = await sb.from('trade_documents').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            logAudit('trade_delete', t.docNo, TRADE_KIND[t.kind][0]);
+            await reloadTrade(); renderTrade(); renderDashboardWidgets(); closeModal('trade-detail-modal');
+            showToast('삭제', '문서가 삭제되었습니다.');
+        }
+        function printTradeDoc(id) {
+            const t = STATE.trade.find(x => x.id === id); if (!t) return;
+            const w = window.open('', '_blank'); if (!w) { showToast('팝업 차단', '인쇄 창을 열 수 없습니다. 팝업 허용 후 다시 시도하세요.'); return; }
+            w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(t.docNo)}</title></head><body style="margin:24px">${tradeDocHTML(t, true)}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+            w.document.close();
+        }
         // 열려 있는 상세 모달을 다른 사용자의 변경에 맞춰 실시간 갱신
         function refreshOpenDetail(type) {
             const od = STATE._openDetail; if (!od || od.type !== type) return;
-            const modalId = { project: 'project-detail-modal', meeting: 'meeting-detail-modal', ticket: 'ticket-detail-modal', asset: 'asset-detail-modal', inventory: 'inventory-detail-modal' }[type];
+            const modalId = { project: 'project-detail-modal', meeting: 'meeting-detail-modal', ticket: 'ticket-detail-modal', asset: 'asset-detail-modal', inventory: 'inventory-detail-modal', trade: 'trade-detail-modal' }[type];
             const modal = document.getElementById(modalId); if (!modal || modal.classList.contains('hidden')) return;
-            const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [], inventory: STATE.inventory || [] };
+            const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [], inventory: STATE.inventory || [], trade: STATE.trade || [] };
             const exists = (lists[type] || []).some(r => r.id === od.id);
             if (!exists) { closeModal(modalId); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
-            const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail, inventory: openInventoryDetail }[type];
+            const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail, inventory: openInventoryDetail, trade: openTradeDetail }[type];
             try { fn(od.id); } catch (e) { }
         }
         function setupRealtime() {
@@ -2022,6 +2329,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, async () => { await reloadInventory(); renderDashboardWidgets(); if (STATE.currentTab === 'inventory') renderInventory(); refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_options' }, async () => { await reloadInventoryOptions(); if (!document.getElementById('inventory-options-modal').classList.contains('hidden')) renderInventoryOptions(); syncInventoryFormOptions(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'trade_documents' }, async () => { await reloadTrade(); renderDashboardWidgets(); if (STATE.currentTab === 'trade') renderTrade(); refreshOpenDetail('trade'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
@@ -2153,6 +2461,7 @@
             const tDept = document.getElementById('ticket-dept'); if (tDept) tDept.innerHTML = inputAll;
             const aDept = document.getElementById('asset-dept'); if (aDept) aDept.innerHTML = inputAll;
             const invDept = document.getElementById('inventory-dept'); if (invDept) invDept.innerHTML = inputAll;
+            const trDept = document.getElementById('trade-dept'); if (trDept) trDept.innerHTML = inputAll;
             // 필터 셀렉트: 항상 전체 부서(조회/필터는 전 부서 허용)
             const docFilter = document.getElementById('doc-filter-dept'); if (docFilter) docFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML;
             const archFilter = document.getElementById('archive-filter-dept'); if (archFilter) { const keep = archFilter.value || 'all'; archFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; archFilter.value = [...archFilter.options].some(o => o.value === keep) ? keep : 'all'; }
@@ -2160,6 +2469,7 @@
             const projFilter = document.getElementById('project-filter-dept'); if (projFilter) { const keep = projFilter.value || 'all'; projFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; projFilter.value = [...projFilter.options].some(o => o.value === keep) ? keep : 'all'; }
             const tFilter = document.getElementById('ticket-filter-dept'); if (tFilter) { const keep = tFilter.value || 'all'; tFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML; tFilter.value = [...tFilter.options].some(o => o.value === keep) ? keep : 'all'; }
             const invFilter = document.getElementById('inventory-filter-dept'); if (invFilter) { const keep = invFilter.value || 'all'; invFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; invFilter.value = [...invFilter.options].some(o => o.value === keep) ? keep : 'all'; }
+            const trFilter = document.getElementById('trade-filter-dept'); if (trFilter) { const keep = trFilter.value || 'all'; trFilter.innerHTML = `<option value="all">전체 부서</option>` + noCeoHTML; trFilter.value = [...trFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
         // ── 담당자 선택기(직원 선택 + 직접 입력 병행) ───────────────────
@@ -2833,16 +3143,16 @@
                     const lb = deptBar[proj.deptId] || 'border-slate-300';
                     const manage = canManageProject(proj);
                     const div = document.createElement('div');
-                    div.className = `bg-white p-4 rounded-xl border border-slate-200/80 border-l-4 ${lb} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all space-y-3`;
-                    if (manage) { div.setAttribute('draggable', 'true'); div.dataset.projId = proj.id; div.addEventListener('dragstart', (e) => onKanbanDragStart(e, proj.id)); div.style.cursor = 'grab'; }
+                    div.className = `bg-white p-4 rounded-xl border border-slate-200/80 border-l-4 ${lb} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all space-y-3 cursor-pointer`;
+                    if (manage) { div.setAttribute('draggable', 'true'); div.dataset.projId = proj.id; div.addEventListener('dragstart', (e) => onKanbanDragStart(e, proj.id)); }
                     const ctrlRow = manage ? `
                         <div class="flex items-center justify-end gap-2.5 pt-2.5 border-t border-slate-100">
-                            <button onclick="openDirectProgressModal(${proj.id})" class="text-[12px] text-indigo-600 hover:underline font-bold">진행도 수정</button>
-                            <button onclick="deleteProject(${proj.id})" class="text-[12px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                            <button onclick="event.stopPropagation(); openEditProject(${proj.id})" class="text-[12px] text-slate-500 hover:text-indigo-600 font-bold">편집</button>
+                            <button onclick="event.stopPropagation(); deleteProject(${proj.id})" class="text-[12px] text-rose-400 hover:text-rose-600 font-bold">삭제</button>
                         </div>`
                         : `<div class="pt-2.5 border-t border-slate-100 text-[11px] text-slate-300 text-center">타 부서 과제 · 열람 전용</div>`;
                     div.innerHTML = `
-                        <h4 onclick="openProjectDetail(${proj.id})" class="font-bold text-[13px] text-slate-800 leading-snug cursor-pointer hover:text-indigo-600 transition-colors">${proj.title}</h4>
+                        <h4 class="font-bold text-[13px] text-slate-800 leading-snug">${proj.title}</h4>
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="px-2 py-0.5 border rounded-md text-[11px] font-bold ${dept ? dept.textTheme : 'bg-slate-100'}">${dept ? dept.name : '전사'}</span>
                             <span class="text-[11px] text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</span>
@@ -2852,6 +3162,7 @@
                             <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full transition-all duration-500" style="width:${proj.progress}%"></div></div>
                         </div>
                         ${ctrlRow}`;
+                    div.addEventListener('click', () => openProjectDetail(proj.id));
                     if (proj.status === 'paused') { p.appendChild(div); pc++; }
                     else if (proj.status === 'ongoing') { o.appendChild(div); oc++; }
                     else if (proj.status === 'completed') { c.appendChild(div); cc++; }
@@ -2869,10 +3180,11 @@
                     const dept = STATE.departments.find(d => d.id === proj.deptId);
                     const bar = statusFill[proj.status] || 'bg-slate-400';
                     const manage = canManageProject(proj);
-                    const delCell = manage ? `<button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[12px]">열람 전용</span>`;
-                    const pctCell = manage ? `<button onclick="openDirectProgressModal(${proj.id})" class="text-indigo-600 font-mono font-bold hover:underline">${proj.progress}%</button>` : `<span class="text-slate-500 font-mono font-bold">${proj.progress}%</span>`;
-                    const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs";
-                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700"><button onclick="openProjectDetail(${proj.id})" class="hover:text-indigo-600 hover:underline text-left">${proj.title}</button></td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
+                    const delCell = manage ? `<button onclick="event.stopPropagation(); deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>` : `<span class="text-slate-300 text-[12px]">열람 전용</span>`;
+                    const pctCell = `<span class="text-slate-500 font-mono font-bold">${proj.progress}%</span>`;
+                    const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors text-xs cursor-pointer";
+                    tr.innerHTML = `<td class="p-3 font-bold text-slate-700">${esc(proj.title)}</td><td class="p-3 font-semibold">${dept ? dept.name : '전사'}</td><td class="p-3 text-slate-400 font-mono">${proj.startDate || '-'} ~ ${proj.endDate || '-'}</td><td class="p-3"><div class="flex items-center gap-2"><div class="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>${pctCell}</div></td><td class="p-3 text-right">${delCell}</td>`;
+                    tr.addEventListener('click', () => openProjectDetail(proj.id));
                     tbody.appendChild(tr);
                 });
             } else if (v === 'gantt') {
@@ -2989,31 +3301,11 @@
                 const durDays = Math.round((e - s) / DAY) + 1;
                 const lines = monthLines.map(x => `<div class="absolute inset-y-0 border-l border-slate-100" style="left:${x}%"></div>`).join('');
                 const row = document.createElement('div'); row.className = "grid grid-cols-12 items-center gap-2 border-b border-slate-50 py-2 last:border-0";
-                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[13px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[11px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${lines}<div onclick="openDirectProgressModal(${proj.id})" title="${proj.startDate} ~ ${proj.endDate} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[11px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
+                row.innerHTML = `<div class="col-span-3"><div class="font-bold text-slate-700 text-[13px] truncate" title="${proj.title}">${proj.title}</div><div class="text-[11px] text-slate-400">${dept ? dept.name : '전사'} · ${proj.startDate}~${proj.endDate}</div></div><div class="col-span-9 relative h-7 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden">${lines}<div onclick="openProjectDetail(${proj.id})" title="${proj.startDate} ~ ${proj.endDate} (${proj.progress}%)" class="absolute inset-y-0 my-auto h-6 ${barBg} hover:brightness-110 rounded-md flex items-center cursor-pointer transition-all shadow-sm overflow-hidden" style="left:${left}%; width:${width}%;"><div class="absolute inset-y-0 left-0 bg-white/30" style="width:${proj.progress}%"></div><span class="relative px-2 text-[11px] font-bold text-white truncate">${proj.progress}% · ${durDays}일</span></div></div>`;
                 container.appendChild(row);
             });
         }
         function canManageProject(proj) { return STATE.profile.role === 'admin' || (proj && proj.deptId === STATE.profile.deptId); }
-        function openDirectProgressModal(id) {
-            const proj = STATE.projects.find(p => p.id === id); if (!proj) return;
-            if (!canManageProject(proj)) { showToast('수정 권한 없음', '본인 소속 부서의 프로젝트만 수정할 수 있습니다.'); return; }
-            document.getElementById('direct-progress-project-id').value = proj.id;
-            document.getElementById('direct-progress-title').innerText = `[${proj.title}] 진행도 직접 보정`;
-            document.getElementById('direct-progress-value').value = proj.progress;
-            openModal('update-progress-modal');
-        }
-        async function handleSaveDirectProgress(e) {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('direct-progress-project-id').value);
-            const proj = STATE.projects.find(p => p.id === id);
-            if (proj && !canManageProject(proj)) { showToast('권한 없음', '본인 소속 부서의 프로젝트만 수정할 수 있습니다.'); return; }
-            const val = parseInt(document.getElementById('direct-progress-value').value);
-            if (isNaN(val) || val < 0 || val > 100) { showToast('오류', '0에서 100사이 수치만 인가 가능합니다.'); return; }
-            const status = (val === 100) ? 'completed' : (val === 0 ? 'paused' : 'ongoing');
-            const { error } = await sb.from('projects').update({ progress: val, status }).eq('id', id);
-            if (error) { showToast('갱신 실패', error.message); return; }
-            await reloadProjects(); closeModal('update-progress-modal'); renderProjects(); showToast('공정 갱신', '진척 수치가 동기화되었습니다.');
-        }
         function handleProjectFileSelection(e) {
             const f = e.target.files[0]; if (!f) return; STATE.projectUploadedFile = f;
             const st = document.getElementById('project-file-status'); if (st) { st.innerText = `첨부: ${f.name} (${humanSize(f.size)})`; st.classList.add('text-indigo-600'); }
@@ -3025,7 +3317,6 @@
             document.getElementById('project-status').value = 'paused';
             document.getElementById('project-start').value = '';
             document.getElementById('project-end').value = '';
-            document.getElementById('project-progress-num').value = 0;
             document.getElementById('project-desc').value = '';
             STATE.projectUploadedFile = null; STATE.projectKeepFile = null;
             const st = document.getElementById('project-file-status'); if (st) { st.innerText = '클릭하여 파일 첨부'; st.classList.remove('text-indigo-600'); }
@@ -3043,7 +3334,6 @@
             document.getElementById('project-status').value = proj.status;
             document.getElementById('project-start').value = proj.startDate || '';
             document.getElementById('project-end').value = proj.endDate || '';
-            document.getElementById('project-progress-num').value = proj.progress;
             document.getElementById('project-desc').value = proj.desc || '';
             STATE.projectUploadedFile = null; STATE.projectKeepFile = { path: proj.filePath, name: proj.fileName, mime: proj.fileMime };
             const st = document.getElementById('project-file-status'); if (st) { st.innerText = proj.filePath ? `현재 파일 유지: ${proj.fileName} (교체하려면 클릭)` : '클릭하여 파일 첨부'; st.classList.remove('text-indigo-600'); }
@@ -3060,9 +3350,9 @@
             const s = document.getElementById('project-start').value || null;
             const end = document.getElementById('project-end').value || null;
             const desc = document.getElementById('project-desc').value;
-            let progress = parseInt(document.getElementById('project-progress-num').value); if (isNaN(progress)) progress = 0; progress = Math.max(0, Math.min(100, progress));
             if (STATE.profile.role !== 'admin' && dept !== STATE.profile.deptId) { showToast('작성 권한 없음', '본인 소속 부서의 프로젝트만 등록할 수 있습니다.'); return; }
-            const payload = { title, dept_id: dept, status, start_date: s, end_date: end, progress, descr: desc };
+            const payload = { title, dept_id: dept, status, start_date: s, end_date: end, descr: desc };
+            if (!id) payload.progress = 0; // 진행도는 상세 항목 완료율로 자동 계산됩니다
             if (STATE.projectUploadedFile) {
                 const f = STATE.projectUploadedFile;
                 const path = safeStorageKey(f.name, 'projects/');
@@ -4383,7 +4673,7 @@
         }
 
         // ── 보안 감사 원장 ───────────────────────────────────────────────
-        const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회', inventory_create: '품목 등록', inventory_update: '품목 수정', inventory_delete: '품목 삭제', stock_in: '입고', stock_out: '출고' };
+        const AUDIT_ACTIONS = { doc_submit: '결재 상신', doc_approve: '문서 승인', doc_reject: '문서 반려', doc_delete: '문서 삭제', user_edit: '권한/정보 변경', user_terminate: '계정 해지', user_approve: '가입 승인', user_reject: '가입 반려', feature_deploy: '기능 배포', feature_edit: '기능 수정', feature_remove: '기능 제거', maintenance: '점검 설정', ticket_delete: 'AS 티켓 삭제', asset_delete: '설비 삭제', project_delete: '프로젝트 삭제', meeting_delete: '주간보고 철회', inventory_create: '품목 등록', inventory_update: '품목 수정', inventory_delete: '품목 삭제', stock_in: '입고', stock_out: '출고', trade_create: '발주/견적 작성', trade_update: '발주/견적 수정', trade_delete: '발주/견적 삭제' };
         async function logAudit(action, target, detail) {
             try { await sb.from('audit_logs').insert({ actor: STATE.profile.name || '', actor_email: (STATE.currentUser || {}).email || '', action, target: target || '', detail: detail || '' }); } catch (e) { }
         }
@@ -4721,6 +5011,7 @@
             'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
             'assets': { title: '설비 자산 대장', desc: '현장 설비 자산과 정기점검(PM) 일정을 관리합니다.' },
             'inventory': { title: '재고 관리', desc: '품목 재고 현황과 입고·출고를 실시간으로 관리합니다.' },
+            'trade': { title: '발주 · 견적', desc: '재고 품목으로 발주서·견적서를 작성하고 발행·인쇄합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
         };
@@ -4766,6 +5057,7 @@
             else if (tabId === 'field-support') { resetPage('tickets'); renderTickets(); }
             else if (tabId === 'assets') { resetPage('assets'); renderAssets(); }
             else if (tabId === 'inventory') { resetPage('inventory'); renderInventory(); }
+            else if (tabId === 'trade') { resetPage('trade'); renderTrade(); }
             else if (tabId === 'management-logs') { resetPage('audit'); await reloadAuditLogs(); renderAuditLogs(); }
             else if (tabId === 'management-progress') renderProjects();
             else if (tabId === 'weekly-meeting') renderWeeklyMeetings();
