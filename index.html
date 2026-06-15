@@ -263,6 +263,7 @@
     </div>
 
     <!-- 사이드바 (Sidebar) -->
+    <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-[200] bg-rose-600 text-white text-center text-[13px] font-bold py-1.5 shadow-lg">⚠️ 네트워크 연결이 끊겼습니다 — 변경 사항이 저장되지 않을 수 있습니다.</div>
     <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden"></div>
     <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
         <div class="p-6 border-b border-slate-200/60">
@@ -1201,6 +1202,17 @@
     </div>
 
     <!-- 문서 미리보기 / 다운로드 모달 -->
+    <!-- 이미지 라이트박스: 창 크기에 맞춰 확대/축소 + 클릭 줌 -->
+    <div id="image-lightbox" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden items-center justify-center z-[110]" onclick="closeImageLightbox(event)">
+        <div id="image-lightbox-title" class="absolute top-4 left-4 z-10 text-white/85 text-sm font-bold max-w-[70vw] truncate pointer-events-none"></div>
+        <a id="image-lightbox-download" href="#" download class="absolute top-4 right-16 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center" title="다운로드" onclick="event.stopPropagation()"><i data-lucide="download" class="w-5 h-5"></i></a>
+        <button onclick="closeImageLightbox()" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center" title="닫기"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div id="image-lightbox-wrap" class="w-full h-full overflow-auto flex items-center justify-center p-4">
+            <img id="image-lightbox-img" src="" alt="" class="object-contain select-none cursor-zoom-in" style="max-width:94vw;max-height:88vh;" onclick="toggleLightboxZoom(event)" draggable="false">
+        </div>
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-[12px] pointer-events-none">사진을 클릭하면 원본 크기로 확대/축소됩니다</div>
+    </div>
+
     <div id="doc-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden border">
             <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
@@ -1413,6 +1425,9 @@
         async function initApp() {
             lucide.createIcons();
             initTheme();
+            updateOnlineStatus();
+            window.addEventListener('online', () => { updateOnlineStatus(); showToast('연결 복구', '네트워크에 다시 연결되었습니다.'); });
+            window.addEventListener('offline', () => { updateOnlineStatus(); });
             populateHeaderSelects();
             renderFilters();
             renderDeptOptions();
@@ -2134,17 +2149,71 @@
             const pane = document.getElementById('sheet-pane-' + i); if (pane) pane.classList.remove('hidden');
             const tab = document.getElementById('sheet-tab-' + i); if (tab) tab.className = 'px-3 py-1.5 text-[13px] font-bold rounded-t-lg bg-white text-slate-800 border border-b-0';
         }
+        // 이미지 라이트박스(창 크기에 맞춰 확대/축소, 클릭 줌)
+        function openImageLightbox(title, url) {
+            const lb = document.getElementById('image-lightbox'); if (!lb) return;
+            const t = document.getElementById('image-lightbox-title'); if (t) t.innerText = title || '';
+            const dl = document.getElementById('image-lightbox-download'); if (dl) { dl.href = url; dl.setAttribute('download', title || 'image'); }
+            const img = document.getElementById('image-lightbox-img');
+            if (img) { img.src = url; img.style.maxWidth = '94vw'; img.style.maxHeight = '88vh'; img.classList.remove('cursor-zoom-out'); img.classList.add('cursor-zoom-in'); img.dataset.zoomed = ''; }
+            lb.classList.remove('hidden'); lb.classList.add('flex');
+            if (window.lucide) lucide.createIcons();
+        }
+        function toggleLightboxZoom(e) {
+            if (e) e.stopPropagation();
+            const img = document.getElementById('image-lightbox-img'); if (!img) return;
+            const wrap = document.getElementById('image-lightbox-wrap');
+            if (img.dataset.zoomed) {
+                img.dataset.zoomed = ''; img.style.maxWidth = '94vw'; img.style.maxHeight = '88vh';
+                img.classList.remove('cursor-zoom-out'); img.classList.add('cursor-zoom-in');
+                if (wrap) { wrap.classList.add('items-center', 'justify-center'); }
+            } else {
+                img.dataset.zoomed = '1'; img.style.maxWidth = 'none'; img.style.maxHeight = 'none';
+                img.classList.remove('cursor-zoom-in'); img.classList.add('cursor-zoom-out');
+                if (wrap) { wrap.classList.remove('items-center', 'justify-center'); }
+            }
+        }
+        function closeImageLightbox(e) {
+            if (e && e.target && e.target.id === 'image-lightbox-img') return; // 사진 클릭은 줌(닫지 않음)
+            const lb = document.getElementById('image-lightbox'); if (lb) { lb.classList.add('hidden'); lb.classList.remove('flex'); }
+            const img = document.getElementById('image-lightbox-img'); if (img) { img.src = ''; img.dataset.zoomed = ''; }
+        }
+        // ── UX: ESC 닫기 / 연결 상태 표시 / 알림 개별 삭제 ───────────────
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape' && e.keyCode !== 27) return;
+            const lb = document.getElementById('image-lightbox');
+            if (lb && !lb.classList.contains('hidden')) { closeImageLightbox(); return; }
+            const overlays = [...document.querySelectorAll('div.fixed.inset-0')].filter(el => el.id && el.id.endsWith('modal') && !el.classList.contains('hidden'));
+            if (overlays.length) {
+                overlays.sort((a, b) => (parseInt(getComputedStyle(a).zIndex) || 0) - (parseInt(getComputedStyle(b).zIndex) || 0));
+                closeModal(overlays[overlays.length - 1].id); return;
+            }
+            const sb = document.getElementById('app-sidebar'); if (sb && sb.classList.contains('open')) closeSidebar();
+        });
+        function updateOnlineStatus() {
+            const b = document.getElementById('offline-banner'); if (!b) return;
+            b.classList.toggle('hidden', navigator.onLine);
+        }
+        function dismissedNotifKey() { return 'wsp_dismissed_notif_' + (STATE.currentUser ? STATE.currentUser.id : 'anon'); }
+        function getDismissedNotif() { try { const r = localStorage.getItem(dismissedNotifKey()); return new Set(r ? JSON.parse(r) : []); } catch (e) { return new Set(); } }
+        function dismissNotif(id) {
+            try { const s = getDismissedNotif(); s.add(id); localStorage.setItem(dismissedNotifKey(), JSON.stringify([...s])); } catch (e) { }
+            renderNotificationCenter();
+        }
+        function isImageFile(mime, ext) {
+            mime = (mime || '').toLowerCase(); ext = (ext || '').toLowerCase();
+            return mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext);
+        }
         async function openFilePreview(title, url, mime, ext) {
+            mime = (mime || '').toLowerCase(); ext = (ext || '').toLowerCase();
+            // 이미지는 전용 라이트박스(창 크기에 맞춰 확대/축소)로
+            if (isImageFile(mime, ext)) { openImageLightbox(title, url); return; }
             const body = document.getElementById('doc-preview-body');
             const dl = document.getElementById('doc-preview-download');
             document.getElementById('doc-preview-title').innerText = title;
             dl.href = url; dl.classList.remove('hidden'); dl.setAttribute('download', title);
             openModal('doc-preview-modal');
-            mime = (mime || '').toLowerCase(); ext = (ext || '').toLowerCase();
             const has = (t) => mime.indexOf(t) >= 0;
-            // 이미지
-            if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) { body.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain">`; return; }
-            // PDF
             if (mime === 'application/pdf' || ext === 'pdf') { body.innerHTML = `<iframe src="${url}" class="w-full h-full" frameborder="0"></iframe>`; return; }
             // Word(docx) → docx-preview(고품질) → mammoth → Office 뷰어 순으로 시도
             if (has('wordprocessingml') || ext === 'docx') {
@@ -4393,7 +4462,9 @@
             const box = document.getElementById('dashboard-mytasks');
             const countEl = document.getElementById('dashboard-mytasks-count');
             const ackBtn = document.getElementById('dashboard-mytasks-ack');
-            const items = buildNotifications();
+            const allItems = buildNotifications();
+            const dismissed = getDismissedNotif();
+            const items = allItems.filter(n => !dismissed.has(n.id));
             STATE._notifIds = items.map(n => n.id);
             const seen = getSeenTasks();
             const unseen = items.filter(n => !seen.has(n.id)).length;
@@ -4416,7 +4487,7 @@
                             <i data-lucide="${n.icon}" class="w-4 h-4 ${n.color} mt-0.5 flex-shrink-0"></i>
                             <div class="min-w-0"><div class="text-sm font-bold text-slate-800 truncate">${esc(n.title)} ${isNew ? '<span class=\'ml-1 inline-block w-2 h-2 rounded-full bg-rose-500 align-middle\'></span>' : ''}</div><div class="text-[12px] text-slate-400 truncate">${esc(n.sub)}</div></div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+                        <button onclick="event.stopPropagation(); dismissNotif('${n.id}')" title="이 알림 삭제" class="w-6 h-6 rounded-full text-slate-300 hover:text-rose-500 hover:bg-rose-50 flex items-center justify-center flex-shrink-0"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
                     </div>`;
                 }).join('');
                 return `<div class="space-y-1.5"><div class="text-[12px] font-bold text-slate-500 flex items-center gap-1.5">${esc(g)} <span class="text-slate-300">${groups[g].length}</span></div>${rows}</div>`;
