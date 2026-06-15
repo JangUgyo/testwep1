@@ -1157,6 +1157,24 @@
         </div>
     </div>
 
+    <!-- 발주/견적 → 재고 반영(입고/출고) 처리 -->
+    <div id="trade-stock-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[78] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0">
+                <i data-lucide="package-plus" class="w-4 h-4 text-amber-600"></i>
+                <h4 id="trade-stock-title" class="font-bold text-sm text-slate-800">재고 반영 처리</h4>
+            </div>
+            <div class="p-6 space-y-3 overflow-y-auto">
+                <div id="trade-stock-note" class="text-[12px] text-slate-500 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2"></div>
+                <div id="trade-stock-body" class="space-y-2"></div>
+            </div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModal('trade-stock-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                <button type="button" onclick="handleApplyTradeStock()" class="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold">재고에 반영</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 발주/견적: 상세(문서 보기) -->
     <div id="trade-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-6">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[92vh] overflow-hidden border flex flex-col">
@@ -2153,6 +2171,7 @@
                 client: r.client || r.partner || '', service: r.service || '', pjtTitle: r.pjt_title || '', inqNo: r.inq_no || '', itemNo: r.item_no || '',
                 personInCharge: r.person_in_charge || r.partner_contact || '', payment: r.payment || '', delivery: r.delivery || '', terms: r.terms || '', validity: r.validity || '',
                 issuerTel: r.issuer_tel || '', issuerFax: r.issuer_fax || '', issuerEmail: r.issuer_email || '',
+                receivedAt: r.received_at || null,
                 docDate: r.doc_date || '', status: r.status || 'draft',
                 items: (Array.isArray(r.items) ? r.items : []).map(x => ({ description: x.description || x.name || '', notes: x.notes || '', unit: x.unit || '', qty: Number(x.qty) || 0, unitPrice: Number(x.unitPrice) || 0, sub: !!x.sub })),
                 remarks: Array.isArray(r.remarks) ? r.remarks : [],
@@ -2451,9 +2470,12 @@
             const manage = canManageTrade(t);
             document.getElementById('trade-detail-heading').innerText = `${TRADE_KIND[t.kind][0]} ${t.docNo}`;
             const statusBtns = manage ? `<div class="flex gap-1.5 flex-wrap">${Object.keys(TRADE_STATUS).map(s => `<button onclick="setTradeStatus(${t.id},'${s}')" class="px-2.5 py-1 rounded-lg text-[12px] font-bold border ${t.status === s ? CHIP_TONES[TRADE_STATUS[s][1]] : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'}">${TRADE_STATUS[s][0]}</button>`).join('')}</div>` : tradeStatusChip(t.status);
+            const stockBadge = t.receivedAt ? `<span class="wsp-chip bg-emerald-50 text-emerald-700 border-emerald-200">재고 ${t.kind === 'po' ? '입고' : '출고'} 완료 · ${(t.receivedAt || '').slice(0, 10)}</span>` : '';
+            const stockBtn = (manage && !t.receivedAt && !STATE.tradeTableMissing) ? `<button onclick="openTradeStockModal(${t.id})" class="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg flex items-center gap-1"><i data-lucide="package-plus" class="w-3.5 h-3.5"></i> 재고 ${t.kind === 'po' ? '입고' : '출고'} 처리</button>` : '';
             const ctrl = `<div class="flex flex-wrap items-center gap-2 mb-4">
-                ${statusBtns}
+                ${statusBtns}${stockBadge}
                 <div class="flex gap-2 ml-auto">
+                    ${stockBtn}
                     <button onclick="printTradeDoc(${t.id})" class="px-3 py-2 bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold rounded-lg flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> PDF 출력 / 인쇄</button>
                     ${manage ? `<button onclick="openTradeForm(${t.id})" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold rounded-lg">편집</button><button onclick="deleteTrade(${t.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button>` : ''}
                 </div></div>`;
@@ -2468,6 +2490,9 @@
             if (error) { showToast('변경 실패', error.message); return; }
             await reloadTrade(); renderTrade(); if (!document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(id);
             showToast('상태 변경', `${TRADE_STATUS[status][0]} 상태로 변경되었습니다.`);
+            // 완료 처리 시 아직 재고 반영 전이면 입고/출고 처리 창을 자동으로 안내
+            const t2 = STATE.trade.find(x => x.id === id);
+            if (status === 'done' && t2 && !t2.receivedAt && !STATE.tradeTableMissing && canManageTrade(t2)) openTradeStockModal(id);
         }
         async function deleteTrade(id) {
             const t = STATE.trade.find(x => x.id === id); if (!t) return;
@@ -2478,6 +2503,58 @@
             logAudit('trade_delete', t.docNo, TRADE_KIND[t.kind][0]);
             await reloadTrade(); renderTrade(); renderDashboardWidgets(); closeModal('trade-detail-modal');
             showToast('삭제', '문서가 삭제되었습니다.');
+        }
+        // ── 발주↔재고 자동 연동 ──
+        function tradeStockKindOf(t) { return t.kind === 'po' ? 'in' : 'out'; }
+        function openTradeStockModal(id) {
+            const t = STATE.trade.find(x => x.id === id); if (!t) return;
+            if (!canManageTrade(t)) { showToast('권한 없음', '본인 부서의 문서만 처리할 수 있습니다.'); return; }
+            if (t.receivedAt) { showToast('이미 반영됨', '이미 재고에 반영된 문서입니다.'); return; }
+            if (STATE.tradeTableMissing) return;
+            const kind = tradeStockKindOf(t);
+            const rows = (t.items || []).filter(it => !it.sub).map(it => {
+                const match = (STATE.inventory || []).find(inv => inv.name && it.description && inv.name.trim() === it.description.trim());
+                return { description: it.description, qty: Number(it.qty) || 0, itemId: match ? match.id : '' };
+            });
+            STATE.tradeStockDraft = { tradeId: id, kind, rows };
+            document.getElementById('trade-stock-title').innerText = (kind === 'in' ? '재고 입고 처리' : '재고 출고 처리') + ' · ' + t.docNo;
+            renderTradeStockRows();
+            openModal('trade-stock-modal');
+        }
+        function renderTradeStockRows() {
+            const wrap = document.getElementById('trade-stock-body'); if (!wrap) return;
+            const d = STATE.tradeStockDraft; if (!d) return;
+            const invOpts = (STATE.inventory || []).map(i => `<option value="${i.id}">${esc(i.name)}${i.sku ? ' (' + esc(i.sku) + ')' : ''}</option>`).join('');
+            wrap.innerHTML = d.rows.length ? d.rows.map((r, i) => `
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 border border-slate-100 rounded-xl p-3">
+                    <div class="flex-1 min-w-0"><div class="font-semibold text-slate-700 text-sm truncate">${esc(r.description) || '(이름 없음)'}</div><div class="text-[12px] text-slate-400">문서 수량 ${fmtNum(r.qty)}</div></div>
+                    <select onchange="updateTradeStockRow(${i},'itemId',this.value)" class="px-2.5 py-2 border rounded-lg text-[13px] bg-white outline-none sm:w-56"><option value="">재고 반영 안 함</option>${invOpts}</select>
+                    <input type="number" step="any" min="0" value="${r.qty}" oninput="updateTradeStockRow(${i},'qty',this.value)" class="w-full sm:w-24 px-2 py-2 border rounded-lg text-[13px] text-right outline-none" title="반영 수량">
+                </div>`).join('') : '<div class="wsp-empty">반영할 품목이 없습니다.</div>';
+            d.rows.forEach((r, i) => { if (r.itemId) { const s = wrap.children[i] && wrap.children[i].querySelector('select'); if (s) s.value = String(r.itemId); } });
+            const note = document.getElementById('trade-stock-note');
+            if (note) note.innerText = d.kind === 'in' ? '발주 품목을 선택한 재고 품목에 입고합니다. 반영하지 않을 줄은 "재고 반영 안 함"으로 두세요.' : '견적 품목을 선택한 재고 품목에서 출고합니다. (현재고보다 많으면 막힙니다)';
+            if (window.lucide) lucide.createIcons();
+        }
+        function updateTradeStockRow(i, field, val) { const r = STATE.tradeStockDraft.rows[i]; if (!r) return; r[field] = field === 'qty' ? (parseFloat(val) || 0) : val; }
+        async function handleApplyTradeStock() {
+            const d = STATE.tradeStockDraft; if (!d) return;
+            const t = STATE.trade.find(x => x.id === d.tradeId); if (!t) return;
+            const targets = d.rows.filter(r => r.itemId && Number(r.qty) > 0);
+            if (!targets.length) { showToast('선택 필요', '재고에 반영할 품목을 1건 이상 선택하세요.'); return; }
+            let okc = 0; const fail = [];
+            for (const r of targets) {
+                const { error } = await sb.rpc('apply_stock_move', { p_item_id: parseInt(r.itemId), p_kind: d.kind, p_qty: Number(r.qty), p_reason: `${t.docNo} ${d.kind === 'in' ? '발주 입고' : '견적 출고'}` });
+                if (error) { const inv = (STATE.inventory || []).find(x => String(x.id) === String(r.itemId)); const m = (error.message || '').toLowerCase(); fail.push((inv ? inv.name : r.itemId) + ': ' + (m.indexOf('insufficient') >= 0 ? '재고 부족' : m.indexOf('forbidden') >= 0 ? '권한 없음' : m.indexOf('function') >= 0 || m.indexOf('does not exist') >= 0 ? '함수 미설치' : '실패')); }
+                else okc++;
+            }
+            if (okc > 0) { await sb.from('trade_documents').update({ received_at: new Date().toISOString() }).eq('id', t.id); }
+            await reloadInventory(); await reloadStockMoves(); await reloadTrade();
+            renderInventory(); renderTrade(); renderDashboardWidgets();
+            closeModal('trade-stock-modal');
+            if (!document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(t.id);
+            if (fail.length) showToast(`일부 실패 (성공 ${okc}건)`, fail.slice(0, 3).join(' / '));
+            else showToast('재고 반영 완료', `${okc}건이 ${d.kind === 'in' ? '입고' : '출고'} 처리되었습니다.`);
         }
         // 새 창 없이 인쇄/PDF — 숨겨진 iframe 사용 (로고 로드 후 인쇄)
         function printTradeDoc(id) {
