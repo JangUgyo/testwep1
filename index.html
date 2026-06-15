@@ -1622,6 +1622,8 @@
             if (maintCtrl) maintCtrl.classList.toggle('hidden', !isAdmin);
             const featBtn = document.getElementById('add-feature-btn');
             if (featBtn) featBtn.classList.toggle('hidden', !isAdmin);
+            // 로그인한 사용자 기준으로 작성 폼 부서 옵션을 다시 채움(본인 부서 로드 보장)
+            renderDeptOptions();
         }
 
         async function toggleActiveTabMaintenance() {
@@ -1681,14 +1683,17 @@
         }
         function renderDeptOptions() {
             const isAdmin = STATE.profile && STATE.profile.role === 'admin';
+            const loggedIn = !!(STATE.currentUser && STATE.currentUser.id);
             const myDept = STATE.profile && STATE.profile.deptId;
             const optionsHTML = STATE.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             const noCeoHTML = STATE.departments.filter(d => d.id !== 'ceo').map(d => `<option value="${d.id}">${d.name}</option>`).join('');
             const ownDept = STATE.departments.find(d => d.id === myDept);
             const ownHTML = ownDept ? `<option value="${ownDept.id}">${ownDept.name}</option>` : '';
-            // 입력(작성) 셀렉트: 관리자는 전체, 일반 직원은 본인 부서만 (본인 부서만 작성)
-            const inputAll = isAdmin ? optionsHTML : (ownHTML || optionsHTML);
-            const inputNoCeo = isAdmin ? noCeoHTML : (ownHTML || noCeoHTML);
+            // 본인 부서로 제한하는 건 "로그인한 비관리자 + 본인 부서를 실제로 찾았을 때"만.
+            // (로그인 전이거나 부서를 못 찾으면 전체 목록으로 둬서 작성이 막히지 않게 함)
+            const restrict = loggedIn && !isAdmin && !!ownHTML;
+            const inputAll = restrict ? ownHTML : optionsHTML;
+            const inputNoCeo = restrict ? ownHTML : noCeoHTML;
             // profile-dept(소속부서)·signup-dept는 전체 목록 유지(권한은 별도 제어)
             ['event-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = inputAll; });
             ['profile-dept', 'signup-dept'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = optionsHTML; });
