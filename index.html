@@ -1014,7 +1014,7 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현장명</label><input type="text" id="asset-site" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">점검 주기 (일)</label><input type="number" id="asset-pm-cycle" min="0" placeholder="예: 90 (0=미사용)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">최근 점검일</label><input type="date" id="asset-last-pm" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="asset-assignee" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><select id="asset-assignee-select" onchange="onPersonSelectChange('asset-assignee-select','asset-assignee-custom')" class="w-full px-3 py-2 border rounded-lg text-sm outline-none bg-white"></select><input type="text" id="asset-assignee-custom" placeholder="담당자 직접 입력" class="hidden mt-1.5 w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">직책</label><input type="text" id="asset-position" placeholder="예: 책임/선임" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div class="col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="asset-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                 </div>
@@ -1034,7 +1034,7 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">고객사</label><input type="text" id="ticket-customer" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현장명</label><input type="text" id="ticket-site" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">장비명</label><input type="text" id="ticket-equipment" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="ticket-assignee" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><select id="ticket-assignee-select" onchange="onPersonSelectChange('ticket-assignee-select','ticket-assignee-custom')" class="w-full px-3 py-2 border rounded-lg text-sm outline-none bg-white"></select><input type="text" id="ticket-assignee-custom" placeholder="담당자 직접 입력" class="hidden mt-1.5 w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">긴급도</label><select id="ticket-urgency" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"><option value="low">낮음</option><option value="normal" selected>보통</option><option value="high">높음</option><option value="critical">긴급</option></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">처리 상태</label><select id="ticket-status" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"><option value="received">접수</option><option value="in_progress">진행중</option><option value="hold">보류</option><option value="done">완료</option></select></div>
                     <div class="col-span-2"><label class="block text-[12px] font-bold text-slate-500 mb-1">담당 부서</label><select id="ticket-dept" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
@@ -1081,7 +1081,7 @@
                 <input type="hidden" id="pitem-project-id"><input type="hidden" id="pitem-id">
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">프로젝트 정보 (항목명)</label><input type="text" id="pitem-info" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="pitem-manager" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><select id="pitem-manager-select" onchange="onPersonSelectChange('pitem-manager-select','pitem-manager-custom')" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select><input type="text" id="pitem-manager-custom" placeholder="담당자 직접 입력" class="hidden mt-1.5 w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                     <div></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">시작일자</label><input type="date" id="pitem-start" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">종료일자</label><input type="date" id="pitem-end" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none"></div>
@@ -1101,7 +1101,7 @@
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">요일</label><select id="mday-weekday" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"><option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option><option value="3">목요일</option><option value="4">금요일</option><option value="5">토요일</option><option value="6">일요일</option></select></div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">업무명</label><input type="text" id="mday-taskname" placeholder="예: 추출기 차압 점검" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><input type="text" id="mday-manager" placeholder="예: 박과장" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">담당자</label><select id="mday-manager-select" onchange="onPersonSelectChange('mday-manager-select','mday-manager-custom')" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select><input type="text" id="mday-manager-custom" placeholder="담당자 직접 입력 (예: 박과장)" class="hidden mt-1.5 w-full px-3 py-2 border rounded-lg text-xs outline-none"></div>
                 </div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">상세 내용</label><textarea id="mday-content" required rows="3" class="w-full px-3 py-2 border rounded-lg text-xs outline-none"></textarea></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">연관 프로젝트 (선택)</label><select id="mday-project" onchange="onMdayProjectChange()" class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white"></select></div>
@@ -1531,7 +1531,7 @@
                 const { data, error } = await sb.from('tickets').select('*').order('id', { ascending: false }).limit(1000);
                 if (error) { STATE.ticketsTableMissing = true; STATE.tickets = []; return; }
                 STATE.ticketsTableMissing = false;
-                STATE.tickets = (data || []).map(r => ({ id: r.id, customer: r.customer, site: r.site, equipment: r.equipment, issue: r.issue, urgency: r.urgency || 'normal', assignee: r.assignee, status: r.status || 'received', result: r.result, deptId: r.dept_id, author: r.author, photos: Array.isArray(r.photos) ? r.photos : [], createdAt: r.created_at }));
+                STATE.tickets = (data || []).map(r => ({ id: r.id, customer: r.customer, site: r.site, equipment: r.equipment, issue: r.issue, urgency: r.urgency || 'normal', assignee: r.assignee, status: r.status || 'received', result: r.result, deptId: r.dept_id, author: r.author, photos: Array.isArray(r.photos) ? r.photos : [], createdAt: r.created_at, assigneeId: r.assignee_id || '' }));
             } catch (e) { STATE.ticketsTableMissing = true; STATE.tickets = []; }
         }
         async function reloadMeetings() {
@@ -1703,6 +1703,41 @@
             const tFilter = document.getElementById('ticket-filter-dept'); if (tFilter) { const keep = tFilter.value || 'all'; tFilter.innerHTML = `<option value="all">전체 부서</option>` + optionsHTML; tFilter.value = [...tFilter.options].some(o => o.value === keep) ? keep : 'all'; }
         }
         function toggleVisibility(id) { STATE.visibility[id] = !STATE.visibility[id]; renderCalendar(); renderDashboardWidgets(); }
+        // ── 담당자 선택기(직원 선택 + 직접 입력 병행) ───────────────────
+        // 가입된 직원을 고르면 UUID가 함께 저장되어 이름이 바뀌어도 알림이 유지됨.
+        // '+ 직접 입력'을 고르면 계정 없는 사람(외주 등)을 자유 텍스트로 기입.
+        function fillPersonSelect(selectId, customId, curId, curName) {
+            const sel = document.getElementById(selectId); const cust = document.getElementById(customId);
+            if (!sel) return;
+            const approvedUsers = STATE.users.filter(u => u.approved);
+            const opts = approvedUsers.map(u => { const dn = (STATE.departments.find(d => d.id === u.deptId) || {}).name || ''; return `<option value="${u.id}">${esc(u.name)}${dn ? ' (' + esc(dn) + ')' : ''}</option>`; }).join('');
+            sel.innerHTML = `<option value="">(미지정)</option>` + opts + `<option value="__custom__">+ 직접 입력</option>`;
+            const matched = curId && approvedUsers.some(u => u.id === curId);
+            if (matched) { sel.value = curId; if (cust) { cust.classList.add('hidden'); cust.value = ''; } }
+            else if (curName) { sel.value = '__custom__'; if (cust) { cust.classList.remove('hidden'); cust.value = curName; } }
+            else { sel.value = ''; if (cust) { cust.classList.add('hidden'); cust.value = ''; } }
+        }
+        function onPersonSelectChange(selectId, customId) {
+            const sel = document.getElementById(selectId); const cust = document.getElementById(customId);
+            if (!sel || !cust) return;
+            if (sel.value === '__custom__') { cust.classList.remove('hidden'); cust.focus(); }
+            else { cust.classList.add('hidden'); cust.value = ''; }
+        }
+        function readPerson(selectId, customId) {
+            const sel = document.getElementById(selectId); const cust = document.getElementById(customId);
+            if (!sel) return { id: '', name: '' };
+            if (sel.value === '__custom__') return { id: '', name: cust ? cust.value.trim() : '' };
+            if (!sel.value) return { id: '', name: '' };
+            const u = STATE.users.find(x => x.id === sel.value);
+            return { id: sel.value, name: u ? u.name : '' };
+        }
+        // 알림/담당 매칭: UUID 우선, 없으면(직접 입력·과거 데이터) 이름으로 매칭
+        function isMine(id, name) {
+            const myId = STATE.currentUser && STATE.currentUser.id;
+            const myName = (STATE.profile.name || '').trim();
+            if (id) return id === myId;
+            return !!name && name.trim() === myName;
+        }
         function populateHeaderSelects() {
             const ys = document.getElementById('cal-year-select'), ms = document.getElementById('cal-month-select');
             if (!ys || !ms) return; ys.innerHTML = ''; ms.innerHTML = '';
@@ -2645,7 +2680,7 @@
             document.getElementById('pitem-id').value = itemId || '';
             const it = itemId ? (proj.items || []).find(x => x.id === itemId) : null;
             document.getElementById('pitem-info').value = it ? it.info : '';
-            document.getElementById('pitem-manager').value = it ? (it.manager || '') : '';
+            fillPersonSelect('pitem-manager-select', 'pitem-manager-custom', it ? it.managerId : '', it ? it.manager : '');
             document.getElementById('pitem-start').value = it ? (it.start || '') : '';
             document.getElementById('pitem-end').value = it ? (it.end || '') : '';
             document.getElementById('pitem-detail').value = it ? (it.detail || '') : '';
@@ -2657,7 +2692,8 @@
             const projectId = parseInt(document.getElementById('pitem-project-id').value);
             const itemId = document.getElementById('pitem-id').value;
             const proj = STATE.projects.find(p => p.id === projectId); if (!proj) return;
-            const entry = { id: itemId || ('pi_' + Date.now()), info: document.getElementById('pitem-info').value.trim(), manager: document.getElementById('pitem-manager').value.trim(), start: document.getElementById('pitem-start').value, end: document.getElementById('pitem-end').value, detail: document.getElementById('pitem-detail').value.trim() };
+            const _pm = readPerson('pitem-manager-select', 'pitem-manager-custom');
+            const entry = { id: itemId || ('pi_' + Date.now()), info: document.getElementById('pitem-info').value.trim(), manager: _pm.name, managerId: _pm.id, start: document.getElementById('pitem-start').value, end: document.getElementById('pitem-end').value, detail: document.getElementById('pitem-detail').value.trim() };
             let items = (proj.items || []).slice();
             if (itemId) { const i = items.findIndex(x => x.id === itemId); if (i >= 0) items[i] = entry; else items.push(entry); }
             else items.push(entry);
@@ -2928,7 +2964,7 @@
             document.getElementById('mday-weekday').value = String(en ? en.weekday : (weekday || 0));
             document.getElementById('mday-content').value = en ? en.content : '';
             document.getElementById('mday-taskname').value = en ? (en.taskName || '') : '';
-            document.getElementById('mday-manager').value = en ? (en.manager || '') : '';
+            fillPersonSelect('mday-manager-select', 'mday-manager-custom', en ? en.managerId : '', en ? en.manager : '');
             populateMdayProjectSelect(en ? en.projectId : '');
             onMdayProjectChange(en ? en.projectItemId : '');
             STATE.mdayFile = null;
@@ -2961,7 +2997,8 @@
                 if (entryId && keep.path) { try { await sb.storage.from('documents').remove([keep.path]); } catch (er) {} }
                 filePath = newPath; fileName = f.name; fileMime = f.type || '';
             }
-            const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), taskName: document.getElementById('mday-taskname').value.trim(), manager: document.getElementById('mday-manager').value.trim(), content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel, filePath, fileName, fileMime };
+            const _mm = readPerson('mday-manager-select', 'mday-manager-custom');
+            const entry = { id: entryId || ('md_' + Date.now()), weekday: parseInt(document.getElementById('mday-weekday').value), taskName: document.getElementById('mday-taskname').value.trim(), manager: _mm.name, managerId: _mm.id, content: document.getElementById('mday-content').value.trim(), projectId: pid, projectItemId: itemId, projectItemLabel: itemLabel, filePath, fileName, fileMime };
             let days = (meet.days || []).slice();
             if (entryId) { const i = days.findIndex(d => d.id === entryId); if (i >= 0) days[i] = entry; else days.push(entry); }
             else days.push(entry);
@@ -3666,7 +3703,7 @@
             document.getElementById('ticket-customer').value = t ? (t.customer || '') : '';
             document.getElementById('ticket-site').value = t ? (t.site || '') : '';
             document.getElementById('ticket-equipment').value = t ? (t.equipment || '') : '';
-            document.getElementById('ticket-assignee').value = t ? (t.assignee || '') : (STATE.profile.name || '');
+            fillPersonSelect('ticket-assignee-select', 'ticket-assignee-custom', t ? t.assigneeId : (STATE.currentUser ? STATE.currentUser.id : ''), t ? t.assignee : (STATE.profile.name || ''));
             document.getElementById('ticket-urgency').value = t ? (t.urgency || 'normal') : 'normal';
             document.getElementById('ticket-status').value = t ? (t.status || 'received') : 'received';
             document.getElementById('ticket-issue').value = t ? (t.issue || '') : '';
@@ -3688,11 +3725,12 @@
                 if (upErr) { showToast('사진 업로드 실패', upErr.message); return; }
                 photos.push({ path, name: file.name, mime: file.type || '' });
             }
+            const _ta = readPerson('ticket-assignee-select', 'ticket-assignee-custom');
             const row = {
                 customer: document.getElementById('ticket-customer').value.trim(),
                 site: document.getElementById('ticket-site').value.trim(),
                 equipment: document.getElementById('ticket-equipment').value.trim(),
-                assignee: document.getElementById('ticket-assignee').value.trim(),
+                assignee: _ta.name, assignee_id: _ta.id,
                 urgency: document.getElementById('ticket-urgency').value,
                 status: document.getElementById('ticket-status').value,
                 issue: document.getElementById('ticket-issue').value.trim(),
@@ -3848,7 +3886,7 @@
                 const { data, error } = await sb.from('assets').select('*').order('id', { ascending: false }).limit(1000);
                 if (error) { STATE.assetsTableMissing = true; STATE.assets = []; return; }
                 STATE.assetsTableMissing = false;
-                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '', assignee: r.assignee || '', position: r.position || '', deptId: r.dept_id || '' }));
+                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '', assignee: r.assignee || '', position: r.position || '', deptId: r.dept_id || '', assigneeId: r.assignee_id || '' }));
             } catch (e) { STATE.assetsTableMissing = true; STATE.assets = []; }
         }
         function assetPmInfo(a) {
@@ -3918,7 +3956,7 @@
             document.getElementById('asset-site').value = a ? (a.site || '') : '';
             document.getElementById('asset-pm-cycle').value = a ? (a.pmCycle || '') : '';
             document.getElementById('asset-last-pm').value = a ? (a.lastPm || '') : '';
-            document.getElementById('asset-assignee').value = a ? (a.assignee || '') : (STATE.profile.name || '');
+            fillPersonSelect('asset-assignee-select', 'asset-assignee-custom', a ? a.assigneeId : (STATE.currentUser ? STATE.currentUser.id : ''), a ? a.assignee : (STATE.profile.name || ''));
             document.getElementById('asset-position').value = a ? (a.position || '') : (STATE.profile.position || '');
             const dsel = document.getElementById('asset-dept'); if (dsel) dsel.value = a ? (a.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('asset-notes').value = a ? (a.notes || '') : '';
@@ -3928,7 +3966,8 @@
         async function handleSaveAsset(e) {
             e.preventDefault();
             const id = document.getElementById('asset-id').value;
-            const row = { name: document.getElementById('asset-name').value.trim(), model: document.getElementById('asset-model').value.trim(), customer: document.getElementById('asset-customer').value.trim(), site: document.getElementById('asset-site').value.trim(), pm_cycle: parseInt(document.getElementById('asset-pm-cycle').value) || 0, last_pm: document.getElementById('asset-last-pm').value || null, notes: document.getElementById('asset-notes').value.trim(), assignee: document.getElementById('asset-assignee').value.trim(), position: document.getElementById('asset-position').value.trim(), dept_id: document.getElementById('asset-dept').value };
+            const _aa = readPerson('asset-assignee-select', 'asset-assignee-custom');
+            const row = { name: document.getElementById('asset-name').value.trim(), model: document.getElementById('asset-model').value.trim(), customer: document.getElementById('asset-customer').value.trim(), site: document.getElementById('asset-site').value.trim(), pm_cycle: parseInt(document.getElementById('asset-pm-cycle').value) || 0, last_pm: document.getElementById('asset-last-pm').value || null, notes: document.getElementById('asset-notes').value.trim(), assignee: _aa.name, assignee_id: _aa.id, position: document.getElementById('asset-position').value.trim(), dept_id: document.getElementById('asset-dept').value };
             let error;
             if (id) { ({ error } = await sb.from('assets').update(row).eq('id', parseInt(id))); }
             else { ({ error } = await sb.from('assets').insert(row)); }
@@ -4304,20 +4343,21 @@
                 items.push({ id: 'rej_' + d.id, group: '결재', icon: 'x-circle', color: 'text-rose-600', title: d.title, sub: '반려됨' + (d.rejectReason ? ' · ' + d.rejectReason : ''), onclick: `notifOpen('doc', ${d.id})` });
             });
             // 3) 내 담당 프로젝트 항목 + 마감/지연
-            if (myName) STATE.projects.forEach(p => (p.items || []).forEach(it => {
-                if ((it.manager || '').trim() !== myName) return;
+            const _hasMe = myName || (STATE.currentUser && STATE.currentUser.id);
+            if (_hasMe) STATE.projects.forEach(p => (p.items || []).forEach(it => {
+                if (!isMine(it.managerId, it.manager)) return;
                 let tag = '담당', col = 'text-indigo-600', ic = 'user-check', grp = '담당 · 후속조치';
                 if (!it.done && it.end) { if (it.end < todayStr) { tag = '지연'; col = 'text-rose-600'; ic = 'alarm-clock'; grp = '마감 · 지연'; } else if (it.end <= soonStr) { tag = '마감임박'; col = 'text-amber-600'; ic = 'alarm-clock'; grp = '마감 · 지연'; } }
                 if (it.done) return;
                 items.push({ id: 'task_' + it.id, group: grp, icon: ic, color: col, title: it.info, sub: `${p.title} · ${tag}${it.end ? ' · ~' + it.end : ''}`, onclick: `notifOpen('proj', ${p.id}, '${it.id}')` });
             }));
             // 4) 회의 후속조치 (일별 업무 담당자 = 나)
-            if (myName) STATE.weeklyMeetings.forEach(m => (m.days || []).forEach(en => {
-                if ((en.manager || '').trim() === myName) items.push({ id: 'mday_' + en.id, group: '담당 · 후속조치', icon: 'list-checks', color: 'text-indigo-600', title: en.taskName || en.content || '회의 후속조치', sub: `${m.week} ${WEEKDAY_KO[en.weekday] || ''} 후속조치`, onclick: `notifOpen('meeting', ${m.id})` });
+            if (_hasMe) STATE.weeklyMeetings.forEach(m => (m.days || []).forEach(en => {
+                if (isMine(en.managerId, en.manager)) items.push({ id: 'mday_' + en.id, group: '담당 · 후속조치', icon: 'list-checks', color: 'text-indigo-600', title: en.taskName || en.content || '회의 후속조치', sub: `${m.week} ${WEEKDAY_KO[en.weekday] || ''} 후속조치`, onclick: `notifOpen('meeting', ${m.id})` });
             }));
             // 5) 내 담당 AS 티켓 (완료 외)
-            if (myName) (STATE.tickets || []).forEach(t => {
-                if (t.status !== 'done' && (t.assignee || '').trim() === myName) items.push({ id: 'tkt_' + t.id, group: '현장 / AS', icon: 'wrench', color: 'text-rose-500', title: `${t.customer || ''} ${t.equipment || ''}`.trim() || 'AS 티켓', sub: `${(TICKET_STATUS[t.status] || ['',''])[0]} · ${t.issue || ''}`.slice(0, 60), onclick: `notifOpen('ticket', ${t.id})` });
+            if (_hasMe) (STATE.tickets || []).forEach(t => {
+                if (t.status !== 'done' && isMine(t.assigneeId, t.assignee)) items.push({ id: 'tkt_' + t.id, group: '현장 / AS', icon: 'wrench', color: 'text-rose-500', title: `${t.customer || ''} ${t.equipment || ''}`.trim() || 'AS 티켓', sub: `${(TICKET_STATUS[t.status] || ['',''])[0]} · ${t.issue || ''}`.slice(0, 60), onclick: `notifOpen('ticket', ${t.id})` });
             });
             // 5-2) 정기점검 도래/지연 설비
             (STATE.assets || []).forEach(a => {
