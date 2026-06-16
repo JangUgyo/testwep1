@@ -968,11 +968,13 @@
                         <input type="text" id="inventory-search" onkeyup="inventoryApplyFilter()" placeholder="품목·코드·거래처 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-full sm:w-56 outline-none focus:border-amber-300">
                         <select id="inventory-filter-cat" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 분류</option></select>
                         <select id="inventory-filter-dept" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
+                        <select id="inventory-filter-wh" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 창고</option></select>
                         <label class="flex items-center gap-1.5 text-sm text-slate-600 px-2 py-2 border rounded-xl bg-white cursor-pointer"><input type="checkbox" id="inventory-filter-low" onchange="inventoryApplyFilter()" class="accent-amber-600"> 부족만</label>
                     </div>
                     <button onclick="openInventoryForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 품목 등록</button>
                     <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
                     <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
+                    <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
@@ -1143,6 +1145,34 @@
         </div>
     </div>
 
+    <!-- 창고 관리 -->
+    <div id="warehouse-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[75] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-600"></i> 창고 관리</h4>
+                <button onclick="closeModal('warehouse-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5 overflow-y-auto">
+                <div class="order-2 md:order-1">
+                    <div id="warehouse-list" class="space-y-1.5 max-h-[52vh] overflow-y-auto pr-1"></div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <form onsubmit="handleSaveWarehouse(event)" class="space-y-2.5 bg-slate-50/70 border border-slate-100 rounded-xl p-4">
+                        <div class="flex items-center justify-between"><div class="text-[12px] font-bold text-slate-600" id="warehouse-form-title">새 창고 등록</div><button type="button" onclick="resetWarehouseForm()" class="text-[11px] text-slate-400 hover:text-slate-600 font-bold">새로 입력</button></div>
+                        <input type="hidden" id="warehouse-id">
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">창고명 <span class="text-rose-400">*</span></label><input type="text" id="warehouse-name" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">코드</label><input type="text" id="warehouse-code" placeholder="WH1" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                            <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">위치</label><input type="text" id="warehouse-location" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                        </div>
+                        <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">비고</label><textarea id="warehouse-notes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></textarea></div>
+                        <button type="submit" class="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold">저장</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 거래처 마스터 관리 -->
     <div id="partner-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[75] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden border max-h-[92vh] flex flex-col">
@@ -1220,6 +1250,7 @@
             </div>
             <div class="p-6 space-y-3 overflow-y-auto">
                 <div id="trade-stock-note" class="text-[12px] text-slate-500 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2"></div>
+                <div class="flex items-center gap-2"><label class="text-[12px] font-bold text-slate-500 whitespace-nowrap">반영 창고</label><select id="trade-stock-warehouse" class="flex-1 px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                 <div id="trade-stock-body" class="space-y-2"></div>
             </div>
             <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
@@ -1294,7 +1325,8 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">품목 코드(SKU) <span class="text-[11px] text-slate-400 font-normal">(자동 생성)</span></label><input type="text" id="inventory-sku" readonly placeholder="분류 선택 시 자동 생성" class="w-full px-3 py-2 border rounded-lg text-sm outline-none bg-slate-50 text-slate-500 font-mono"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">분류</label><select id="inventory-category" onchange="regenInventorySku()" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단위</label><select id="inventory-unit" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">현재고</label><input type="number" id="inventory-stock" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="inventory-stock-label">기초재고 <span class="text-[11px] text-slate-400 font-normal">(신규 등록 시 입고)</span></label><input type="number" id="inventory-stock" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div id="inventory-warehouse-wrap"><label class="block text-[12px] font-bold text-slate-500 mb-1">기초재고 창고</label><select id="inventory-warehouse" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">안전재고(부족 기준)</label><input type="number" id="inventory-safe" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단가(원)</label><input type="number" id="inventory-price" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">거래처(공급처)</label><input type="text" id="inventory-supplier" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
@@ -1321,6 +1353,7 @@
                 <input type="hidden" id="stock-move-item-id">
                 <input type="hidden" id="stock-move-kind">
                 <div id="stock-move-item-info" class="text-[13px] text-slate-500 bg-slate-50 rounded-lg p-3"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">창고 <span class="text-rose-400">*</span></label><select id="stock-move-warehouse" onchange="updateStockMoveWhInfo()" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">수량 <span class="text-rose-400">*</span></label><input type="number" id="stock-move-qty" step="any" min="0" required placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                 <div><label class="block text-[12px] font-bold text-slate-500 mb-1">사유 / 메모</label><input type="text" id="stock-move-reason" placeholder="예: 정기 발주 입고 / 현장 출고" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                 <div class="flex gap-2 pt-1">
@@ -1860,7 +1893,7 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock()]);
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
         }
         async function reloadEvents() {
@@ -1920,6 +1953,93 @@
         function fmtNum(n) { n = Number(n || 0); return (Math.round(n * 100) / 100).toLocaleString('ko-KR'); }
         function canManageInventory(it) { return STATE.profile.role === 'admin' || (it && it.deptId === STATE.profile.deptId); }
         function isLowStock(it) { return Number(it.safeStock) > 0 && Number(it.stock) <= Number(it.safeStock); }
+        // ════════════ 창고 관리 + 창고별 재고 ════════════
+        async function reloadWarehouses() {
+            const { data, error } = await sb.from('warehouses').select('*').order('id', { ascending: true }).limit(500);
+            if (error) { STATE.warehousesMissing = true; STATE.warehouses = []; return; }
+            STATE.warehousesMissing = false;
+            STATE.warehouses = (data || []).map(r => ({ id: r.id, name: r.name, code: r.code || '', location: r.location || '', notes: r.notes || '' }));
+        }
+        async function reloadInventoryStock() {
+            const { data, error } = await sb.from('inventory_stock').select('*').limit(5000);
+            if (error) { STATE.invStock = {}; return; }
+            const map = {};
+            (data || []).forEach(r => { (map[r.item_id] = map[r.item_id] || {})[r.warehouse_id] = Number(r.qty) || 0; });
+            STATE.invStock = map;
+        }
+        function itemWhQty(itemId, whId) { return ((STATE.invStock || {})[itemId] || {})[whId] || 0; }
+        function defaultWarehouseId() { return (STATE.warehouses && STATE.warehouses[0]) ? STATE.warehouses[0].id : null; }
+        function warehouseName(id) { const w = (STATE.warehouses || []).find(x => String(x.id) === String(id)); return w ? w.name : ('창고#' + id); }
+        function fillWarehouseSelect(id, cur) {
+            const el = document.getElementById(id); if (!el) return;
+            el.innerHTML = (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}${w.code ? ' (' + esc(w.code) + ')' : ''}</option>`).join('');
+            if (cur != null) el.value = String(cur);
+        }
+        function populateInventoryWarehouseFilter() {
+            const el = document.getElementById('inventory-filter-wh'); if (!el) return;
+            const keep = el.value || 'all';
+            el.innerHTML = `<option value="all">전체 창고</option>` + (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+            el.value = [...el.options].some(o => o.value === keep) ? keep : 'all';
+        }
+        function openWarehouseManager() {
+            if (STATE.warehousesMissing) { showToast('준비 필요', '창고 테이블(warehouses) 생성 SQL을 먼저 실행하세요.'); return; }
+            resetWarehouseForm(); renderWarehouseList(); openModal('warehouse-modal');
+        }
+        function renderWarehouseList() {
+            const wrap = document.getElementById('warehouse-list'); if (!wrap) return;
+            const list = STATE.warehouses || [];
+            if (!list.length) { wrap.innerHTML = `<div class="wsp-empty">등록된 창고가 없습니다.</div>`; return; }
+            wrap.innerHTML = list.map(w => {
+                const kinds = Object.keys(STATE.invStock || {}).filter(iid => ((STATE.invStock[iid] || {})[w.id] || 0) > 0).length;
+                return `<div class="flex items-start justify-between gap-2 px-3 py-2 border border-slate-200 rounded-xl">
+                    <div class="min-w-0"><div class="font-bold text-slate-800 text-sm">${esc(w.name)} ${w.code ? `<span class="text-[11px] text-amber-600 font-mono">${esc(w.code)}</span>` : ''}</div><div class="text-[12px] text-slate-400 truncate">${esc(w.location) || '위치 미지정'} · 재고품목 ${kinds}종</div></div>
+                    <div class="flex gap-1.5 flex-shrink-0 text-[12px]"><button onclick="editWarehouse(${w.id})" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button><button onclick="deleteWarehouse(${w.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></div>
+                </div>`;
+            }).join('');
+        }
+        function resetWarehouseForm() {
+            ['warehouse-id', 'warehouse-name', 'warehouse-code', 'warehouse-location', 'warehouse-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            const t = document.getElementById('warehouse-form-title'); if (t) t.innerText = '새 창고 등록';
+        }
+        function editWarehouse(id) {
+            const w = (STATE.warehouses || []).find(x => x.id === id); if (!w) return;
+            document.getElementById('warehouse-id').value = w.id;
+            document.getElementById('warehouse-name').value = w.name;
+            document.getElementById('warehouse-code').value = w.code;
+            document.getElementById('warehouse-location').value = w.location;
+            document.getElementById('warehouse-notes').value = w.notes;
+            document.getElementById('warehouse-form-title').innerText = '창고 편집';
+        }
+        async function handleSaveWarehouse(e) {
+            e.preventDefault();
+            const id = document.getElementById('warehouse-id').value;
+            const row = { name: document.getElementById('warehouse-name').value.trim(), code: document.getElementById('warehouse-code').value.trim(), location: document.getElementById('warehouse-location').value.trim(), notes: document.getElementById('warehouse-notes').value.trim() };
+            if (!row.name) { showToast('입력 필요', '창고명을 입력하세요.'); return; }
+            let error;
+            if (id) { ({ error } = await sb.from('warehouses').update(row).eq('id', parseInt(id))); }
+            else { ({ error } = await sb.from('warehouses').insert(row)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            await reloadWarehouses(); renderWarehouseList(); resetWarehouseForm(); populateInventoryWarehouseFilter();
+            showToast('저장 완료', id ? '창고가 수정되었습니다.' : '창고가 등록되었습니다.');
+        }
+        async function deleteWarehouse(id) {
+            const w = (STATE.warehouses || []).find(x => x.id === id); if (!w) return;
+            const hasStock = Object.keys(STATE.invStock || {}).some(iid => ((STATE.invStock[iid] || {})[id] || 0) > 0);
+            if (hasStock) { showToast('삭제 불가', '재고가 남아 있는 창고는 삭제할 수 없습니다. 먼저 이동·출고 후 삭제하세요.'); return; }
+            if (!confirm(`창고 [${w.name}] 을(를) 삭제하시겠습니까?`)) return;
+            const { error } = await sb.from('warehouses').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadWarehouses(); renderWarehouseList(); populateInventoryWarehouseFilter();
+            showToast('삭제', '창고가 삭제되었습니다.');
+        }
+        function updateStockMoveWhInfo() {
+            const itemId = parseInt(document.getElementById('stock-move-item-id').value);
+            const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
+            const whId = parseInt(document.getElementById('stock-move-warehouse').value);
+            const whQty = itemWhQty(itemId, whId);
+            document.getElementById('stock-move-item-info').innerHTML = `<b>${esc(it.name)}</b> <span class="text-slate-400">${esc(it.sku)}</span><br><span class="text-slate-500">${esc(warehouseName(whId))} 현재고 <b class="text-slate-700">${fmtNum(whQty)}</b> ${esc(it.unit)}</span> <span class="text-slate-300">· 전체 ${fmtNum(it.stock)}</span>`;
+        }
+
         async function reloadInventory() {
             const { data, error } = await sb.from('inventory_items').select('*').order('name', { ascending: true }).limit(1000);
             if (error) { STATE.inventoryTableMissing = true; STATE.inventory = []; return; }
@@ -1929,7 +2049,7 @@
         async function reloadStockMoves() {
             const { data, error } = await sb.from('stock_moves').select('*').order('created_at', { ascending: false }).limit(1000);
             if (error) { STATE.stockMoves = []; return; }
-            STATE.stockMoves = (data || []).map(r => ({ id: r.id, itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, reason: r.reason || '', actor: r.actor || '', actorId: r.actor_id || '', deptId: r.dept_id || '', balanceAfter: r.balance_after, createdAt: r.created_at }));
+            STATE.stockMoves = (data || []).map(r => ({ id: r.id, itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, reason: r.reason || '', actor: r.actor || '', actorId: r.actor_id || '', deptId: r.dept_id || '', warehouseId: r.warehouse_id || null, balanceAfter: r.balance_after, createdAt: r.created_at }));
         }
         async function reloadInventoryOptions() {
             STATE.invOptions = STATE.invOptions || { category: [], unit: [], name: [] };
@@ -2028,7 +2148,10 @@
             const catSel = document.getElementById('inventory-filter-cat');
             if (catSel) { const cats = [...new Set(list0.map(i => i.category).filter(Boolean))].sort(); const keep = catSel.value || 'all'; catSel.innerHTML = `<option value="all">전체 분류</option>` + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join(''); catSel.value = [...catSel.options].some(o => o.value === keep) ? keep : 'all'; }
             const fc = (document.getElementById('inventory-filter-cat') || {}).value || 'all';
+            populateInventoryWarehouseFilter();
             const fd = (document.getElementById('inventory-filter-dept') || {}).value || 'all';
+            const fw = (document.getElementById('inventory-filter-wh') || {}).value || 'all';
+            const dispQty = (i) => fw === 'all' ? Number(i.stock) : itemWhQty(i.id, fw);
             const flow = (document.getElementById('inventory-filter-low') || {}).checked;
             const q = ((document.getElementById('inventory-search') || {}).value || '').trim().toLowerCase();
             const list = list0.filter(i =>
@@ -2041,10 +2164,10 @@
             const stats = document.getElementById('inventory-stats');
             if (stats) {
                 const lowCnt = list0.filter(isLowStock).length;
-                const totalQty = list0.reduce((s, i) => s + Number(i.stock), 0);
-                const totalVal = list0.reduce((s, i) => s + Number(i.stock) * Number(i.unitPrice), 0);
+                const totalQty = list0.reduce((s, i) => s + dispQty(i), 0);
+                const totalVal = list0.reduce((s, i) => s + dispQty(i) * Number(i.unitPrice), 0);
                 const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
-                stats.innerHTML = card('총 품목', fmtNum(list0.length), '등록된 품목 수', 'text-slate-800') + card('재고 부족', fmtNum(lowCnt), '안전재고 이하', lowCnt ? 'text-rose-600' : 'text-slate-800') + card('재고 총수량', fmtNum(totalQty), '전체 수량 합계', 'text-slate-800') + card('재고 총액', '₩' + fmtNum(totalVal), '현재고 × 단가', 'text-amber-600');
+                stats.innerHTML = card('총 품목', fmtNum(list0.length), '등록된 품목 수', 'text-slate-800') + card('재고 부족', fmtNum(lowCnt), '안전재고 이하', lowCnt ? 'text-rose-600' : 'text-slate-800') + card(fw === 'all' ? '재고 총수량' : warehouseName(fw) + ' 수량', fmtNum(totalQty), fw === 'all' ? '전체 수량 합계' : '선택 창고 합계', 'text-slate-800') + card('재고 총액', '₩' + fmtNum(totalVal), '현재고 × 단가', 'text-amber-600');
             }
             // 표(데스크탑)
             const body = document.getElementById('inventory-list-body');
@@ -2067,7 +2190,7 @@
                 return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
                     <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
                     <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
-                    <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(i.stock)}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${low ? ' ' + chip('부족', 'danger') : ''}</td>
+                    <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${fw !== 'all' ? ` <span class="text-[11px] text-slate-300">/${fmtNum(i.stock)}</span>` : ''}${low ? ' ' + chip('부족', 'danger') : ''}</td>
                     <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
                     <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}</td>
                     <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
@@ -2084,7 +2207,7 @@
                         ${low ? chip('부족', 'danger') : chip('정상', 'success')}
                     </div>
                     <div class="flex items-end justify-between">
-                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(i.stock)}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)} (안전 ${fmtNum(i.safeStock)})</span></div>
+                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}${fw !== 'all' ? ' /' + fmtNum(i.stock) : ''} (안전 ${fmtNum(i.safeStock)})</span></div>
                         <div class="text-[12px] text-slate-400 text-right">${esc(i.supplier) || ''}<br>${dept ? esc(dept.name) : ''}</div>
                     </div>
                     <div class="flex gap-2 pt-1 text-[13px]" onclick="event.stopPropagation()">${actionsFor(i)}</div>
@@ -2107,6 +2230,10 @@
             const dsel = document.getElementById('inventory-dept'); if (dsel) dsel.value = it ? (it.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('inventory-notes').value = it ? it.notes : '';
             document.getElementById('inventory-form-title').innerText = id ? '품목 편집' : '품목 등록';
+            const whWrap = document.getElementById('inventory-warehouse-wrap'), stockEl = document.getElementById('inventory-stock'), stockLabel = document.getElementById('inventory-stock-label');
+            fillWarehouseSelect('inventory-warehouse', defaultWarehouseId());
+            if (id) { stockEl.readOnly = true; stockEl.classList.add('bg-slate-50', 'text-slate-400'); if (stockLabel) stockLabel.innerHTML = '현재고 <span class="text-[11px] text-slate-400 font-normal">(입·출고로 관리)</span>'; if (whWrap) whWrap.style.display = 'none'; }
+            else { stockEl.readOnly = false; stockEl.classList.remove('bg-slate-50', 'text-slate-400'); if (stockLabel) stockLabel.innerHTML = '기초재고 <span class="text-[11px] text-slate-400 font-normal">(신규 등록 시 입고)</span>'; if (whWrap) whWrap.style.display = ''; }
             openModal('inventory-form-modal');
         }
         async function handleSaveInventoryItem(e) {
@@ -2115,14 +2242,17 @@
             if (!id && !document.getElementById('inventory-sku').value) regenInventorySku();
             let sku = document.getElementById('inventory-sku').value.trim();
             if (!id && !sku) sku = nextSkuForCode('GEN');
-            const row = { name: document.getElementById('inventory-name').value.trim(), sku: sku, category: document.getElementById('inventory-category').value.trim(), unit: document.getElementById('inventory-unit').value.trim() || 'EA', stock: parseFloat(document.getElementById('inventory-stock').value) || 0, safe_stock: parseFloat(document.getElementById('inventory-safe').value) || 0, unit_price: parseFloat(document.getElementById('inventory-price').value) || 0, supplier: document.getElementById('inventory-supplier').value.trim(), location: document.getElementById('inventory-location').value.trim(), dept_id: document.getElementById('inventory-dept').value, notes: document.getElementById('inventory-notes').value.trim() };
+            const openingQty = parseFloat(document.getElementById('inventory-stock').value) || 0;
+            const whId = parseInt(document.getElementById('inventory-warehouse').value) || defaultWarehouseId();
+            const row = { name: document.getElementById('inventory-name').value.trim(), sku: sku, category: document.getElementById('inventory-category').value.trim(), unit: document.getElementById('inventory-unit').value.trim() || 'EA', safe_stock: parseFloat(document.getElementById('inventory-safe').value) || 0, unit_price: parseFloat(document.getElementById('inventory-price').value) || 0, supplier: document.getElementById('inventory-supplier').value.trim(), location: document.getElementById('inventory-location').value.trim(), dept_id: document.getElementById('inventory-dept').value, notes: document.getElementById('inventory-notes').value.trim() };
             if (!row.name) { showToast('입력 필요', '품목명을 선택하세요. (없으면 "옵션 관리"에서 추가)'); return; }
             let error;
-            if (id) { ({ error } = await sb.from('inventory_items').update(row).eq('id', parseInt(id))); }
-            else { ({ error } = await sb.from('inventory_items').insert(row)); }
+            if (id) { ({ error } = await sb.from('inventory_items').update(row).eq('id', parseInt(id))); }   // 재고(stock)는 입출고로만 변경
+            else { ({ error } = await sb.from('inventory_items').insert(Object.assign({ stock: 0 }, row))); }
             if (error) { showToast('저장 실패', error.message); return; }
-            logAudit(id ? 'inventory_update' : 'inventory_create', row.name, `${row.category || ''} ${fmtNum(row.stock)}${row.unit}`.trim());
-            await reloadInventory(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-form-modal');
+            // 신규 + 기초재고 입력 시 선택 창고로 원자적 입고
+            if (!id && openingQty > 0) { await reloadInventory(); const created = (STATE.inventory || []).find(x => x.sku === sku); if (created && whId) await sb.rpc('apply_stock_move', { p_item_id: created.id, p_kind: 'in', p_qty: openingQty, p_reason: '기초재고', p_warehouse_id: whId }); }
+            await reloadInventory(); await reloadInventoryStock(); await reloadStockMoves(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-form-modal');
             if (id && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(parseInt(id));
             showToast('저장 완료', id ? '품목 정보가 수정되었습니다.' : '품목이 등록되었습니다.');
         }
@@ -2134,7 +2264,8 @@
             document.getElementById('stock-move-qty').value = '';
             document.getElementById('stock-move-reason').value = '';
             document.getElementById('stock-move-title').innerText = kind === 'in' ? '입고 처리' : '출고 처리';
-            document.getElementById('stock-move-item-info').innerHTML = `<b>${esc(it.name)}</b> <span class="text-slate-400">${esc(it.sku)}</span><br>현재고 <b>${fmtNum(it.stock)}</b> ${esc(it.unit)}`;
+            fillWarehouseSelect('stock-move-warehouse', defaultWarehouseId());
+            updateStockMoveWhInfo();
             const btn = document.getElementById('stock-move-submit');
             btn.className = `flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold ${kind === 'in' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`;
             btn.innerText = kind === 'in' ? '입고 처리' : '출고 처리';
@@ -2148,8 +2279,9 @@
             const qty = parseFloat(document.getElementById('stock-move-qty').value);
             if (!(qty > 0)) { showToast('수량 확인', '0보다 큰 수량을 입력하세요.'); return; }
             const reason = document.getElementById('stock-move-reason').value.trim();
+            const whId = parseInt(document.getElementById('stock-move-warehouse').value) || defaultWarehouseId();
             // 서버 함수로 원자적 처리(행 잠금): 동시 입·출고에도 수치가 어긋나지 않음
-            const { data, error } = await sb.rpc('apply_stock_move', { p_item_id: itemId, p_kind: kind, p_qty: qty, p_reason: reason });
+            const { data, error } = await sb.rpc('apply_stock_move', { p_item_id: itemId, p_kind: kind, p_qty: qty, p_reason: reason, p_warehouse_id: whId });
             if (error) {
                 const m = (error.message || '').toLowerCase();
                 if (m.indexOf('insufficient') >= 0) showToast('재고 부족', `출고 수량이 현재고보다 많습니다.`);
@@ -2160,7 +2292,7 @@
             }
             const next = data && data.stock != null ? Number(data.stock) : null;
             logAudit(kind === 'in' ? 'stock_in' : 'stock_out', it.name, `${fmtNum(qty)}${it.unit}${next != null ? ' → 잔량 ' + fmtNum(next) : ''}`);
-            await reloadInventory(); await reloadStockMoves(); renderInventory(); renderDashboardWidgets(); closeModal('stock-move-modal');
+            await reloadInventory(); await reloadStockMoves(); await reloadInventoryStock(); renderInventory(); renderDashboardWidgets(); closeModal('stock-move-modal');
             if (!document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(itemId);
             showToast(kind === 'in' ? '입고 완료' : '출고 완료', `${esc(it.name)}${next != null ? ' 잔량 ' + fmtNum(next) + ' ' + esc(it.unit) : ''}`);
         }
@@ -2172,7 +2304,7 @@
             const manage = canManageInventory(it);
             const field = (label, val) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 font-semibold">${val}</div></div>`;
             const moves = (STATE.stockMoves || []).filter(m => m.itemId === id).slice(0, 12);
-            const moveRows = moves.length ? moves.map(m => `<tr class="border-t border-slate-100"><td class="py-2 pr-2">${(m.createdAt || '').slice(0, 10)}</td><td class="py-2 pr-2">${m.kind === 'in' ? chip('입고', 'success') : (m.kind === 'out' ? chip('출고', 'danger') : chip('조정', 'neutral'))}</td><td class="py-2 pr-2 text-right font-bold ${m.kind === 'out' ? 'text-rose-600' : 'text-emerald-600'}">${m.kind === 'out' ? '-' : '+'}${fmtNum(m.qty)}</td><td class="py-2 pr-2 text-right text-slate-500">${m.balanceAfter != null ? fmtNum(m.balanceAfter) : '-'}</td><td class="py-2 text-slate-500 truncate">${esc(m.actor) || ''} ${m.reason ? '· ' + esc(m.reason) : ''}</td></tr>`).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-300 text-[13px]">입출고 이력이 없습니다.</td></tr>`;
+            const moveRows = moves.length ? moves.map(m => `<tr class="border-t border-slate-100"><td class="py-2 pr-2">${(m.createdAt || '').slice(0, 10)}</td><td class="py-2 pr-2">${m.kind === 'in' ? chip('입고', 'success') : (m.kind === 'out' ? chip('출고', 'danger') : chip('조정', 'neutral'))}</td><td class="py-2 pr-2 text-right font-bold ${m.kind === 'out' ? 'text-rose-600' : 'text-emerald-600'}">${m.kind === 'out' ? '-' : '+'}${fmtNum(m.qty)}</td><td class="py-2 pr-2 text-right text-slate-500">${m.balanceAfter != null ? fmtNum(m.balanceAfter) : '-'}</td><td class="py-2 text-slate-500 truncate">${m.warehouseId ? esc(warehouseName(m.warehouseId)) + ' · ' : ''}${esc(m.actor) || ''} ${m.reason ? '· ' + esc(m.reason) : ''}</td></tr>`).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-300 text-[13px]">입출고 이력이 없습니다.</td></tr>`;
             const ctrl = manage ? `<div class="flex gap-2 flex-wrap"><button onclick="openStockMove(${it.id},'in')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">입고</button><button onclick="openStockMove(${it.id},'out')" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg">출고</button><button onclick="openInventoryForm(${it.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg">편집</button><button onclick="deleteInventoryItem(${it.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '<span class="text-[12px] text-slate-400">본인 부서 품목만 관리할 수 있습니다.</span>';
             document.getElementById('inventory-detail-body').innerHTML = `
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
@@ -2192,6 +2324,7 @@
                         ${field('거래처', esc(it.supplier) || '-')}
                         ${field('보관 위치', esc(it.location) || '-')}
                     </div>
+                    ${(STATE.warehouses || []).length ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-1.5 flex items-center gap-1"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i> 창고별 재고</div><div class="flex flex-wrap gap-2">${(STATE.warehouses || []).map(w => { const q = itemWhQty(it.id, w.id); return `<span class="wsp-chip ${q > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">${esc(w.name)} <b>${fmtNum(q)}</b> ${esc(it.unit)}</span>`; }).join('')}</div></div>` : ''}
                     ${it.notes ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-0.5">비고</div><div class="text-sm text-slate-700 whitespace-pre-line">${esc(it.notes)}</div></div>` : ''}
                 </div>
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
@@ -2416,11 +2549,16 @@
         }
         async function confirmImport() {
             const d = STATE.importDraft; if (!d || !d.rows.length) { closeModal('xlsx-import-modal'); return; }
-            const table = d.type === 'inventory' ? 'inventory_items' : 'partners';
             let okc = 0, fail = 0;
-            for (const row of d.rows) { const { error } = await sb.from(table).insert(row); if (error) fail++; else okc++; }
-            if (d.type === 'inventory') { await reloadInventory(); renderInventory(); }
-            else { await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList(); }
+            if (d.type === 'inventory') {
+                for (const row of d.rows) { const r2 = Object.assign({}, row); r2.stock = 0; const { error } = await sb.from('inventory_items').insert(r2); if (error) fail++; else okc++; }
+                await reloadInventory();
+                for (const row of d.rows) { const opening = Number(row.stock) || 0; if (opening > 0) { const created = (STATE.inventory || []).find(x => x.sku === row.sku); if (created) await sb.rpc('apply_stock_move', { p_item_id: created.id, p_kind: 'in', p_qty: opening, p_reason: '엑셀 가져오기', p_warehouse_id: defaultWarehouseId() }); } }
+                await reloadInventory(); await reloadInventoryStock(); renderInventory();
+            } else {
+                for (const row of d.rows) { const { error } = await sb.from('partners').insert(row); if (error) fail++; else okc++; }
+                await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList();
+            }
             renderDashboardWidgets();
             closeModal('xlsx-import-modal');
             showToast('가져오기 완료', `${okc}건 추가${fail ? ` · ${fail}건 실패` : ''}`);
@@ -2783,6 +2921,7 @@
             });
             STATE.tradeStockDraft = { tradeId: id, kind, rows };
             document.getElementById('trade-stock-title').innerText = (kind === 'in' ? '재고 입고 처리' : '재고 출고 처리') + ' · ' + t.docNo;
+            fillWarehouseSelect('trade-stock-warehouse', defaultWarehouseId());
             renderTradeStockRows();
             openModal('trade-stock-modal');
         }
@@ -2809,12 +2948,13 @@
             if (!targets.length) { showToast('선택 필요', '재고에 반영할 품목을 1건 이상 선택하세요.'); return; }
             let okc = 0; const fail = [];
             for (const r of targets) {
-                const { error } = await sb.rpc('apply_stock_move', { p_item_id: parseInt(r.itemId), p_kind: d.kind, p_qty: Number(r.qty), p_reason: `${t.docNo} ${d.kind === 'in' ? '발주 입고' : '견적 출고'}` });
+                const whId = parseInt((document.getElementById('trade-stock-warehouse') || {}).value) || defaultWarehouseId();
+                const { error } = await sb.rpc('apply_stock_move', { p_item_id: parseInt(r.itemId), p_kind: d.kind, p_qty: Number(r.qty), p_reason: `${t.docNo} ${d.kind === 'in' ? '발주 입고' : '견적 출고'}`, p_warehouse_id: whId });
                 if (error) { const inv = (STATE.inventory || []).find(x => String(x.id) === String(r.itemId)); const m = (error.message || '').toLowerCase(); fail.push((inv ? inv.name : r.itemId) + ': ' + (m.indexOf('insufficient') >= 0 ? '재고 부족' : m.indexOf('forbidden') >= 0 ? '권한 없음' : m.indexOf('function') >= 0 || m.indexOf('does not exist') >= 0 ? '함수 미설치' : '실패')); }
                 else okc++;
             }
             if (okc > 0) { await sb.from('trade_documents').update({ received_at: new Date().toISOString() }).eq('id', t.id); }
-            await reloadInventory(); await reloadStockMoves(); await reloadTrade();
+            await reloadInventory(); await reloadStockMoves(); await reloadInventoryStock(); await reloadTrade();
             renderInventory(); renderTrade(); renderDashboardWidgets();
             closeModal('trade-stock-modal');
             if (!document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(t.id);
@@ -2920,6 +3060,8 @@
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, async () => { if (STATE.currentTab === 'management-logs') { await reloadAuditLogs(); renderAuditLogs(); } })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'trade_documents' }, async () => { await reloadTrade(); renderDashboardWidgets(); if (STATE.currentTab === 'trade') renderTrade(); refreshOpenDetail('trade'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'partners' }, async () => { await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'warehouses' }, async () => { await reloadWarehouses(); if (!document.getElementById('warehouse-modal').classList.contains('hidden')) renderWarehouseList(); populateInventoryWarehouseFilter(); if (STATE.currentTab === 'inventory') renderInventory(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_stock' }, async () => { await reloadInventoryStock(); if (STATE.currentTab === 'inventory') renderInventory(); if (STATE._openDetail && STATE._openDetail.type === 'inventory' && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(STATE._openDetail.id); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
                 .subscribe();
