@@ -976,6 +976,7 @@
                     <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
                     <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
                     <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
+                    <button onclick="openInventoryDashboard()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> 대시보드</button>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
@@ -1380,6 +1381,23 @@
                     <button type="submit" id="stock-move-submit" class="flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold">처리</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 재고: 대시보드(창고별/공급처별/분류별) -->
+    <div id="inventory-dashboard-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden border max-h-[94vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-600"></i> 재고 대시보드</h4>
+                <button onclick="closeModal('inventory-dashboard-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="inventory-dashboard-body" class="p-6 overflow-y-auto flex-1 space-y-6"></div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModal('inventory-dashboard-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button>
+                <div class="flex-1"></div>
+                <button type="button" onclick="exportInventoryStatusXlsx()" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀(재고현황)</button>
+                <button type="button" onclick="printInventoryStatus()" class="px-4 py-2.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="printer" class="w-4 h-4"></i> 인쇄 / PDF</button>
+            </div>
         </div>
     </div>
 
@@ -2251,6 +2269,135 @@
             if (okv) showToast('내보내기 완료', '보고서를 엑셀로 저장했습니다.');
         }
 
+        // ════════════ 재고 대시보드 (창고별·공급처별·분류별) + 재고 현황 보고서 ════════════
+        function computeInventoryDashboard() {
+            const items = STATE.inventory || [];
+            const totalItems = items.length;
+            const totalQty = items.reduce((s, i) => s + Number(i.stock), 0);
+            const totalVal = items.reduce((s, i) => s + Number(i.stock) * Number(i.unitPrice), 0);
+            const lowCnt = items.filter(isLowStock).length;
+            const byWh = (STATE.warehouses || []).map(w => {
+                let qty = 0, val = 0, kinds = 0;
+                items.forEach(i => { const q = itemWhQty(i.id, w.id); if (q > 0) { qty += q; val += q * Number(i.unitPrice); kinds++; } });
+                return { name: w.name, qty, val, kinds };
+            }).sort((a, b) => b.val - a.val);
+            const group = (keyFn, dflt) => {
+                const map = {};
+                items.forEach(i => { const k = (keyFn(i) || dflt); const b = map[k] = map[k] || { qty: 0, val: 0, kinds: 0 }; b.qty += Number(i.stock); b.val += Number(i.stock) * Number(i.unitPrice); b.kinds++; });
+                return Object.keys(map).map(k => ({ name: k, qty: map[k].qty, val: map[k].val, kinds: map[k].kinds })).sort((a, b) => b.val - a.val);
+            };
+            const bySupplier = group(i => i.supplier, '(미지정)');
+            const byCategory = group(i => i.category, '(미분류)');
+            const lowItems = items.filter(isLowStock).map(i => ({ name: i.name, sku: i.sku, stock: i.stock, safe: i.safeStock, unit: i.unit })).sort((a, b) => (a.stock - a.safe) - (b.stock - b.safe));
+            return { totalItems, totalQty, totalVal, lowCnt, byWh, bySupplier, byCategory, lowItems };
+        }
+        function openInventoryDashboard() {
+            if (STATE.inventoryTableMissing) { showToast('준비 필요', '재고 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            renderInventoryDashboard();
+            openModal('inventory-dashboard-modal');
+        }
+        function dashGroupTable(title, icon, rows, unitLabel) {
+            const max = rows.reduce((m, r) => Math.max(m, r.val), 0) || 1;
+            const body = rows.length ? rows.map(r => {
+                const pct = Math.max(2, Math.round(r.val / max * 100));
+                return `<tr class="border-t border-slate-100">
+                    <td class="py-2 pr-3"><div class="font-semibold text-slate-700 truncate max-w-[180px]">${esc(r.name)}</div><div class="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-indigo-400 rounded-full" style="width:${pct}%"></div></div></td>
+                    <td class="py-2 pr-3 text-right text-slate-500">${fmtNum(r.kinds)}</td>
+                    <td class="py-2 pr-3 text-right text-slate-700 font-semibold">${fmtNum(r.qty)}</td>
+                    <td class="py-2 text-right text-amber-700 font-bold">₩${fmtNum(r.val)}</td>
+                </tr>`;
+            }).join('') : `<tr><td colspan="4" class="py-6 text-center text-slate-300">데이터가 없습니다.</td></tr>`;
+            return `<div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                <div class="text-[13px] font-bold text-slate-600 mb-2 flex items-center gap-1.5"><i data-lucide="${icon}" class="w-4 h-4 text-indigo-600"></i> ${title}</div>
+                <div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left"><th class="py-1 pr-3 font-semibold">${unitLabel}</th><th class="py-1 pr-3 font-semibold text-right">품목수</th><th class="py-1 pr-3 font-semibold text-right">총수량</th><th class="py-1 font-semibold text-right">총재고액</th></tr></thead><tbody>${body}</tbody></table></div>
+            </div>`;
+        }
+        function renderInventoryDashboard() {
+            const d = computeInventoryDashboard();
+            STATE.dashboardDraft = d;
+            const body = document.getElementById('inventory-dashboard-body'); if (!body) return;
+            const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
+            const kpi = `<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                ${card('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'text-slate-800')}
+                ${card('재고 총수량', fmtNum(d.totalQty), '전체 수량 합계', 'text-slate-800')}
+                ${card('재고 총액', '₩' + fmtNum(d.totalVal), '현재고 × 단가', 'text-amber-600')}
+                ${card('재고 부족', fmtNum(d.lowCnt), '안전재고 이하', d.lowCnt ? 'text-rose-600' : 'text-slate-800')}
+            </div>`;
+            const low = d.lowItems.length ? `<div class="bg-white border border-rose-200/70 rounded-2xl p-5 shadow-sm">
+                <div class="text-[13px] font-bold text-rose-600 mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 재고 부족 품목 (${d.lowItems.length})</div>
+                <div class="flex flex-wrap gap-1.5">${d.lowItems.slice(0, 30).map(i => `<span class="wsp-chip bg-rose-50 text-rose-600 border-rose-100">${esc(i.name)} <b>${fmtNum(i.stock)}</b>/${fmtNum(i.safe)} ${esc(i.unit)}</span>`).join('')}</div>
+            </div>` : '';
+            body.innerHTML = kpi
+                + dashGroupTable('창고별 재고', 'warehouse', d.byWh, '창고')
+                + `<div class="grid md:grid-cols-2 gap-5">${dashGroupTable('공급처별 재고', 'truck', d.bySupplier, '공급처')}${dashGroupTable('분류별 재고', 'tags', d.byCategory, '분류')}</div>`
+                + low;
+            if (window.lucide) lucide.createIcons();
+        }
+        function dashboardReportHTML(d) {
+            const co = company();
+            const logo = co.logo ? `<img src="${co.logo}" style="height:46px;object-fit:contain" />` : `<div style="font-size:20px;font-weight:800;color:#0f172a">${esc(co.name || 'WorkSpace Pro')}</div>`;
+            const th = (t, al) => `<th style="padding:7px 9px;background:#f1f5f9;text-align:${al || 'left'};font-size:12px;border-bottom:2px solid #cbd5e1">${t}</th>`;
+            const td = (t, al, b) => `<td style="padding:6px 9px;text-align:${al || 'left'};font-size:12px;border-bottom:1px solid #e2e8f0;${b ? 'font-weight:700' : ''}">${t}</td>`;
+            const tbl = (title, rows, unit) => `<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:5px">${title}</div><table style="width:100%;border-collapse:collapse"><thead><tr>${th(unit)}${th('품목수', 'right')}${th('총수량', 'right')}${th('총재고액', 'right')}</tr></thead><tbody>${rows.length ? rows.map(r => `<tr>${td(esc(r.name))}${td(fmtNum(r.kinds), 'right')}${td(fmtNum(r.qty), 'right')}${td('₩' + fmtNum(r.val), 'right', true)}</tr>`).join('') : `<tr><td colspan="4" style="padding:14px;text-align:center;color:#94a3b8;font-size:12px">데이터 없음</td></tr>`}</tbody></table></div>`;
+            return `<div style="font-family:'Malgun Gothic',sans-serif;color:#0f172a;max-width:900px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f172a;padding-bottom:10px;margin-bottom:14px">
+            <div><div style="font-size:20px;font-weight:800">재고 현황 보고서</div><div style="font-size:12px;color:#64748b;margin-top:3px">생성일 ${new Date().toLocaleDateString('ko-KR')}</div></div>
+            <div style="text-align:right">${logo}</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><div style="font-size:11px;color:#94a3b8">총 품목</div><div style="font-size:18px;font-weight:800">${fmtNum(d.totalItems)}</div></div>
+            <div style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><div style="font-size:11px;color:#94a3b8">재고 총수량</div><div style="font-size:18px;font-weight:800">${fmtNum(d.totalQty)}</div></div>
+            <div style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><div style="font-size:11px;color:#94a3b8">재고 총액</div><div style="font-size:18px;font-weight:800;color:#b45309">₩${fmtNum(d.totalVal)}</div></div>
+            <div style="flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px"><div style="font-size:11px;color:#94a3b8">재고 부족</div><div style="font-size:18px;font-weight:800;color:#e11d48">${fmtNum(d.lowCnt)}</div></div>
+        </div>
+        ${tbl('창고별 재고', d.byWh, '창고')}
+        ${tbl('공급처별 재고', d.bySupplier, '공급처')}
+        ${tbl('분류별 재고', d.byCategory, '분류')}
+        <div style="margin-top:16px;font-size:11px;color:#94a3b8;text-align:right">${esc(co.name || '')} · WorkSpace Pro</div>
+    </div>`;
+        }
+        function printInventoryStatus() {
+            const d = STATE.dashboardDraft || computeInventoryDashboard();
+            const html = dashboardReportHTML(d);
+            let f = document.getElementById('wsp-print-frame'); if (f) f.remove();
+            f = document.createElement('iframe'); f.id = 'wsp-print-frame';
+            f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+            document.body.appendChild(f);
+            const fd = f.contentWindow.document;
+            fd.open();
+            fd.write(`<!doctype html><html><head><meta charset="utf-8"><title>재고 현황 보고서</title><style>@page{size:A4;margin:13mm}html,body{margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${html}</body></html>`);
+            fd.close();
+            const go = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { } };
+            const img = fd.images && fd.images[0];
+            if (img && !img.complete) { img.onload = () => setTimeout(go, 60); img.onerror = () => setTimeout(go, 60); setTimeout(go, 1500); }
+            else setTimeout(go, 180);
+        }
+        function buildInventoryStatusSheets(d) {
+            const whs = STATE.warehouses || [];
+            const items = (STATE.inventory || []).slice().sort((a, b) => String(a.name).localeCompare(String(b.name), 'ko'));
+            const headers = ['품목코드', '품목명', '분류', '단위', '현재고', '안전재고', '단가', '재고금액', '거래처'].concat(whs.map(w => w.name));
+            const baseN = 9;
+            const aligns = ['left', 'left', 'left', 'center', 'right', 'right', 'right', 'right', 'left'].concat(whs.map(() => 'right'));
+            const numFmts = [, , , , '#,##0', '#,##0', '#,##0', '#,##0'].concat(whs.map(() => '#,##0'));
+            const rows = items.map(i => [i.sku || '', i.name || '', i.category || '', i.unit || '', Number(i.stock) || 0, Number(i.safeStock) || 0, Number(i.unitPrice) || 0, (Number(i.stock) || 0) * (Number(i.unitPrice) || 0), i.supplier || ''].concat(whs.map(w => itemWhQty(i.id, w.id))));
+            const totQty = items.reduce((s, i) => s + (Number(i.stock) || 0), 0);
+            const totVal = items.reduce((s, i) => s + (Number(i.stock) || 0) * (Number(i.unitPrice) || 0), 0);
+            const totalRow = ['합계', '', '', '', totQty, '', '', totVal, ''].concat(whs.map(w => items.reduce((s, i) => s + itemWhQty(i.id, w.id), 0)));
+            const grp = (rowsG, unit) => ({ headers: [unit, '품목수', '총수량', '총재고액'], aligns: ['left', 'right', 'right', 'right'], numFmts: [, '#,##0', '#,##0', '#,##0'], widths: [20, 10, 12, 14], rows: rowsG.map(r => [r.name, r.kinds, r.qty, r.val]), totalRow: ['합계', rowsG.reduce((s, r) => s + r.kinds, 0), rowsG.reduce((s, r) => s + r.qty, 0), rowsG.reduce((s, r) => s + r.val, 0)] });
+            return [
+                { name: '재고현황', title: '재고 현황 보고서', headers, aligns, numFmts, widths: [14, 22, 12, 8, 10, 10, 12, 14, 16].concat(whs.map(() => 12)), rows, totalRow },
+                Object.assign({ name: '창고별', title: '창고별 재고' }, grp(d.byWh, '창고')),
+                Object.assign({ name: '공급처별', title: '공급처별 재고' }, grp(d.bySupplier, '공급처')),
+                Object.assign({ name: '분류별', title: '분류별 재고' }, grp(d.byCategory, '분류'))
+            ];
+        }
+        async function exportInventoryStatusXlsx() {
+            const d = STATE.dashboardDraft || computeInventoryDashboard();
+            if (!(STATE.inventory || []).length) { showToast('내보낼 데이터 없음', '품목이 없습니다.'); return; }
+            const okv = await exportStyledWorkbook({ filename: `재고현황_${xlsxToday()}.xlsx`, sheets: buildInventoryStatusSheets(d) });
+            if (okv) showToast('내보내기 완료', '재고 현황을 엑셀로 저장했습니다.');
+        }
+
         async function reloadInventory() {
             const { data, error } = await sb.from('inventory_items').select('*').order('name', { ascending: true }).limit(1000);
             if (error) { STATE.inventoryTableMissing = true; STATE.inventory = []; return; }
@@ -2711,6 +2858,32 @@
         function deptName(id) { const d = (STATE.departments || []).find(x => x.id === id); return d ? d.name : (id || ''); }
         function deptIdByName(name) { if (!name) return ''; const n = String(name).trim(); const d = (STATE.departments || []).find(x => x.name === n || x.id === n); return d ? d.id : ''; }
         function xlsxToday() { return new Date().toISOString().slice(0, 10); }
+        function pickHeaderObjects(aoa, type) {
+            if (!aoa || !aoa.length) return [];
+            const tokens = type === 'inventory'
+                ? ['품목명', '품목', 'name', '품목코드', 'sku', '분류', '카테고리', 'category', '현재고', '재고', 'stock', '단가', '안전재고', '단위']
+                : ['거래처명', '거래처', '업체명', 'name', '구분', '유형', '담당자', 'contact', 'tel', '전화'];
+            const norm = c => String(c == null ? '' : c).trim();
+            let hdrIdx = -1, best = 0;
+            for (let i = 0; i < Math.min(aoa.length, 20); i++) {
+                const cells = (aoa[i] || []).map(norm);
+                const score = cells.filter(c => c && (tokens.includes(c) || tokens.includes(c.toLowerCase()))).length;
+                if (score > best) { best = score; hdrIdx = i; }
+            }
+            if (hdrIdx < 0) hdrIdx = 0;
+            const headers = (aoa[hdrIdx] || []).map(norm);
+            const objs = [];
+            for (let i = hdrIdx + 1; i < aoa.length; i++) {
+                const row = aoa[i] || [];
+                const first = String(row[0] == null ? '' : row[0]).trim();
+                if (['합계', '총계', '소계', '합 계'].includes(first)) continue;
+                const obj = {}; let any = false;
+                headers.forEach((h, ci) => { if (h) { const v = row[ci] != null ? row[ci] : ''; obj[h] = v; if (String(v).trim() !== '') any = true; } });
+                if (any) objs.push(obj);
+            }
+            return objs;
+        }
+        function sheetToObjects(ws, type) { const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }); return pickHeaderObjects(aoa, type); }
         function xlsxPick(obj, keys) { for (const k of keys) { if (obj[k] !== undefined && String(obj[k]).trim() !== '') return String(obj[k]).trim(); } return ''; }
 
         function buildExportAoa(type) {
@@ -2808,7 +2981,7 @@
                 const buf = await file.arrayBuffer();
                 const wb = XLSX.read(buf, { type: 'array' });
                 const ws = wb.Sheets[wb.SheetNames[0]];
-                const raw = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                const raw = sheetToObjects(ws, STATE.importType);
                 STATE.importDraft = { type: STATE.importType, rows: normalizeImportRows(STATE.importType, raw) };
                 renderImportPreview();
                 openModal('xlsx-import-modal');
@@ -2883,10 +3056,24 @@
                 <tbody>${preview.map(r => `<tr class="border-t">${rowCells(r).map(c => `<td class="px-2 py-1.5 whitespace-nowrap">${esc(String(c == null ? '' : c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
                 <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[12px] text-slate-400">${d.type === 'inventory' ? '품목코드를 비우면 분류 코드로 자동 생성됩니다.' : '구분: 고객사 / 공급처 / 공통'}</span><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline whitespace-nowrap">양식 내려받기</button></div>`;
         }
+        async function ensureImportOptions(rows) {
+            const opts = STATE.invOptions || {};
+            const have = (kind, val) => (opts[kind] || []).some(o => String(o.value).trim().toLowerCase() === String(val).trim().toLowerCase());
+            const toAdd = [], seen = { category: {}, unit: {}, name: {} };
+            (rows || []).forEach(r => {
+                [['category', r.category], ['unit', r.unit], ['name', r.name]].forEach(([k, v]) => {
+                    v = (v || '').trim(); if (!v) return; const key = v.toLowerCase();
+                    if (!have(k, v) && !seen[k][key]) { seen[k][key] = 1; toAdd.push({ kind: k, value: v }); }
+                });
+            });
+            if (toAdd.length) { const { error } = await sb.from('inventory_options').insert(toAdd); if (!error) await reloadInventoryOptions(); }
+            return toAdd.length;
+        }
         async function confirmImport() {
             const d = STATE.importDraft; if (!d || !d.rows.length) { closeModal('xlsx-import-modal'); return; }
             let inserted = 0, updated = 0, fail = 0;
             if (d.type === 'inventory') {
+                await ensureImportOptions(d.rows); // 새 분류·단위·품목명을 기준정보(옵션)에 자동 등록
                 for (const row of d.rows) {
                     if (row._match) {
                         const m = {};
