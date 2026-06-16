@@ -1092,7 +1092,7 @@
                 <input type="hidden" id="trade-kind">
                 <!-- 문서 헤더 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="trade-client-label">CLIENT (수신처)</label><input type="text" id="trade-client" list="trade-partner-list" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"><datalist id="trade-partner-list"></datalist></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="trade-client-label">CLIENT (수신처)</label><input type="text" id="trade-client" list="trade-partner-list" onchange="onTradeClientChange()" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"><datalist id="trade-partner-list"></datalist></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">SERVICE (건명)</label><input type="text" id="trade-service" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">PJT TITLE</label><input type="text" id="trade-pjt" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="trade-docno-label">문서번호 (QUO./P.O. NO.)</label><input type="text" id="trade-docno" placeholder="자동 생성 (직접 수정 가능)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none font-mono"></div>
@@ -2485,7 +2485,7 @@
             const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
             if (STATE.tradeTableMissing) { showToast('준비 필요', '발주/견적 테이블(trade_documents) 갱신 SQL을 먼저 실행하세요.'); return; }
             openTradeForm(null, 'po');
-            const cl = document.getElementById('trade-client'); if (cl) cl.value = it.supplier || '';
+            const cl = document.getElementById('trade-client'); if (cl) { cl.value = it.supplier || ''; onTradeClientChange(); }
             const sv = document.getElementById('trade-service'); if (sv) sv.value = '재고 보충 발주';
             const reorder = Math.max(1, (Number(it.safeStock) || 0) * 2 - (Number(it.stock) || 0));
             STATE.tradeDraft.items = [{ description: it.name + (it.sku ? ` (${it.sku})` : ''), notes: '', unit: it.unit || '', qty: reorder, unitPrice: Number(it.unitPrice) || 0, sub: false }];
@@ -3203,6 +3203,27 @@
             const dl = document.getElementById('trade-partner-list'); if (!dl) return;
             dl.innerHTML = (STATE.partners || []).map(p => `<option value="${esc(p.name)}">${p.contact ? esc(p.contact) : ''}</option>`).join('');
         }
+        function findPartnerByName(name) {
+            const n = String(name || '').trim().toLowerCase(); if (!n) return null;
+            return (STATE.partners || []).find(x => String(x.name).trim().toLowerCase() === n) || null;
+        }
+        function partnerPersonText(p) {
+            if (!p) return '';
+            const tel = p.tel || p.mobile || '';
+            return [p.contact, tel].filter(Boolean).join(tel && p.contact ? ' / ' : '');
+        }
+        function onTradeClientChange() {
+            const nameEl = document.getElementById('trade-client'); if (!nameEl) return;
+            const p = findPartnerByName(nameEl.value);
+            if (!p) return;
+            const built = partnerPersonText(p);
+            const personEl = document.getElementById('trade-person');
+            if (built && personEl) {
+                const cur = (personEl.value || '').trim();
+                if (cur === '' || cur === STATE.tradeAutoPerson) { personEl.value = built; STATE.tradeAutoPerson = built; }
+            }
+            showToast('거래처 자동 입력', `${p.name}의 담당자·연락처를 불러왔습니다.`);
+        }
         function openPartnerManager() {
             if (STATE.partnersMissing) { showToast('준비 필요', '거래처 테이블(partners) 생성 SQL을 먼저 실행하세요.'); return; }
             resetPartnerForm(); renderPartnerList(); openModal('partner-modal');
@@ -3627,6 +3648,7 @@
             kind = t ? t.kind : (kind || 'po');
             const isPo = kind === 'po';
             document.getElementById('trade-id').value = id || '';
+            STATE.tradeAutoPerson = null;
             document.getElementById('trade-kind').value = kind;
             document.getElementById('trade-form-title').innerText = (id ? '' : '신규 ') + (isPo ? '발주서(PURCHASE ORDER)' : '견적서(QUOTATION)') + (id ? ' 편집' : ' 작성');
             document.getElementById('trade-docno-label').innerText = isPo ? '문서번호 (P.O. NO.)' : '문서번호 (QUO. NO.)';
