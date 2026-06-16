@@ -944,6 +944,7 @@
                     </div>
                     <div class="flex gap-2">
                         <button onclick="openPartnerManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="contact" class="w-4 h-4"></i> 거래처</button>
+                        <button onclick="exportXlsx('trade')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
                         <button onclick="openCompanyProfile()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="building-2" class="w-4 h-4"></i> 회사 정보</button>
                         <button onclick="openTradeForm(null,'po')" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 발주서</button>
                         <button onclick="openTradeForm(null,'quote')" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 견적서</button>
@@ -970,6 +971,8 @@
                         <label class="flex items-center gap-1.5 text-sm text-slate-600 px-2 py-2 border rounded-xl bg-white cursor-pointer"><input type="checkbox" id="inventory-filter-low" onchange="inventoryApplyFilter()" class="accent-amber-600"> 부족만</label>
                     </div>
                     <button onclick="openInventoryForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 품목 등록</button>
+                    <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+                    <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
@@ -1124,12 +1127,28 @@
         </div>
     </div>
 
+    <!-- 엑셀 가져오기 미리보기 -->
+    <input type="file" id="xlsx-import-input" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleXlsxImportFile(event)">
+    <div id="xlsx-import-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[85] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="file-up" class="w-4 h-4 text-emerald-600"></i> <span id="xlsx-import-title">엑셀 가져오기</span></h4>
+                <button onclick="closeModal('xlsx-import-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="xlsx-import-body" class="p-6 overflow-y-auto flex-1"></div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModal('xlsx-import-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                <button type="button" id="xlsx-import-confirm" onclick="confirmImport()" class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold">가져오기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 거래처 마스터 관리 -->
     <div id="partner-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[75] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden border max-h-[92vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="contact" class="w-4 h-4 text-teal-600"></i> 거래처 관리</h4>
-                <button onclick="closeModal('partner-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1.5"><button onclick="exportXlsx('partners')" class="px-2.5 py-1.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-[12px] font-bold flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i>엑셀</button><button onclick="triggerImport('partners')" class="px-2.5 py-1.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-lg text-[12px] font-bold flex items-center gap-1"><i data-lucide="upload" class="w-3.5 h-3.5"></i>가져오기</button><button onclick="closeModal('partner-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5 overflow-y-auto">
                 <div class="space-y-2 order-2 md:order-1">
@@ -2273,6 +2292,138 @@
             if (error) { showToast('삭제 실패', error.message); return; }
             await reloadPartners(); renderPartnerList();
             showToast('삭제', '거래처가 삭제되었습니다.');
+        }
+
+        // ════════════ 엑셀 내보내기 / 가져오기 ════════════
+        const TRADE_KIND_LABEL = { po: '발주서', quote: '견적서' };
+        const PARTNER_KIND_LABEL = { both: '공통', client: '고객사', supplier: '공급처' };
+        const PARTNER_KIND_FROM = { '공통': 'both', '고객사': 'client', '공급처': 'supplier', '고객': 'client', '공급': 'supplier', 'client': 'client', 'supplier': 'supplier', 'both': 'both' };
+        function deptName(id) { const d = (STATE.departments || []).find(x => x.id === id); return d ? d.name : (id || ''); }
+        function deptIdByName(name) { if (!name) return ''; const n = String(name).trim(); const d = (STATE.departments || []).find(x => x.name === n || x.id === n); return d ? d.id : ''; }
+        function xlsxToday() { return new Date().toISOString().slice(0, 10); }
+        function xlsxPick(obj, keys) { for (const k of keys) { if (obj[k] !== undefined && String(obj[k]).trim() !== '') return String(obj[k]).trim(); } return ''; }
+
+        function buildExportAoa(type) {
+            if (type === 'inventory') {
+                const headers = ['품목코드', '품목명', '분류', '단위', '현재고', '안전재고', '단가', '거래처', '위치', '담당부서', '비고'];
+                const rows = (STATE.inventory || []).map(i => [i.sku || '', i.name || '', i.category || '', i.unit || '', i.stock || 0, i.safeStock || 0, i.unitPrice || 0, i.supplier || '', i.location || '', deptName(i.deptId), i.notes || '']);
+                return { headers, rows, sheet: '재고', filename: `재고목록_${xlsxToday()}.xlsx` };
+            }
+            if (type === 'partners') {
+                const headers = ['거래처명', '구분', '담당자', 'TEL', 'FAX', 'E-MAIL', '사업자번호', '주소', '비고'];
+                const rows = (STATE.partners || []).map(p => [p.name || '', PARTNER_KIND_LABEL[p.kind] || '공통', p.contact || '', p.tel || '', p.fax || '', p.email || '', p.bizNo || '', p.address || '', p.notes || '']);
+                return { headers, rows, sheet: '거래처', filename: `거래처목록_${xlsxToday()}.xlsx` };
+            }
+            if (type === 'trade') {
+                const headers = ['문서번호', '종류', 'CLIENT', '건명(SERVICE)', '작성일', '상태', '합계금액'];
+                const rows = (STATE.trade || []).map(t => [t.docNo || '', TRADE_KIND_LABEL[t.kind] || '', t.client || '', t.service || '', t.docDate || '', (TRADE_STATUS[t.status] || ['', ''])[0], Number(t.total) || 0]);
+                return { headers, rows, sheet: '발주견적', filename: `발주견적목록_${xlsxToday()}.xlsx` };
+            }
+            return { headers: [], rows: [], sheet: 'sheet', filename: 'export.xlsx' };
+        }
+        async function exportXlsx(type) {
+            try { await ensureXlsx(); } catch (e) { }
+            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
+            const { headers, rows, sheet, filename } = buildExportAoa(type);
+            if (!rows.length) { showToast('내보낼 데이터 없음', '목록이 비어 있습니다.'); return; }
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, sheet);
+            XLSX.writeFile(wb, filename);
+            showToast('내보내기 완료', `${rows.length}건을 엑셀로 저장했습니다.`);
+        }
+        async function downloadTemplate(type) {
+            try { await ensureXlsx(); } catch (e) { }
+            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
+            let headers, example, name;
+            if (type === 'inventory') { headers = ['품목코드', '품목명', '분류', '단위', '현재고', '안전재고', '단가', '거래처', '위치', '담당부서', '비고']; example = ['(비우면 자동생성)', '볼트 M8', '부품', 'EA', 10, 5, 100, '대한볼트', 'A-1', '미래전략기획실', '예시 행 — 지우고 입력']; name = '재고_가져오기_양식.xlsx'; }
+            else { headers = ['거래처명', '구분', '담당자', 'TEL', 'FAX', 'E-MAIL', '사업자번호', '주소', '비고']; example = ['제이엔케이글로벌', '고객사', '김부장', '02-111-2222', '02-111-2223', 'jnk@corp.com', '123-45-67890', '서울시 ...', '예시 행 — 지우고 입력']; name = '거래처_가져오기_양식.xlsx'; }
+            const ws = XLSX.utils.aoa_to_sheet([headers, example]);
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '양식');
+            XLSX.writeFile(wb, name);
+        }
+        function triggerImport(type) {
+            STATE.importType = type;
+            const inp = document.getElementById('xlsx-import-input'); if (inp) { inp.value = ''; inp.click(); }
+        }
+        async function handleXlsxImportFile(e) {
+            const file = e.target.files && e.target.files[0]; if (!file) return;
+            try { await ensureXlsx(); } catch (err) { }
+            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
+            try {
+                const buf = await file.arrayBuffer();
+                const wb = XLSX.read(buf, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const raw = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                STATE.importDraft = { type: STATE.importType, rows: normalizeImportRows(STATE.importType, raw) };
+                renderImportPreview();
+                openModal('xlsx-import-modal');
+            } catch (err) { showToast('파일 읽기 실패', err.message || '엑셀 형식을 확인해 주세요.'); }
+        }
+        function normalizeImportRows(type, raw) {
+            const out = [];
+            (raw || []).forEach(r => {
+                if (type === 'inventory') {
+                    const name = xlsxPick(r, ['품목명', '품목', 'name']); if (!name) return;
+                    out.push({
+                        sku: xlsxPick(r, ['품목코드', 'SKU', 'sku']), name, category: xlsxPick(r, ['분류', '카테고리', 'category']), unit: xlsxPick(r, ['단위', 'unit']) || 'EA',
+                        stock: Number(xlsxPick(r, ['현재고', '재고', 'stock']) || 0) || 0, safe_stock: Number(xlsxPick(r, ['안전재고', 'safe_stock']) || 0) || 0,
+                        unit_price: Number(xlsxPick(r, ['단가', '가격', 'unit_price']) || 0) || 0, supplier: xlsxPick(r, ['거래처', '공급처', 'supplier']),
+                        location: xlsxPick(r, ['위치', '보관위치', 'location']), dept_id: deptIdByName(xlsxPick(r, ['담당부서', '부서', 'dept'])) || (STATE.profile ? STATE.profile.deptId : ''), notes: xlsxPick(r, ['비고', '메모', 'notes'])
+                    });
+                } else if (type === 'partners') {
+                    const name = xlsxPick(r, ['거래처명', '거래처', '업체명', 'name']); if (!name) return;
+                    out.push({
+                        name, kind: PARTNER_KIND_FROM[xlsxPick(r, ['구분', '유형', 'kind'])] || 'both', contact: xlsxPick(r, ['담당자', 'contact']), tel: xlsxPick(r, ['TEL', '전화', 'tel']),
+                        fax: xlsxPick(r, ['FAX', '팩스', 'fax']), email: xlsxPick(r, ['E-MAIL', 'EMAIL', '이메일', 'email']), biz_no: xlsxPick(r, ['사업자번호', '사업자', 'biz_no']),
+                        address: xlsxPick(r, ['주소', 'address']), notes: xlsxPick(r, ['비고', '메모', 'notes'])
+                    });
+                }
+            });
+            if (type === 'inventory') assignImportSkus(out);
+            return out;
+        }
+        function assignImportSkus(rows) {
+            const counters = {};
+            rows.forEach(r => {
+                if (r.sku) return;
+                const opt = ((STATE.invOptions && STATE.invOptions.category) || []).find(c => c.value === r.category);
+                const code = (opt && opt.code) ? String(opt.code).toUpperCase() : 'GEN';
+                if (counters[code] === undefined) {
+                    let max = 0; (STATE.inventory || []).forEach(i => { const s = String(i.sku || '').toUpperCase(); const d = s.lastIndexOf('-'); if (d > 0 && s.slice(0, d) === code) { const n = parseInt(s.slice(d + 1)); if (!isNaN(n)) max = Math.max(max, n); } });
+                    counters[code] = max;
+                }
+                counters[code]++; r.sku = code + '-' + String(counters[code]).padStart(4, '0');
+            });
+        }
+        function renderImportPreview() {
+            const d = STATE.importDraft, body = document.getElementById('xlsx-import-body'); if (!body || !d) return;
+            const typeLabel = d.type === 'inventory' ? '재고 품목' : '거래처';
+            const titleEl = document.getElementById('xlsx-import-title'); if (titleEl) titleEl.innerText = typeLabel + ' 엑셀 가져오기';
+            const btn = document.getElementById('xlsx-import-confirm');
+            if (!d.rows.length) {
+                body.innerHTML = `<div class="text-center text-slate-400 text-sm py-8">가져올 유효한 행이 없습니다.<br>양식의 머리글(첫 줄)이 맞는지 확인해 주세요.</div><div class="text-center"><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline">${typeLabel} 양식 내려받기</button></div>`;
+                if (btn) { btn.disabled = true; btn.classList.add('opacity-40', 'pointer-events-none'); }
+                return;
+            }
+            if (btn) { btn.disabled = false; btn.classList.remove('opacity-40', 'pointer-events-none'); }
+            const cols = d.type === 'inventory' ? ['품목코드', '품목명', '분류', '단위', '현재고', '단가', '담당부서'] : ['거래처명', '구분', '담당자', 'TEL', 'E-MAIL'];
+            const rowCells = r => d.type === 'inventory' ? [r.sku, r.name, r.category, r.unit, r.stock, r.unit_price, deptName(r.dept_id)] : [r.name, PARTNER_KIND_LABEL[r.kind] || '', r.contact, r.tel, r.email];
+            const preview = d.rows.slice(0, 6);
+            body.innerHTML = `<div class="text-sm text-slate-600 mb-3"><b class="text-emerald-700">${d.rows.length}건</b>을 가져옵니다. 미리보기(최대 6행):</div>
+                <div class="overflow-x-auto border rounded-xl"><table class="w-full text-[12px]"><thead class="bg-slate-50 text-slate-500"><tr>${cols.map(c => `<th class="px-2 py-1.5 text-left whitespace-nowrap">${c}</th>`).join('')}</tr></thead>
+                <tbody>${preview.map(r => `<tr class="border-t">${rowCells(r).map(c => `<td class="px-2 py-1.5 whitespace-nowrap">${esc(String(c == null ? '' : c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+                <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[12px] text-slate-400">${d.type === 'inventory' ? '품목코드를 비우면 분류 코드로 자동 생성됩니다.' : '구분: 고객사 / 공급처 / 공통'}</span><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline whitespace-nowrap">양식 내려받기</button></div>`;
+        }
+        async function confirmImport() {
+            const d = STATE.importDraft; if (!d || !d.rows.length) { closeModal('xlsx-import-modal'); return; }
+            const table = d.type === 'inventory' ? 'inventory_items' : 'partners';
+            let okc = 0, fail = 0;
+            for (const row of d.rows) { const { error } = await sb.from(table).insert(row); if (error) fail++; else okc++; }
+            if (d.type === 'inventory') { await reloadInventory(); renderInventory(); }
+            else { await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList(); }
+            renderDashboardWidgets();
+            closeModal('xlsx-import-modal');
+            showToast('가져오기 완료', `${okc}건 추가${fail ? ` · ${fail}건 실패` : ''}`);
         }
 
         async function reloadTrade() {
