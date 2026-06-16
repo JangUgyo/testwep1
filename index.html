@@ -1106,6 +1106,7 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">PERSON IN CHARGE (담당자)</label><input type="text" id="trade-person" placeholder="예: MR. FELIX PARK (+82-10-...)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">PAYMENT (결제조건)</label><input type="text" id="trade-payment" placeholder="예: 100% AFTER DELIVERY" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">DELIVERY (납기)</label><input type="text" id="trade-delivery" placeholder="예: 2 weeks after PO" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">납기일 (DUE DATE) <span class="text-slate-400 font-normal">추적·알림용</span></label><input type="date" id="trade-due" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">TERMS</label><input type="text" id="trade-terms" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">VALIDITY (유효기간)</label><input type="date" id="trade-validity" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></div>
                     <div class="sm:col-span-2 border-t border-slate-100 pt-3 mt-1">
@@ -3616,13 +3617,13 @@
         }
 
         async function reloadTrade() {
-            const { data, error } = await sb.from('trade_documents').select('*').order('created_at', { ascending: false }).limit(1000);
+            const { data, error } = await fetchAllPaged(() => sb.from('trade_documents').select('*').order('created_at', { ascending: false }));
             if (error) { STATE.tradeTableMissing = true; STATE.trade = []; return; }
             STATE.tradeTableMissing = false;
             STATE.trade = (data || []).map(r => ({
                 id: r.id, kind: r.kind, docNo: r.doc_no || '',
                 client: r.client || r.partner || '', service: r.service || '', pjtTitle: r.pjt_title || '', inqNo: r.inq_no || '', itemNo: r.item_no || '',
-                personInCharge: r.person_in_charge || r.partner_contact || '', payment: r.payment || '', delivery: r.delivery || '', terms: r.terms || '', validity: r.validity || '',
+                personInCharge: r.person_in_charge || r.partner_contact || '', payment: r.payment || '', delivery: r.delivery || '', terms: r.terms || '', validity: r.validity || '', dueDate: r.due_date || '',
                 issuerTel: r.issuer_tel || '', issuerFax: r.issuer_fax || '', issuerEmail: r.issuer_email || '',
                 receivedAt: r.received_at || null,
                 docDate: r.doc_date || '', status: r.status || 'draft',
@@ -3725,6 +3726,7 @@
             V('trade-delivery', t ? t.delivery : (isPo ? '2 weeks after PO' : ''));
             V('trade-terms', t ? t.terms : '');
             V('trade-validity', t ? t.validity : '');
+            V('trade-due', t ? (t.dueDate || '') : '');
             V('trade-issuer-tel', t ? t.issuerTel : '');
             V('trade-issuer-fax', t ? t.issuerFax : '');
             V('trade-issuer-email', t ? t.issuerEmail : '');
@@ -3800,7 +3802,7 @@
                 kind, doc_no: docNo, client, partner: client, service: document.getElementById('trade-service').value.trim(),
                 pjt_title: document.getElementById('trade-pjt').value.trim(), inq_no: document.getElementById('trade-inq').value.trim(), item_no: document.getElementById('trade-item').value.trim(),
                 person_in_charge: document.getElementById('trade-person').value.trim(), partner_contact: document.getElementById('trade-person').value.trim(),
-                payment: document.getElementById('trade-payment').value.trim(), delivery: document.getElementById('trade-delivery').value.trim(), terms: document.getElementById('trade-terms').value.trim(), validity: document.getElementById('trade-validity').value.trim(),
+                payment: document.getElementById('trade-payment').value.trim(), delivery: document.getElementById('trade-delivery').value.trim(), terms: document.getElementById('trade-terms').value.trim(), validity: document.getElementById('trade-validity').value.trim(), due_date: document.getElementById('trade-due').value || null,
                 issuer_tel: document.getElementById('trade-issuer-tel').value.trim(), issuer_fax: document.getElementById('trade-issuer-fax').value.trim(), issuer_email: document.getElementById('trade-issuer-email').value.trim(),
                 doc_date: document.getElementById('trade-date').value || null,
                 status: (id && STATE.trade.find(x => x.id === parseInt(id))) ? STATE.trade.find(x => x.id === parseInt(id)).status : 'draft',
@@ -6995,6 +6997,22 @@
                 if (!(isAdmin || (i.deptId && i.deptId === myDept))) return;
                 items.push({ id: 'lowstock_' + i.id, group: '재고 부족', icon: 'package-x', color: 'text-rose-600', title: i.name, sub: `현재고 ${fmtNum(i.stock)}/${fmtNum(i.safeStock)} ${esc(i.unit || '')} · 발주 필요`, onclick: `notifOpen('inventory', ${i.id})` });
             });
+            // 8) 발주 납기 임박/지남 · 견적 유효기간 임박/만료 — 관리자 또는 문서 담당 부서
+            const _today0 = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+            const _ddayOf = (ds) => { if (!ds) return null; const p = String(ds).split('-').map(Number); if (!p[0] || !p[1] || !p[2]) return null; return Math.round((new Date(p[0], p[1] - 1, p[2]) - _today0) / 86400000); };
+            (STATE.trade || []).forEach(t => {
+                if (t.status === 'done') return;
+                if (!(isAdmin || (t.deptId && t.deptId === myDept))) return;
+                if (t.kind === 'po' && t.dueDate) {
+                    const dd = _ddayOf(t.dueDate); if (dd === null || dd > 7 || dd < -90) return;
+                    const over = dd < 0;
+                    items.push({ id: 'tradedue_' + t.id, group: '납기 · 유효기간', icon: 'truck', color: over ? 'text-rose-600' : 'text-amber-600', title: `${t.docNo || '발주서'} 납기 ${over ? Math.abs(dd) + '일 지남' : (dd === 0 ? '오늘' : 'D-' + dd)}`, sub: [t.client, t.service].filter(Boolean).join(' · '), onclick: `notifOpen('trade', ${t.id})` });
+                } else if (t.kind === 'quote' && t.validity) {
+                    const dd = _ddayOf(t.validity); if (dd === null || dd > 7 || dd < -90) return;
+                    const over = dd < 0;
+                    items.push({ id: 'tradeval_' + t.id, group: '납기 · 유효기간', icon: 'file-clock', color: over ? 'text-rose-600' : 'text-amber-600', title: `${t.docNo || '견적서'} 유효기간 ${over ? '만료(' + Math.abs(dd) + '일 지남)' : (dd === 0 ? '오늘 만료' : 'D-' + dd)}`, sub: [t.client, t.service].filter(Boolean).join(' · '), onclick: `notifOpen('trade', ${t.id})` });
+                }
+            });
             return items;
         }
         function renderNotificationCenter() {
@@ -7016,7 +7034,7 @@
             wrap.classList.remove('hidden');
             if (countEl) { countEl.innerText = unseen; countEl.classList.toggle('hidden', unseen === 0); }
             if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
-            const order = ['결재', '열람', '재고 부족', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
+            const order = ['결재', '열람', '재고 부족', '납기 · 유효기간', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
             const groups = {};
             items.forEach(n => { (groups[n.group] = groups[n.group] || []).push(n); });
             box.innerHTML = order.filter(g => groups[g]).map(g => {
@@ -7048,6 +7066,7 @@
             else if (kind === 'ticket') { switchTab('field-support'); setTimeout(() => openTicketDetail(id), 60); }
             else if (kind === 'asset') { switchTab('assets'); }
             else if (kind === 'inventory') { switchTab('inventory'); setTimeout(() => { if (id) openInventoryDetail(id); else setInventoryView('dashboard'); }, 60); }
+            else if (kind === 'trade') { switchTab('trade'); setTimeout(() => openTradeDetail(id), 60); }
             else if (kind === 'calendar') { switchTab('calendar'); }
         }
         function acknowledgeAndOpen(projId, itemId) { notifOpen('proj', projId, itemId); }
