@@ -1774,7 +1774,8 @@
             jszip: 'https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js',
             docx: 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js',
             pdfjs: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
-            pdfworker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
+            pdfworker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+            exceljs: 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'
         };
         const _libCache = {};
         function loadScript(url) {
@@ -1791,6 +1792,7 @@
         }
         async function ensureChart() { if (window.Chart) return; await loadScript(LIB_URLS.chart); }
         async function ensureXlsx() { if (window.XLSX) return; await loadScript(LIB_URLS.xlsx); }
+        async function ensureExcelJS() { if (window.ExcelJS) return; await loadScript(LIB_URLS.exceljs); }
         async function ensureMammoth() { if (window.mammoth) return; await loadScript(LIB_URLS.mammoth); }
         async function ensureDocx() { if (window.docx && window.docx.renderAsync) return; if (!window.JSZip) await loadScript(LIB_URLS.jszip); await loadScript(LIB_URLS.docx); }
         async function ensurePdf() { if (window.pdfjsLib) return; await loadScript(LIB_URLS.pdfjs); try { if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = LIB_URLS.pdfworker; } catch (e) { } }
@@ -2233,22 +2235,20 @@
         }
         async function exportReportXlsx() {
             const d = STATE.reportDraft; if (!d) { showToast('보고서 없음', '먼저 "생성"을 눌러 보고서를 만드세요.'); return; }
-            try { await ensureXlsx(); } catch (e) { }
-            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
-            const wb = XLSX.utils.book_new();
+            let sheets;
             if (d.type === 'monthly') {
-                const aoa = [['품목', '분류', '단위', '입고', '출고', '순변동', '현재고'], ...d.rows.map(r => [r.name, r.category, r.unit, r.inQty, r.outQty, r.net, r.curStock]), ['합계', '', '', d.totals.inQty, d.totals.outQty, d.totals.net, '']];
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), '월별현황');
-                const subAoa = [['출고유형', '수량'], ...Object.keys(d.subtypeOut).map(k => [k, d.subtypeOut[k]])];
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(subAoa), '출고유형');
+                sheets = [
+                    { name: '월별현황', title: `월별 재고 입출 현황 (${d.periodLabel})`, headers: ['품목', '분류', '입고', '출고', '순변동', '현재고'], aligns: ['left', 'left', 'right', 'right', 'right', 'right'], numFmts: [, , '#,##0', '#,##0', '#,##0', '#,##0'], widths: [24, 12, 10, 10, 10, 10], rows: d.rows.map(r => [r.name, r.category, r.inQty, r.outQty, r.net, r.curStock]), totalRow: ['합계', '', d.totals.inQty, d.totals.outQty, d.totals.net, ''] },
+                    { name: '출고유형', title: `출고 유형별 합계 (${d.periodLabel})`, headers: ['출고유형', '수량'], aligns: ['left', 'right'], numFmts: [, '#,##0'], widths: [20, 12], rows: Object.keys(d.subtypeOut).map(k => [k, d.subtypeOut[k]]) }
+                ];
             } else {
-                const maoa = [['월', '입고', '출고', '순변동'], ...d.months.map(x => [x.month + '월', x.inQty, x.outQty, x.net]), ['합계', d.totals.inQty, d.totals.outQty, d.totals.net]];
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(maoa), '월별추이');
-                const iaoa = [['품목', '입고', '출고', '순변동'], ...d.itemRows.map(r => [r.name, r.inQty, r.outQty, r.net])];
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(iaoa), '품목별');
+                sheets = [
+                    { name: '월별추이', title: `년별 재고 입출 현황 (${d.periodLabel})`, headers: ['월', '입고', '출고', '순변동'], aligns: ['left', 'right', 'right', 'right'], numFmts: [, '#,##0', '#,##0', '#,##0'], widths: [10, 12, 12, 12], rows: d.months.map(x => [x.month + '월', x.inQty, x.outQty, x.net]), totalRow: ['합계', d.totals.inQty, d.totals.outQty, d.totals.net] },
+                    { name: '품목별', title: `품목별 연간 합계 (${d.periodLabel})`, headers: ['품목', '입고', '출고', '순변동'], aligns: ['left', 'right', 'right', 'right'], numFmts: [, '#,##0', '#,##0', '#,##0'], widths: [24, 12, 12, 12], rows: d.itemRows.map(r => [r.name, r.inQty, r.outQty, r.net]) }
+                ];
             }
-            XLSX.writeFile(wb, `재고입출현황_${d.periodLabel.replace(/[^0-9가-힣]/g, '')}_${d.whLabel}.xlsx`);
-            showToast('내보내기 완료', '보고서를 엑셀로 저장했습니다.');
+            const okv = await exportStyledWorkbook({ filename: `재고입출현황_${d.periodLabel.replace(/[^0-9가-힣]/g, '')}_${d.whLabel}.xlsx`, sheets });
+            if (okv) showToast('내보내기 완료', '보고서를 엑셀로 저장했습니다.');
         }
 
         async function reloadInventory() {
@@ -2731,15 +2731,60 @@
             }
             return { headers: [], rows: [], sheet: 'sheet', filename: 'export.xlsx' };
         }
+        // ── 스타일 엑셀(ExcelJS): 회사 로고 + 깔끔한 자재관리 서식 ──
+        function _xb() { const s = { style: 'thin', color: { argb: 'FFCBD5E1' } }; return { top: s, left: s, bottom: s, right: s }; }
+        function downloadBlob(blob, filename) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { try { URL.revokeObjectURL(url); a.remove(); } catch (e) { } }, 1500); }
+        async function getLogoForExcel() {
+            const co = company(); if (!co.logo) return null;
+            return await new Promise(res => { try { const img = new Image(); img.onload = () => res({ data: co.logo, w: img.naturalWidth || 297, h: img.naturalHeight || 220 }); img.onerror = () => res({ data: co.logo, w: 297, h: 220 }); img.src = co.logo; } catch (e) { res({ data: co.logo, w: 297, h: 220 }); } });
+        }
+        function exportMeta(type, rows) {
+            if (type === 'inventory') {
+                const sumStock = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
+                return { title: '재고 자재 관리 대장', widths: [14, 22, 12, 8, 10, 10, 12, 18, 12, 14, 22], aligns: ['left', 'left', 'left', 'center', 'right', 'right', 'right', 'left', 'left', 'left', 'left'], numFmts: [, , , , '#,##0', '#,##0', '#,##0'], totalRow: ['합계', '', '', '', sumStock, '', '', '', '', '', ''] };
+            }
+            if (type === 'partners') {
+                return { title: '거래처 관리 대장', widths: [18, 10, 12, 14, 14, 20, 16, 24, 20], aligns: ['left', 'center', 'left', 'left', 'left', 'left', 'left', 'left', 'left'], numFmts: [] };
+            }
+            if (type === 'trade') {
+                const sumTotal = rows.reduce((s, r) => s + (Number(r[6]) || 0), 0);
+                return { title: '발주·견적 관리 대장', widths: [16, 8, 18, 24, 12, 10, 14], aligns: ['left', 'center', 'left', 'left', 'center', 'center', 'right'], numFmts: [, , , , , , '#,##0'], totalRow: ['합계', '', '', '', '', '', sumTotal] };
+            }
+            return { title: '', widths: [], aligns: [], numFmts: [] };
+        }
+        async function exportStyledWorkbook({ filename, sheets }) {
+            try { await ensureExcelJS(); } catch (e) { }
+            if (typeof ExcelJS === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return false; }
+            const co = company();
+            const logo = await getLogoForExcel();
+            const wb = new ExcelJS.Workbook(); wb.creator = co.name || 'WorkSpace Pro';
+            sheets.forEach(sp => {
+                const cols = sp.headers.length;
+                const ws = wb.addWorksheet(sp.name || 'Sheet', { views: [{ state: 'frozen', ySplit: 4 }] });
+                sp.headers.forEach((_, i) => { ws.getColumn(i + 1).width = (sp.widths && sp.widths[i]) || 16; });
+                ws.mergeCells(1, 1, 1, Math.max(1, cols - 2));
+                const tc = ws.getCell(1, 1); tc.value = sp.title || ''; tc.font = { bold: true, size: 15, color: { argb: 'FF0F172A' } }; tc.alignment = { vertical: 'middle' };
+                ws.getRow(1).height = 24;
+                ws.mergeCells(2, 1, 2, Math.max(1, cols - 2));
+                const sc = ws.getCell(2, 1); sc.value = `${co.name || ''}    생성일 ${new Date().toLocaleDateString('ko-KR')}`; sc.font = { size: 10, color: { argb: 'FF64748B' } };
+                ws.getRow(3).height = 4;
+                if (logo) { try { const id = wb.addImage({ base64: logo.data, extension: 'png' }); const h = 46, w = Math.round(h * (logo.w / logo.h)); ws.addImage(id, { tl: { col: Math.max(0, cols - 1.4), row: 0.1 }, ext: { width: w, height: h }, editAs: 'oneCell' }); } catch (e) { } }
+                const hr = ws.getRow(4);
+                sp.headers.forEach((h, i) => { const c = hr.getCell(i + 1); c.value = h; c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2A44' } }; c.alignment = { horizontal: (sp.aligns && sp.aligns[i]) || 'left', vertical: 'middle' }; c.border = _xb(); });
+                hr.height = 19;
+                sp.rows.forEach((r, ri) => { const row = ws.getRow(5 + ri); r.forEach((v, ci) => { const c = row.getCell(ci + 1); c.value = v == null ? '' : v; c.alignment = { horizontal: (sp.aligns && sp.aligns[ci]) || 'left', vertical: 'middle' }; c.border = _xb(); if (sp.numFmts && sp.numFmts[ci]) c.numFmt = sp.numFmts[ci]; if (ri % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } }; }); });
+                if (sp.totalRow) { const row = ws.getRow(5 + sp.rows.length); sp.totalRow.forEach((v, ci) => { const c = row.getCell(ci + 1); c.value = v == null ? '' : v; c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } }; c.alignment = { horizontal: (sp.aligns && sp.aligns[ci]) || 'left' }; c.border = _xb(); if (sp.numFmts && sp.numFmts[ci]) c.numFmt = sp.numFmts[ci]; }); }
+            });
+            const buf = await wb.xlsx.writeBuffer();
+            downloadBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), filename);
+            return true;
+        }
         async function exportXlsx(type) {
-            try { await ensureXlsx(); } catch (e) { }
-            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
             const { headers, rows, sheet, filename } = buildExportAoa(type);
             if (!rows.length) { showToast('내보낼 데이터 없음', '목록이 비어 있습니다.'); return; }
-            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, sheet);
-            XLSX.writeFile(wb, filename);
-            showToast('내보내기 완료', `${rows.length}건을 엑셀로 저장했습니다.`);
+            const meta = exportMeta(type, rows);
+            const okv = await exportStyledWorkbook({ filename, sheets: [{ name: sheet, title: meta.title, headers, rows, aligns: meta.aligns, numFmts: meta.numFmts, widths: meta.widths, totalRow: meta.totalRow }] });
+            if (okv) showToast('내보내기 완료', `${rows.length}건을 엑셀로 저장했습니다.`);
         }
         async function downloadTemplate(type) {
             try { await ensureXlsx(); } catch (e) { }
@@ -2775,7 +2820,7 @@
                 if (type === 'inventory') {
                     const name = xlsxPick(r, ['품목명', '품목', 'name']); if (!name) return;
                     out.push({
-                        sku: xlsxPick(r, ['품목코드', 'SKU', 'sku']), name, category: xlsxPick(r, ['분류', '카테고리', 'category']), unit: xlsxPick(r, ['단위', 'unit']) || 'EA',
+                        sku: xlsxPick(r, ['품목코드', 'SKU', 'sku']), name, category: xlsxPick(r, ['분류', '카테고리', 'category']), unit: xlsxPick(r, ['단위', 'unit']) || '',
                         stock: Number(xlsxPick(r, ['현재고', '재고', 'stock']) || 0) || 0, safe_stock: Number(xlsxPick(r, ['안전재고', 'safe_stock']) || 0) || 0,
                         unit_price: Number(xlsxPick(r, ['단가', '가격', 'unit_price']) || 0) || 0, supplier: xlsxPick(r, ['거래처', '공급처', 'supplier']),
                         location: xlsxPick(r, ['위치', '보관위치', 'location']), dept_id: deptIdByName(xlsxPick(r, ['담당부서', '부서', 'dept'])) || (STATE.profile ? STATE.profile.deptId : ''), notes: xlsxPick(r, ['비고', '메모', 'notes'])
@@ -2789,8 +2834,21 @@
                     });
                 }
             });
-            if (type === 'inventory') assignImportSkus(out);
+            if (type === 'inventory') { resolveInventoryMatches(out); assignImportSkus(out); }
+            else if (type === 'partners') resolvePartnerMatches(out);
             return out;
+        }
+        function resolveInventoryMatches(rows) {
+            (rows || []).forEach(r => {
+                let ex = null;
+                const sku = (r.sku || '').trim().toLowerCase();
+                if (sku) ex = (STATE.inventory || []).find(i => String(i.sku || '').trim().toLowerCase() === sku);
+                if (!ex) { const nm = (r.name || '').trim().toLowerCase(); ex = (STATE.inventory || []).find(i => String(i.name || '').trim().toLowerCase() === nm); }
+                if (ex) { r._match = ex.id; r.sku = ex.sku; } else r._match = null;
+            });
+        }
+        function resolvePartnerMatches(rows) {
+            (rows || []).forEach(r => { const nm = (r.name || '').trim().toLowerCase(); const ex = (STATE.partners || []).find(p => String(p.name || '').trim().toLowerCase() === nm); r._match = ex ? ex.id : null; });
         }
         function assignImportSkus(rows) {
             const counters = {};
@@ -2816,29 +2874,61 @@
                 return;
             }
             if (btn) { btn.disabled = false; btn.classList.remove('opacity-40', 'pointer-events-none'); }
-            const cols = d.type === 'inventory' ? ['품목코드', '품목명', '분류', '단위', '현재고', '단가', '담당부서'] : ['거래처명', '구분', '담당자', 'TEL', 'E-MAIL'];
-            const rowCells = r => d.type === 'inventory' ? [r.sku, r.name, r.category, r.unit, r.stock, r.unit_price, deptName(r.dept_id)] : [r.name, PARTNER_KIND_LABEL[r.kind] || '', r.contact, r.tel, r.email];
+            const cols = d.type === 'inventory' ? ['상태', '품목코드', '품목명', '분류', '단위', '현재고', '단가', '담당부서'] : ['상태', '거래처명', '구분', '담당자', 'TEL', 'E-MAIL'];
+            const rowCells = r => d.type === 'inventory' ? [(r._match ? '갱신' : '신규'), r.sku, r.name, r.category, r.unit, r.stock, r.unit_price, deptName(r.dept_id)] : [(r._match ? '갱신' : '신규'), r.name, PARTNER_KIND_LABEL[r.kind] || '', r.contact, r.tel, r.email];
+            const _newN = d.rows.filter(r => !r._match).length, _updN = d.rows.filter(r => r._match).length;
             const preview = d.rows.slice(0, 6);
-            body.innerHTML = `<div class="text-sm text-slate-600 mb-3"><b class="text-emerald-700">${d.rows.length}건</b>을 가져옵니다. 미리보기(최대 6행):</div>
+            body.innerHTML = `<div class="text-sm text-slate-600 mb-3"><b class="text-emerald-700">${d.rows.length}건</b> (신규 ${_newN} · 갱신 ${_updN})을 가져옵니다. <span class="text-[12px] text-slate-400">기존 품목과 중복되면 추가되지 않고 갱신됩니다.</span> 미리보기(최대 6행):</div>
                 <div class="overflow-x-auto border rounded-xl"><table class="w-full text-[12px]"><thead class="bg-slate-50 text-slate-500"><tr>${cols.map(c => `<th class="px-2 py-1.5 text-left whitespace-nowrap">${c}</th>`).join('')}</tr></thead>
                 <tbody>${preview.map(r => `<tr class="border-t">${rowCells(r).map(c => `<td class="px-2 py-1.5 whitespace-nowrap">${esc(String(c == null ? '' : c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
                 <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[12px] text-slate-400">${d.type === 'inventory' ? '품목코드를 비우면 분류 코드로 자동 생성됩니다.' : '구분: 고객사 / 공급처 / 공통'}</span><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline whitespace-nowrap">양식 내려받기</button></div>`;
         }
         async function confirmImport() {
             const d = STATE.importDraft; if (!d || !d.rows.length) { closeModal('xlsx-import-modal'); return; }
-            let okc = 0, fail = 0;
+            let inserted = 0, updated = 0, fail = 0;
             if (d.type === 'inventory') {
-                for (const row of d.rows) { const r2 = Object.assign({}, row); r2.stock = 0; const { error } = await sb.from('inventory_items').insert(r2); if (error) fail++; else okc++; }
-                await reloadInventory();
-                for (const row of d.rows) { const opening = Number(row.stock) || 0; if (opening > 0) { const created = (STATE.inventory || []).find(x => x.sku === row.sku); if (created) await sb.rpc('apply_stock_move', { p_item_id: created.id, p_kind: 'in', p_qty: opening, p_reason: '엑셀 가져오기', p_warehouse_id: defaultWarehouseId() }); } }
+                for (const row of d.rows) {
+                    if (row._match) {
+                        const m = {};
+                        if (row.category) m.category = row.category;
+                        if (row.unit) m.unit = row.unit;
+                        if (row.supplier) m.supplier = row.supplier;
+                        if (row.location) m.location = row.location;
+                        if (row.notes) m.notes = row.notes;
+                        if (Number(row.safe_stock) > 0) m.safe_stock = Number(row.safe_stock);
+                        if (Number(row.unit_price) > 0) m.unit_price = Number(row.unit_price);
+                        if (Object.keys(m).length) { const { error } = await sb.from('inventory_items').update(m).eq('id', row._match); if (error) { fail++; continue; } }
+                        updated++;
+                    } else {
+                        const payload = { name: row.name, sku: row.sku, category: row.category, unit: row.unit || 'EA', safe_stock: Number(row.safe_stock) || 0, unit_price: Number(row.unit_price) || 0, supplier: row.supplier, location: row.location, dept_id: row.dept_id, notes: row.notes, stock: 0 };
+                        const { error } = await sb.from('inventory_items').insert(payload); if (error) { fail++; continue; } inserted++;
+                    }
+                }
+                await reloadInventory(); await reloadInventoryStock();
+                // 수량 반영: 가져온 현재고에 맞춰 기본창고 수량을 "갱신"(합산이 아니라 목표값으로 조정)
+                for (const row of d.rows) {
+                    const it = (STATE.inventory || []).find(x => row._match ? x.id === row._match : String(x.sku) === String(row.sku));
+                    const wh = defaultWarehouseId(); if (!it || !wh) continue;
+                    const diff = (Number(row.stock) || 0) - itemWhQty(it.id, wh);
+                    if (diff !== 0) await sb.rpc('apply_stock_move', { p_item_id: it.id, p_kind: diff > 0 ? 'in' : 'out', p_qty: Math.abs(diff), p_reason: row._match ? '엑셀 가져오기(갱신)' : '엑셀 가져오기', p_warehouse_id: wh });
+                }
                 await reloadInventory(); await reloadInventoryStock(); renderInventory();
             } else {
-                for (const row of d.rows) { const { error } = await sb.from('partners').insert(row); if (error) fail++; else okc++; }
+                for (const row of d.rows) {
+                    if (row._match) {
+                        const m = {}; ['name', 'contact', 'tel', 'fax', 'email', 'biz_no', 'address', 'notes'].forEach(k => { if (row[k]) m[k] = row[k]; });
+                        if (Object.keys(m).length) { const { error } = await sb.from('partners').update(m).eq('id', row._match); if (error) { fail++; continue; } }
+                        updated++;
+                    } else {
+                        const payload = Object.assign({}, row); delete payload._match;
+                        const { error } = await sb.from('partners').insert(payload); if (error) { fail++; continue; } inserted++;
+                    }
+                }
                 await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList();
             }
             renderDashboardWidgets();
             closeModal('xlsx-import-modal');
-            showToast('가져오기 완료', `${okc}건 추가${fail ? ` · ${fail}건 실패` : ''}`);
+            showToast('가져오기 완료', `신규 ${inserted}건 · 갱신 ${updated}건${fail ? ` · 실패 ${fail}건` : ''}`);
         }
 
         async function reloadTrade() {
