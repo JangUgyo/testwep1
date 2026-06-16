@@ -1327,6 +1327,7 @@
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단위</label><select id="inventory-unit" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1" id="inventory-stock-label">기초재고 <span class="text-[11px] text-slate-400 font-normal">(신규 등록 시 입고)</span></label><input type="number" id="inventory-stock" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div id="inventory-warehouse-wrap"><label class="block text-[12px] font-bold text-slate-500 mb-1">기초재고 창고</label><select id="inventory-warehouse" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                    <div id="inventory-form-wh-info" class="sm:col-span-2 bg-slate-50/70 border border-slate-100 rounded-lg p-2.5" style="display:none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">안전재고(부족 기준)</label><input type="number" id="inventory-safe" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">단가(원)</label><input type="number" id="inventory-price" step="any" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
                     <div><label class="block text-[12px] font-bold text-slate-500 mb-1">거래처(공급처)</label><input type="text" id="inventory-supplier" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
@@ -1359,6 +1360,30 @@
                 <div class="flex gap-2 pt-1">
                     <button type="button" onclick="closeModal('stock-move-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
                     <button type="submit" id="stock-move-submit" class="flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold">처리</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 재고: 창고 간 이동(이고) -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[78] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2">
+                <i data-lucide="arrow-left-right" class="w-4 h-4 text-indigo-600"></i>
+                <h4 class="font-bold text-sm text-slate-800">창고 간 재고 이동</h4>
+            </div>
+            <form onsubmit="handleTransfer(event)" class="p-6 space-y-4">
+                <input type="hidden" id="transfer-item-id">
+                <div id="transfer-item-info" class="text-[13px] text-slate-500 bg-slate-50 rounded-lg p-3"></div>
+                <div class="grid grid-cols-2 gap-2 items-end">
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">출발 창고</label><select id="transfer-from" onchange="updateTransferInfo()" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                    <div><label class="block text-[12px] font-bold text-slate-500 mb-1">도착 창고</label><select id="transfer-to" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                </div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">이동 수량 <span class="text-rose-400">*</span></label><input type="number" id="transfer-qty" step="any" min="0" required placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-500 mb-1">사유 / 메모</label><input type="text" id="transfer-reason" placeholder="예: 현장 보충 이동" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('transfer-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold">이동</button>
                 </div>
             </form>
         </div>
@@ -2222,7 +2247,7 @@
             document.getElementById('inventory-id').value = id || '';
             populateInventoryOptionSelects(it ? it.name : '', it ? it.category : '', it ? it.unit : '');
             document.getElementById('inventory-sku').value = it ? it.sku : '';
-            document.getElementById('inventory-stock').value = it ? it.stock : '';
+            document.getElementById('inventory-stock').value = '';
             document.getElementById('inventory-safe').value = it ? it.safeStock : '';
             document.getElementById('inventory-price').value = it ? it.unitPrice : '';
             document.getElementById('inventory-supplier').value = it ? it.supplier : '';
@@ -2230,11 +2255,20 @@
             const dsel = document.getElementById('inventory-dept'); if (dsel) dsel.value = it ? (it.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('inventory-notes').value = it ? it.notes : '';
             document.getElementById('inventory-form-title').innerText = id ? '품목 편집' : '품목 등록';
-            const whWrap = document.getElementById('inventory-warehouse-wrap'), stockEl = document.getElementById('inventory-stock'), stockLabel = document.getElementById('inventory-stock-label');
+            const whWrap = document.getElementById('inventory-warehouse-wrap'), stockEl = document.getElementById('inventory-stock'), stockLabel = document.getElementById('inventory-stock-label'), whInfo = document.getElementById('inventory-form-wh-info');
             fillWarehouseSelect('inventory-warehouse', defaultWarehouseId());
-            if (id) { stockEl.readOnly = true; stockEl.classList.add('bg-slate-50', 'text-slate-400'); if (stockLabel) stockLabel.innerHTML = '현재고 <span class="text-[11px] text-slate-400 font-normal">(입·출고로 관리)</span>'; if (whWrap) whWrap.style.display = 'none'; }
-            else { stockEl.readOnly = false; stockEl.classList.remove('bg-slate-50', 'text-slate-400'); if (stockLabel) stockLabel.innerHTML = '기초재고 <span class="text-[11px] text-slate-400 font-normal">(신규 등록 시 입고)</span>'; if (whWrap) whWrap.style.display = ''; }
-            openModal('inventory-form-modal');
+            stockEl.readOnly = false; stockEl.classList.remove('bg-slate-50', 'text-slate-400'); stockEl.value = '';
+            if (whWrap) whWrap.style.display = '';
+            if (id && it) {
+                if (stockLabel) stockLabel.innerHTML = '추가 입고 수량 <span class="text-[11px] text-slate-400 font-normal">(선택 · 입력 시 아래 창고로 입고)</span>';
+                stockEl.placeholder = '추가 입고할 수량';
+                if (whInfo) { const chips = (STATE.warehouses || []).map(w => { const q = itemWhQty(it.id, w.id); return `<span class="wsp-chip ${q > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">${esc(w.name)} <b>${fmtNum(q)}</b></span>`; }).join(''); whInfo.innerHTML = `<div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1"><i data-lucide="warehouse" class="w-3 h-3"></i> 현재 창고별 재고 (총 ${fmtNum(it.stock)} ${esc(it.unit)})</div><div class="flex flex-wrap gap-1.5">${chips || '<span class="text-[12px] text-slate-300">없음</span>'}</div>`; whInfo.style.display = ''; }
+            } else {
+                if (stockLabel) stockLabel.innerHTML = '기초재고 <span class="text-[11px] text-slate-400 font-normal">(신규 등록 시 입고)</span>';
+                stockEl.placeholder = '0';
+                if (whInfo) whInfo.style.display = 'none';
+            }
+            openModal('inventory-form-modal'); if (window.lucide) lucide.createIcons();
         }
         async function handleSaveInventoryItem(e) {
             e.preventDefault();
@@ -2250,12 +2284,57 @@
             if (id) { ({ error } = await sb.from('inventory_items').update(row).eq('id', parseInt(id))); }   // 재고(stock)는 입출고로만 변경
             else { ({ error } = await sb.from('inventory_items').insert(Object.assign({ stock: 0 }, row))); }
             if (error) { showToast('저장 실패', error.message); return; }
-            // 신규 + 기초재고 입력 시 선택 창고로 원자적 입고
-            if (!id && openingQty > 0) { await reloadInventory(); const created = (STATE.inventory || []).find(x => x.sku === sku); if (created && whId) await sb.rpc('apply_stock_move', { p_item_id: created.id, p_kind: 'in', p_qty: openingQty, p_reason: '기초재고', p_warehouse_id: whId }); }
+            // 신규=기초재고 / 편집=추가 입고: 입력 시 선택 창고로 원자적 입고(업그레이드된 창고 기능을 편집에서도 사용)
+            let _targetId = id ? parseInt(id) : null;
+            if (!id && openingQty > 0) { await reloadInventory(); const created = (STATE.inventory || []).find(x => x.sku === sku); _targetId = created ? created.id : null; }
+            if (openingQty > 0 && _targetId && whId) { await sb.rpc('apply_stock_move', { p_item_id: _targetId, p_kind: 'in', p_qty: openingQty, p_reason: id ? '추가 입고' : '기초재고', p_warehouse_id: whId }); }
             await reloadInventory(); await reloadInventoryStock(); await reloadStockMoves(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-form-modal');
             if (id && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(parseInt(id));
             showToast('저장 완료', id ? '품목 정보가 수정되었습니다.' : '품목이 등록되었습니다.');
         }
+        // ── 창고 간 재고 이동(이고) ──
+        function openTransferModal(itemId) {
+            const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
+            if (!canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 처리할 수 있습니다.'); return; }
+            if ((STATE.warehouses || []).length < 2) { showToast('창고 부족', '창고가 2개 이상일 때 이동할 수 있습니다. "창고"에서 추가하세요.'); return; }
+            document.getElementById('transfer-item-id').value = itemId;
+            fillWarehouseSelect('transfer-from', (STATE.warehouses[0] || {}).id);
+            fillWarehouseSelect('transfer-to', (STATE.warehouses[1] || {}).id);
+            document.getElementById('transfer-qty').value = '';
+            document.getElementById('transfer-reason').value = '';
+            updateTransferInfo();
+            openModal('transfer-modal');
+        }
+        function updateTransferInfo() {
+            const itemId = parseInt(document.getElementById('transfer-item-id').value);
+            const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
+            const from = parseInt(document.getElementById('transfer-from').value);
+            document.getElementById('transfer-item-info').innerHTML = `<b>${esc(it.name)}</b> <span class="text-slate-400">${esc(it.sku)}</span><br><span class="text-slate-500">${esc(warehouseName(from))} 보유 <b class="text-slate-700">${fmtNum(itemWhQty(itemId, from))}</b> ${esc(it.unit)}</span>`;
+        }
+        async function handleTransfer(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('transfer-item-id').value);
+            const from = parseInt(document.getElementById('transfer-from').value);
+            const to = parseInt(document.getElementById('transfer-to').value);
+            const qty = parseFloat(document.getElementById('transfer-qty').value);
+            const reason = document.getElementById('transfer-reason').value.trim();
+            if (from === to) { showToast('창고 확인', '출발 창고와 도착 창고가 같습니다.'); return; }
+            if (!(qty > 0)) { showToast('수량 확인', '0보다 큰 수량을 입력하세요.'); return; }
+            const { error } = await sb.rpc('transfer_stock', { p_item_id: itemId, p_from_wh: from, p_to_wh: to, p_qty: qty, p_reason: reason || '창고 이동' });
+            if (error) {
+                const m = (error.message || '').toLowerCase();
+                if (m.indexOf('insufficient') >= 0) showToast('재고 부족', '출발 창고의 재고가 부족합니다.');
+                else if (m.indexOf('same warehouse') >= 0) showToast('창고 확인', '서로 다른 창고를 선택하세요.');
+                else if (m.indexOf('forbidden') >= 0) showToast('권한 없음', '본인 부서의 품목만 이동할 수 있습니다.');
+                else if (m.indexOf('does not exist') >= 0 || m.indexOf('transfer_stock') >= 0 || m.indexOf('function') >= 0) showToast('준비 필요', '재고 이동 함수(transfer_stock) 생성 SQL을 먼저 실행하세요.');
+                else showToast('이동 실패', error.message);
+                return;
+            }
+            await reloadInventory(); await reloadStockMoves(); await reloadInventoryStock(); renderInventory(); renderDashboardWidgets(); closeModal('transfer-modal');
+            if (!document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(itemId);
+            showToast('이동 완료', `${esc(warehouseName(from))} → ${esc(warehouseName(to))} ${fmtNum(qty)} ${esc(it_unit(itemId))} 이동했습니다.`);
+        }
+        function it_unit(itemId) { const it = STATE.inventory.find(x => x.id === itemId); return it ? it.unit : ''; }
         function openStockMove(itemId, kind) {
             const it = STATE.inventory.find(x => x.id === itemId); if (!it) return;
             if (!canManageInventory(it)) { showToast('권한 없음', '본인 부서의 품목만 처리할 수 있습니다.'); return; }
@@ -2305,7 +2384,7 @@
             const field = (label, val) => `<div><div class="text-[12px] font-bold text-slate-400 mb-0.5">${label}</div><div class="text-sm text-slate-700 font-semibold">${val}</div></div>`;
             const moves = (STATE.stockMoves || []).filter(m => m.itemId === id).slice(0, 12);
             const moveRows = moves.length ? moves.map(m => `<tr class="border-t border-slate-100"><td class="py-2 pr-2">${(m.createdAt || '').slice(0, 10)}</td><td class="py-2 pr-2">${m.kind === 'in' ? chip('입고', 'success') : (m.kind === 'out' ? chip('출고', 'danger') : chip('조정', 'neutral'))}</td><td class="py-2 pr-2 text-right font-bold ${m.kind === 'out' ? 'text-rose-600' : 'text-emerald-600'}">${m.kind === 'out' ? '-' : '+'}${fmtNum(m.qty)}</td><td class="py-2 pr-2 text-right text-slate-500">${m.balanceAfter != null ? fmtNum(m.balanceAfter) : '-'}</td><td class="py-2 text-slate-500 truncate">${m.warehouseId ? esc(warehouseName(m.warehouseId)) + ' · ' : ''}${esc(m.actor) || ''} ${m.reason ? '· ' + esc(m.reason) : ''}</td></tr>`).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-300 text-[13px]">입출고 이력이 없습니다.</td></tr>`;
-            const ctrl = manage ? `<div class="flex gap-2 flex-wrap"><button onclick="openStockMove(${it.id},'in')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">입고</button><button onclick="openStockMove(${it.id},'out')" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg">출고</button><button onclick="openInventoryForm(${it.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg">편집</button><button onclick="deleteInventoryItem(${it.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '<span class="text-[12px] text-slate-400">본인 부서 품목만 관리할 수 있습니다.</span>';
+            const ctrl = manage ? `<div class="flex gap-2 flex-wrap"><button onclick="openStockMove(${it.id},'in')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">입고</button><button onclick="openStockMove(${it.id},'out')" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg">출고</button>${(STATE.warehouses || []).length >= 2 ? `<button onclick="openTransferModal(${it.id})" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg">창고 이동</button>` : ''}<button onclick="openInventoryForm(${it.id})" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg">편집</button><button onclick="deleteInventoryItem(${it.id})" class="px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold rounded-lg">삭제</button></div>` : '<span class="text-[12px] text-slate-400">본인 부서 품목만 관리할 수 있습니다.</span>';
             document.getElementById('inventory-detail-body').innerHTML = `
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
