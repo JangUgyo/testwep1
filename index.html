@@ -2584,18 +2584,20 @@
         }
         function filterLedgerRows(rows, f) {
             return (rows || []).filter(r => {
+                if (f.itemId && String(r.itemId) !== String(f.itemId)) return false;
                 if (f.whId && f.whId !== 'all' && String(r.warehouseId) !== String(f.whId)) return false;
                 if (f.kind && f.kind !== 'all' && r.kind !== f.kind) return false;
                 if (f.q) { const q = f.q.toLowerCase(); if ((String(r.itemName || '') + ' ' + String(r.subtype || '') + ' ' + String(r.reason || '')).toLowerCase().indexOf(q) < 0) return false; }
                 return true;
             });
         }
-        function openLedger() {
+        function openLedger(itemId) {
             if (STATE.inventoryTableMissing) { showToast('준비 필요', '재고 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            STATE.ledgerItemId = itemId || null;
             const now = new Date(), y = now.getFullYear(), m = String(now.getMonth() + 1).padStart(2, '0');
             const s = document.getElementById('ledger-start'), e = document.getElementById('ledger-end');
-            if (s && !s.value) s.value = `${y}-${m}-01`;
-            if (e && !e.value) e.value = now.toISOString().slice(0, 10);
+            if (itemId) { const back = new Date(); back.setMonth(back.getMonth() - 12); if (s) s.value = back.toISOString().slice(0, 10); if (e) e.value = now.toISOString().slice(0, 10); }
+            else { if (s && !s.value) s.value = `${y}-${m}-01`; if (e && !e.value) e.value = now.toISOString().slice(0, 10); }
             const wsel = document.getElementById('ledger-wh');
             if (wsel) wsel.innerHTML = `<option value="all">전체 창고</option>` + (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
             openModal('ledger-modal');
@@ -2613,9 +2615,11 @@
             const whId = (document.getElementById('ledger-wh') || {}).value || 'all';
             const kind = (document.getElementById('ledger-kind') || {}).value || 'all';
             const q = ((document.getElementById('ledger-q') || {}).value || '').trim();
-            const rows = filterLedgerRows(STATE.ledgerAll || [], { whId, kind, q });
+            const rows = filterLedgerRows(STATE.ledgerAll || [], { whId, kind, q, itemId: STATE.ledgerItemId });
             STATE.ledgerDraft = rows;
-            if (!rows.length) { body.innerHTML = '<div class="text-slate-300 py-10 text-center">해당 조건의 입출고 내역이 없습니다.</div>'; return; }
+            const scopeItem = STATE.ledgerItemId ? (STATE.inventory || []).find(x => x.id === STATE.ledgerItemId) : null;
+            const banner = scopeItem ? `<div class="mb-2 flex items-center gap-2 text-[13px] bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-1.5"><i data-lucide="filter" class="w-3.5 h-3.5"></i> <b>${esc(scopeItem.name)}</b> 품목만 표시 <button onclick="clearLedgerItem()" class="ml-auto text-amber-700 underline font-bold">전체 품목 보기</button></div>` : '';
+            if (!rows.length) { body.innerHTML = banner + '<div class="text-slate-300 py-10 text-center">해당 조건의 입출고 내역이 없습니다.</div>'; if (window.lucide) lucide.createIcons(); return; }
             const shown = rows.slice(0, 500);
             const trs = shown.map(r => `<tr class="border-t border-slate-100">
                 <td class="py-2 pr-2 whitespace-nowrap text-slate-500">${(r.createdAt || '').replace('T', ' ').slice(0, 16)}</td>
@@ -2626,10 +2630,11 @@
                 <td class="py-2 pr-2 text-right text-slate-500">${r.balanceAfter != null ? fmtNum(r.balanceAfter) : '-'}</td>
                 <td class="py-2 text-slate-500 truncate max-w-[220px]">${esc(r.actor)}${r.reason ? ' · ' + esc(r.reason) : ''}</td>
             </tr>`).join('');
-            body.innerHTML = `<div class="text-[13px] text-slate-500 mb-2 px-1"><b class="text-slate-700">${fmtNum(rows.length)}건</b>${rows.length > 500 ? ' 중 최근 500건 표시' : ''}</div>
+            body.innerHTML = banner + `<div class="text-[13px] text-slate-500 mb-2 px-1"><b class="text-slate-700">${fmtNum(rows.length)}건</b>${rows.length > 500 ? ' 중 최근 500건 표시' : ''}</div>
                 <div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-2 pl-1 font-semibold">일시</th><th class="py-2 pr-2 font-semibold">품목</th><th class="py-2 pr-2 font-semibold">구분</th><th class="py-2 pr-2 font-semibold text-right">수량</th><th class="py-2 pr-2 font-semibold">창고</th><th class="py-2 pr-2 font-semibold text-right">잔량</th><th class="py-2 font-semibold">처리/사유</th></tr></thead><tbody>${trs}</tbody></table></div>`;
             if (window.lucide) lucide.createIcons();
         }
+        function clearLedgerItem() { STATE.ledgerItemId = null; renderLedger(); }
         async function exportLedgerXlsx() {
             const rows = STATE.ledgerDraft || [];
             if (!rows.length) { showToast('내보낼 데이터 없음', '먼저 "조회"로 이력을 불러오세요.'); return; }
@@ -3002,7 +3007,7 @@
                     ${it.notes ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-0.5">비고</div><div class="text-sm text-slate-700 whitespace-pre-line">${esc(it.notes)}</div></div>` : ''}
                 </div>
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
-                    <div class="text-[13px] font-bold text-slate-600 mb-2 flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4 text-amber-600"></i> 최근 입출고 이력</div>
+                    <div class="flex items-center justify-between gap-2 mb-2"><div class="text-[13px] font-bold text-slate-600 flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4 text-amber-600"></i> 최근 입출고 이력</div><button onclick="closeModal('inventory-detail-modal'); openLedger(${it.id})" class="px-2.5 py-1 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-lg text-[12px] font-bold flex items-center gap-1"><i data-lucide="list" class="w-3.5 h-3.5"></i> 전체 이력</button></div>
                     <div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left"><th class="py-1 pr-2 font-semibold">일자</th><th class="py-1 pr-2 font-semibold">구분</th><th class="py-1 pr-2 font-semibold text-right">수량</th><th class="py-1 pr-2 font-semibold text-right">잔량</th><th class="py-1 font-semibold">처리/사유</th></tr></thead><tbody>${moveRows}</tbody></table></div>
                 </div>`;
             openModal('inventory-detail-modal'); if (window.lucide) lucide.createIcons();
