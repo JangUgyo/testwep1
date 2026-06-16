@@ -3718,7 +3718,7 @@
             V('trade-client', t ? t.client : '');
             V('trade-service', t ? t.service : '');
             V('trade-pjt', t ? t.pjtTitle : '');
-            V('trade-docno', t ? t.docNo : nextTradeNo(kind));
+            const _autoNo = t ? '' : nextTradeNo(kind); V('trade-docno', t ? t.docNo : _autoNo); STATE.tradeAutoDocNo = t ? null : _autoNo;
             V('trade-inq', t ? t.inqNo : '');
             V('trade-item', t ? t.itemNo : '');
             V('trade-date', t ? t.docDate : formatDate(new Date()));
@@ -3798,7 +3798,11 @@
             const remarks = (STATE.tradeDraft.remarks || []).map(r => (r || '').trim()).filter(Boolean);
             const t = computeTradeTotals();
             const client = document.getElementById('trade-client').value.trim();
-            let docNo = document.getElementById('trade-docno').value.trim(); if (!docNo) docNo = nextTradeNo(kind);
+            let docNo = document.getElementById('trade-docno').value.trim();
+            if (!id && (docNo === '' || docNo === STATE.tradeAutoDocNo)) {
+                try { const { data, error } = await sb.rpc('next_trade_no', { p_kind: kind }); if (!error && data) docNo = data; } catch (e) { }
+            }
+            if (!docNo) docNo = nextTradeNo(kind);
             const row = {
                 kind, doc_no: docNo, client, partner: client, service: document.getElementById('trade-service').value.trim(),
                 pjt_title: document.getElementById('trade-pjt').value.trim(), inq_no: document.getElementById('trade-inq').value.trim(), item_no: document.getElementById('trade-item').value.trim(),
