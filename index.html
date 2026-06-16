@@ -975,6 +975,7 @@
                     <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
                     <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
                     <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
+                    <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
@@ -1379,6 +1380,30 @@
                     <button type="submit" id="stock-move-submit" class="flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-bold">처리</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 재고: 월별/년별 입출 현황 보고서 -->
+    <div id="report-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden border max-h-[94vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="file-bar-chart" class="w-4 h-4 text-teal-600"></i> 재고 입출 현황 보고서</h4>
+                <button onclick="closeModal('report-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="px-6 py-3 border-b bg-white flex flex-wrap items-end gap-2 flex-shrink-0">
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">종류</label><select id="report-type" onchange="onReportTypeChange()" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"><option value="monthly">월별</option><option value="yearly">년별</option></select></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">연도</label><input type="number" id="report-year" class="w-24 px-2.5 py-2 border rounded-lg text-sm outline-none"></div>
+                <div id="report-month-wrap"><label class="block text-[11px] font-bold text-slate-500 mb-0.5">월</label><select id="report-month" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">창고</label><select id="report-warehouse" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                <button onclick="generateReport()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">생성</button>
+            </div>
+            <div id="report-body" class="p-6 overflow-y-auto flex-1 text-sm text-slate-400">상단에서 기간을 선택하고 "생성"을 누르세요.</div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModal('report-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button>
+                <div class="flex-1"></div>
+                <button type="button" onclick="exportReportXlsx()" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+                <button type="button" onclick="printReport()" class="px-4 py-2.5 bg-slate-900 hover:bg-teal-600 text-white rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="printer" class="w-4 h-4"></i> 인쇄 / PDF</button>
+            </div>
         </div>
     </div>
 
@@ -2080,6 +2105,150 @@
             const whId = parseInt(document.getElementById('stock-move-warehouse').value);
             const whQty = itemWhQty(itemId, whId);
             document.getElementById('stock-move-item-info').innerHTML = `<b>${esc(it.name)}</b> <span class="text-slate-400">${esc(it.sku)}</span><br><span class="text-slate-500">${esc(warehouseName(whId))} 현재고 <b class="text-slate-700">${fmtNum(whQty)}</b> ${esc(it.unit)}</span> <span class="text-slate-300">· 전체 ${fmtNum(it.stock)}</span>`;
+        }
+
+        // ════════════ 재고 입출 현황 보고서 (월별/년별) ════════════
+        function onReportTypeChange() {
+            const t = document.getElementById('report-type').value;
+            const mw = document.getElementById('report-month-wrap');
+            if (mw) mw.style.display = t === 'monthly' ? '' : 'none';
+        }
+        function openInventoryReport() {
+            const now = new Date();
+            document.getElementById('report-year').value = now.getFullYear();
+            const msel = document.getElementById('report-month');
+            if (msel) { msel.innerHTML = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1}월</option>`).join(''); msel.value = String(now.getMonth() + 1); }
+            const wsel = document.getElementById('report-warehouse');
+            if (wsel) wsel.innerHTML = `<option value="all">전체 창고</option>` + (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+            document.getElementById('report-type').value = 'monthly';
+            onReportTypeChange();
+            document.getElementById('report-body').innerHTML = '<div class="text-slate-400">상단에서 기간을 선택하고 "생성"을 누르세요.</div>';
+            STATE.reportDraft = null;
+            openModal('report-modal');
+        }
+        function reportRange(type, y, m) {
+            if (type === 'monthly') {
+                const start = `${y}-${String(m).padStart(2, '0')}-01`;
+                const ny = m === 12 ? y + 1 : y, nm = m === 12 ? 1 : m + 1;
+                return { start, end: `${ny}-${String(nm).padStart(2, '0')}-01` };
+            }
+            return { start: `${y}-01-01`, end: `${y + 1}-01-01` };
+        }
+        async function fetchReportMoves(start, end) {
+            const { data, error } = await sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: true }).limit(20000);
+            if (error) return [];
+            return (data || []).map(r => ({ itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, subtype: r.subtype || '', warehouseId: r.warehouse_id || null, createdAt: r.created_at || '' }));
+        }
+        function reportItemMeta(iid) { const it = (STATE.inventory || []).find(x => String(x.id) === String(iid)); return it ? { name: it.name, category: it.category, unit: it.unit, stock: it.stock } : { name: '#' + iid, category: '', unit: '', stock: 0 }; }
+        function computeMonthlyReport(moves) {
+            const byItem = {};
+            moves.forEach(mv => { const b = byItem[mv.itemId] = byItem[mv.itemId] || { inQty: 0, outQty: 0 }; if (mv.kind === 'in') b.inQty += mv.qty; else if (mv.kind === 'out') b.outQty += mv.qty; });
+            const rows = Object.keys(byItem).map(iid => { const meta = reportItemMeta(iid); const b = byItem[iid]; return { name: meta.name, category: meta.category, unit: meta.unit, inQty: b.inQty, outQty: b.outQty, net: b.inQty - b.outQty, curStock: meta.stock }; }).sort((a, b) => String(a.name).localeCompare(String(b.name), 'ko'));
+            const totals = rows.reduce((t, r) => ({ inQty: t.inQty + r.inQty, outQty: t.outQty + r.outQty, net: t.net + r.net }), { inQty: 0, outQty: 0, net: 0 });
+            const subtypeOut = {}; moves.filter(mv => mv.kind === 'out').forEach(mv => { const k = mv.subtype || '(미지정)'; subtypeOut[k] = (subtypeOut[k] || 0) + mv.qty; });
+            const subtypeIn = {}; moves.filter(mv => mv.kind === 'in').forEach(mv => { const k = mv.subtype || '(미지정)'; subtypeIn[k] = (subtypeIn[k] || 0) + mv.qty; });
+            return { rows, totals, subtypeOut, subtypeIn };
+        }
+        function computeYearlyReport(moves) {
+            const months = Array.from({ length: 12 }, (_, i) => ({ month: i + 1, inQty: 0, outQty: 0, net: 0 }));
+            moves.forEach(mv => { const mo = parseInt((mv.createdAt || '').slice(5, 7)); if (mo >= 1 && mo <= 12) { if (mv.kind === 'in') months[mo - 1].inQty += mv.qty; else if (mv.kind === 'out') months[mo - 1].outQty += mv.qty; } });
+            months.forEach(x => x.net = x.inQty - x.outQty);
+            const byItem = {}; moves.forEach(mv => { const b = byItem[mv.itemId] = byItem[mv.itemId] || { inQty: 0, outQty: 0 }; if (mv.kind === 'in') b.inQty += mv.qty; else if (mv.kind === 'out') b.outQty += mv.qty; });
+            const itemRows = Object.keys(byItem).map(iid => { const meta = reportItemMeta(iid); const b = byItem[iid]; return { name: meta.name, unit: meta.unit, inQty: b.inQty, outQty: b.outQty, net: b.inQty - b.outQty, curStock: meta.stock }; }).sort((a, b) => String(a.name).localeCompare(String(b.name), 'ko'));
+            const totals = months.reduce((t, x) => ({ inQty: t.inQty + x.inQty, outQty: t.outQty + x.outQty, net: t.net + x.net }), { inQty: 0, outQty: 0, net: 0 });
+            return { months, itemRows, totals };
+        }
+        async function generateReport() {
+            const type = document.getElementById('report-type').value;
+            const y = parseInt(document.getElementById('report-year').value) || new Date().getFullYear();
+            const m = parseInt(document.getElementById('report-month').value) || 1;
+            const whId = document.getElementById('report-warehouse').value || 'all';
+            const { start, end } = reportRange(type, y, m);
+            let moves = await fetchReportMoves(start, end);
+            if (whId !== 'all') moves = moves.filter(mv => String(mv.warehouseId) === String(whId));
+            const whLabel = whId === 'all' ? '전체 창고' : warehouseName(parseInt(whId));
+            const periodLabel = type === 'monthly' ? `${y}년 ${m}월` : `${y}년`;
+            if (type === 'monthly') {
+                STATE.reportDraft = Object.assign({ type, y, m, whId, whLabel, periodLabel, title: `월별 재고 입출 현황 (${periodLabel})` }, computeMonthlyReport(moves));
+            } else {
+                STATE.reportDraft = Object.assign({ type, y, m, whId, whLabel, periodLabel, title: `년별 재고 입출 현황 (${periodLabel})` }, computeYearlyReport(moves));
+            }
+            renderReportPreview();
+        }
+        function renderReportPreview() {
+            const d = STATE.reportDraft, body = document.getElementById('report-body'); if (!body) return;
+            if (!d) { body.innerHTML = '<div class="text-slate-400">생성된 보고서가 없습니다.</div>'; return; }
+            const head = `<div class="flex items-center justify-between gap-2 mb-3"><div><div class="text-base font-extrabold text-slate-800">${esc(d.title)}</div><div class="text-[12px] text-slate-400">${esc(d.whLabel)} · 생성 ${new Date().toLocaleString('ko-KR')}</div></div></div>`;
+            if (d.type === 'monthly') {
+                const rows = d.rows.length ? d.rows.map(r => `<tr class="border-t border-slate-100"><td class="py-2 pr-3">${esc(r.name)}</td><td class="py-2 pr-3 text-slate-500">${esc(r.category) || '-'}</td><td class="py-2 pr-3 text-right text-emerald-600 font-semibold">${fmtNum(r.inQty)}</td><td class="py-2 pr-3 text-right text-rose-600 font-semibold">${fmtNum(r.outQty)}</td><td class="py-2 pr-3 text-right font-bold ${r.net < 0 ? 'text-rose-600' : 'text-slate-700'}">${r.net > 0 ? '+' : ''}${fmtNum(r.net)}</td><td class="py-2 text-right text-slate-500">${fmtNum(r.curStock)} ${esc(r.unit)}</td></tr>`).join('') : `<tr><td colspan="6" class="py-6 text-center text-slate-300">해당 기간 입출 내역이 없습니다.</td></tr>`;
+                const subOut = Object.keys(d.subtypeOut).map(k => `<span class="wsp-chip bg-rose-50 text-rose-600 border-rose-100">${esc(k)} ${fmtNum(d.subtypeOut[k])}</span>`).join('') || '<span class="text-slate-300 text-[12px]">없음</span>';
+                body.innerHTML = head + `<div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-3 pl-1 font-semibold">품목</th><th class="py-2 pr-3 font-semibold">분류</th><th class="py-2 pr-3 font-semibold text-right">입고</th><th class="py-2 pr-3 font-semibold text-right">출고</th><th class="py-2 pr-3 font-semibold text-right">순변동</th><th class="py-2 font-semibold text-right">현재고</th></tr></thead><tbody>${rows}</tbody><tfoot><tr class="border-t-2 border-slate-200 font-bold"><td class="py-2 pr-3" colspan="2">합계</td><td class="py-2 pr-3 text-right text-emerald-700">${fmtNum(d.totals.inQty)}</td><td class="py-2 pr-3 text-right text-rose-700">${fmtNum(d.totals.outQty)}</td><td class="py-2 pr-3 text-right">${d.totals.net > 0 ? '+' : ''}${fmtNum(d.totals.net)}</td><td></td></tr></tfoot></table></div><div class="mt-4"><div class="text-[12px] font-bold text-slate-500 mb-1.5">출고 유형별 합계</div><div class="flex flex-wrap gap-1.5">${subOut}</div></div>`;
+            } else {
+                const mrows = d.months.map(x => `<tr class="border-t border-slate-100"><td class="py-2 pr-3">${x.month}월</td><td class="py-2 pr-3 text-right text-emerald-600 font-semibold">${fmtNum(x.inQty)}</td><td class="py-2 pr-3 text-right text-rose-600 font-semibold">${fmtNum(x.outQty)}</td><td class="py-2 text-right font-bold ${x.net < 0 ? 'text-rose-600' : 'text-slate-700'}">${x.net > 0 ? '+' : ''}${fmtNum(x.net)}</td></tr>`).join('');
+                const irows = d.itemRows.length ? d.itemRows.map(r => `<tr class="border-t border-slate-100"><td class="py-2 pr-3">${esc(r.name)}</td><td class="py-2 pr-3 text-right text-emerald-600 font-semibold">${fmtNum(r.inQty)}</td><td class="py-2 pr-3 text-right text-rose-600 font-semibold">${fmtNum(r.outQty)}</td><td class="py-2 text-right font-bold ${r.net < 0 ? 'text-rose-600' : 'text-slate-700'}">${r.net > 0 ? '+' : ''}${fmtNum(r.net)}</td></tr>`).join('') : `<tr><td colspan="4" class="py-6 text-center text-slate-300">내역이 없습니다.</td></tr>`;
+                body.innerHTML = head + `<div class="grid md:grid-cols-2 gap-5"><div><div class="text-[12px] font-bold text-slate-500 mb-1.5">월별 추이</div><div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-3 pl-1 font-semibold">월</th><th class="py-2 pr-3 font-semibold text-right">입고</th><th class="py-2 pr-3 font-semibold text-right">출고</th><th class="py-2 font-semibold text-right">순변동</th></tr></thead><tbody>${mrows}</tbody><tfoot><tr class="border-t-2 border-slate-200 font-bold"><td class="py-2 pr-3">합계</td><td class="py-2 pr-3 text-right text-emerald-700">${fmtNum(d.totals.inQty)}</td><td class="py-2 pr-3 text-right text-rose-700">${fmtNum(d.totals.outQty)}</td><td class="py-2 text-right">${d.totals.net > 0 ? '+' : ''}${fmtNum(d.totals.net)}</td></tr></tfoot></table></div></div><div><div class="text-[12px] font-bold text-slate-500 mb-1.5">품목별 연간 합계</div><div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-3 pl-1 font-semibold">품목</th><th class="py-2 pr-3 font-semibold text-right">입고</th><th class="py-2 pr-3 font-semibold text-right">출고</th><th class="py-2 font-semibold text-right">순변동</th></tr></thead><tbody>${irows}</tbody></table></div></div></div>`;
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+        function reportDocHTML(d) {
+            const co = company();
+            const logo = co.logo ? `<img src="${co.logo}" style="height:46px;object-fit:contain" />` : `<div style="font-size:20px;font-weight:800;color:#0f172a">${esc(co.name || 'WorkSpace Pro')}</div>`;
+            const th = (t, al) => `<th style="padding:7px 9px;background:#f1f5f9;text-align:${al || 'left'};font-size:12px;border-bottom:2px solid #cbd5e1">${t}</th>`;
+            const td = (t, al, b) => `<td style="padding:6px 9px;text-align:${al || 'left'};font-size:12px;border-bottom:1px solid #e2e8f0;${b ? 'font-weight:700' : ''}">${t}</td>`;
+            let bodyHtml = '';
+            if (d.type === 'monthly') {
+                const rows = d.rows.length ? d.rows.map(r => `<tr>${td(esc(r.name))}${td(esc(r.category) || '-')}${td(fmtNum(r.inQty), 'right')}${td(fmtNum(r.outQty), 'right')}${td((r.net > 0 ? '+' : '') + fmtNum(r.net), 'right', true)}${td(fmtNum(r.curStock) + ' ' + esc(r.unit), 'right')}</tr>`).join('') : `<tr><td colspan="6" style="padding:18px;text-align:center;color:#94a3b8;font-size:12px">내역이 없습니다.</td></tr>`;
+                bodyHtml = `<table style="width:100%;border-collapse:collapse"><thead><tr>${th('품목')}${th('분류')}${th('입고', 'right')}${th('출고', 'right')}${th('순변동', 'right')}${th('현재고', 'right')}</tr></thead><tbody>${rows}</tbody><tfoot><tr>${td('합계', 'left', true)}${td('')}${td(fmtNum(d.totals.inQty), 'right', true)}${td(fmtNum(d.totals.outQty), 'right', true)}${td((d.totals.net > 0 ? '+' : '') + fmtNum(d.totals.net), 'right', true)}${td('')}</tr></tfoot></table>`;
+                const sub = Object.keys(d.subtypeOut).map(k => `${esc(k)}: ${fmtNum(d.subtypeOut[k])}`).join(' / ');
+                if (sub) bodyHtml += `<div style="margin-top:10px;font-size:12px;color:#475569"><b>출고 유형별:</b> ${sub}</div>`;
+            } else {
+                const mrows = d.months.map(x => `<tr>${td(x.month + '월')}${td(fmtNum(x.inQty), 'right')}${td(fmtNum(x.outQty), 'right')}${td((x.net > 0 ? '+' : '') + fmtNum(x.net), 'right', true)}</tr>`).join('');
+                const irows = d.itemRows.length ? d.itemRows.map(r => `<tr>${td(esc(r.name))}${td(fmtNum(r.inQty), 'right')}${td(fmtNum(r.outQty), 'right')}${td((r.net > 0 ? '+' : '') + fmtNum(r.net), 'right', true)}</tr>`).join('') : `<tr><td colspan="4" style="padding:18px;text-align:center;color:#94a3b8;font-size:12px">내역이 없습니다.</td></tr>`;
+                bodyHtml = `<div style="display:flex;gap:18px;flex-wrap:wrap"><div style="flex:1;min-width:240px"><div style="font-size:12px;font-weight:700;margin-bottom:5px">월별 추이</div><table style="width:100%;border-collapse:collapse"><thead><tr>${th('월')}${th('입고', 'right')}${th('출고', 'right')}${th('순변동', 'right')}</tr></thead><tbody>${mrows}</tbody><tfoot><tr>${td('합계', 'left', true)}${td(fmtNum(d.totals.inQty), 'right', true)}${td(fmtNum(d.totals.outQty), 'right', true)}${td((d.totals.net > 0 ? '+' : '') + fmtNum(d.totals.net), 'right', true)}</tr></tfoot></table></div><div style="flex:1;min-width:240px"><div style="font-size:12px;font-weight:700;margin-bottom:5px">품목별 연간 합계</div><table style="width:100%;border-collapse:collapse"><thead><tr>${th('품목')}${th('입고', 'right')}${th('출고', 'right')}${th('순변동', 'right')}</tr></thead><tbody>${irows}</tbody></table></div></div>`;
+            }
+            return `<div style="font-family:'Malgun Gothic',sans-serif;color:#0f172a;max-width:900px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f172a;padding-bottom:10px;margin-bottom:14px">
+            <div><div style="font-size:20px;font-weight:800">${esc(d.title)}</div><div style="font-size:12px;color:#64748b;margin-top:3px">${esc(d.whLabel)} · 생성일 ${new Date().toLocaleDateString('ko-KR')}</div></div>
+            <div style="text-align:right">${logo}</div>
+        </div>
+        ${bodyHtml}
+        <div style="margin-top:16px;font-size:11px;color:#94a3b8;text-align:right">${esc(co.name || '')} · WorkSpace Pro</div>
+    </div>`;
+        }
+        function printReport() {
+            const d = STATE.reportDraft; if (!d) { showToast('보고서 없음', '먼저 "생성"을 눌러 보고서를 만드세요.'); return; }
+            const html = reportDocHTML(d);
+            let f = document.getElementById('wsp-print-frame'); if (f) f.remove();
+            f = document.createElement('iframe'); f.id = 'wsp-print-frame';
+            f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+            document.body.appendChild(f);
+            const fd = f.contentWindow.document;
+            fd.open();
+            fd.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(d.title)}</title><style>@page{size:A4;margin:13mm}html,body{margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${html}</body></html>`);
+            fd.close();
+            const go = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { } };
+            const img = fd.images && fd.images[0];
+            if (img && !img.complete) { img.onload = () => setTimeout(go, 60); img.onerror = () => setTimeout(go, 60); setTimeout(go, 1500); }
+            else setTimeout(go, 180);
+        }
+        async function exportReportXlsx() {
+            const d = STATE.reportDraft; if (!d) { showToast('보고서 없음', '먼저 "생성"을 눌러 보고서를 만드세요.'); return; }
+            try { await ensureXlsx(); } catch (e) { }
+            if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
+            const wb = XLSX.utils.book_new();
+            if (d.type === 'monthly') {
+                const aoa = [['품목', '분류', '단위', '입고', '출고', '순변동', '현재고'], ...d.rows.map(r => [r.name, r.category, r.unit, r.inQty, r.outQty, r.net, r.curStock]), ['합계', '', '', d.totals.inQty, d.totals.outQty, d.totals.net, '']];
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), '월별현황');
+                const subAoa = [['출고유형', '수량'], ...Object.keys(d.subtypeOut).map(k => [k, d.subtypeOut[k]])];
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(subAoa), '출고유형');
+            } else {
+                const maoa = [['월', '입고', '출고', '순변동'], ...d.months.map(x => [x.month + '월', x.inQty, x.outQty, x.net]), ['합계', d.totals.inQty, d.totals.outQty, d.totals.net]];
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(maoa), '월별추이');
+                const iaoa = [['품목', '입고', '출고', '순변동'], ...d.itemRows.map(r => [r.name, r.inQty, r.outQty, r.net])];
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(iaoa), '품목별');
+            }
+            XLSX.writeFile(wb, `재고입출현황_${d.periodLabel.replace(/[^0-9가-힣]/g, '')}_${d.whLabel}.xlsx`);
+            showToast('내보내기 완료', '보고서를 엑셀로 저장했습니다.');
         }
 
         async function reloadInventory() {
