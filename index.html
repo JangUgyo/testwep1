@@ -6742,6 +6742,11 @@
             STATE.events.filter(e => (isAdmin || e.deptId === myDept) && e.startDate <= todayStr && e.endDate >= todayStr).forEach(e => {
                 items.push({ id: 'evt_' + e.id, group: '오늘 일정', icon: 'calendar', color: 'text-blue-600', title: e.title, sub: `${e.site ? '[' + e.site + '] ' : ''}${e.startDate} ~ ${e.endDate}`, onclick: `notifOpen('calendar')` });
             });
+            // 7) 재고 부족(안전재고 이하) — 관리자 또는 해당 품목 담당 부서
+            (STATE.inventory || []).filter(isLowStock).sort((a, b) => (Number(a.stock) - Number(a.safeStock)) - (Number(b.stock) - Number(b.safeStock))).slice(0, 20).forEach(i => {
+                if (!(isAdmin || (i.deptId && i.deptId === myDept))) return;
+                items.push({ id: 'lowstock_' + i.id, group: '재고 부족', icon: 'package-x', color: 'text-rose-600', title: i.name, sub: `현재고 ${fmtNum(i.stock)}/${fmtNum(i.safeStock)} ${esc(i.unit || '')} · 발주 필요`, onclick: `notifOpen('inventory', ${i.id})` });
+            });
             return items;
         }
         function renderNotificationCenter() {
@@ -6763,7 +6768,7 @@
             wrap.classList.remove('hidden');
             if (countEl) { countEl.innerText = unseen; countEl.classList.toggle('hidden', unseen === 0); }
             if (ackBtn) ackBtn.classList.toggle('hidden', unseen === 0);
-            const order = ['결재', '열람', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
+            const order = ['결재', '열람', '재고 부족', '마감 · 지연', '담당 · 후속조치', '현장 / AS', '오늘 일정'];
             const groups = {};
             items.forEach(n => { (groups[n.group] = groups[n.group] || []).push(n); });
             box.innerHTML = order.filter(g => groups[g]).map(g => {
@@ -6794,6 +6799,7 @@
             else if (kind === 'meeting') { switchTab('weekly-meeting'); setTimeout(() => openMeetingDetail(id), 60); }
             else if (kind === 'ticket') { switchTab('field-support'); setTimeout(() => openTicketDetail(id), 60); }
             else if (kind === 'asset') { switchTab('assets'); }
+            else if (kind === 'inventory') { switchTab('inventory'); setTimeout(() => { if (id) openInventoryDetail(id); else setInventoryView('dashboard'); }, 60); }
             else if (kind === 'calendar') { switchTab('calendar'); }
         }
         function acknowledgeAndOpen(projId, itemId) { notifOpen('proj', projId, itemId); }
