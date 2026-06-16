@@ -995,6 +995,7 @@
                     <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
                     <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
                     <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
+                    <button onclick="openStocktake()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="clipboard-check" class="w-4 h-4"></i> 재고 실사</button>
                     <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
@@ -1441,6 +1442,28 @@
                 </div>
             </div>
             <div class="px-6 py-4 border-t bg-slate-50 flex-shrink-0"><button onclick="closeModal('data-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button></div>
+        </div>
+    </div>
+
+    <!-- 재고: 실사(일괄 카운트·조정) -->
+    <div id="stocktake-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[85] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden border max-h-[94vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 재고 실사</h4>
+                <button onclick="closeModal('stocktake-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="px-6 py-3 border-b bg-white flex flex-wrap items-end gap-2 flex-shrink-0">
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">창고</label><select id="stocktake-wh" onchange="onStocktakeWhChange()" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                <input type="text" id="stocktake-q" onkeyup="renderStocktakeTable()" placeholder="품목·코드 검색" class="px-3 py-2 border rounded-lg text-sm outline-none w-44">
+                <div class="ml-auto text-[13px] text-slate-500">조정 예정 <b id="stocktake-count" class="text-indigo-600">0</b>건</div>
+            </div>
+            <div id="stocktake-body" class="p-4 overflow-y-auto flex-1 text-sm text-slate-400"></div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0 items-center">
+                <button type="button" onclick="closeModal('stocktake-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button>
+                <span class="text-[12px] text-slate-400 hidden sm:block">실사 수량을 입력한 품목만 차이만큼 자동 입·출고 조정됩니다.</span>
+                <div class="flex-1"></div>
+                <button type="button" onclick="handleStocktake()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> 실사 반영</button>
+            </div>
         </div>
     </div>
 
@@ -2573,6 +2596,89 @@
             if (STATE.currentTab === 'inventory') setInventoryView(STATE.inventoryView || 'dashboard');
             renderDashboardWidgets(); closeModal('data-modal');
             showToast('초기화 완료', scope === 'delete' ? `${cnt}개 품목을 삭제했습니다.` : '재고 수량을 0으로 초기화했습니다.');
+        }
+
+        // ════════════ 재고 실사(일괄 카운트·조정) ════════════
+        function openStocktake() {
+            if (STATE.inventoryTableMissing) { showToast('준비 필요', '재고 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            if (!(STATE.warehouses || []).length) { showToast('창고 없음', '먼저 창고를 1개 이상 등록하세요.'); return; }
+            STATE.stocktakeCounts = {};
+            const wsel = document.getElementById('stocktake-wh');
+            if (wsel) wsel.innerHTML = (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+            const qel = document.getElementById('stocktake-q'); if (qel) qel.value = '';
+            openModal('stocktake-modal');
+            renderStocktakeTable();
+        }
+        function onStocktakeWhChange() { STATE.stocktakeCounts = {}; renderStocktakeTable(); }
+        function computeStocktakeDiffs(items, whId, countedMap) {
+            const out = [];
+            (items || []).forEach(it => {
+                const raw = countedMap ? countedMap[it.id] : undefined;
+                if (raw === undefined || raw === null || String(raw).trim() === '') return;
+                const counted = Number(raw); if (isNaN(counted) || counted < 0) return;
+                const system = itemWhQty(it.id, whId);
+                if (counted === system) return;
+                out.push({ itemId: it.id, name: it.name, system, counted, diff: counted - system });
+            });
+            return out;
+        }
+        function renderStocktakeTable() {
+            const body = document.getElementById('stocktake-body'); if (!body) return;
+            const whId = Number((document.getElementById('stocktake-wh') || {}).value) || defaultWarehouseId();
+            const q = ((document.getElementById('stocktake-q') || {}).value || '').trim().toLowerCase();
+            let items = (STATE.inventory || []);
+            if (q) items = items.filter(i => (String(i.name || '') + ' ' + String(i.sku || '')).toLowerCase().indexOf(q) >= 0);
+            if (!items.length) { body.innerHTML = '<div class="text-slate-300 py-10 text-center">표시할 품목이 없습니다.</div>'; updateStocktakeSummary(); return; }
+            const rows = items.map(it => {
+                const sys = itemWhQty(it.id, whId);
+                const cur = STATE.stocktakeCounts[it.id];
+                const has = cur !== undefined && String(cur).trim() !== '';
+                const d = has ? (Number(cur) - sys) : null;
+                const diffTxt = d === null ? '—' : (d > 0 ? '+' : '') + fmtNum(d);
+                const diffCls = d === null ? 'text-slate-300' : (d === 0 ? 'text-slate-400' : (d > 0 ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'));
+                return `<tr class="border-t border-slate-100">
+                    <td class="py-2 pr-2"><div class="font-semibold text-slate-700">${esc(it.name)}</div><div class="text-[11px] text-slate-400 font-mono">${esc(it.sku || '')}</div></td>
+                    <td class="py-2 pr-2 text-right text-slate-600">${fmtNum(sys)} <span class="text-[11px] text-slate-400">${esc(it.unit || '')}</span></td>
+                    <td class="py-2 pr-2 text-right"><input type="number" min="0" inputmode="numeric" id="st-in-${it.id}" value="${has ? esc(String(cur)) : ''}" oninput="updateStocktakeDiff(${it.id})" placeholder="실사" class="w-24 px-2 py-1.5 border rounded-lg text-sm text-right outline-none focus:border-indigo-300"></td>
+                    <td class="py-2 text-right whitespace-nowrap"><span id="st-diff-${it.id}" class="${diffCls}">${diffTxt}</span></td>
+                </tr>`;
+            }).join('');
+            body.innerHTML = `<div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-2 pl-1 font-semibold">품목 / 코드</th><th class="py-2 pr-2 font-semibold text-right">시스템 재고</th><th class="py-2 pr-2 font-semibold text-right">실사 수량</th><th class="py-2 font-semibold text-right">차이</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            updateStocktakeSummary();
+        }
+        function updateStocktakeDiff(itemId) {
+            const whId = Number((document.getElementById('stocktake-wh') || {}).value) || defaultWarehouseId();
+            const inp = document.getElementById('st-in-' + itemId); if (!inp) return;
+            const raw = inp.value;
+            if (String(raw).trim() === '') delete STATE.stocktakeCounts[itemId]; else STATE.stocktakeCounts[itemId] = raw;
+            const cell = document.getElementById('st-diff-' + itemId);
+            if (cell) {
+                const sys = itemWhQty(itemId, whId);
+                if (String(raw).trim() === '') { cell.textContent = '—'; cell.className = 'text-slate-300'; }
+                else { const d = Number(raw) - sys; cell.textContent = (d > 0 ? '+' : '') + fmtNum(d); cell.className = d === 0 ? 'text-slate-400' : (d > 0 ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'); }
+            }
+            updateStocktakeSummary();
+        }
+        function updateStocktakeSummary() {
+            const whId = Number((document.getElementById('stocktake-wh') || {}).value) || defaultWarehouseId();
+            const n = computeStocktakeDiffs(STATE.inventory || [], whId, STATE.stocktakeCounts || {}).length;
+            const el = document.getElementById('stocktake-count'); if (el) el.textContent = fmtNum(n);
+        }
+        async function handleStocktake() {
+            const whId = Number((document.getElementById('stocktake-wh') || {}).value) || defaultWarehouseId();
+            const diffs = computeStocktakeDiffs(STATE.inventory || [], whId, STATE.stocktakeCounts || {});
+            if (!diffs.length) { showToast('변경 없음', '실사 수량을 입력한 품목이 없거나 시스템 재고와 동일합니다.'); return; }
+            if (!confirm(`${warehouseName(whId)} 기준 ${diffs.length}건의 재고를 실사 수량으로 조정합니다. 진행할까요?`)) return;
+            let okc = 0, fail = 0;
+            for (const dd of diffs) {
+                const { error } = await sb.rpc('apply_stock_move', { p_item_id: dd.itemId, p_kind: dd.diff > 0 ? 'in' : 'out', p_qty: Math.abs(dd.diff), p_reason: '재고 실사', p_warehouse_id: whId, p_subtype: '' });
+                if (error) fail++; else okc++;
+            }
+            await reloadInventory(); await reloadInventoryStock(); await reloadStockMoves();
+            STATE.stocktakeCounts = {};
+            if (STATE.currentTab === 'inventory') setInventoryView(STATE.inventoryView || 'dashboard');
+            renderDashboardWidgets(); closeModal('stocktake-modal');
+            showToast('실사 완료', `${okc}건 조정 완료${fail ? ` · ${fail}건 실패(권한 등)` : ''}.`);
         }
 
         // ════════════ 입출고 이력(원장) ════════════
