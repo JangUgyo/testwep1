@@ -520,6 +520,7 @@
                         <div class="flex items-center gap-2">
                             <select id="cal-year-select" onchange="handleHeaderNav()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
                             <select id="cal-month-select" onchange="handleHeaderNav()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white text-slate-700 cursor-pointer shadow-sm"></select>
+                            <button onclick="toggleCalOps()" id="cal-ops-toggle" title="납기·유효기간·점검 일정 표시" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-[12px] font-bold bg-white text-slate-600 hover:bg-slate-100 flex items-center gap-1 shadow-sm"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> 업무일정</button>
                         </div>
                         <div class="flex gap-1 items-center">
                             <button onclick="navigateMonth(-1)" class="p-1 hover:bg-slate-200 rounded"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
@@ -4314,16 +4315,36 @@
         function isToday(y, m, d) { const t = new Date(); return t.getFullYear() === y && (t.getMonth() + 1) === m && t.getDate() === d; }
 
         // ── 달력 ─────────────────────────────────────────────────────────
+        function derivedCalendarItems() {
+            const out = [];
+            (STATE.trade || []).forEach(t => {
+                if (t.status === 'done') return;
+                if (t.kind === 'po' && t.dueDate) out.push({ _ref: { type: 'trade', id: t.id }, deptId: t.deptId || '', startDate: t.dueDate, endDate: t.dueDate, title: `🚚 납기 · ${t.docNo || '발주'} ${t.client || ''}`.trim(), color: 'bg-amber-50 border-amber-400 text-amber-700' });
+                if (t.kind === 'quote' && t.validity) out.push({ _ref: { type: 'trade', id: t.id }, deptId: t.deptId || '', startDate: t.validity, endDate: t.validity, title: `⏳ 유효 · ${t.docNo || '견적'} ${t.client || ''}`.trim(), color: 'bg-violet-50 border-violet-400 text-violet-700' });
+            });
+            (STATE.assets || []).forEach(a => {
+                const info = assetPmInfo(a);
+                if (info.state === 'none' || !info.next) return;
+                out.push({ _ref: { type: 'asset', id: a.id }, deptId: a.deptId || '', startDate: info.next, endDate: info.next, title: `🔧 점검 · ${a.name || ''}`.trim(), color: 'bg-emerald-50 border-emerald-400 text-emerald-700' });
+            });
+            return out;
+        }
+        function toggleCalOps() {
+            STATE.calShowOps = STATE.calShowOps === false ? true : false;
+            const b = document.getElementById('cal-ops-toggle'); if (b) b.classList.toggle('opacity-40', STATE.calShowOps === false);
+            renderCalendar();
+        }
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); if (!grid) return; grid.innerHTML = '';
             const y = STATE.currentYear, m = STATE.currentMonth;
             const firstOfMonth = new Date(y, m - 1, 1);
             const firstIdx = firstOfMonth.getDay();
             const gridStartDate = new Date(y, m - 1, 1 - firstIdx);
+            const opsAll = (STATE.calShowOps !== false) ? derivedCalendarItems().filter(d => STATE.visibility[d.deptId] !== false) : [];
             for (let w = 0; w < 6; w++) {
                 const weekStartDate = addDays(gridStartDate, w * 7);
                 const dayDates = []; for (let i = 0; i < 7; i++) dayDates.push(formatDate(addDays(weekStartDate, i)));
-                const weekEvents = STATE.events.filter(e => STATE.visibility[e.deptId] && e.startDate <= dayDates[6] && e.endDate >= dayDates[0]);
+                const weekEvents = STATE.events.filter(e => STATE.visibility[e.deptId] && e.startDate <= dayDates[6] && e.endDate >= dayDates[0]).concat(opsAll.filter(d => d.startDate <= dayDates[6] && d.endDate >= dayDates[0]));
                 weekEvents.sort((a, b) => { if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); return (new Date(b.endDate) - new Date(b.startDate)) - (new Date(a.endDate) - new Date(a.startDate)); });
                 const tracks = []; const placements = [];
                 weekEvents.forEach(evt => {
@@ -4355,6 +4376,14 @@
                     weekDiv.appendChild(hDiv);
                 });
                 placements.forEach(({ evt, s, e, t }) => {
+                    if (evt._ref) {
+                        const dEl = document.createElement('div');
+                        dEl.className = `dept-tag ${evt.color} cursor-pointer text-left text-[13px] px-2 py-0.5 rounded border-l-[3px] truncate block z-20 font-medium`;
+                        dEl.style.gridColumn = `${s + 1} / ${e + 2}`; dEl.style.gridRow = `${t + 2}`; dEl.style.margin = "2px 4px";
+                        dEl.innerHTML = esc(evt.title); dEl.title = evt.title;
+                        dEl.onclick = (el) => { el.stopPropagation(); if (evt._ref.type === 'trade') openTradeDetail(evt._ref.id); else openAssetDetail(evt._ref.id); };
+                        weekDiv.appendChild(dEl); return;
+                    }
                     const dept = STATE.departments.find(d => d.id === evt.deptId);
                     const evEl = document.createElement('div');
                     const isCompleted = evt.endDate < formatDate(new Date());
