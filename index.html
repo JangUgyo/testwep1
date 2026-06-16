@@ -2401,7 +2401,7 @@
             const d = computeInventoryDashboard();
             STATE.dashboardDraft = d;
             const body = document.getElementById('inventory-dashboard-body'); if (!body) return;
-            const es = inventoryEmptyStateHTML();
+            const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
             if (es) { body.innerHTML = es; if (window.lucide) lucide.createIcons(); return; }
             const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
             const kpi = `<div class="grid grid-cols-3 gap-3">
@@ -2687,6 +2687,7 @@
         function ledgerNextDay(s) { try { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); } catch (e) { return s; } }
         async function ledgerFetch(start, end) {
             const { data, error } = await fetchAllPaged(() => sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: false }));
+            STATE.ledgerError = !!error;
             if (error) return [];
             return (data || []).map(r => { const it = (STATE.inventory || []).find(x => x.id === r.item_id); return { itemId: r.item_id, itemName: it ? it.name : ('#' + r.item_id), sku: it ? it.sku : '', kind: r.kind, subtype: r.subtype || '', qty: Number(r.qty) || 0, warehouseId: r.warehouse_id || null, warehouseName: r.warehouse_id ? warehouseName(r.warehouse_id) : '', balanceAfter: r.balance_after, reason: r.reason || '', actor: r.actor || '', createdAt: r.created_at || '' }; });
         }
@@ -2720,6 +2721,7 @@
         }
         function renderLedger() {
             const body = document.getElementById('ledger-body'); if (!body) return;
+            if (STATE.ledgerError) { body.innerHTML = `<div class="text-center py-10"><div class="text-[13px] font-bold text-slate-600 mb-1">이력을 불러오지 못했습니다</div><div class="text-[12px] text-slate-400 mb-3">네트워크 상태를 확인하고 다시 시도하세요.</div><button onclick="loadLedger()" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-900 hover:bg-indigo-600 text-white inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-4 h-4"></i> 다시 시도</button></div>`; if (window.lucide) lucide.createIcons(); return; }
             const whId = (document.getElementById('ledger-wh') || {}).value || 'all';
             const kind = (document.getElementById('ledger-kind') || {}).value || 'all';
             const q = ((document.getElementById('ledger-q') || {}).value || '').trim();
@@ -2898,6 +2900,22 @@
             if (noItem) return wrap('package-open', '등록된 품목이 없습니다', '첫 품목을 직접 등록하거나, 엑셀 파일로 한 번에 가져올 수 있습니다.', btn('품목 등록', 'openInventoryForm()', true, 'plus-circle') + btn('엑셀 가져오기', "triggerImport('inventory')", false, 'upload'));
             return '';
         }
+        function inventoryErrorStateHTML() {
+            return `<div class="bg-white border border-dashed border-rose-300 rounded-2xl p-10 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 flex items-center justify-center mb-3"><i data-lucide="cloud-off" class="w-7 h-7 text-rose-400"></i></div>
+                <div class="text-base font-bold text-slate-700">재고 데이터를 불러오지 못했습니다</div>
+                <div class="text-[13px] text-slate-400 mt-1 mb-4 max-w-sm mx-auto">네트워크 상태를 확인해 주세요. 재고 테이블이 아직 준비되지 않았다면 안내된 준비 SQL을 먼저 실행해야 합니다.</div>
+                <button onclick="retryInventoryLoad()" class="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-900 hover:bg-indigo-600 text-white inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-4 h-4"></i> 다시 시도</button>
+            </div>`;
+        }
+        async function retryInventoryLoad() {
+            const dash = document.getElementById('inventory-dashboard-body'); if (dash) dash.innerHTML = '<div class="text-slate-400 py-10 text-center">불러오는 중…</div>';
+            await reloadWarehouses(); await reloadInventory(); await reloadInventoryStock(); await reloadStockMoves(); await reloadInventoryOptions();
+            if (STATE.currentTab === 'inventory') setInventoryView(STATE.inventoryView || 'dashboard'); else renderInventory();
+            renderDashboardWidgets();
+            if (STATE.inventoryTableMissing) showToast('불러오기 실패', '재고 데이터를 가져오지 못했습니다. 잠시 후 다시 시도하세요.');
+            else showToast('새로고침 완료', '최신 재고 데이터를 불러왔습니다.');
+        }
         function renderInventory() {
             const list0 = STATE.inventory || [];
             // 분류 필터 옵션 채우기
@@ -2928,7 +2946,7 @@
             const body = document.getElementById('inventory-list-body');
             const cards = document.getElementById('inventory-card-list');
             if (list.length === 0) {
-                const es = inventoryEmptyStateHTML();
+                const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
                 if (es) {
                     if (body) body.innerHTML = `<tr><td colspan="7" class="p-3">${es}</td></tr>`;
                     if (cards) cards.innerHTML = `<div class="sm:col-span-2">${es}</div>`;
