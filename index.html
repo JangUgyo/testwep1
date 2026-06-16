@@ -972,6 +972,8 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-600"></i> 재고 대시보드</h3>
                         <div class="flex gap-2 flex-wrap">
+                            <button onclick="openLedger()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4"></i> 입출고 이력</button>
+                            <button onclick="openInventoryReport()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
                             <button onclick="openDataManager()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="database" class="w-4 h-4"></i> 백업/초기화</button>
                             <button onclick="exportInventoryStatusXlsx()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀(재고현황)</button>
                             <button onclick="printInventoryStatus()" class="px-3 py-2 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="printer" class="w-4 h-4"></i> 인쇄/PDF</button>
@@ -1433,6 +1435,31 @@
                 </div>
             </div>
             <div class="px-6 py-4 border-t bg-slate-50 flex-shrink-0"><button onclick="closeModal('data-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button></div>
+        </div>
+    </div>
+
+    <!-- 재고: 입출고 이력(원장) -->
+    <div id="ledger-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden border max-h-[94vh] flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
+                <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-amber-600"></i> 입출고 이력</h4>
+                <button onclick="closeModal('ledger-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="px-6 py-3 border-b bg-white flex flex-wrap items-end gap-2 flex-shrink-0">
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">시작일</label><input type="date" id="ledger-start" class="px-2.5 py-2 border rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">종료일</label><input type="date" id="ledger-end" class="px-2.5 py-2 border rounded-lg text-sm outline-none"></div>
+                <button onclick="loadLedger()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold">조회</button>
+                <div class="w-px h-8 bg-slate-200 mx-1"></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">창고</label><select id="ledger-wh" onchange="renderLedger()" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                <div><label class="block text-[11px] font-bold text-slate-500 mb-0.5">구분</label><select id="ledger-kind" onchange="renderLedger()" class="px-2.5 py-2 border rounded-lg text-sm bg-white outline-none"><option value="all">전체</option><option value="in">입고</option><option value="out">출고</option></select></div>
+                <input type="text" id="ledger-q" onkeyup="renderLedger()" placeholder="품목·유형·사유 검색" class="px-3 py-2 border rounded-lg text-sm outline-none w-44">
+            </div>
+            <div id="ledger-body" class="p-4 overflow-y-auto flex-1 text-sm text-slate-400">기간을 선택하고 "조회"를 누르세요.</div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModal('ledger-modal')" class="px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">닫기</button>
+                <div class="flex-1"></div>
+                <button type="button" onclick="exportLedgerXlsx()" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+            </div>
         </div>
     </div>
 
@@ -2469,6 +2496,69 @@
             if (STATE.currentTab === 'inventory') setInventoryView(STATE.inventoryView || 'dashboard');
             renderDashboardWidgets(); closeModal('data-modal');
             showToast('초기화 완료', scope === 'delete' ? `${cnt}개 품목을 삭제했습니다.` : '재고 수량을 0으로 초기화했습니다.');
+        }
+
+        // ════════════ 입출고 이력(원장) ════════════
+        function ledgerNextDay(s) { try { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); } catch (e) { return s; } }
+        async function ledgerFetch(start, end) {
+            const { data, error } = await sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: false }).limit(5000);
+            if (error) return [];
+            return (data || []).map(r => { const it = (STATE.inventory || []).find(x => x.id === r.item_id); return { itemId: r.item_id, itemName: it ? it.name : ('#' + r.item_id), sku: it ? it.sku : '', kind: r.kind, subtype: r.subtype || '', qty: Number(r.qty) || 0, warehouseId: r.warehouse_id || null, warehouseName: r.warehouse_id ? warehouseName(r.warehouse_id) : '', balanceAfter: r.balance_after, reason: r.reason || '', actor: r.actor || '', createdAt: r.created_at || '' }; });
+        }
+        function filterLedgerRows(rows, f) {
+            return (rows || []).filter(r => {
+                if (f.whId && f.whId !== 'all' && String(r.warehouseId) !== String(f.whId)) return false;
+                if (f.kind && f.kind !== 'all' && r.kind !== f.kind) return false;
+                if (f.q) { const q = f.q.toLowerCase(); if ((String(r.itemName || '') + ' ' + String(r.subtype || '') + ' ' + String(r.reason || '')).toLowerCase().indexOf(q) < 0) return false; }
+                return true;
+            });
+        }
+        function openLedger() {
+            if (STATE.inventoryTableMissing) { showToast('준비 필요', '재고 테이블 생성 SQL을 먼저 실행하세요.'); return; }
+            const now = new Date(), y = now.getFullYear(), m = String(now.getMonth() + 1).padStart(2, '0');
+            const s = document.getElementById('ledger-start'), e = document.getElementById('ledger-end');
+            if (s && !s.value) s.value = `${y}-${m}-01`;
+            if (e && !e.value) e.value = now.toISOString().slice(0, 10);
+            const wsel = document.getElementById('ledger-wh');
+            if (wsel) wsel.innerHTML = `<option value="all">전체 창고</option>` + (STATE.warehouses || []).map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+            openModal('ledger-modal');
+            loadLedger();
+        }
+        async function loadLedger() {
+            const start = document.getElementById('ledger-start').value, end = document.getElementById('ledger-end').value;
+            if (!start || !end) { showToast('기간 확인', '시작일과 종료일을 선택하세요.'); return; }
+            document.getElementById('ledger-body').innerHTML = '<div class="text-slate-400 py-6 text-center">불러오는 중…</div>';
+            STATE.ledgerAll = await ledgerFetch(start, ledgerNextDay(end));
+            renderLedger();
+        }
+        function renderLedger() {
+            const body = document.getElementById('ledger-body'); if (!body) return;
+            const whId = (document.getElementById('ledger-wh') || {}).value || 'all';
+            const kind = (document.getElementById('ledger-kind') || {}).value || 'all';
+            const q = ((document.getElementById('ledger-q') || {}).value || '').trim();
+            const rows = filterLedgerRows(STATE.ledgerAll || [], { whId, kind, q });
+            STATE.ledgerDraft = rows;
+            if (!rows.length) { body.innerHTML = '<div class="text-slate-300 py-10 text-center">해당 조건의 입출고 내역이 없습니다.</div>'; return; }
+            const shown = rows.slice(0, 500);
+            const trs = shown.map(r => `<tr class="border-t border-slate-100">
+                <td class="py-2 pr-2 whitespace-nowrap text-slate-500">${(r.createdAt || '').replace('T', ' ').slice(0, 16)}</td>
+                <td class="py-2 pr-2"><div class="font-semibold text-slate-700">${esc(r.itemName)}</div><div class="text-[11px] text-slate-400 font-mono">${esc(r.sku)}</div></td>
+                <td class="py-2 pr-2">${r.kind === 'in' ? chip('입고', 'success') : chip('출고', 'danger')}${r.subtype ? ` <span class="text-[11px] text-slate-400">${esc(r.subtype)}</span>` : ''}</td>
+                <td class="py-2 pr-2 text-right font-bold ${r.kind === 'out' ? 'text-rose-600' : 'text-emerald-600'}">${r.kind === 'out' ? '-' : '+'}${fmtNum(r.qty)}</td>
+                <td class="py-2 pr-2 text-slate-500">${esc(r.warehouseName)}</td>
+                <td class="py-2 pr-2 text-right text-slate-500">${r.balanceAfter != null ? fmtNum(r.balanceAfter) : '-'}</td>
+                <td class="py-2 text-slate-500 truncate max-w-[220px]">${esc(r.actor)}${r.reason ? ' · ' + esc(r.reason) : ''}</td>
+            </tr>`).join('');
+            body.innerHTML = `<div class="text-[13px] text-slate-500 mb-2 px-1"><b class="text-slate-700">${fmtNum(rows.length)}건</b>${rows.length > 500 ? ' 중 최근 500건 표시' : ''}</div>
+                <div class="overflow-x-auto"><table class="w-full text-[13px]"><thead><tr class="text-slate-400 text-left bg-slate-50"><th class="py-2 pr-2 pl-1 font-semibold">일시</th><th class="py-2 pr-2 font-semibold">품목</th><th class="py-2 pr-2 font-semibold">구분</th><th class="py-2 pr-2 font-semibold text-right">수량</th><th class="py-2 pr-2 font-semibold">창고</th><th class="py-2 pr-2 font-semibold text-right">잔량</th><th class="py-2 font-semibold">처리/사유</th></tr></thead><tbody>${trs}</tbody></table></div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+        async function exportLedgerXlsx() {
+            const rows = STATE.ledgerDraft || [];
+            if (!rows.length) { showToast('내보낼 데이터 없음', '먼저 "조회"로 이력을 불러오세요.'); return; }
+            const sheets = [{ name: '입출고이력', title: '입출고 이력', headers: ['일시', '품목코드', '품목', '구분', '유형', '수량', '창고', '잔량', '사유', '담당'], aligns: ['left', 'left', 'left', 'center', 'left', 'right', 'left', 'right', 'left', 'left'], numFmts: [, , , , , '#,##0', , '#,##0'], widths: [17, 12, 20, 8, 12, 10, 14, 10, 22, 12], rows: rows.map(r => [(r.createdAt || '').replace('T', ' ').slice(0, 16), r.sku, r.itemName, r.kind === 'in' ? '입고' : '출고', r.subtype, r.qty, r.warehouseName, r.balanceAfter, r.reason, r.actor]) }];
+            const okv = await exportStyledWorkbook({ filename: `입출고이력_${xlsxToday()}.xlsx`, sheets });
+            if (okv) showToast('내보내기 완료', `${rows.length}건을 엑셀로 저장했습니다.`);
         }
 
         async function reloadInventory() {
