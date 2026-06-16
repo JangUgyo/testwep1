@@ -1432,6 +1432,11 @@
                         <input type="file" id="backup-restore-input" accept=".json,application/json" onchange="handleRestoreFile(event)" class="hidden">
                         <button onclick="triggerRestore()" class="px-3 py-2 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 백업 파일에서 복원</button>
                     </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <div class="text-[12px] font-bold text-slate-600 mb-1">데이터 구조 점검·보정</div>
+                        <p class="text-[12px] text-slate-400 mb-2">기준정보(분류·단위·입출고 유형)를 최신 구조로 자동 보정합니다. 여러 번 실행해도 안전합니다.</p>
+                        <button onclick="repairData()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4"></i> 점검·보정 실행</button>
+                    </div>
                 </div>
                 <div class="border-t border-slate-100 pt-4">
                     <div class="text-[13px] font-bold text-rose-600 mb-1 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 초기화 (주의)</div>
@@ -2076,9 +2081,43 @@
         }
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
+        // ════════════ 데이터 버전 / 마이그레이션 ════════════
+        const APP_DATA_VERSION = 2;
+        function appDataVersion() { return APP_DATA_VERSION; }
+        const MIGRATIONS = [
+            { version: 1, name: '기본 입·출고 유형 보정', run: async () => {
+                if (STATE.invOptionsMissing) return;
+                const adds = [];
+                if (!((STATE.invOptions.move_in || []).length)) adds.push({ kind: 'move_in', value: '구매입고' });
+                if (!((STATE.invOptions.move_out || []).length)) adds.push({ kind: 'move_out', value: '폐기' });
+                if (adds.length) { await sb.from('inventory_options').insert(adds); await reloadInventoryOptions(); }
+            } },
+            { version: 2, name: '기존 품목 분류·단위·품목명 옵션 등록', run: async () => {
+                if (STATE.invOptionsMissing) return;
+                await ensureImportOptions((STATE.inventory || []).map(i => ({ category: i.category, unit: i.unit, name: i.name })));
+            } }
+        ];
+        async function persistDataVersion() { try { await sb.from('app_settings').upsert({ key: 'data_version', value: APP_DATA_VERSION, updated_at: new Date().toISOString() }); } catch (e) { } }
+        async function runMigrations() {
+            if (!STATE.profile || STATE.profile.role !== 'admin') return;
+            const cur = Number(STATE.dataVersion || 0);
+            if (cur >= APP_DATA_VERSION) return;
+            const pending = MIGRATIONS.filter(m => m.version > cur).sort((a, b) => a.version - b.version);
+            for (const m of pending) { try { await m.run(); } catch (e) { console.warn('migration failed:', m.name, e); return; } }
+            STATE.dataVersion = APP_DATA_VERSION;
+            await persistDataVersion();
+        }
+        async function repairData() {
+            if (!STATE.profile || STATE.profile.role !== 'admin') { showToast('권한 없음', '데이터 보정은 관리자만 가능합니다.'); return; }
+            for (const m of MIGRATIONS) { try { await m.run(); } catch (e) { } }
+            STATE.dataVersion = APP_DATA_VERSION;
+            await persistDataVersion();
+            showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
+        }
         async function loadAllData() {
             await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock()]);
-            renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets();
+            await runMigrations();
+            renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
         }
         async function reloadEvents() {
             const { data } = await sb.from('events').select('*').order('start_date', { ascending: true });
@@ -2118,6 +2157,7 @@
                 else if (row.key === 'custom_features') STATE.customFeatures = Array.isArray(row.value) ? row.value : [];
                 else if (row.key === 'maintenance' && row.value && typeof row.value === 'object') STATE.maintenance = Object.assign(STATE.maintenance, row.value);
                 else if (row.key === 'company_profile' && row.value && typeof row.value === 'object') STATE.company = Object.assign({}, DEFAULT_COMPANY, row.value);
+                else if (row.key === 'data_version') STATE.dataVersion = Number(row.value) || 0;
             });
             renderCustomFeaturesMenu();
         }
@@ -6910,6 +6950,30 @@
             if (window.lucide) lucide.createIcons();
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 3200);
         }
+        function handleGlobalModalKeydown(e) {
+            if (e.key !== 'Escape') return;
+            const stack = STATE.modalStack || [];
+            if (!stack.length) return;
+            closeModal(stack[stack.length - 1]);
+        }
+        function focusFirstInModal(m) {
+            try {
+                const el = m.querySelector('input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])');
+                if (el) setTimeout(() => { try { el.focus(); } catch (e) { } }, 30);
+            } catch (e) { }
+        }
+        function enhanceA11y(root) {
+            const labels = { x: '닫기', plus: '추가', 'plus-circle': '추가', trash: '삭제', 'trash-2': '삭제', pencil: '편집', edit: '편집', 'edit-2': '편집', search: '검색', 'chevron-left': '이전', 'chevron-right': '다음', 'chevron-down': '펼치기', download: '다운로드', upload: '업로드', printer: '인쇄', settings: '설정', bell: '알림', menu: '메뉴', 'more-vertical': '더보기', 'more-horizontal': '더보기', filter: '필터', 'refresh-cw': '새로고침', check: '확인', save: '저장', copy: '복사' };
+            try {
+                (root || document).querySelectorAll('button:not([aria-label])').forEach(b => {
+                    if ((b.textContent || '').trim()) return;
+                    const ic = b.querySelector('[data-lucide], svg[class*="lucide-"]');
+                    let nm = '';
+                    if (ic) { nm = ic.getAttribute('data-lucide') || ''; if (!nm) { const mm = (ic.getAttribute('class') || '').match(/lucide-([a-z0-9-]+)/); if (mm) nm = mm[1]; } }
+                    b.setAttribute('aria-label', labels[nm] || (nm || '버튼'));
+                });
+            } catch (e) { }
+        }
         function openModal(id) {
             if (id === 'add-doc-modal') { STATE.docApprovers = STATE.docApprovers || []; STATE.docViewers = STATE.docViewers || []; populateDocPeoplePickers(); renderDocPeopleChips(); }
             if (id === 'profile-setting-modal' && STATE.currentUser) {
@@ -6919,7 +6983,8 @@
             if (id === 'add-meeting-modal') applyDeptLock('meeting-dept');
             if (id === 'add-project-modal') applyDeptLock('project-dept');
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
-            const m = document.getElementById(id); if (m) { m.classList.remove('hidden'); m.classList.add('flex'); makeModalResizable(m); }
+            if (!STATE._a11yKeys) { STATE._a11yKeys = true; document.addEventListener('keydown', handleGlobalModalKeydown); }
+            const m = document.getElementById(id); if (m) { m._returnFocus = document.activeElement; m.classList.remove('hidden'); m.classList.add('flex'); makeModalResizable(m); STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id); enhanceA11y(m); focusFirstInModal(m); }
         }
         let _rzState = null;
         function makeModalResizable(m) {
@@ -6949,7 +7014,7 @@
                 window.addEventListener('mouseup', () => { if (_rzState) { _rzState = null; document.body.style.userSelect = ''; } });
             }
         }
-        function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }
+        function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } STATE.modalStack = (STATE.modalStack || []).filter(x => x !== id); if (m && m._returnFocus && typeof m._returnFocus.focus === 'function') { try { m._returnFocus.focus(); } catch (e) { } } if (m) m._returnFocus = null; }
 
         // ── 다크 모드 ────────────────────────────────────────────────────
         function applyTheme(on) {
