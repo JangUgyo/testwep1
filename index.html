@@ -1052,7 +1052,7 @@
     </div>
 
     <!-- 발주/견적: 작성/편집 -->
-    <div id="trade-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-4">
+    <div id="trade-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[85] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden border max-h-[94vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0">
                 <i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i>
@@ -1187,7 +1187,7 @@
     </div>
 
     <!-- 재고: 기준정보(품목명/분류/단위) 옵션 관리 -->
-    <div id="inventory-options-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+    <div id="inventory-options-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[90] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border max-h-[90vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="settings-2" class="w-4 h-4 text-amber-600"></i> 옵션 관리 (기준정보)</h4>
@@ -1224,7 +1224,7 @@
     </div>
 
     <!-- 재고: 품목 등록/편집 -->
-    <div id="inventory-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[70] p-3 md:p-4">
+    <div id="inventory-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[85] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border max-h-[92vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0">
                 <i data-lucide="package" class="w-4 h-4 text-amber-600"></i>
@@ -1300,7 +1300,7 @@
     </div>
 
     <!-- 설비 등록/편집 -->
-    <div id="asset-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
+    <div id="asset-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[85] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] overflow-hidden border flex flex-col">
             <div class="px-5 py-3.5 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0"><i data-lucide="server-cog" class="w-4 h-4 text-emerald-600"></i><h4 id="asset-form-title" class="font-bold text-sm text-slate-800">설비 등록</h4></div>
             <form onsubmit="handleSaveAsset(event)" class="p-5 space-y-3 overflow-y-auto">
@@ -1323,7 +1323,7 @@
     </div>
 
     <!-- AS 티켓 등록/편집 -->
-    <div id="ticket-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
+    <div id="ticket-form-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[85] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[92vh] overflow-hidden border flex flex-col">
             <div class="px-5 py-3.5 border-b bg-slate-50 flex items-center gap-2 flex-shrink-0"><i data-lucide="wrench" class="w-4 h-4 text-rose-600"></i><h4 id="ticket-form-title" class="font-bold text-sm text-slate-800">AS 티켓 등록</h4></div>
             <form onsubmit="handleSaveTicket(event)" class="p-5 space-y-3 overflow-y-auto">
@@ -2053,7 +2053,7 @@
             const dsel = document.getElementById('inventory-dept'); if (dsel) dsel.value = it ? (it.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('inventory-notes').value = it ? it.notes : '';
             document.getElementById('inventory-form-title').innerText = id ? '품목 편집' : '품목 등록';
-            closeModal('inventory-detail-modal'); openModal('inventory-form-modal'); // 상세 위에서 편집 시 가림 방지
+            openModal('inventory-form-modal');
         }
         async function handleSaveInventoryItem(e) {
             e.preventDefault();
@@ -2069,6 +2069,7 @@
             if (error) { showToast('저장 실패', error.message); return; }
             logAudit(id ? 'inventory_update' : 'inventory_create', row.name, `${row.category || ''} ${fmtNum(row.stock)}${row.unit}`.trim());
             await reloadInventory(); renderInventory(); renderDashboardWidgets(); closeModal('inventory-form-modal');
+            if (id && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(parseInt(id));
             showToast('저장 완료', id ? '품목 정보가 수정되었습니다.' : '품목이 등록되었습니다.');
         }
         function openStockMove(itemId, kind) {
@@ -2281,7 +2282,7 @@
                 remarks: t && t.remarks.length ? t.remarks.slice() : []
             };
             renderTradeLines(); renderTradeRemarks();
-            closeModal('trade-detail-modal'); openModal('trade-form-modal'); // 상세 위에서 편집 시 가림 방지
+            openModal('trade-form-modal');
         }
         function addTradeLine(sub) { STATE.tradeDraft.items.push({ description: '', notes: '', unit: '', qty: 1, unitPrice: 0, sub: !!sub }); renderTradeLines(); }
         function removeTradeLine(idx) { STATE.tradeDraft.items.splice(idx, 1); if (!STATE.tradeDraft.items.length) STATE.tradeDraft.items.push({ description: '', notes: '', unit: '', qty: 1, unitPrice: 0, sub: false }); renderTradeLines(); }
@@ -2359,6 +2360,7 @@
             if (error) { showToast('저장 실패', error.message); return; }
             logAudit(id ? 'trade_update' : 'trade_create', row.doc_no, `${TRADE_KIND[kind][0]} · ${row.client} · ₩${fmtNum(row.total)}`);
             await reloadTrade(); renderTrade(); renderDashboardWidgets(); closeModal('trade-form-modal');
+            if (id && !document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(parseInt(id));
             showToast('저장 완료', `${TRADE_KIND[kind][0]} ${row.doc_no} 저장됨`);
         }
         // 업로드된 SLENO 양식 기반 문서(표지 + 상세) HTML — 로고/연락처/디자인 개선
@@ -4853,7 +4855,7 @@
             document.getElementById('ticket-form-title').innerText = id ? 'AS 티켓 편집' : 'AS 티켓 등록';
             STATE.ticketForm = { keep: t ? (t.photos || []).slice() : [], add: [] };
             renderTicketPhotoChips();
-            closeModal('ticket-detail-modal'); openModal('ticket-form-modal'); // 상세 위에서 편집 시 가림 방지
+            openModal('ticket-form-modal');
         }
         async function handleSaveTicket(e) {
             e.preventDefault();
@@ -4885,6 +4887,7 @@
             if (error) { showToast('저장 실패', error.message); return; }
             STATE.ticketForm = { keep: [], add: [] };
             await reloadTickets(); renderTickets(); renderDashboardWidgets(); closeModal('ticket-form-modal');
+            if (id && !document.getElementById('ticket-detail-modal').classList.contains('hidden')) openTicketDetail(parseInt(id));
             showToast('저장 완료', id ? 'AS 티켓이 수정되었습니다.' : 'AS 티켓이 접수되었습니다.');
         }
         async function openTicketDetail(id) {
@@ -5115,7 +5118,7 @@
             const dsel = document.getElementById('asset-dept'); if (dsel) dsel.value = a ? (a.deptId || STATE.profile.deptId) : (STATE.profile.deptId || '');
             document.getElementById('asset-notes').value = a ? (a.notes || '') : '';
             document.getElementById('asset-form-title').innerText = id ? '설비 편집' : '설비 등록';
-            closeModal('asset-detail-modal'); openModal('asset-form-modal'); // 상세 위에서 편집 시 가림 방지
+            openModal('asset-form-modal');
         }
         async function handleSaveAsset(e) {
             e.preventDefault();
@@ -5127,6 +5130,7 @@
             else { ({ error } = await sb.from('assets').insert(row)); }
             if (error) { showToast('저장 실패', error.message); return; }
             await reloadAssets(); renderAssets(); renderDashboardWidgets(); closeModal('asset-form-modal');
+            if (id && !document.getElementById('asset-detail-modal').classList.contains('hidden')) openAssetDetail(parseInt(id));
             showToast('저장 완료', id ? '설비 정보가 수정되었습니다.' : '설비가 등록되었습니다.');
         }
         async function markAssetPmDone(id) {
