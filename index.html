@@ -921,7 +921,11 @@
                         <input type="text" id="asset-search" onkeyup="assetsApplyFilter()" placeholder="설비·현장·고객사 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-56 outline-none focus:border-emerald-300">
                         <select id="asset-filter-pm" onchange="assetsApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 점검 상태</option><option value="overdue">점검 지연</option><option value="due">점검 임박(7일)</option><option value="ok">정상</option></select>
                     </div>
-                    <button onclick="openAssetForm()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 설비 등록</button>
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <button onclick="exportXlsx('assets')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+                        <button onclick="triggerImport('assets')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
+                        <button onclick="openAssetForm()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 설비 등록</button>
+                    </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
@@ -3299,6 +3303,8 @@
             if (!aoa || !aoa.length) return [];
             const tokens = type === 'inventory'
                 ? ['품목명', '품목', 'name', '품목코드', 'sku', '분류', '카테고리', 'category', '현재고', '재고', 'stock', '단가', '안전재고', '단위']
+                : type === 'assets'
+                ? ['자산명', '설비명', 'name', '모델', 'model', '고객사', 'customer', '설치장소', '현장', 'site', 'pm주기', '점검주기', '최근점검일', '담당자', 'assignee', '담당부서']
                 : ['거래처명', '거래처', '업체명', 'name', '구분', '유형', '담당자', 'contact', 'tel', '전화'];
             const norm = c => String(c == null ? '' : c).trim();
             let hdrIdx = -1, best = 0;
@@ -3322,6 +3328,20 @@
         }
         function sheetToObjects(ws, type) { const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }); return pickHeaderObjects(aoa, type); }
         function xlsxPick(obj, keys) { for (const k of keys) { if (obj[k] !== undefined && String(obj[k]).trim() !== '') return String(obj[k]).trim(); } return ''; }
+        function importDateVal(r, keys) {
+            for (const k of keys) {
+                if (r[k] !== undefined && r[k] !== null && String(r[k]).trim() !== '') {
+                    const v = r[k];
+                    if (v instanceof Date && !isNaN(v)) return formatDate(v);
+                    const sv = String(v).trim();
+                    const m = sv.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+                    if (m) return `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
+                    if (/^\d+(\.\d+)?$/.test(sv)) { const d = new Date(Math.round((Number(sv) - 25569) * 86400 * 1000)); if (!isNaN(d)) return formatDate(d); }
+                    return sv;
+                }
+            }
+            return '';
+        }
 
         function buildExportAoa(type) {
             if (type === 'inventory') {
@@ -3338,6 +3358,11 @@
                 const headers = ['문서번호', '종류', 'CLIENT', '건명(SERVICE)', '작성일', '상태', '합계금액'];
                 const rows = (STATE.trade || []).map(t => [t.docNo || '', TRADE_KIND_LABEL[t.kind] || '', t.client || '', t.service || '', t.docDate || '', (TRADE_STATUS[t.status] || ['', ''])[0], Number(t.total) || 0]);
                 return { headers, rows, sheet: '발주견적', filename: `발주견적목록_${xlsxToday()}.xlsx` };
+            }
+            if (type === 'assets') {
+                const headers = ['자산명', '모델', '고객사', '설치장소', 'PM주기(일)', '최근점검일', '담당자', '직책/위치', '담당부서', '비고'];
+                const rows = (STATE.assets || []).map(a => [a.name || '', a.model || '', a.customer || '', a.site || '', a.pmCycle || 0, a.lastPm || '', a.assignee || '', a.position || '', deptName(a.deptId), a.notes || '']);
+                return { headers, rows, sheet: '설비자산', filename: `설비자산목록_${xlsxToday()}.xlsx` };
             }
             return { headers: [], rows: [], sheet: 'sheet', filename: 'export.xlsx' };
         }
@@ -3359,6 +3384,9 @@
             if (type === 'trade') {
                 const sumTotal = rows.reduce((s, r) => s + (Number(r[6]) || 0), 0);
                 return { title: '발주·견적 관리 대장', widths: [16, 8, 18, 24, 12, 10, 14], aligns: ['left', 'center', 'left', 'left', 'center', 'center', 'right'], numFmts: [, , , , , , '#,##0'], totalRow: ['합계', '', '', '', '', '', sumTotal] };
+            }
+            if (type === 'assets') {
+                return { title: '설비 자산 관리 대장', widths: [20, 16, 16, 16, 10, 12, 12, 12, 14, 22], aligns: ['left', 'left', 'left', 'left', 'right', 'center', 'left', 'left', 'left', 'left'], numFmts: [, , , , '#,##0'] };
             }
             return { title: '', widths: [], aligns: [], numFmts: [] };
         }
@@ -3401,6 +3429,7 @@
             if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
             let headers, example, name;
             if (type === 'inventory') { headers = ['품목코드', '품목명', '분류', '단위', '현재고', '안전재고', '단가', '거래처', '위치', '담당부서', '비고']; example = ['(비우면 자동생성)', '볼트 M8', '부품', 'EA', 10, 5, 100, '대한볼트', 'A-1', '미래전략기획실', '예시 행 — 지우고 입력']; name = '재고_가져오기_양식.xlsx'; }
+            else if (type === 'assets') { headers = ['자산명', '모델', '고객사', '설치장소', 'PM주기(일)', '최근점검일', '담당자', '직책/위치', '담당부서', '비고']; example = ['1호 컴프레서', 'AC-200', '대한기계', '평택 1공장', 180, '2026-01-15', '김기사', '대리', '미래전략기획실', '예시 행 — 지우고 입력']; name = '설비_가져오기_양식.xlsx'; }
             else { headers = ['거래처명', '구분', '담당자', 'TEL', 'FAX', 'E-MAIL', '사업자번호', '주소', '비고']; example = ['제이엔케이글로벌', '고객사', '김부장', '02-111-2222', '02-111-2223', 'jnk@corp.com', '123-45-67890', '서울시 ...', '예시 행 — 지우고 입력']; name = '거래처_가져오기_양식.xlsx'; }
             const ws = XLSX.utils.aoa_to_sheet([headers, example]);
             const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '양식');
@@ -3416,7 +3445,7 @@
             if (typeof XLSX === 'undefined') { showToast('엑셀 모듈 로드 실패', '네트워크 연결을 확인해 주세요.'); return; }
             try {
                 const buf = await file.arrayBuffer();
-                const wb = XLSX.read(buf, { type: 'array' });
+                const wb = XLSX.read(buf, { type: 'array', cellDates: true });
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const raw = sheetToObjects(ws, STATE.importType);
                 STATE.importDraft = { type: STATE.importType, rows: normalizeImportRows(STATE.importType, raw) };
@@ -3435,6 +3464,14 @@
                         unit_price: Number(xlsxPick(r, ['단가', '가격', 'unit_price']) || 0) || 0, supplier: xlsxPick(r, ['거래처', '공급처', 'supplier']),
                         location: xlsxPick(r, ['위치', '보관위치', 'location']), dept_id: deptIdByName(xlsxPick(r, ['담당부서', '부서', 'dept'])) || (STATE.profile ? STATE.profile.deptId : ''), notes: xlsxPick(r, ['비고', '메모', 'notes'])
                     });
+                } else if (type === 'assets') {
+                    const name = xlsxPick(r, ['자산명', '설비명', 'name']); if (!name) return;
+                    out.push({
+                        name, model: xlsxPick(r, ['모델', 'model', '규격']), customer: xlsxPick(r, ['고객사', 'customer', '거래처']), site: xlsxPick(r, ['설치장소', '현장', '위치', 'site']),
+                        pm_cycle: Number(xlsxPick(r, ['PM주기(일)', 'PM주기', '점검주기', 'pm_cycle']) || 0) || 0, last_pm: importDateVal(r, ['최근점검일', '최근 점검일', '마지막점검', 'last_pm']),
+                        assignee: xlsxPick(r, ['담당자', 'assignee']), position: xlsxPick(r, ['직책/위치', '직책', 'position']),
+                        dept_id: deptIdByName(xlsxPick(r, ['담당부서', '부서', 'dept'])) || (STATE.profile ? STATE.profile.deptId : ''), notes: xlsxPick(r, ['비고', '메모', 'notes'])
+                    });
                 } else if (type === 'partners') {
                     const name = xlsxPick(r, ['거래처명', '거래처', '업체명', 'name']); if (!name) return;
                     out.push({
@@ -3446,6 +3483,7 @@
             });
             if (type === 'inventory') { resolveInventoryMatches(out); assignImportSkus(out); }
             else if (type === 'partners') resolvePartnerMatches(out);
+            else if (type === 'assets') resolveAssetMatches(out);
             return out;
         }
         function resolveInventoryMatches(rows) {
@@ -3459,6 +3497,13 @@
         }
         function resolvePartnerMatches(rows) {
             (rows || []).forEach(r => { const nm = (r.name || '').trim().toLowerCase(); const ex = (STATE.partners || []).find(p => String(p.name || '').trim().toLowerCase() === nm); r._match = ex ? ex.id : null; });
+        }
+        function resolveAssetMatches(rows) {
+            (rows || []).forEach(r => {
+                const nm = (r.name || '').trim().toLowerCase(), md = (r.model || '').trim().toLowerCase();
+                const ex = (STATE.assets || []).find(a => String(a.name || '').trim().toLowerCase() === nm && (!md || String(a.model || '').trim().toLowerCase() === md)) || (STATE.assets || []).find(a => String(a.name || '').trim().toLowerCase() === nm);
+                r._match = ex ? ex.id : null;
+            });
         }
         function assignImportSkus(rows) {
             const counters = {};
@@ -3475,7 +3520,7 @@
         }
         function renderImportPreview() {
             const d = STATE.importDraft, body = document.getElementById('xlsx-import-body'); if (!body || !d) return;
-            const typeLabel = d.type === 'inventory' ? '재고 품목' : '거래처';
+            const typeLabel = d.type === 'inventory' ? '재고 품목' : d.type === 'assets' ? '설비 자산' : '거래처';
             const titleEl = document.getElementById('xlsx-import-title'); if (titleEl) titleEl.innerText = typeLabel + ' 엑셀 가져오기';
             const btn = document.getElementById('xlsx-import-confirm');
             if (!d.rows.length) {
@@ -3484,14 +3529,14 @@
                 return;
             }
             if (btn) { btn.disabled = false; btn.classList.remove('opacity-40', 'pointer-events-none'); }
-            const cols = d.type === 'inventory' ? ['상태', '품목코드', '품목명', '분류', '단위', '현재고', '단가', '담당부서'] : ['상태', '거래처명', '구분', '담당자', 'TEL', 'E-MAIL'];
-            const rowCells = r => d.type === 'inventory' ? [(r._match ? '갱신' : '신규'), r.sku, r.name, r.category, r.unit, r.stock, r.unit_price, deptName(r.dept_id)] : [(r._match ? '갱신' : '신규'), r.name, PARTNER_KIND_LABEL[r.kind] || '', r.contact, r.tel, r.email];
+            const cols = d.type === 'inventory' ? ['상태', '품목코드', '품목명', '분류', '단위', '현재고', '단가', '담당부서'] : d.type === 'assets' ? ['상태', '자산명', '모델', '고객사', '설치장소', 'PM주기', '담당부서'] : ['상태', '거래처명', '구분', '담당자', 'TEL', 'E-MAIL'];
+            const rowCells = r => d.type === 'inventory' ? [(r._match ? '갱신' : '신규'), r.sku, r.name, r.category, r.unit, r.stock, r.unit_price, deptName(r.dept_id)] : d.type === 'assets' ? [(r._match ? '갱신' : '신규'), r.name, r.model, r.customer, r.site, r.pm_cycle, deptName(r.dept_id)] : [(r._match ? '갱신' : '신규'), r.name, PARTNER_KIND_LABEL[r.kind] || '', r.contact, r.tel, r.email];
             const _newN = d.rows.filter(r => !r._match).length, _updN = d.rows.filter(r => r._match).length;
             const preview = d.rows.slice(0, 6);
             body.innerHTML = `<div class="text-sm text-slate-600 mb-3"><b class="text-emerald-700">${d.rows.length}건</b> (신규 ${_newN} · 갱신 ${_updN})을 가져옵니다. <span class="text-[12px] text-slate-400">기존 품목과 중복되면 추가되지 않고 갱신됩니다.</span> 미리보기(최대 6행):</div>
                 <div class="overflow-x-auto border rounded-xl"><table class="w-full text-[12px]"><thead class="bg-slate-50 text-slate-500"><tr>${cols.map(c => `<th class="px-2 py-1.5 text-left whitespace-nowrap">${c}</th>`).join('')}</tr></thead>
                 <tbody>${preview.map(r => `<tr class="border-t">${rowCells(r).map(c => `<td class="px-2 py-1.5 whitespace-nowrap">${esc(String(c == null ? '' : c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-                <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[12px] text-slate-400">${d.type === 'inventory' ? '품목코드를 비우면 분류 코드로 자동 생성됩니다.' : '구분: 고객사 / 공급처 / 공통'}</span><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline whitespace-nowrap">양식 내려받기</button></div>`;
+                <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[12px] text-slate-400">${d.type === 'inventory' ? '품목코드를 비우면 분류 코드로 자동 생성됩니다.' : d.type === 'assets' ? 'PM주기는 일 단위 숫자, 최근점검일은 날짜로 입력하세요.' : '구분: 고객사 / 공급처 / 공통'}</span><button onclick="downloadTemplate('${d.type}')" class="text-emerald-600 text-xs font-bold underline whitespace-nowrap">양식 내려받기</button></div>`;
         }
         async function ensureImportOptions(rows) {
             const opts = STATE.invOptions || {};
@@ -3537,6 +3582,21 @@
                     if (diff !== 0) await sb.rpc('apply_stock_move', { p_item_id: it.id, p_kind: diff > 0 ? 'in' : 'out', p_qty: Math.abs(diff), p_reason: row._match ? '엑셀 가져오기(갱신)' : '엑셀 가져오기', p_warehouse_id: wh });
                 }
                 await reloadInventory(); await reloadInventoryStock(); renderInventory();
+            } else if (d.type === 'assets') {
+                for (const row of d.rows) {
+                    if (row._match) {
+                        const m = {}; ['name', 'model', 'customer', 'site', 'assignee', 'position', 'notes'].forEach(k => { if (row[k]) m[k] = row[k]; });
+                        if (Number(row.pm_cycle) > 0) m.pm_cycle = Number(row.pm_cycle);
+                        if (row.last_pm) m.last_pm = row.last_pm;
+                        if (row.dept_id) m.dept_id = row.dept_id;
+                        if (Object.keys(m).length) { const { error } = await sb.from('assets').update(m).eq('id', row._match); if (error) { fail++; continue; } }
+                        updated++;
+                    } else {
+                        const payload = { name: row.name, model: row.model, customer: row.customer, site: row.site, pm_cycle: Number(row.pm_cycle) || 0, last_pm: row.last_pm || null, assignee: row.assignee, position: row.position, dept_id: row.dept_id, notes: row.notes };
+                        const { error } = await sb.from('assets').insert(payload); if (error) { fail++; continue; } inserted++;
+                    }
+                }
+                await reloadAssets(); if (STATE.currentTab === 'assets') renderAssets();
             } else {
                 for (const row of d.rows) {
                     if (row._match) {
