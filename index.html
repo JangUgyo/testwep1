@@ -2401,6 +2401,8 @@
             const d = computeInventoryDashboard();
             STATE.dashboardDraft = d;
             const body = document.getElementById('inventory-dashboard-body'); if (!body) return;
+            const es = inventoryEmptyStateHTML();
+            if (es) { body.innerHTML = es; if (window.lucide) lucide.createIcons(); return; }
             const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
             const kpi = `<div class="grid grid-cols-3 gap-3">
                 ${card('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'text-slate-800')}
@@ -2870,6 +2872,19 @@
             else { if (lv) lv.classList.add('hidden'); if (dv) dv.classList.remove('hidden'); if (tl) tl.className = off; if (td) td.className = on; renderInventoryDashboard(); }
             if (window.lucide) lucide.createIcons();
         }
+        function inventoryEmptyStateHTML() {
+            const noWh = !(STATE.warehouses || []).length;
+            const noItem = !(STATE.inventory || []).length;
+            const wrap = (icon, title, desc, btns) => `<div class="bg-white border border-dashed border-slate-300 rounded-2xl p-10 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3"><i data-lucide="${icon}" class="w-7 h-7 text-slate-400"></i></div>
+                <div class="text-base font-bold text-slate-700">${title}</div>
+                <div class="text-[13px] text-slate-400 mt-1 mb-4 max-w-sm mx-auto">${desc}</div>
+                <div class="flex gap-2 justify-center flex-wrap">${btns}</div></div>`;
+            const btn = (label, onclick, primary, icon) => `<button onclick="${onclick}" class="px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-1.5 ${primary ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}"><i data-lucide="${icon}" class="w-4 h-4"></i> ${label}</button>`;
+            if (noWh) return wrap('warehouse', '창고가 아직 없습니다', '재고를 관리하려면 먼저 보관 장소(창고)를 1개 이상 등록하세요.', btn('창고 등록', 'openWarehouseManager()', true, 'plus-circle'));
+            if (noItem) return wrap('package-open', '등록된 품목이 없습니다', '첫 품목을 직접 등록하거나, 엑셀 파일로 한 번에 가져올 수 있습니다.', btn('품목 등록', 'openInventoryForm()', true, 'plus-circle') + btn('엑셀 가져오기', "triggerImport('inventory')", false, 'upload'));
+            return '';
+        }
         function renderInventory() {
             const list0 = STATE.inventory || [];
             // 분류 필터 옵션 채우기
@@ -2900,8 +2915,17 @@
             const body = document.getElementById('inventory-list-body');
             const cards = document.getElementById('inventory-card-list');
             if (list.length === 0) {
-                if (body) body.innerHTML = `<tr><td colspan="7" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
-                if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">조건에 맞는 품목이 없습니다.</div>`;
+                const es = inventoryEmptyStateHTML();
+                if (es) {
+                    if (body) body.innerHTML = `<tr><td colspan="7" class="p-3">${es}</td></tr>`;
+                    if (cards) cards.innerHTML = `<div class="sm:col-span-2">${es}</div>`;
+                } else {
+                    if (body) body.innerHTML = `<tr><td colspan="7" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
+                    if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">조건에 맞는 품목이 없습니다.</div>`;
+                }
+                if (window.lucide) lucide.createIcons();
+                const dv0 = document.getElementById('inventory-dashboard-view');
+                if (STATE.inventoryView === 'dashboard' && dv0 && !dv0.classList.contains('hidden')) renderInventoryDashboard();
                 return;
             }
             const shown = list.slice(0, pageCount('inventory'));
