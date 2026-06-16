@@ -2139,7 +2139,7 @@
             STATE.warehouses = (data || []).map(r => ({ id: r.id, name: r.name, code: r.code || '', location: r.location || '', notes: r.notes || '' }));
         }
         async function reloadInventoryStock() {
-            const { data, error } = await sb.from('inventory_stock').select('*').limit(5000);
+            const { data, error } = await fetchAllPaged(() => sb.from('inventory_stock').select('*').order('item_id', { ascending: true }));
             if (error) { STATE.invStock = {}; return; }
             const map = {};
             (data || []).forEach(r => { (map[r.item_id] = map[r.item_id] || {})[r.warehouse_id] = Number(r.qty) || 0; });
@@ -2246,7 +2246,7 @@
             return { start: `${y}-01-01`, end: `${y + 1}-01-01` };
         }
         async function fetchReportMoves(start, end) {
-            const { data, error } = await sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: true }).limit(20000);
+            const { data, error } = await fetchAllPaged(() => sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: true }));
             if (error) return [];
             return (data || []).map(r => ({ itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, subtype: r.subtype || '', warehouseId: r.warehouse_id || null, createdAt: r.created_at || '' }));
         }
@@ -2686,7 +2686,7 @@
         // ════════════ 입출고 이력(원장) ════════════
         function ledgerNextDay(s) { try { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); } catch (e) { return s; } }
         async function ledgerFetch(start, end) {
-            const { data, error } = await sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: false }).limit(5000);
+            const { data, error } = await fetchAllPaged(() => sb.from('stock_moves').select('*').gte('created_at', start).lt('created_at', end).order('created_at', { ascending: false }));
             if (error) return [];
             return (data || []).map(r => { const it = (STATE.inventory || []).find(x => x.id === r.item_id); return { itemId: r.item_id, itemName: it ? it.name : ('#' + r.item_id), sku: it ? it.sku : '', kind: r.kind, subtype: r.subtype || '', qty: Number(r.qty) || 0, warehouseId: r.warehouse_id || null, warehouseName: r.warehouse_id ? warehouseName(r.warehouse_id) : '', balanceAfter: r.balance_after, reason: r.reason || '', actor: r.actor || '', createdAt: r.created_at || '' }; });
         }
@@ -2751,14 +2751,27 @@
             if (okv) showToast('내보내기 완료', `${rows.length}건을 엑셀로 저장했습니다.`);
         }
 
+        // 대량 데이터 분할 조회: range로 1000건씩 끝까지 누적 (한도 없음)
+        async function fetchAllPaged(buildQuery, pageSize) {
+            const PAGE = pageSize || 1000; let from = 0, all = [];
+            for (let i = 0; i < 500; i++) {
+                const { data, error } = await buildQuery().range(from, from + PAGE - 1);
+                if (error) return { data: all, error };
+                const batch = data || [];
+                all = all.concat(batch);
+                if (batch.length < PAGE) break;
+                from += PAGE;
+            }
+            return { data: all, error: null };
+        }
         async function reloadInventory() {
-            const { data, error } = await sb.from('inventory_items').select('*').order('name', { ascending: true }).limit(1000);
+            const { data, error } = await fetchAllPaged(() => sb.from('inventory_items').select('*').order('name', { ascending: true }));
             if (error) { STATE.inventoryTableMissing = true; STATE.inventory = []; return; }
             STATE.inventoryTableMissing = false;
             STATE.inventory = (data || []).map(r => ({ id: r.id, sku: r.sku || '', name: r.name, category: r.category || '', unit: r.unit || 'EA', stock: Number(r.stock) || 0, safeStock: Number(r.safe_stock) || 0, unitPrice: Number(r.unit_price) || 0, supplier: r.supplier || '', location: r.location || '', deptId: r.dept_id || '', notes: r.notes || '' }));
         }
         async function reloadStockMoves() {
-            const { data, error } = await sb.from('stock_moves').select('*').order('created_at', { ascending: false }).limit(1000);
+            const { data, error } = await fetchAllPaged(() => sb.from('stock_moves').select('*').order('created_at', { ascending: false }));
             if (error) { STATE.stockMoves = []; return; }
             STATE.stockMoves = (data || []).map(r => ({ id: r.id, itemId: r.item_id, kind: r.kind, qty: Number(r.qty) || 0, reason: r.reason || '', actor: r.actor || '', actorId: r.actor_id || '', deptId: r.dept_id || '', warehouseId: r.warehouse_id || null, subtype: r.subtype || '', balanceAfter: r.balance_after, createdAt: r.created_at }));
         }
@@ -3162,7 +3175,7 @@
         // ════════════ 거래처 마스터 ════════════
         const PARTNER_KIND = { both: ['공통', 'neutral'], client: ['고객사', 'info'], supplier: ['공급처', 'warn'] };
         async function reloadPartners() {
-            const { data, error } = await sb.from('partners').select('*').order('name', { ascending: true }).limit(2000);
+            const { data, error } = await fetchAllPaged(() => sb.from('partners').select('*').order('name', { ascending: true }));
             if (error) { STATE.partnersMissing = true; STATE.partners = []; return; }
             STATE.partnersMissing = false;
             STATE.partners = (data || []).map(r => ({ id: r.id, name: r.name, kind: r.kind || 'both', contact: r.contact || '', tel: r.tel || '', fax: r.fax || '', email: r.email || '', address: r.address || '', bizNo: r.biz_no || '', notes: r.notes || '' }));
