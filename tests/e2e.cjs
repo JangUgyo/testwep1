@@ -35,7 +35,9 @@ const DBDATA = {
     { key: 'permissions', value: { south_cs: { dashboard: true, calendar: true, 'management-progress': true, documents: true, 'mail-integration': true } } },
     { key: 'custom_features', value: [{ id: 'custom_seed', name: '매출 보드', icon: 'bar-chart-3', group: '기본 플랫폼 서비스', html: '<!DOCTYPE html><html><body><h1>hi</h1></body></html>' }, { id: 'custom_new1', name: '경영분석툴', icon: 'gauge', group: '경영 분석', html: '<h2>tool</h2>' }] },
     { key: 'maintenance', value: { documents: true } }
-  ]
+  ],
+  completion_reports: [],
+  taxonomy_options: []
 };
 let CURRENT_SESSION = { user: { id: 'admin-uuid', email: 'boss@co.com' } }; // simulate logged-in admin
 
@@ -64,12 +66,12 @@ function makeBuilder(table) {
       if (ctx.op === 'select') {
         if (ctx.single) data = rows.find(r => r.id === ctx.filterId) || null;
         else { data = rows.slice(); if (ctx._rangeFrom != null) data = data.slice(ctx._rangeFrom, ctx._rangeTo + 1); }
-      } else if (ctx.op === 'insert' && (ctx.table === 'sites' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'audit_logs' || ctx.table === 'documents' || ctx.table === 'inventory_items' || ctx.table === 'stock_moves' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'insert' && (ctx.table === 'sites' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'audit_logs' || ctx.table === 'documents' || ctx.table === 'inventory_items' || ctx.table === 'stock_moves' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         const arr = Array.isArray(ctx._v) ? ctx._v : [ctx._v];
         arr.forEach(v => { const row = Object.assign({}, v); if (row.id === undefined) row.id = (rows.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1); if (ctx.table === 'audit_logs' && !row.created_at) row.created_at = new Date().toISOString(); rows.push(row); });
-      } else if (ctx.op === 'update' && (ctx.table === 'projects' || ctx.table === 'weekly_meetings' || ctx.table === 'documents' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'update' && (ctx.table === 'projects' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'weekly_meetings' || ctx.table === 'documents' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         rows.forEach(r => { if (r.id === ctx.filterId) Object.assign(r, ctx._v); });
-      } else if (ctx.op === 'delete' && (ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'delete' && (ctx.table === 'tickets' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         const i = rows.findIndex(r => r.id === ctx.filterId); if (i >= 0) rows.splice(i, 1);
       } else if (ctx.op === 'upsert') {
         const arr = Array.isArray(ctx._v) ? ctx._v : [ctx._v];
@@ -227,6 +229,30 @@ async function run() {
   const _posSel = doc.getElementById('signup-position');
   ok('signup-position populated', _posSel && _posSel.querySelectorAll('option').length >= 4);
   ok('taxonomy-modal exists', !!doc.getElementById('taxonomy-modal'));
+
+  // ===== 작업/정비 완료 보고서 (편집·삭제 기본 포함, 실시간) =====
+  ok('completion reports state', Array.isArray(S().completionReports));
+  ok('reports table present(mock)', S().reportsTableMissing === false);
+  ok('report-form-modal exists', !!doc.getElementById('report-form-modal'));
+  await window.openTicketDetail(1);
+  ok('ticket report empty msg', doc.getElementById('ticket-report-list').innerHTML.indexOf('작성된 완료 보고서가 없습니다') >= 0);
+  window.openReportForm(null, 1);
+  ok('report form opens', !doc.getElementById('report-form-modal').classList.contains('hidden'));
+  doc.getElementById('report-work-date').value = '2026-06-10';
+  const _wsel = doc.getElementById('report-worker'); _wsel.innerHTML += '<option value="테스트작업자">테스트작업자</option>'; _wsel.value = '테스트작업자';
+  doc.getElementById('report-content').value = '차압 필터 교체 및 시운전 정상';
+  await window.saveReport(ev());
+  ok('report saved to state', S().completionReports.length === 1 && S().completionReports[0].ticketId === 1);
+  ok('report list rendered', doc.getElementById('ticket-report-list').innerHTML.indexOf('차압 필터 교체') >= 0);
+  ok('report count updated', doc.getElementById('ticket-report-count').textContent === '1');
+  const _rid = S().completionReports[0].id;
+  window.openReportForm(_rid, 1);
+  ok('report edit prefilled', doc.getElementById('report-content').value.indexOf('차압 필터 교체') >= 0);
+  doc.getElementById('report-content').value = '수정된 작업 내용';
+  await window.saveReport(ev());
+  ok('report edited', (S().completionReports.find(r => r.id === _rid) || {}).content === '수정된 작업 내용');
+  await window.deleteReport(_rid);
+  ok('report deleted', S().completionReports.length === 0);
 
   // navigate tabs
   await window.switchTab('management-stats');

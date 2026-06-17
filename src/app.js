@@ -236,7 +236,7 @@
             showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
         }
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports()]);
             await runMigrations();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
         }
@@ -2384,6 +2384,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_options' }, async () => { await reloadInventoryOptions(); if (!document.getElementById('inventory-options-modal').classList.contains('hidden')) renderInventoryOptions(); syncInventoryFormOptions(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'taxonomy_options' }, async () => { await reloadTaxonomy(); if (!document.getElementById('taxonomy-modal').classList.contains('hidden')) renderTaxonomyOptions(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'completion_reports' }, async () => { await reloadCompletionReports(); if (STATE._openDetail && STATE._openDetail.type === 'ticket' && !document.getElementById('ticket-detail-modal').classList.contains('hidden')) refreshTicketReportList(STATE._openDetail.id); })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, async () => { if (STATE.currentTab === 'management-logs') { await reloadAuditLogs(); renderAuditLogs(); } })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'trade_documents' }, async () => { await reloadTrade(); renderDashboardWidgets(); if (STATE.currentTab === 'trade') renderTrade(); refreshOpenDetail('trade'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'partners' }, async () => { await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList(); })
@@ -4682,6 +4683,13 @@
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-3">
                     <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-rose-500"></i> 현장 사진 / 첨부 (${(t.photos || []).length})</h4>
                     <div id="ticket-photo-gallery" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                </div>
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-600"></i> 작업 · 정비 완료 보고서 (<span id="ticket-report-count">${reportsForTicket(t.id).length}</span>)</h4>
+                        ${manage ? `<button onclick="openReportForm(null, ${t.id})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 보고서 작성</button>` : ''}
+                    </div>
+                    <div id="ticket-report-list">${renderReportListHTML(t.id, manage)}</div>
                 </div>`;
             openModal('ticket-detail-modal'); if (window.lucide) lucide.createIcons();
             renderTicketPhotoGallery(t);
@@ -4718,6 +4726,127 @@
             if (error) { showToast('삭제 실패', error.message); return; }
             logAudit('ticket_delete', `${t.customer||''} ${t.equipment||''}`.trim(), t.issue||'');
             await reloadTickets(); renderTickets(); renderDashboardWidgets(); showToast('삭제', 'AS 티켓이 삭제되었습니다.');
+        }
+
+        // ═══ 작업 · 정비 완료 보고서 (편집·삭제 기본 포함, 실시간 반영) ═══
+        const REPORT_TYPES = ['정기점검', '긴급수리', '설치', '교체', '시운전', '기타'];
+        const REPORT_RESULTS = ['정상 완료', '추가 조치 필요', '재방문 예정'];
+        async function reloadCompletionReports() {
+            try {
+                const { data, error } = await sb.from('completion_reports').select('*').order('id', { ascending: false }).limit(2000);
+                if (error) { STATE.reportsTableMissing = true; STATE.completionReports = []; return; }
+                STATE.reportsTableMissing = false;
+                STATE.completionReports = (data || []).map(r => ({ id: r.id, ticketId: r.ticket_id, assetId: r.asset_id, workDate: r.work_date || '', worker: r.worker || '', workType: r.work_type || '', content: r.content || '', parts: r.parts || '', result: r.result || '', deptId: r.dept_id || '', author: r.author || '', createdAt: r.created_at }));
+            } catch (e) { STATE.reportsTableMissing = true; STATE.completionReports = []; }
+        }
+        function reportsForTicket(ticketId) { return (STATE.completionReports || []).filter(r => r.ticketId === ticketId); }
+        function reportResultTone(result) {
+            if (result === '정상 완료') return 'bg-blue-50 text-blue-700 border border-blue-200';
+            if (result === '추가 조치 필요') return 'bg-amber-50 text-amber-700 border border-amber-200';
+            if (result === '재방문 예정') return 'bg-rose-50 text-rose-700 border border-rose-200';
+            return 'bg-slate-100 text-slate-600 border border-slate-200';
+        }
+        function renderReportListHTML(ticketId, manage) {
+            if (STATE.reportsTableMissing) return `<div class="text-[13px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">완료 보고서 테이블(completion_reports) 생성 SQL을 먼저 실행하세요.</div>`;
+            const list = reportsForTicket(ticketId);
+            if (!list.length) return `<div class="text-[13px] text-slate-400 py-2">작성된 완료 보고서가 없습니다.</div>`;
+            const assetName = (id) => { const a = (STATE.assets || []).find(x => x.id === id); return a ? a.name : ''; };
+            return list.map(r => `<div class="border border-slate-200 rounded-xl p-3.5 mb-2.5 last:mb-0">
+                <div class="flex items-start justify-between gap-2 flex-wrap">
+                    <div class="space-y-1.5 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${esc(r.workType) || '작업'}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${reportResultTone(r.result)}">${esc(r.result) || '-'}</span>
+                            <span class="text-[12px] text-slate-500 font-mono">${esc(r.workDate) || '-'}</span>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">작업자: ${esc(r.worker) || '-'}${r.assetId && assetName(r.assetId) ? ` · 설비: ${esc(assetName(r.assetId))}` : ''}</div>
+                        <div class="text-[13px] text-slate-700 whitespace-pre-line leading-relaxed">${esc(r.content) || ''}</div>
+                        ${r.parts ? `<div class="text-[12px] text-slate-600 whitespace-pre-line"><span class="font-bold text-slate-700">부품·조치:</span> ${esc(r.parts)}</div>` : ''}
+                    </div>
+                    ${manage ? `<div class="flex gap-2 flex-shrink-0">
+                        <button onclick="openReportForm(${r.id}, ${ticketId})" class="text-indigo-500 hover:text-indigo-700 font-bold text-[12px]">편집</button>
+                        <button onclick="deleteReport(${r.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[12px]">삭제</button>
+                    </div>` : ''}
+                </div>
+            </div>`).join('');
+        }
+        function refreshTicketReportList(ticketId) {
+            const box = document.getElementById('ticket-report-list');
+            const cnt = document.getElementById('ticket-report-count');
+            if (cnt) cnt.textContent = reportsForTicket(ticketId).length;
+            if (!box) return;
+            const t = STATE.tickets.find(x => x.id === ticketId);
+            box.innerHTML = renderReportListHTML(ticketId, t ? canManageTicket(t) : false);
+            if (window.lucide) lucide.createIcons();
+        }
+        function fillReportSelect(id, values, cur, placeholder) {
+            const el = document.getElementById(id); if (!el) return;
+            const opts = values.map(v => `<option value="${esc(String(v.value !== undefined ? v.value : v))}">${esc(String(v.label !== undefined ? v.label : v))}</option>`).join('');
+            el.innerHTML = (placeholder ? `<option value="">${placeholder}</option>` : '') + opts;
+            const flat = values.map(v => String(v.value !== undefined ? v.value : v));
+            if (cur && !flat.includes(String(cur))) el.innerHTML += `<option value="${esc(String(cur))}">${esc(String(cur))} (기존)</option>`;
+            el.value = cur != null ? String(cur) : '';
+        }
+        function openReportForm(id, ticketId) {
+            const t = STATE.tickets.find(x => x.id === ticketId);
+            if (t && !canManageTicket(t)) { showToast('권한 없음', '보고서를 작성/편집할 권한이 없습니다.'); return; }
+            if (STATE.reportsTableMissing) { showToast('준비 필요', '완료 보고서 테이블(completion_reports) 생성 SQL을 먼저 실행하세요.'); return; }
+            const r = id ? (STATE.completionReports || []).find(x => x.id === id) : null;
+            document.getElementById('report-form-id').value = id || '';
+            document.getElementById('report-form-ticket').value = ticketId || '';
+            document.getElementById('report-title-text').textContent = id ? '완료 보고서 편집' : '완료 보고서 작성';
+            document.getElementById('report-work-date').value = r ? r.workDate : new Date().toISOString().slice(0, 10);
+            const workers = Array.from(new Set((STATE.users || []).filter(u => u.approved).map(u => u.name).filter(Boolean))).map(n => ({ value: n, label: n }));
+            fillReportSelect('report-worker', workers, r ? r.worker : (t ? t.assignee : ''), '작업자 선택');
+            const assets = (STATE.assets || []).map(a => ({ value: a.id, label: a.name + (a.model ? ' (' + a.model + ')' : '') }));
+            fillReportSelect('report-asset', assets, r ? r.assetId : '', '연결 설비 없음');
+            fillReportSelect('crep-type', REPORT_TYPES, r ? r.workType : REPORT_TYPES[0], '');
+            fillReportSelect('report-result', REPORT_RESULTS, r ? r.result : REPORT_RESULTS[0], '');
+            document.getElementById('report-content').value = r ? r.content : '';
+            document.getElementById('report-parts').value = r ? r.parts : '';
+            openModal('report-form-modal');
+            if (window.lucide) lucide.createIcons();
+        }
+        async function saveReport(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const id = document.getElementById('report-form-id').value;
+            const ticketId = parseInt(document.getElementById('report-form-ticket').value) || null;
+            const t = STATE.tickets.find(x => x.id === ticketId);
+            if (t && !canManageTicket(t)) { showToast('권한 없음', '저장 권한이 없습니다.'); return; }
+            const workDate = document.getElementById('report-work-date').value;
+            const worker = document.getElementById('report-worker').value;
+            const content = (document.getElementById('report-content').value || '').trim();
+            if (!workDate) { showToast('입력 필요', '작업일자를 선택하세요.'); return; }
+            if (!worker) { showToast('입력 필요', '작업자를 선택하세요.'); return; }
+            if (!content) { showToast('입력 필요', '작업 내용을 입력하세요.'); return; }
+            const assetRaw = document.getElementById('report-asset').value;
+            const payload = {
+                ticket_id: ticketId, asset_id: assetRaw ? parseInt(assetRaw) : null,
+                work_date: workDate, worker, work_type: document.getElementById('crep-type').value,
+                result: document.getElementById('report-result').value, content,
+                parts: (document.getElementById('report-parts').value || '').trim() || null,
+                dept_id: t ? t.deptId : ((STATE.profile && STATE.profile.deptId) || null),
+                updated_at: new Date().toISOString()
+            };
+            let error;
+            if (id) { const idNum = isNaN(+id) ? id : +id; ({ error } = await sb.from('completion_reports').update(payload).eq('id', idNum)); }
+            else { payload.author = (STATE.currentUser && STATE.currentUser.name) || ''; ({ error } = await sb.from('completion_reports').insert(payload)); }
+            if (error) { showToast('저장 실패', error.message); return; }
+            await reloadCompletionReports();
+            closeModal('report-form-modal');
+            if (ticketId) refreshTicketReportList(ticketId);
+            showToast('저장 완료', id ? '완료 보고서가 수정되었습니다.' : '완료 보고서가 등록되었습니다.');
+        }
+        async function deleteReport(id) {
+            const r = (STATE.completionReports || []).find(x => x.id === id);
+            const t = r ? STATE.tickets.find(x => x.id === r.ticketId) : null;
+            if (t && !canManageTicket(t)) { showToast('권한 없음', '삭제 권한이 없습니다.'); return; }
+            if (!confirm('이 완료 보고서를 삭제하시겠습니까?')) return;
+            const { error } = await sb.from('completion_reports').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadCompletionReports();
+            if (r && r.ticketId) refreshTicketReportList(r.ticketId);
+            showToast('삭제됨', '완료 보고서가 삭제되었습니다.');
         }
 
         // ── 결재선 / 열람자 ──────────────────────────────────────────────
