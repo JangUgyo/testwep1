@@ -3005,8 +3005,8 @@
                     const wb = XLSX.read(buf, { type: 'array' });
                     const names = wb.SheetNames;
                     const tabs = names.map((n, i) => `<button onclick="showSheet(${i})" id="sheet-tab-${i}" class="px-3 py-1.5 text-[13px] font-bold rounded-t-lg ${i === 0 ? 'bg-white text-slate-800 border border-b-0' : 'text-slate-400 hover:text-slate-600'}">${n}</button>`).join('');
-                    const panes = names.map((n, i) => `<div id="sheet-pane-${i}" class="${i === 0 ? '' : 'hidden'} overflow-auto bg-white border rounded-b-lg rounded-tr-lg p-2 sheet-html">${XLSX.utils.sheet_to_html(wb.Sheets[n])}</div>`).join('');
-                    body.innerHTML = `<div class="w-full h-full overflow-auto p-4 bg-slate-100"><div class="flex gap-1 flex-wrap">${tabs}</div>${panes}</div>`;
+                    const panes = names.map((n, i) => `<div id="sheet-pane-${i}" class="${i === 0 ? '' : 'hidden'} bg-white border rounded-lg p-2 sheet-html w-max min-w-full">${XLSX.utils.sheet_to_html(wb.Sheets[n])}</div>`).join('');
+                    body.innerHTML = `<div class="w-full h-full flex flex-col bg-slate-100"><div class="flex gap-1 flex-wrap px-4 pt-3 shrink-0">${tabs}</div><div class="flex-1 overflow-auto px-4 pb-4">${panes}</div></div>`;
                 } catch (e) { body.innerHTML = officeViewer(url); }
                 return;
             }
@@ -5130,12 +5130,21 @@
             if (id === 'add-project-modal') applyDeptLock('project-dept');
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
             if (!STATE._a11yKeys) { STATE._a11yKeys = true; document.addEventListener('keydown', handleGlobalModalKeydown); }
-            const m = document.getElementById(id); if (m) { m._returnFocus = document.activeElement; m.classList.remove('hidden'); m.classList.add('flex'); makeModalResizable(m); STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id); enhanceA11y(m); focusFirstInModal(m); }
+            const m = document.getElementById(id); if (m) { m._returnFocus = document.activeElement; m.classList.remove('hidden'); m.classList.add('flex'); const _pp = m.querySelector(':scope > div'); if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } } makeModalResizable(m); STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id); enhanceA11y(m); focusFirstInModal(m); }
         }
         let _rzState = null;
+        function toggleModalMaximize(id) {
+            const m = document.getElementById(id); if (!m) return;
+            const panel = m.querySelector(':scope > div'); if (!panel) return;
+            const on = panel.classList.toggle('modal-maximized');
+            panel.classList.remove('modal-resized');
+            panel.style.width = ''; panel.style.height = '';
+            const btn = m.querySelector('[data-maximize-btn]');
+            if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? '창 축소' : '전체화면'; }
+            if (window.lucide) lucide.createIcons();
+        }
         function makeModalResizable(m) {
             const panel = m.querySelector(':scope > div'); if (!panel) return;
-            panel.style.maxWidth = '98vw'; panel.style.maxHeight = '96vh';
             if (getComputedStyle(panel).position === 'static') panel.style.position = 'relative';
             if (!panel.style.minWidth) panel.style.minWidth = '300px';
             if (!panel.style.minHeight) panel.style.minHeight = '180px';
@@ -5145,6 +5154,7 @@
                 grip.addEventListener('mousedown', (e) => {
                     e.preventDefault(); e.stopPropagation();
                     const r = panel.getBoundingClientRect();
+                    panel.classList.add('modal-resized'); panel.classList.remove('modal-maximized');
                     _rzState = { panel, sx: e.clientX, sy: e.clientY, sw: r.width, sh: r.height };
                     document.body.style.userSelect = 'none';
                 });
@@ -5154,8 +5164,8 @@
                 window._rzBound = true;
                 window.addEventListener('mousemove', (e) => {
                     if (!_rzState) return;
-                    _rzState.panel.style.width = Math.max(300, _rzState.sw + (e.clientX - _rzState.sx)) + 'px';
-                    _rzState.panel.style.height = Math.max(180, _rzState.sh + (e.clientY - _rzState.sy)) + 'px';
+                    _rzState.panel.style.width = Math.max(300, Math.min(window.innerWidth * 0.98, _rzState.sw + (e.clientX - _rzState.sx))) + 'px';
+                    _rzState.panel.style.height = Math.max(180, Math.min(window.innerHeight * 0.96, _rzState.sh + (e.clientY - _rzState.sy))) + 'px';
                 });
                 window.addEventListener('mouseup', () => { if (_rzState) { _rzState = null; document.body.style.userSelect = ''; } });
             }

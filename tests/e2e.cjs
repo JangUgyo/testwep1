@@ -1619,6 +1619,19 @@ async function run() {
   doc.dispatchEvent(new window.KeyboardEvent('keydown', { key:'Escape' }));
   ok('Esc closes next modal + stack empty', doc.getElementById('data-modal').classList.contains('hidden') && (S().modalStack||[]).length===0);
 
+  // ===== 모달 전체화면(확대) 토글 =====
+  window.openModal('doc-preview-modal');
+  const _pmx = doc.querySelector('#doc-preview-modal > div');
+  ok('preview opens at default (not maximized)', _pmx && !_pmx.classList.contains('modal-maximized'));
+  window.toggleModalMaximize('doc-preview-modal');
+  ok('toggle → maximized', _pmx.classList.contains('modal-maximized'));
+  window.toggleModalMaximize('doc-preview-modal');
+  ok('toggle → restored', !_pmx.classList.contains('modal-maximized'));
+  _pmx.classList.add('modal-maximized'); _pmx.style.width='1234px';
+  window.openModal('doc-preview-modal');
+  ok('reopen resets size/maximize', !_pmx.classList.contains('modal-maximized') && !_pmx.style.width);
+  window.closeModal('doc-preview-modal');
+
   // ===== 데이터 버전 / 마이그레이션 =====
   ok('appDataVersion exposed', typeof window.appDataVersion==='function' && window.appDataVersion()>=1);
   S().dataVersion = 0;

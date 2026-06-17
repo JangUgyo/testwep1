@@ -189,6 +189,12 @@
         @media (max-width: 768px) {
             [id$="-modal"] > div { max-height: 93vh !important; max-width: 96vw !important; }
         }
+        /* 사용자가 키울 수 있는 모달: 전체화면 토글 / 드래그 확대 */
+        [id$="-modal"] > div.modal-maximized { width: 97vw !important; max-width: 97vw !important; height: 95vh !important; max-height: 95vh !important; }
+        [id$="-modal"] > div.modal-resized { max-width: none !important; max-height: none !important; }
+        /* 문서·엑셀 미리보기는 기본부터 넉넉하게(잘림 최소화) */
+        #doc-preview-modal > div { max-width: min(94vw, 1100px) !important; max-height: 90vh !important; }
+        #doc-preview-modal > div.modal-maximized { max-width: 97vw !important; max-height: 95vh !important; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -1075,7 +1081,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl h-[95vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 주간 업무 보고 상세</h4>
-                <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('meeting-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="meeting-detail-body" class="p-4 space-y-4 overflow-y-auto flex-1"></div>
         </div>
@@ -1647,7 +1653,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl h-[80vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 id="day-expand-title" class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> 일별 업무</h4>
-                <button onclick="closeModal('day-expand-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('day-expand-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('day-expand-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="day-expand-body" class="p-4 space-y-3 overflow-y-auto flex-1"></div>
         </div>
@@ -1785,6 +1791,7 @@
             <div class="flex items-center justify-between px-5 py-3 border-b bg-slate-50">
                 <h4 id="doc-preview-title" class="font-bold text-sm text-slate-800 truncate pr-4">문서 미리보기</h4>
                 <div class="flex items-center gap-2 shrink-0">
+                    <button data-maximize-btn onclick="toggleModalMaximize('doc-preview-modal')" title="전체화면" class="px-2.5 py-1.5 border rounded-lg text-slate-500 hover:bg-slate-100"><i data-lucide="maximize-2" class="w-3.5 h-3.5"></i></button>
                     <a id="doc-preview-download" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[13px] font-bold flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> 다운로드</a>
                     <button onclick="closeModal('doc-preview-modal')" class="px-3 py-1.5 border rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-100">닫기</button>
                 </div>
