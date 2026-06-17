@@ -56,6 +56,25 @@
         html.dark .text-slate-400, html.dark .text-slate-300, html.dark .text-slate-200 { color: #94918a !important; }
         html.dark input, html.dark select, html.dark textarea { background-color: #1f1e1d !important; color: #f0eee7 !important; border-color: #3d3b38 !important; }
         html.dark input::placeholder, html.dark textarea::placeholder { color: #807d75 !important; }
+        /* 날짜·시간 입력 — 다크모드 가독성 통일 (아이콘 또렷 + 숫자/구분자 밝게) */
+        html.dark input[type="date"], html.dark input[type="time"], html.dark input[type="datetime-local"],
+        html.dark input[type="month"], html.dark input[type="week"] {
+            color-scheme: dark; color: #f0eee7 !important; background-color: #1f1e1d !important;
+        }
+        html.dark input[type="date"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="time"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="month"]::-webkit-calendar-picker-indicator,
+        html.dark input[type="week"]::-webkit-calendar-picker-indicator { opacity: 1; cursor: pointer; }
+        html.dark input::-webkit-datetime-edit,
+        html.dark input::-webkit-datetime-edit-year-field, html.dark input::-webkit-datetime-edit-month-field,
+        html.dark input::-webkit-datetime-edit-day-field, html.dark input::-webkit-datetime-edit-hour-field,
+        html.dark input::-webkit-datetime-edit-minute-field { color: #f0eee7; }
+        html.dark input::-webkit-datetime-edit-text { color: #b8b5ac; }
+        /* 라이트모드: 달력 아이콘이 흐리지 않도록 또렷하게(가독성 표준) */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator,
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity: 0.85; cursor: pointer; }
         html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover,
         html.dark .hover\:bg-slate-50\/70:hover, html.dark .hover\:bg-blue-50\/40:hover { background-color: #34322f !important; }
         html.dark .shadow-sm, html.dark .shadow, html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl, html.dark .shadow-2xl { box-shadow: 0 1px 3px rgba(0,0,0,0.5) !important; }
