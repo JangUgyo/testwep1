@@ -3440,9 +3440,9 @@
                         </div>
                         ${ctrl}
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-3">
                         <div><div class="flex justify-between items-center mb-1"><span class="text-[12px] text-slate-400 font-medium">진행도${items.length ? ` <span class='text-slate-300'>(완료 ${items.filter(i => i.done).length}/${items.length} 항목 자동 반영)</span>` : ''}</span><span class="text-[13px] font-bold text-slate-700">${proj.progress}%</span></div><div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${barFill} rounded-full" style="width:${proj.progress}%"></div></div></div>
-                        <div class="flex items-center gap-2">${fileBlock}</div>
+                        <div><div class="text-[12px] text-slate-400 font-medium mb-1.5">첨부 파일</div><div class="flex items-center gap-2 flex-wrap">${fileBlock}</div></div>
                     </div>
                     <div class="space-y-1"><p class="text-[12px] font-bold text-slate-500">프로젝트 개요</p><p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-lg p-3 border border-slate-100">${proj.desc ? esc(proj.desc) : '<span class=\'text-slate-300\'>등록된 개요가 없습니다.</span>'}</p></div>
                 </div>
@@ -5138,7 +5138,17 @@
                 if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized', 'drawer-full'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } }
                 m.classList.remove('hidden'); m.classList.add('flex');
                 m.classList.toggle('modal-drawer', isDrawer);
-                if (isDrawer) { m.classList.remove('drawer-open'); requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('drawer-open'))); }
+                if (isDrawer) {
+                    m.classList.remove('drawer-open');
+                    m.onclick = (e) => { if (e.target === m) closeModal(id); };
+                    if (_pp) {
+                        let tab = _pp.querySelector('.drawer-expand-tab');
+                        if (!tab) { tab = document.createElement('button'); tab.className = 'drawer-expand-tab'; tab.title = '전체화면'; tab.onclick = (ev) => { ev.stopPropagation(); toggleModalMaximize(id); }; _pp.appendChild(tab); }
+                        tab.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+                    }
+                    requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('drawer-open')));
+                    if (window.lucide) lucide.createIcons();
+                }
                 else { makeModalResizable(m); }
                 STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id);
                 enhanceA11y(m); focusFirstInModal(m);
@@ -5156,6 +5166,7 @@
             if (!drawer) { panel.classList.remove('modal-resized'); panel.style.width = ''; panel.style.height = ''; }
             const btn = m.querySelector('[data-maximize-btn]');
             if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? (drawer ? '사이드로' : '창 축소') : '전체화면'; }
+            if (drawer) { const tab = m.querySelector('.drawer-expand-tab'); if (tab) tab.innerHTML = `<i data-lucide="${on ? 'chevron-right' : 'chevron-left'}" class="w-4 h-4"></i>`; }
             if (window.lucide) lucide.createIcons();
         }
         function makeModalResizable(m) {

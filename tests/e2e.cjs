@@ -1633,6 +1633,12 @@ async function run() {
   window.openModal('doc-preview-modal');
   ok('reopen resets to side', !_pmx.classList.contains('drawer-full') && _dm.classList.contains('drawer-open'));
   window.closeModal('doc-preview-modal');
+  // 드로어: 좌측 확장 탭 존재 + 빈 여백 클릭 시 닫힘
+  window.openModal('trade-detail-modal');
+  const _tv = doc.getElementById('trade-detail-modal');
+  ok('drawer shows left expand tab', !!_tv.querySelector('.drawer-expand-tab'));
+  _tv.onclick({ target: _tv });
+  ok('backdrop click closes drawer', !_tv.classList.contains('drawer-open'));
   // 폼 모달은 사이드가 아니라 기존 중앙 모달 유지
   window.openModal('warehouse-modal');
   ok('form modal stays centered (not drawer)', !doc.getElementById('warehouse-modal').classList.contains('modal-drawer'));
