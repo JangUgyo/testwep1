@@ -4563,7 +4563,7 @@
                 if (ql) { const hay = `${t.customer || ''} ${t.site || ''} ${t.equipment || ''} ${t.issue || ''} ${t.assignee || ''}`.toLowerCase(); if (hay.indexOf(ql) < 0) return false; }
                 return true;
             });
-            if (list.length === 0) { body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-sm">표시할 AS 티켓이 없습니다.</td></tr>`; return; }
+            if (list.length === 0) { body.innerHTML = emptyCell(7, 'wrench', '표시할 AS 티켓이 없습니다', '새 AS를 접수하거나 상단 필터 조건을 바꿔보세요.'); if (window.lucide) lucide.createIcons(); return; }
             body.innerHTML = list.slice(0, pageCount('tickets')).map(t => {
                 const dept = STATE.departments.find(d => d.id === t.deptId);
                 const photoBadge = (t.photos && t.photos.length) ? `<span class="ml-1 text-[12px] text-slate-400"><i data-lucide="image" class="w-3 h-3 inline"></i> ${t.photos.length}</span>` : '';
@@ -4969,7 +4969,7 @@
                 if (q) { const hay = `${a.name || ''} ${a.customer || ''} ${a.site || ''} ${a.model || ''}`.toLowerCase(); if (hay.indexOf(q) < 0) return false; }
                 return true;
             });
-            if (list.length === 0) { body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">표시할 설비가 없습니다.</td></tr>`; return; }
+            if (list.length === 0) { body.innerHTML = emptyCell(6, 'server-cog', '표시할 설비가 없습니다', '설비 자산을 등록하거나 상단 필터 조건을 바꿔보세요.'); if (window.lucide) lucide.createIcons(); return; }
             body.innerHTML = list.slice(0, pageCount('assets')).map(a => {
                 const info = assetPmInfo(a);
                 const dept = STATE.departments.find(d => d.id === a.deptId);
@@ -5306,6 +5306,21 @@
             container.appendChild(toast);
             if (window.lucide) lucide.createIcons();
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 300); }, 3200);
+        }
+        // ── 공통 빈 상태(empty state) — 아이콘 + 진한 제목 + 안내(가독성 표준) ──
+        function emptyState(icon, title, hint, compact) {
+            const pad = compact ? 'py-8 px-4' : 'py-12 px-4';
+            const ic = compact ? 'w-10 h-10' : 'w-14 h-14';
+            const ici = compact ? 'w-5 h-5' : 'w-7 h-7';
+            return `<div class="${pad} text-center">
+                <div class="${ic} mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3"><i data-lucide="${icon || 'inbox'}" class="${ici} text-slate-400"></i></div>
+                <div class="text-sm font-bold text-slate-700">${title || '표시할 항목이 없습니다'}</div>
+                ${hint ? `<div class="text-[13px] text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed break-keep">${hint}</div>` : ''}
+            </div>`;
+        }
+        // 표(table) 안에서 쓰는 빈 상태 행
+        function emptyCell(colspan, icon, title, hint) {
+            return `<tr><td colspan="${colspan}">${emptyState(icon, title, hint, true)}</td></tr>`;
         }
         function handleGlobalModalKeydown(e) {
             if (e.key !== 'Escape') return;
