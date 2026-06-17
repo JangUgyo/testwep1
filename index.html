@@ -3411,9 +3411,30 @@
         // ── 스타일 엑셀(ExcelJS): 회사 로고 + 깔끔한 자재관리 서식 ──
         function _xb() { const s = { style: 'thin', color: { argb: 'FFCBD5E1' } }; return { top: s, left: s, bottom: s, right: s }; }
         function downloadBlob(blob, filename) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { try { URL.revokeObjectURL(url); a.remove(); } catch (e) { } }, 1500); }
+        function dataUrlToBlob(durl) {
+            const parts = String(durl).split(','); const meta = parts[0] || ''; const b64 = parts[1] || '';
+            const mime = (meta.match(/data:([^;]+)/) || [])[1] || 'image/png';
+            const bin = atob(b64); const len = bin.length; const arr = new Uint8Array(len);
+            for (let i = 0; i < len; i++) arr[i] = bin.charCodeAt(i);
+            return new Blob([arr], { type: mime });
+        }
+        async function uploadLogoToStorage(durl) {
+            try {
+                const blob = dataUrlToBlob(durl);
+                const path = `logo_${Date.now()}.png`;
+                const { error } = await sb.storage.from('branding').upload(path, blob, { contentType: 'image/png', upsert: true });
+                if (error) return null;
+                const { data } = sb.storage.from('branding').getPublicUrl(path);
+                return (data && data.publicUrl) ? data.publicUrl : null;
+            } catch (e) { return null; }
+        }
         async function getLogoForExcel() {
             const co = company(); if (!co.logo) return null;
-            return await new Promise(res => { try { const img = new Image(); img.onload = () => res({ data: co.logo, w: img.naturalWidth || 297, h: img.naturalHeight || 220 }); img.onerror = () => res({ data: co.logo, w: 297, h: 220 }); img.src = co.logo; } catch (e) { res({ data: co.logo, w: 297, h: 220 }); } });
+            let durl = co.logo;
+            if (!/^data:/.test(co.logo)) {
+                try { const resp = await fetch(co.logo); const blob = await resp.blob(); durl = await new Promise((rs, rj) => { const fr = new FileReader(); fr.onload = () => rs(fr.result); fr.onerror = rj; fr.readAsDataURL(blob); }); } catch (e) { durl = co.logo; }
+            }
+            return await new Promise(res => { try { const img = new Image(); img.onload = () => res({ data: durl, w: img.naturalWidth || 297, h: img.naturalHeight || 220 }); img.onerror = () => res({ data: durl, w: 297, h: 220 }); img.src = durl; } catch (e) { res({ data: durl, w: 297, h: 220 }); } });
         }
         function exportMeta(type, rows) {
             if (type === 'inventory') {
@@ -4087,7 +4108,7 @@
             document.getElementById('company-tel').value = co.tel || '';
             document.getElementById('company-fax').value = co.fax || '';
             document.getElementById('company-email').value = co.email || '';
-            STATE.companyLogoDraft = co.logo || '';
+            STATE.companyLogoDraft = co.logo || ''; STATE.companyLogoChanged = false;
             const pv = document.getElementById('company-logo-preview'), em = document.getElementById('company-logo-empty');
             if (co.logo) { pv.src = co.logo; pv.style.display = 'block'; em.style.display = 'none'; }
             else { pv.src = ''; pv.style.display = 'none'; em.style.display = 'block'; }
@@ -4104,7 +4125,7 @@
                         const c = document.createElement('canvas'); c.width = W; c.height = H;
                         c.getContext('2d').drawImage(img, 0, 0, W, H);
                         const durl = c.toDataURL('image/png');
-                        STATE.companyLogoDraft = durl;
+                        STATE.companyLogoDraft = durl; STATE.companyLogoChanged = true;
                         const pv = document.getElementById('company-logo-preview'); pv.src = durl; pv.style.display = 'block';
                         document.getElementById('company-logo-empty').style.display = 'none';
                     } catch (err) { showToast('로고 처리 실패', '다른 이미지를 시도해 주세요.'); }
@@ -4114,7 +4135,7 @@
             r.readAsDataURL(f);
         }
         function clearCompanyLogo() {
-            STATE.companyLogoDraft = '';
+            STATE.companyLogoDraft = ''; STATE.companyLogoChanged = true;
             const pv = document.getElementById('company-logo-preview'), em = document.getElementById('company-logo-empty');
             pv.src = ''; pv.style.display = 'none'; em.style.display = 'block';
         }
@@ -4126,6 +4147,11 @@
                 fax: document.getElementById('company-fax').value.trim(), email: document.getElementById('company-email').value.trim(),
                 logo: (STATE.companyLogoDraft !== undefined ? STATE.companyLogoDraft : (company().logo || ''))
             };
+            if (STATE.companyLogoChanged && co.logo && /^data:/.test(co.logo)) {
+                const url = await uploadLogoToStorage(co.logo);
+                if (url) co.logo = url; // 실패 시 base64 그대로 사용(스토리지 미설정 안전 폴백)
+            }
+            STATE.companyLogoChanged = false;
             const { error } = await sb.from('app_settings').upsert({ key: 'company_profile', value: co });
             if (error) { showToast('저장 실패', error.message); return; }
             STATE.company = Object.assign({}, DEFAULT_COMPANY, co);
