@@ -111,6 +111,8 @@
             window.addEventListener('offline', () => { updateOnlineStatus(); });
             populateHeaderSelects();
             reloadTaxonomy();
+            try { if (localStorage.getItem('wsp_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed'); } catch (e) {}
+            updateSidebarHandle();
             renderFilters();
             renderDeptOptions();
             renderCalendar();
@@ -4540,6 +4542,7 @@
         function canManageTicket(t) { return STATE.profile.role === 'admin' || t.deptId === STATE.profile.deptId || (t.author || '').trim() === (STATE.profile.name || '').trim(); }
         function renderTickets() {
             const body = document.getElementById('ticket-list-body'); if (!body) return;
+            const cardBox = document.getElementById('ticket-card-list');
             const statsBox = document.getElementById('ticket-stats');
             if (STATE.ticketsTableMissing) {
                 body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-sm">AS 티켓 테이블이 아직 생성되지 않았습니다. 안내된 SQL을 실행한 뒤 새로고침하세요.</td></tr>`;
@@ -4563,7 +4566,7 @@
                 if (ql) { const hay = `${t.customer || ''} ${t.site || ''} ${t.equipment || ''} ${t.issue || ''} ${t.assignee || ''}`.toLowerCase(); if (hay.indexOf(ql) < 0) return false; }
                 return true;
             });
-            if (list.length === 0) { body.innerHTML = emptyCell(7, 'wrench', '표시할 AS 티켓이 없습니다', '새 AS를 접수하거나 상단 필터 조건을 바꿔보세요.'); if (window.lucide) lucide.createIcons(); return; }
+            if (list.length === 0) { body.innerHTML = emptyCell(7, 'wrench', '표시할 AS 티켓이 없습니다', '새 AS를 접수하거나 상단 필터 조건을 바꿔보세요.'); if (cardBox) cardBox.innerHTML = `<div class="sm:col-span-2">${emptyState('wrench', '표시할 AS 티켓이 없습니다', '새 AS를 접수하거나 상단 필터 조건을 바꿔보세요.', true)}</div>`; if (window.lucide) lucide.createIcons(); return; }
             body.innerHTML = list.slice(0, pageCount('tickets')).map(t => {
                 const dept = STATE.departments.find(d => d.id === t.deptId);
                 const photoBadge = (t.photos && t.photos.length) ? `<span class="ml-1 text-[12px] text-slate-400"><i data-lucide="image" class="w-3 h-3 inline"></i> ${t.photos.length}</span>` : '';
@@ -4579,6 +4582,30 @@
                 </tr>`;
             }).join('');
             body.insertAdjacentHTML('beforeend', moreRowHTML(list.length, 'tickets', 7));
+            if (cardBox) {
+                cardBox.innerHTML = list.slice(0, pageCount('tickets')).map(t => {
+                    const dept = STATE.departments.find(d => d.id === t.deptId);
+                    const photoBadge = (t.photos && t.photos.length) ? ` <span class="text-[12px] text-slate-400"><i data-lucide="image" class="w-3 h-3 inline"></i> ${t.photos.length}</span>` : '';
+                    const date = (t.createdAt || '').slice(0, 10);
+                    return `<div onclick="openTicketDetail(${t.id})" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer active:bg-rose-50/40">
+                        <div class="flex items-center justify-between gap-2 mb-2">${ticketUrgencyBadge(t.urgency)}${ticketStatusBadge(t.status)}</div>
+                        <div class="font-bold text-slate-800 break-keep">${esc(t.customer) || '-'}</div>
+                        <div class="text-[12px] text-slate-500 mb-2">${esc(t.site) || ''}</div>
+                        <div class="font-semibold text-slate-700 text-[13px] break-keep">${esc(t.equipment) || '-'}</div>
+                        <div class="text-[12px] text-slate-500 break-keep mt-0.5">${esc(t.issue) || ''}${photoBadge}</div>
+                        <div class="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-100">
+                            <div class="text-[12px] text-slate-500 break-keep">${esc(t.assignee) || '-'}${dept ? ' · ' + dept.name : ''}</div>
+                            <div class="text-[12px] text-slate-400 font-mono flex-shrink-0">${date}</div>
+                        </div>
+                        ${canManageTicket(t) ? `<div class="flex gap-2 mt-2.5" onclick="event.stopPropagation()">
+                            <button onclick="openTicketForm(${t.id})" class="flex-1 py-2 rounded-lg border border-slate-200 text-indigo-600 font-bold text-[13px]">편집</button>
+                            <button onclick="deleteTicket(${t.id})" class="flex-1 py-2 rounded-lg border border-slate-200 text-rose-500 font-bold text-[13px]">삭제</button>
+                        </div>` : ''}
+                    </div>`;
+                }).join('');
+                const moreT = moreDivHTML(list.length, 'tickets');
+                if (moreT) cardBox.insertAdjacentHTML('beforeend', `<div class="sm:col-span-2">${moreT}</div>`);
+            }
             if (window.lucide) lucide.createIcons();
         }
         function ticketsApplyFilter() { resetPage('tickets'); renderTickets(); }
@@ -4955,6 +4982,7 @@
         }
         function renderAssets() {
             const body = document.getElementById('asset-list-body'); if (!body) return;
+            const cardBox = document.getElementById('asset-card-list');
             const statsBox = document.getElementById('asset-stats');
             if (STATE.assetsTableMissing) { body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">설비 테이블이 아직 없습니다. 안내된 SQL을 실행하세요.</td></tr>`; if (statsBox) statsBox.innerHTML = ''; return; }
             const all = STATE.assets || [];
@@ -4969,7 +4997,7 @@
                 if (q) { const hay = `${a.name || ''} ${a.customer || ''} ${a.site || ''} ${a.model || ''}`.toLowerCase(); if (hay.indexOf(q) < 0) return false; }
                 return true;
             });
-            if (list.length === 0) { body.innerHTML = emptyCell(6, 'server-cog', '표시할 설비가 없습니다', '설비 자산을 등록하거나 상단 필터 조건을 바꿔보세요.'); if (window.lucide) lucide.createIcons(); return; }
+            if (list.length === 0) { body.innerHTML = emptyCell(6, 'server-cog', '표시할 설비가 없습니다', '설비 자산을 등록하거나 상단 필터 조건을 바꿔보세요.'); if (cardBox) cardBox.innerHTML = `<div class="sm:col-span-2">${emptyState('server-cog', '표시할 설비가 없습니다', '설비 자산을 등록하거나 상단 필터 조건을 바꿔보세요.', true)}</div>`; if (window.lucide) lucide.createIcons(); return; }
             body.innerHTML = list.slice(0, pageCount('assets')).map(a => {
                 const info = assetPmInfo(a);
                 const dept = STATE.departments.find(d => d.id === a.deptId);
@@ -4988,6 +5016,32 @@
                 </tr>`;
             }).join('');
             body.insertAdjacentHTML('beforeend', moreRowHTML(list.length, 'assets', 6));
+            if (cardBox) {
+                cardBox.innerHTML = list.slice(0, pageCount('assets')).map(a => {
+                    const info = assetPmInfo(a);
+                    const dept = STATE.departments.find(d => d.id === a.deptId);
+                    const manage = canManageAsset(a);
+                    return `<div onclick="openAssetDetail(${a.id})" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer active:bg-emerald-50/30">
+                        <div class="flex items-start justify-between gap-2 mb-1.5">
+                            <div class="min-w-0"><div class="font-bold text-slate-800 break-keep">${esc(a.name)}</div><div class="text-[12px] text-slate-400">${esc(a.model) || ''}</div></div>
+                            <div class="flex-shrink-0">${assetPmBadge(a)}</div>
+                        </div>
+                        <div class="text-[13px] text-slate-700 break-keep">${esc(a.customer) || '-'}${a.site ? ' · ' + esc(a.site) : ''}</div>
+                        <div class="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-100">
+                            <div class="text-[12px] text-slate-500 break-keep">${esc(a.assignee) || '-'}${dept ? ' · ' + dept.name : ''}</div>
+                            <div class="text-[12px] font-mono flex-shrink-0 ${info.state === 'overdue' ? 'text-rose-600 font-bold' : 'text-slate-400'}">다음 ${info.next || '-'}</div>
+                        </div>
+                        ${manage ? `<div class="grid grid-cols-2 gap-2 mt-2.5" onclick="event.stopPropagation()">
+                            <button onclick="createTicketFromAsset(${a.id})" class="py-2 rounded-lg border border-slate-200 text-rose-500 font-bold text-[13px]">AS 접수</button>
+                            <button onclick="markAssetPmDone(${a.id})" class="py-2 rounded-lg border border-slate-200 text-emerald-600 font-bold text-[13px]">점검 완료</button>
+                            <button onclick="openAssetForm(${a.id})" class="py-2 rounded-lg border border-slate-200 text-indigo-600 font-bold text-[13px]">편집</button>
+                            <button onclick="deleteAsset(${a.id})" class="py-2 rounded-lg border border-slate-200 text-rose-400 font-bold text-[13px]">삭제</button>
+                        </div>` : ''}
+                    </div>`;
+                }).join('');
+                const moreA = moreDivHTML(list.length, 'assets');
+                if (moreA) cardBox.insertAdjacentHTML('beforeend', `<div class="sm:col-span-2">${moreA}</div>`);
+            }
             if (window.lucide) lucide.createIcons();
         }
         function assetsApplyFilter() { resetPage('assets'); renderAssets(); }
@@ -5149,8 +5203,33 @@
         document.addEventListener('click', (e) => { const wrap = e.target.closest && e.target.closest('#global-search, #global-search-results'); if (!wrap) { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); } });
 
         // ── 모바일 사이드바 토글 ─────────────────────────────────────────
-        function toggleSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (!sb) return; const open = sb.classList.toggle('open'); if (bd) bd.classList.toggle('hidden', !open); }
-        function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); }
+        function toggleSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (!sb) return; const open = sb.classList.toggle('open'); if (bd) bd.classList.toggle('hidden', !open); updateSidebarHandle(); }
+        function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); updateSidebarHandle(); }
+        // 사이드바 접기/펼치기 + 좌측 확장 핸들
+        function isNarrowWidth() { try { return window.matchMedia ? window.matchMedia('(max-width: 1023px)').matches : (window.innerWidth || 1280) < 1024; } catch (e) { return (window.innerWidth || 1280) < 1024; } }
+        function updateSidebarHandle() {
+            const handle = document.getElementById('sidebar-expand-handle'); const sb = document.getElementById('app-sidebar');
+            if (!handle || !sb) return;
+            const mobile = isNarrowWidth();
+            const show = mobile ? !sb.classList.contains('open') : document.body.classList.contains('sidebar-collapsed');
+            handle.classList.toggle('show', show);
+        }
+        function collapseSidebar() { // 데스크톱: 사이드바 접어 본문 폭 확보
+            document.body.classList.add('sidebar-collapsed');
+            try { localStorage.setItem('wsp_sidebar_collapsed', '1'); } catch (e) {}
+            updateSidebarHandle();
+        }
+        function expandSidebar() { // 좌측 핸들로 다시 펼치기 (데스크톱/모바일 공통)
+            document.body.classList.remove('sidebar-collapsed');
+            try { localStorage.removeItem('wsp_sidebar_collapsed'); } catch (e) {}
+            if (isNarrowWidth()) {
+                const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop');
+                if (sb) sb.classList.add('open'); if (bd) bd.classList.remove('hidden');
+            }
+            updateSidebarHandle();
+            if (window.lucide) lucide.createIcons();
+        }
+        window.addEventListener('resize', updateSidebarHandle);
 
         // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {

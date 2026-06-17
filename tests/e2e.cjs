@@ -254,6 +254,18 @@ async function run() {
   await window.deleteReport(_rid);
   ok('report deleted', S().completionReports.length === 0);
 
+  // ===== 표 → 모바일 카드화 / 사이드바 접기·펼치기 =====
+  window.renderTickets();
+  ok('ticket card list rendered', (doc.getElementById('ticket-card-list') || {}).innerHTML.length > 50);
+  window.renderAssets();
+  ok('asset card list rendered', (doc.getElementById('asset-card-list') || {}).innerHTML.length > 50);
+  ok('sidebar fns present', typeof window.collapseSidebar === 'function' && typeof window.expandSidebar === 'function' && typeof window.updateSidebarHandle === 'function');
+  ok('sidebar expand handle exists', !!doc.getElementById('sidebar-expand-handle'));
+  window.collapseSidebar();
+  ok('collapse adds body class', doc.body.classList.contains('sidebar-collapsed'));
+  window.expandSidebar();
+  ok('expand removes body class', !doc.body.classList.contains('sidebar-collapsed'));
+
   // navigate tabs
   await window.switchTab('management-stats');
   ok('stats tab: pending list rendered', $('pending-users-list-body').children.length >= 1);

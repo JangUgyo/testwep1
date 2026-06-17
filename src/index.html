@@ -177,7 +177,20 @@
         #app-sidebar { width: 226px; transition: transform 0.25s ease; }
         #app-sidebar .logo-title { font-size: 14px; }
         #app-sidebar .logo-sub { font-size: 11px; }
-        #main-area { margin-left: 226px; }
+        #main-area { margin-left: 226px; transition: margin-left 0.25s ease; }
+        /* 사이드바 확장 핸들 — 접힌/닫힌 상태에서 좌측 가장자리에 표시 */
+        #sidebar-expand-handle {
+            position: fixed; left: 0; top: 50%; transform: translateY(-50%);
+            z-index: 45; display: none; align-items: center; justify-content: center;
+            width: 26px; height: 60px; padding-left: 2px;
+            background: #ffffff; color: #334155;
+            border: 1px solid #e2e8f0; border-left: none;
+            border-radius: 0 12px 12px 0; box-shadow: 2px 2px 12px rgba(0,0,0,0.10);
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        #sidebar-expand-handle:hover { background: #f1f5f9; color: #0f172a; }
+        #sidebar-expand-handle.show { display: flex; }
+        html.dark #sidebar-expand-handle { background: #2a2926; color: #d8d5cc; border-color: #3d3b38; }
         /* 모바일(≤1023px): 사이드바를 오프캔버스로 전환, 햄버거로 토글 */
         @media (max-width: 1023px) {
             html { font-size: 16px; }
@@ -189,6 +202,8 @@
         @media (min-width: 1024px) {
             #mobile-hamburger { display: none; }
             #sidebar-backdrop { display: none !important; }
+            body.sidebar-collapsed #app-sidebar { transform: translateX(-100%); }
+            body.sidebar-collapsed #main-area { margin-left: 0; }
         }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -329,6 +344,7 @@
     <!-- 사이드바 (Sidebar) -->
     <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-[200] bg-rose-600 text-white text-center text-[13px] font-bold py-1.5 shadow-lg">⚠️ 네트워크 연결이 끊겼습니다 — 변경 사항이 저장되지 않을 수 있습니다.</div>
     <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden"></div>
+    <button id="sidebar-expand-handle" onclick="expandSidebar()" title="사이드바 펼치기" aria-label="사이드바 펼치기"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
     <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
         <div class="p-6 border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
@@ -337,6 +353,7 @@
                     <span class="logo-title font-bold text-slate-800 tracking-tight">WorkSpace Pro</span>
                     <span class="logo-sub text-slate-400 font-medium">통합 지원 시스템</span>
                 </div>
+                <button onclick="collapseSidebar()" title="사이드바 접기" aria-label="사이드바 접기" class="hidden lg:flex ml-auto w-7 h-7 flex-shrink-0 rounded-lg hover:bg-slate-200 items-center justify-center text-slate-500"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>
             </div>
         </div>
 
@@ -827,7 +844,7 @@
                     </div>
                     <button onclick="openTicketForm()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> AS 티켓 등록</button>
                 </div>
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
                     <div class="overflow-x-auto">
                         <table class="w-full text-[14px] border-collapse">
                             <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">긴급도</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">장비 / 장애내용</th><th class="px-4 py-3 text-left font-bold">담당자</th><th class="px-4 py-3 text-left font-bold">상태</th><th class="px-4 py-3 text-left font-bold">접수일</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
@@ -835,6 +852,7 @@
                         </table>
                     </div>
                 </div>
+                <div id="ticket-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
             </section>
 
             <!-- [개편] 조직 제어 및 회원 탈퇴 / 자격 승인 센터 (Stats 탭 승격 연계) -->
@@ -993,7 +1011,7 @@
                         <button onclick="openAssetForm()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 설비 등록</button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
                     <div class="overflow-x-auto">
                         <table class="w-full text-[14px]">
                             <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">설비명</th><th class="px-4 py-3 text-left font-bold">고객사 / 현장</th><th class="px-4 py-3 text-left font-bold">담당 / 부서</th><th class="px-4 py-3 text-left font-bold">정기점검</th><th class="px-4 py-3 text-left font-bold">다음 점검</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
@@ -1001,6 +1019,7 @@
                         </table>
                     </div>
                 </div>
+                <div id="asset-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
             </section>
             
             <section id="view-trade" class="hidden space-y-5">
