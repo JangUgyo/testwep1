@@ -2,14 +2,19 @@
   "name": "workspace-pro",
   "version": "1.0.0",
   "private": true,
-  "description": "WorkSpace Pro — 사내 통합 포털 (모듈 소스 → 단일 HTML 빌드)",
+  "description": "WorkSpace Pro — 사내 통합 포털 (esbuild 번들 + 모듈 소스 → 정적 산출물)",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
     "test": "npm run build && node tests/e2e.cjs",
     "ci": "npm run test"
   },
+  "dependencies": {
+    "@supabase/supabase-js": "2.45.0",
+    "lucide": "0.383.0"
+  },
   "devDependencies": {
+    "esbuild": "0.21.5",
     "jsdom": "29.1.1"
   }
 }

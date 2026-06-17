@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
-const html = fs.readFileSync(path.join(__dirname, '..', 'dist', 'index.html'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'), 'utf8');
 let pageErrors = [];
 
 // ── Mock Supabase client ──────────────────────────────────────────
@@ -203,7 +203,7 @@ async function run() {
   const doc = window.document; const $ = (id) => doc.getElementById(id);
   const ev = () => ({ preventDefault() {}, stopPropagation() {} });
   const results = []; const ok = (n, c) => results.push([n, !!c]);
-  const cssText = require('fs').readFileSync(path.join(__dirname, '..', 'dist', 'index.html'),'utf8');
+  const cssText = require('fs').readFileSync(path.join(__dirname, '..', 'public', 'index.html'),'utf8');
   const S = () => window.eval('STATE');
 
   // give init (async) time to run

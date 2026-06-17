@@ -7,9 +7,8 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Supabase JS Client CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./vendor.js"></script>
     <!-- 무거운 라이브러리(chart.js, mammoth, SheetJS, jszip, docx-preview, pdf.js)는
          초기 로딩을 가볍게 하기 위해 실제 사용 시점에 지연 로딩(lazy-load)합니다. (ensure*() 참조) -->
     <!-- Google Fonts -->
@@ -180,6 +179,15 @@
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 99px;
+        }
+        /* 모달(팝업) 크기 적정화 — 과도하게 큰 창을 비율에 맞게 축소(작은 모달은 그대로) */
+        [id$="-modal"] > div { max-height: 86vh !important; }
+        [id$="-modal"] > div.max-w-7xl { max-width: 60rem !important; }
+        [id$="-modal"] > div.max-w-5xl { max-width: 50rem !important; }
+        [id$="-modal"] > div.max-w-4xl { max-width: 44rem !important; }
+        [id$="-modal"] > div.max-w-3xl { max-width: 40rem !important; }
+        @media (max-width: 768px) {
+            [id$="-modal"] > div { max-height: 93vh !important; max-width: 96vw !important; }
         }
     </style>
 </head>

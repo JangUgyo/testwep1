@@ -17,5 +17,9 @@ jobs:
         run: npm install
       - name: Build single-file bundle
         run: npm run build
+      - name: Ensure committed bundle is up to date
+        run: |
+          git diff --exit-code -- public/index.html \
+          || (echo "::error::public/index.html 이 최신이 아닙니다. 'npm run build' 후 커밋하세요." && exit 1)
       - name: Run test suite (jsdom)
         run: node tests/e2e.cjs
