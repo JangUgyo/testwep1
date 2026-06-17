@@ -129,10 +129,12 @@
             padding: 8px 12px;
             border-radius: 8px;
             font-size: 13px;
-            font-weight: 500;
-            color: #475569;
+            font-weight: 600;          /* 전 메뉴 글자 굵기 통일 */
+            color: #1e293b;            /* 전 메뉴 글자 진한색 통일 (slate-800) */
             transition: all 0.15s ease-in-out;
         }
+        /* 메뉴 라벨(span)도 동일한 진한색·굵기로 강제 통일 (아이콘 색은 각자 유지) */
+        .sidebar-item span { color: #1e293b; font-weight: 600; }
         .sidebar-item:hover {
             background-color: #f1f5f9;
             color: #0f172a;
@@ -173,6 +175,8 @@
             width: 6px;
             height: 6px;
         }
+        /* 차트/캔버스가 라이브러리 로딩 전·실패 시에도 컨테이너를 넘지 않도록 (가로 오버플로우 방지) */
+        canvas { max-width: 100%; }
         ::-webkit-scrollbar-track {
             background: #f8fafc;
         }
@@ -332,23 +336,23 @@
                     </button>
                     <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">
                         <i data-lucide="clipboard-signature" class="w-4.5 h-4.5 text-indigo-600"></i>
-                        <span class="font-semibold text-slate-800">주간 회의 대시보드</span>
+                        <span>주간 회의 대시보드</span>
                     </button>
                     <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item">
                         <i data-lucide="wrench" class="w-4.5 h-4.5 text-rose-500"></i>
-                        <span class="font-semibold text-slate-800">현장 지원 / AS</span>
+                        <span>현장 지원 / AS</span>
                     </button>
                     <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item">
                         <i data-lucide="server-cog" class="w-4.5 h-4.5 text-emerald-600"></i>
-                        <span class="font-semibold text-slate-800">설비 자산 대장</span>
+                        <span>설비 자산 대장</span>
                     </button>
                     <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
                         <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
-                        <span class="font-semibold text-slate-800">재고 관리</span>
+                        <span>재고 관리</span>
                     </button>
                     <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
                         <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
-                        <span class="font-semibold text-slate-800">발주 · 견적</span>
+                        <span>발주 · 견적</span>
                     </button>
                 </div>
             </div>
@@ -441,34 +445,34 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2 lg:gap-4 flex-shrink-0">
+            <div class="flex items-center gap-2 lg:gap-3 flex-shrink-0">
                 <div class="relative hidden md:block">
-                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm w-56 xl:w-72 outline-none focus:border-indigo-300 bg-white">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-10 pl-9 pr-3 border border-slate-200 rounded-xl text-sm w-56 xl:w-72 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
                     <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
-                <button onclick="openMobileSearch()" class="md:hidden w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500"><i data-lucide="search" class="w-5 h-5"></i></button>
-                <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-all">
+                <button onclick="openMobileSearch()" class="md:hidden w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-5 h-5"></i></button>
+                <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-all">
                     <i data-lucide="bell" class="w-5 h-5"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">0</span>
                 </button>
-                <div class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs">
-                    <span class="text-[12px] font-bold text-slate-400">인증 등급:</span>
+                <div class="flex items-center gap-1.5 h-10 px-3.5 bg-slate-100 border border-slate-200 rounded-xl text-sm">
+                    <span class="hidden sm:inline font-bold text-slate-700">인증 등급:</span>
                     <span id="header-user-role-badge" class="font-bold text-slate-800">로딩 중</span>
                 </div>
 
                 <div id="admin-maintenance-control" class="hidden">
-                    <button onclick="toggleActiveTabMaintenance()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5 transition-all">
+                    <button onclick="toggleActiveTabMaintenance()" class="h-10 px-3.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5 transition-all">
                         <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                         <span id="maintenance-btn-text">현재 메뉴 점검 설정</span>
                     </button>
                 </div>
 
-                <div class="h-8 w-px bg-slate-200"></div>
+                <div class="hidden xl:block h-8 w-px bg-slate-200"></div>
 
-                <div class="relative">
-                    <input type="text" placeholder="통합 검색..." class="pl-8 pr-3 py-2 border border-slate-200 rounded-lg text-xs w-44 focus:ring-1 outline-none transition-all">
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+                <div class="relative hidden xl:block">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" placeholder="통합 검색..." class="h-10 pl-9 pr-3 border border-slate-200 rounded-xl text-sm w-44 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500 transition-all">
                 </div>
             </div>
         </header>
