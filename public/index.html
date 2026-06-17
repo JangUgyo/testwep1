@@ -239,11 +239,10 @@
         .ui-sidenav { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em; }
         /* 사이드 패널 좌측 중앙 확장(<) 탭 */
         .drawer-expand-tab { position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 36px; height: 72px; background: #fff; border: 1px solid #e2e8f0; border-right: none; border-radius: 14px 0 0 14px; display: flex; align-items: center; justify-content: center; color: #4f46e5; box-shadow: -5px 0 16px rgba(15,23,42,.12); cursor: pointer; z-index: 6; transition: color .15s, background .15s, width .15s; }
-        .drawer-expand-tab::before { content: "넓게"; position: absolute; left: 6px; bottom: 7px; font-size: 9px; font-weight: 800; letter-spacing: -0.02em; color: #94a3b8; }
         .drawer-expand-tab:hover { color: #fff; background: #4f46e5; width: 40px; left: -40px; }
-        .drawer-expand-tab:hover::before { color: #e0e7ff; }
+        /* 드로어 패널 overflow를 풀어 좌측 "<" 탭이 잘리지 않도록(본문 스크롤은 내부 영역이 담당) */
+        [id$="-modal"].modal-drawer > div { overflow: visible !important; }
         [id$="-modal"].modal-drawer > div.drawer-full .drawer-expand-tab { left: 8px; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 2px 10px rgba(15,23,42,.10); }
-        [id$="-modal"].modal-drawer > div.drawer-full .drawer-expand-tab::before { content: "좁게"; }
         html.dark .drawer-expand-tab { background: #26211c; border-color: #3a3835; color: #a5b4fc; }
     </style>
 </head>
