@@ -192,9 +192,12 @@
         /* 사용자가 키울 수 있는 모달: 전체화면 토글 / 드래그 확대 */
         [id$="-modal"] > div.modal-maximized { width: 97vw !important; max-width: 97vw !important; height: 95vh !important; max-height: 95vh !important; }
         [id$="-modal"] > div.modal-resized { max-width: none !important; max-height: none !important; }
-        /* 문서·엑셀 미리보기는 기본부터 넉넉하게(잘림 최소화) */
-        #doc-preview-modal > div { max-width: min(94vw, 1100px) !important; max-height: 90vh !important; }
-        #doc-preview-modal > div.modal-maximized { max-width: 97vw !important; max-height: 95vh !important; }
+        /* 하이브리드: 상세·미리보기는 우측 슬라이드오버(사이드 패널) */
+        [id$="-modal"].modal-drawer { justify-content: flex-end !important; align-items: stretch !important; padding: 0 !important; background: rgba(15, 23, 42, 0.22) !important; }
+        [id$="-modal"].modal-drawer > div { height: 100vh !important; max-height: 100vh !important; width: 820px !important; max-width: 94vw !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; border-radius: 0 !important; transform: translateX(100%); transition: transform .32s cubic-bezier(.22,.61,.36,1), width .26s ease; }
+        [id$="-modal"].modal-drawer.drawer-open > div { transform: translateX(0); }
+        [id$="-modal"].modal-drawer > div.drawer-full { width: 100vw !important; max-width: 100vw !important; }
+        @media (max-width: 768px) { [id$="-modal"].modal-drawer > div { width: 100vw !important; max-width: 100vw !important; } }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -1308,7 +1311,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[92vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i> <span id="trade-detail-heading">문서 상세</span></h4>
-                <button onclick="closeModal('trade-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('trade-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('trade-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="trade-detail-body" class="p-6 overflow-y-auto flex-1"></div>
         </div>
@@ -1570,7 +1573,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="package-search" class="w-4 h-4 text-amber-600"></i> 품목 상세</h4>
-                <button onclick="closeModal('inventory-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('inventory-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('inventory-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="inventory-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
         </div>
@@ -1581,7 +1584,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="server-cog" class="w-4 h-4 text-emerald-600"></i> 설비 상세</h4>
-                <button onclick="closeModal('asset-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('asset-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('asset-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="asset-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
         </div>
@@ -1642,7 +1645,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl h-[90vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="wrench" class="w-4 h-4 text-rose-600"></i> AS 티켓 상세</h4>
-                <button onclick="closeModal('ticket-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('ticket-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('ticket-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="ticket-detail-body" class="p-6 space-y-4 overflow-y-auto flex-1"></div>
         </div>
@@ -1724,7 +1727,7 @@
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl h-[95vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 프로젝트 상세 현황</h4>
-                <button onclick="closeModal('project-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="flex items-center gap-1 shrink-0"><button data-maximize-btn onclick="toggleModalMaximize('project-detail-modal')" title="전체화면" class="text-slate-400 hover:text-slate-700 p-0.5"><i data-lucide="maximize-2" class="w-5 h-5"></i></button><button onclick="closeModal('project-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             </div>
             <div id="project-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
         </div>
@@ -4180,7 +4183,7 @@
             const modal = document.getElementById(modalId); if (!modal || modal.classList.contains('hidden')) return;
             const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [], inventory: STATE.inventory || [], trade: STATE.trade || [] };
             const exists = (lists[type] || []).some(r => r.id === od.id);
-            if (!exists) { closeModal(modalId); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
+            if (!exists) { closeModal(modalId, true); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
             const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail, inventory: openInventoryDetail, trade: openTradeDetail }[type];
             try { fn(od.id); } catch (e) { }
         }
@@ -7025,17 +7028,32 @@
             if (id === 'add-project-modal') applyDeptLock('project-dept');
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
             if (!STATE._a11yKeys) { STATE._a11yKeys = true; document.addEventListener('keydown', handleGlobalModalKeydown); }
-            const m = document.getElementById(id); if (m) { m._returnFocus = document.activeElement; m.classList.remove('hidden'); m.classList.add('flex'); const _pp = m.querySelector(':scope > div'); if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } } makeModalResizable(m); STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id); enhanceA11y(m); focusFirstInModal(m); }
+            const m = document.getElementById(id);
+            if (m) {
+                const isDrawer = DRAWER_MODALS.has(id);
+                m._returnFocus = document.activeElement;
+                const _pp = m.querySelector(':scope > div');
+                if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized', 'drawer-full'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } }
+                m.classList.remove('hidden'); m.classList.add('flex');
+                m.classList.toggle('modal-drawer', isDrawer);
+                if (isDrawer) { m.classList.remove('drawer-open'); requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('drawer-open'))); }
+                else { makeModalResizable(m); }
+                STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id);
+                enhanceA11y(m); focusFirstInModal(m);
+            }
         }
         let _rzState = null;
+        // 상세·미리보기 화면은 우측 사이드 패널(슬라이드오버)로, 폼·확인창은 기존 모달로 (하이브리드)
+        const DRAWER_MODALS = new Set(['doc-preview-modal', 'meeting-detail-modal', 'trade-detail-modal', 'project-detail-modal', 'ticket-detail-modal', 'asset-detail-modal', 'inventory-detail-modal']);
         function toggleModalMaximize(id) {
             const m = document.getElementById(id); if (!m) return;
             const panel = m.querySelector(':scope > div'); if (!panel) return;
-            const on = panel.classList.toggle('modal-maximized');
-            panel.classList.remove('modal-resized');
-            panel.style.width = ''; panel.style.height = '';
+            const drawer = m.classList.contains('modal-drawer');
+            const cls = drawer ? 'drawer-full' : 'modal-maximized';
+            const on = panel.classList.toggle(cls);
+            if (!drawer) { panel.classList.remove('modal-resized'); panel.style.width = ''; panel.style.height = ''; }
             const btn = m.querySelector('[data-maximize-btn]');
-            if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? '창 축소' : '전체화면'; }
+            if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? (drawer ? '사이드로' : '창 축소') : '전체화면'; }
             if (window.lucide) lucide.createIcons();
         }
         function makeModalResizable(m) {
@@ -7065,7 +7083,16 @@
                 window.addEventListener('mouseup', () => { if (_rzState) { _rzState = null; document.body.style.userSelect = ''; } });
             }
         }
-        function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } STATE.modalStack = (STATE.modalStack || []).filter(x => x !== id); if (m && m._returnFocus && typeof m._returnFocus.focus === 'function') { try { m._returnFocus.focus(); } catch (e) { } } if (m) m._returnFocus = null; }
+        function closeModal(id, immediate) {
+            const m = document.getElementById(id);
+            if (m && m.classList.contains('modal-drawer') && !immediate) {
+                m.classList.remove('drawer-open');
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex', 'modal-drawer'); }, 280);
+            } else if (m) { m.classList.add('hidden'); m.classList.remove('flex', 'modal-drawer', 'drawer-open'); }
+            STATE.modalStack = (STATE.modalStack || []).filter(x => x !== id);
+            if (m && m._returnFocus && typeof m._returnFocus.focus === 'function') { try { m._returnFocus.focus(); } catch (e) { } }
+            if (m) m._returnFocus = null;
+        }
 
         // ── 다크 모드 ────────────────────────────────────────────────────
         function applyTheme(on) {

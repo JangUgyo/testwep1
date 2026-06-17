@@ -2285,7 +2285,7 @@
             const modal = document.getElementById(modalId); if (!modal || modal.classList.contains('hidden')) return;
             const lists = { project: STATE.projects, meeting: STATE.weeklyMeetings, ticket: STATE.tickets || [], asset: STATE.assets || [], inventory: STATE.inventory || [], trade: STATE.trade || [] };
             const exists = (lists[type] || []).some(r => r.id === od.id);
-            if (!exists) { closeModal(modalId); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
+            if (!exists) { closeModal(modalId, true); STATE._openDetail = null; showToast('항목 삭제됨', '보고 있던 항목이 다른 사용자에 의해 삭제되었습니다.'); return; }
             const fn = { project: openProjectDetail, meeting: openMeetingDetail, ticket: openTicketDetail, asset: openAssetDetail, inventory: openInventoryDetail, trade: openTradeDetail }[type];
             try { fn(od.id); } catch (e) { }
         }
@@ -5130,17 +5130,32 @@
             if (id === 'add-project-modal') applyDeptLock('project-dept');
             if (id === 'add-feature-modal') { renderFeatureIconGrid(); renderFeatureGroupSelect(); }
             if (!STATE._a11yKeys) { STATE._a11yKeys = true; document.addEventListener('keydown', handleGlobalModalKeydown); }
-            const m = document.getElementById(id); if (m) { m._returnFocus = document.activeElement; m.classList.remove('hidden'); m.classList.add('flex'); const _pp = m.querySelector(':scope > div'); if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } } makeModalResizable(m); STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id); enhanceA11y(m); focusFirstInModal(m); }
+            const m = document.getElementById(id);
+            if (m) {
+                const isDrawer = DRAWER_MODALS.has(id);
+                m._returnFocus = document.activeElement;
+                const _pp = m.querySelector(':scope > div');
+                if (_pp) { _pp.classList.remove('modal-maximized', 'modal-resized', 'drawer-full'); _pp.style.width = ''; _pp.style.height = ''; const _mb = m.querySelector('[data-maximize-btn]'); if (_mb) { _mb.innerHTML = '<i data-lucide=\'maximize-2\' class=\'w-3.5 h-3.5\'></i>'; _mb.title = '전체화면'; } }
+                m.classList.remove('hidden'); m.classList.add('flex');
+                m.classList.toggle('modal-drawer', isDrawer);
+                if (isDrawer) { m.classList.remove('drawer-open'); requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('drawer-open'))); }
+                else { makeModalResizable(m); }
+                STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id);
+                enhanceA11y(m); focusFirstInModal(m);
+            }
         }
         let _rzState = null;
+        // 상세·미리보기 화면은 우측 사이드 패널(슬라이드오버)로, 폼·확인창은 기존 모달로 (하이브리드)
+        const DRAWER_MODALS = new Set(['doc-preview-modal', 'meeting-detail-modal', 'trade-detail-modal', 'project-detail-modal', 'ticket-detail-modal', 'asset-detail-modal', 'inventory-detail-modal']);
         function toggleModalMaximize(id) {
             const m = document.getElementById(id); if (!m) return;
             const panel = m.querySelector(':scope > div'); if (!panel) return;
-            const on = panel.classList.toggle('modal-maximized');
-            panel.classList.remove('modal-resized');
-            panel.style.width = ''; panel.style.height = '';
+            const drawer = m.classList.contains('modal-drawer');
+            const cls = drawer ? 'drawer-full' : 'modal-maximized';
+            const on = panel.classList.toggle(cls);
+            if (!drawer) { panel.classList.remove('modal-resized'); panel.style.width = ''; panel.style.height = ''; }
             const btn = m.querySelector('[data-maximize-btn]');
-            if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? '창 축소' : '전체화면'; }
+            if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? (drawer ? '사이드로' : '창 축소') : '전체화면'; }
             if (window.lucide) lucide.createIcons();
         }
         function makeModalResizable(m) {
@@ -5170,7 +5185,16 @@
                 window.addEventListener('mouseup', () => { if (_rzState) { _rzState = null; document.body.style.userSelect = ''; } });
             }
         }
-        function closeModal(id) { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } STATE.modalStack = (STATE.modalStack || []).filter(x => x !== id); if (m && m._returnFocus && typeof m._returnFocus.focus === 'function') { try { m._returnFocus.focus(); } catch (e) { } } if (m) m._returnFocus = null; }
+        function closeModal(id, immediate) {
+            const m = document.getElementById(id);
+            if (m && m.classList.contains('modal-drawer') && !immediate) {
+                m.classList.remove('drawer-open');
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex', 'modal-drawer'); }, 280);
+            } else if (m) { m.classList.add('hidden'); m.classList.remove('flex', 'modal-drawer', 'drawer-open'); }
+            STATE.modalStack = (STATE.modalStack || []).filter(x => x !== id);
+            if (m && m._returnFocus && typeof m._returnFocus.focus === 'function') { try { m._returnFocus.focus(); } catch (e) { } }
+            if (m) m._returnFocus = null;
+        }
 
         // ── 다크 모드 ────────────────────────────────────────────────────
         function applyTheme(on) {

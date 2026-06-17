@@ -1619,18 +1619,24 @@ async function run() {
   doc.dispatchEvent(new window.KeyboardEvent('keydown', { key:'Escape' }));
   ok('Esc closes next modal + stack empty', doc.getElementById('data-modal').classList.contains('hidden') && (S().modalStack||[]).length===0);
 
-  // ===== 모달 전체화면(확대) 토글 =====
+  // ===== 하이브리드: 상세·미리보기 사이드 패널 + 펼치기 토글 =====
   window.openModal('doc-preview-modal');
+  const _dm = doc.getElementById('doc-preview-modal');
   const _pmx = doc.querySelector('#doc-preview-modal > div');
-  ok('preview opens at default (not maximized)', _pmx && !_pmx.classList.contains('modal-maximized'));
+  ok('preview opens as side drawer', _dm.classList.contains('modal-drawer') && _dm.classList.contains('drawer-open'));
+  ok('drawer starts at side (not full)', _pmx && !_pmx.classList.contains('drawer-full'));
   window.toggleModalMaximize('doc-preview-modal');
-  ok('toggle → maximized', _pmx.classList.contains('modal-maximized'));
+  ok('expand → drawer-full', _pmx.classList.contains('drawer-full'));
   window.toggleModalMaximize('doc-preview-modal');
-  ok('toggle → restored', !_pmx.classList.contains('modal-maximized'));
-  _pmx.classList.add('modal-maximized'); _pmx.style.width='1234px';
+  ok('collapse → side again', !_pmx.classList.contains('drawer-full'));
+  _pmx.classList.add('drawer-full');
   window.openModal('doc-preview-modal');
-  ok('reopen resets size/maximize', !_pmx.classList.contains('modal-maximized') && !_pmx.style.width);
+  ok('reopen resets to side', !_pmx.classList.contains('drawer-full') && _dm.classList.contains('drawer-open'));
   window.closeModal('doc-preview-modal');
+  // 폼 모달은 사이드가 아니라 기존 중앙 모달 유지
+  window.openModal('warehouse-modal');
+  ok('form modal stays centered (not drawer)', !doc.getElementById('warehouse-modal').classList.contains('modal-drawer'));
+  window.closeModal('warehouse-modal');
 
   // ===== 데이터 버전 / 마이그레이션 =====
   ok('appDataVersion exposed', typeof window.appDataVersion==='function' && window.appDataVersion()>=1);
