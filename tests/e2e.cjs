@@ -254,20 +254,11 @@ async function run() {
   await window.deleteReport(_rid);
   ok('report deleted', S().completionReports.length === 0);
 
-  // ===== 표 → 모바일 카드화 / 사이드바 접기·펼치기 =====
+  // ===== 표 → 모바일 카드화 =====
   window.renderTickets();
   ok('ticket card list rendered', (doc.getElementById('ticket-card-list') || {}).innerHTML.length > 50);
   window.renderAssets();
   ok('asset card list rendered', (doc.getElementById('asset-card-list') || {}).innerHTML.length > 50);
-  ok('sidebar fns present', typeof window.collapseSidebar === 'function' && typeof window.expandSidebar === 'function' && typeof window.updateSidebarHandle === 'function');
-  ok('sidebar expand handle exists', !!doc.getElementById('sidebar-expand-handle'));
-  window.collapseSidebar();
-  ok('collapse adds body class', doc.body.classList.contains('sidebar-collapsed'));
-  ok('handle not expanded when collapsed', !doc.getElementById('sidebar-expand-handle').classList.contains('expanded'));
-  window.expandSidebar();
-  ok('expand removes body class', !doc.body.classList.contains('sidebar-collapsed'));
-  ok('handle expanded when open', doc.getElementById('sidebar-expand-handle').classList.contains('expanded'));
-  ok('toggleSidebarEdge present', typeof window.toggleSidebarEdge === 'function');
 
   // ===== 데이터 마이그레이션 일원화 =====
   ok('data version is 3', typeof window.appDataVersion === 'function' && window.appDataVersion() === 3);

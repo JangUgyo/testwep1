@@ -111,8 +111,6 @@
             window.addEventListener('offline', () => { updateOnlineStatus(); });
             populateHeaderSelects();
             reloadTaxonomy();
-            try { if (localStorage.getItem('wsp_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed'); } catch (e) {}
-            updateSidebarHandle();
             renderFilters();
             renderDeptOptions();
             renderCalendar();
@@ -5235,40 +5233,8 @@
         document.addEventListener('click', (e) => { const wrap = e.target.closest && e.target.closest('#global-search, #global-search-results'); if (!wrap) { const box = document.getElementById('global-search-results'); if (box) box.classList.add('hidden'); } });
 
         // ── 모바일 사이드바 토글 ─────────────────────────────────────────
-        function toggleSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (!sb) return; const open = sb.classList.toggle('open'); if (bd) bd.classList.toggle('hidden', !open); updateSidebarHandle(); }
-        function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); updateSidebarHandle(); }
-        // 사이드바 접기/펼치기 + 좌측 확장 핸들
-        function isNarrowWidth() { try { return window.matchMedia ? window.matchMedia('(max-width: 1023px)').matches : (window.innerWidth || 1280) < 1024; } catch (e) { return (window.innerWidth || 1280) < 1024; } }
-        function sidebarVisible() {
-            const sb = document.getElementById('app-sidebar'); if (!sb) return true;
-            return isNarrowWidth() ? sb.classList.contains('open') : !document.body.classList.contains('sidebar-collapsed');
-        }
-        function updateSidebarHandle() {
-            const handle = document.getElementById('sidebar-expand-handle');
-            if (!handle) return;
-            // 펼쳐져 있으면 우측 가장자리에서 "<"(접기), 접혀/닫혀 있으면 좌측에서 ">"(펼치기) — 항상 표시
-            handle.classList.toggle('expanded', sidebarVisible());
-        }
-        function toggleSidebarEdge() { // 가장자리 핸들: 현재 상태에 따라 접기 ↔ 펼치기
-            if (sidebarVisible()) { if (isNarrowWidth()) closeSidebar(); else collapseSidebar(); }
-            else { expandSidebar(); }
-        }
-        function collapseSidebar() { // 사이드바 접어 본문 폭 확보
-            document.body.classList.add('sidebar-collapsed');
-            try { localStorage.setItem('wsp_sidebar_collapsed', '1'); } catch (e) {}
-            updateSidebarHandle();
-        }
-        function expandSidebar() { // 다시 펼치기 (데스크톱/모바일 공통)
-            document.body.classList.remove('sidebar-collapsed');
-            try { localStorage.removeItem('wsp_sidebar_collapsed'); } catch (e) {}
-            if (isNarrowWidth()) {
-                const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop');
-                if (sb) sb.classList.add('open'); if (bd) bd.classList.remove('hidden');
-            }
-            updateSidebarHandle();
-            if (window.lucide) lucide.createIcons();
-        }
-        window.addEventListener('resize', updateSidebarHandle);
+        function toggleSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (!sb) return; const open = sb.classList.toggle('open'); if (bd) bd.classList.toggle('hidden', !open); }
+        function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); }
 
         // ── 메일 연동 센터 (시뮬레이션) ──────────────────────────────────
         function toggleMailFields() {
@@ -5487,7 +5453,7 @@
                     m.onclick = (e) => { if (e.target === m) closeModal(id); };
                     if (_pp) {
                         let tab = _pp.querySelector('.drawer-expand-tab');
-                        if (!tab) { tab = document.createElement('button'); tab.className = 'drawer-expand-tab'; tab.title = '전체화면'; tab.onclick = (ev) => { ev.stopPropagation(); toggleModalMaximize(id); }; _pp.appendChild(tab); }
+                        if (!tab) { tab = document.createElement('button'); tab.className = 'drawer-expand-tab'; tab.title = '넓게 보기'; tab.onclick = (ev) => { ev.stopPropagation(); toggleModalMaximize(id); }; _pp.appendChild(tab); }
                         tab.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
                     }
                     requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add('drawer-open')));
@@ -5510,7 +5476,7 @@
             if (!drawer) { panel.classList.remove('modal-resized'); panel.style.width = ''; panel.style.height = ''; }
             const btn = m.querySelector('[data-maximize-btn]');
             if (btn) { btn.innerHTML = `<i data-lucide="${on ? 'minimize-2' : 'maximize-2'}" class="w-3.5 h-3.5"></i>`; btn.title = on ? (drawer ? '사이드로' : '창 축소') : '전체화면'; }
-            if (drawer) { const tab = m.querySelector('.drawer-expand-tab'); if (tab) tab.innerHTML = `<i data-lucide="${on ? 'chevron-right' : 'chevron-left'}" class="w-4 h-4"></i>`; }
+            if (drawer) { const tab = m.querySelector('.drawer-expand-tab'); if (tab) { tab.innerHTML = `<i data-lucide="${on ? 'chevron-right' : 'chevron-left'}" class="w-4 h-4"></i>`; tab.title = on ? '좁게 보기' : '넓게 보기'; } }
             if (window.lucide) lucide.createIcons();
         }
         function makeModalResizable(m) {

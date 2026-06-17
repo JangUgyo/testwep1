@@ -177,22 +177,7 @@
         #app-sidebar { width: 226px; transition: transform 0.25s ease; }
         #app-sidebar .logo-title { font-size: 14px; }
         #app-sidebar .logo-sub { font-size: 11px; }
-        #main-area { margin-left: 226px; transition: margin-left 0.25s ease; }
-        /* 사이드바 가장자리 토글 핸들 — 펼침: "<"(접기) / 접힘·닫힘: ">"(펼치기), 항상 표시 */
-        #sidebar-expand-handle {
-            position: fixed; left: 0; top: 50%; transform: translateY(-50%);
-            z-index: 55; display: flex; align-items: center; justify-content: center;
-            width: 24px; height: 60px;
-            background: #ffffff; color: #334155;
-            border: 1px solid #e2e8f0; border-left: none;
-            border-radius: 0 10px 10px 0; box-shadow: 2px 2px 12px rgba(0,0,0,0.10);
-            cursor: pointer; transition: left 0.25s ease, background 0.15s, color 0.15s;
-        }
-        #sidebar-expand-handle.expanded { left: 226px; transform: translate(-50%, -50%); border-radius: 10px; border-left: 1px solid #e2e8f0; }
-        #sidebar-expand-handle:hover { background: #f1f5f9; color: #0f172a; }
-        #sidebar-expand-handle i, #sidebar-expand-handle svg { transition: transform 0.2s ease; }
-        #sidebar-expand-handle.expanded i, #sidebar-expand-handle.expanded svg { transform: rotate(180deg); }
-        html.dark #sidebar-expand-handle { background: #2a2926; color: #d8d5cc; border-color: #3d3b38; }
+        #main-area { margin-left: 226px; }
         /* 모바일(≤1023px): 사이드바를 오프캔버스로 전환, 햄버거로 토글 */
         @media (max-width: 1023px) {
             html { font-size: 16px; }
@@ -204,8 +189,6 @@
         @media (min-width: 1024px) {
             #mobile-hamburger { display: none; }
             #sidebar-backdrop { display: none !important; }
-            body.sidebar-collapsed #app-sidebar { transform: translateX(-100%); }
-            body.sidebar-collapsed #main-area { margin-left: 0; }
         }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -255,10 +238,13 @@
         .ui-topnav { font-size: 0.8125rem; font-weight: 600; letter-spacing: -0.01em; }
         .ui-sidenav { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em; }
         /* 사이드 패널 좌측 중앙 확장(<) 탭 */
-        .drawer-expand-tab { position: absolute; left: -34px; top: 50%; transform: translateY(-50%); width: 34px; height: 64px; background: #fff; border: 1px solid #e2e8f0; border-right: none; border-radius: 12px 0 0 12px; display: flex; align-items: center; justify-content: center; color: #64748b; box-shadow: -4px 0 12px rgba(15,23,42,.10); cursor: pointer; z-index: 6; transition: color .15s, background .15s; }
-        .drawer-expand-tab:hover { color: #4f46e5; background: #f8fafc; }
+        .drawer-expand-tab { position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 36px; height: 72px; background: #fff; border: 1px solid #e2e8f0; border-right: none; border-radius: 14px 0 0 14px; display: flex; align-items: center; justify-content: center; color: #4f46e5; box-shadow: -5px 0 16px rgba(15,23,42,.12); cursor: pointer; z-index: 6; transition: color .15s, background .15s, width .15s; }
+        .drawer-expand-tab::before { content: "넓게"; position: absolute; left: 6px; bottom: 7px; font-size: 9px; font-weight: 800; letter-spacing: -0.02em; color: #94a3b8; }
+        .drawer-expand-tab:hover { color: #fff; background: #4f46e5; width: 40px; left: -40px; }
+        .drawer-expand-tab:hover::before { color: #e0e7ff; }
         [id$="-modal"].modal-drawer > div.drawer-full .drawer-expand-tab { left: 8px; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 2px 10px rgba(15,23,42,.10); }
-        html.dark .drawer-expand-tab { background: #26211c; border-color: #3a3835; color: #cbd5e1; }
+        [id$="-modal"].modal-drawer > div.drawer-full .drawer-expand-tab::before { content: "좁게"; }
+        html.dark .drawer-expand-tab { background: #26211c; border-color: #3a3835; color: #a5b4fc; }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -346,7 +332,6 @@
     <!-- 사이드바 (Sidebar) -->
     <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-[200] bg-rose-600 text-white text-center text-[13px] font-bold py-1.5 shadow-lg">⚠️ 네트워크 연결이 끊겼습니다 — 변경 사항이 저장되지 않을 수 있습니다.</div>
     <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden"></div>
-    <button id="sidebar-expand-handle" onclick="toggleSidebarEdge()" title="사이드바 접기/펼치기" aria-label="사이드바 접기/펼치기" class="expanded"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
     <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
         <div class="p-6 border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
@@ -355,7 +340,6 @@
                     <span class="logo-title font-bold text-slate-800 tracking-tight">WorkSpace Pro</span>
                     <span class="logo-sub text-slate-400 font-medium">통합 지원 시스템</span>
                 </div>
-                <button onclick="collapseSidebar()" title="사이드바 접기" aria-label="사이드바 접기" class="hidden lg:flex ml-auto w-7 h-7 flex-shrink-0 rounded-lg hover:bg-slate-200 items-center justify-center text-slate-500"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>
             </div>
         </div>
 
