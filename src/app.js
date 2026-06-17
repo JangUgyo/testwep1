@@ -110,6 +110,7 @@
             window.addEventListener('online', () => { updateOnlineStatus(); showToast('연결 복구', '네트워크에 다시 연결되었습니다.'); });
             window.addEventListener('offline', () => { updateOnlineStatus(); });
             populateHeaderSelects();
+            reloadTaxonomy();
             renderFilters();
             renderDeptOptions();
             renderCalendar();
@@ -235,7 +236,7 @@
             showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
         }
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy()]);
             await runMigrations();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
         }
@@ -1028,6 +1029,86 @@
             if (error) { showToast('삭제 실패', error.message); return; }
             await reloadInventoryOptions(); renderInventoryOptions(); syncInventoryFormOptions();
         }
+
+        // ===== 분류/직급 옵션 (편집 가능한 드롭다운, 추가·편집·삭제) =====
+        const TAX_DEFAULTS = { position: ['대표이사', '부서장', '팀장', '사원'] };
+        function positionList() { return (STATE.taxonomy && STATE.taxonomy.position && STATE.taxonomy.position.length) ? STATE.taxonomy.position : TAX_DEFAULTS.position.map((v, i) => ({ id: 'def-' + i, value: v })); }
+        async function reloadTaxonomy() {
+            STATE.taxonomy = STATE.taxonomy || { position: [] };
+            try {
+                const { data, error } = await sb.from('taxonomy_options').select('*').order('sort_order', { ascending: true }).order('value', { ascending: true });
+                if (error) throw error;
+                STATE.taxonomyMissing = false;
+                const o = { position: [] };
+                (data || []).forEach(r => { (o[r.category] = o[r.category] || []).push({ id: r.id, value: r.value }); });
+                // 테이블은 있으나 직급이 비어 있으면 기본값을 시드(기존 동작 보존)
+                if ((o.position || []).length === 0) {
+                    try {
+                        await sb.from('taxonomy_options').insert(TAX_DEFAULTS.position.map((v, i) => ({ category: 'position', value: v, sort_order: i })));
+                        const r2 = await sb.from('taxonomy_options').select('*').eq('category', 'position').order('sort_order', { ascending: true });
+                        o.position = (r2.data || []).map(r => ({ id: r.id, value: r.value }));
+                    } catch (e) { /* 쓰기 권한 없으면 무시(폴백 사용) */ }
+                }
+                STATE.taxonomy = o;
+            } catch (e) {
+                STATE.taxonomyMissing = true;
+                STATE.taxonomy = { position: TAX_DEFAULTS.position.map((v, i) => ({ id: 'def-' + i, value: v })) };
+            }
+            populatePositionSelects();
+        }
+        function populatePositionSelects() {
+            const list = positionList();
+            ['signup-position', 'profile-position'].forEach(id => {
+                const el = document.getElementById(id); if (!el) return;
+                const cur = el.value;
+                el.innerHTML = list.map(o => `<option value="${esc(o.value)}">${esc(o.value)}</option>`).join('');
+                if (cur && !list.some(o => o.value === cur)) el.innerHTML += `<option value="${esc(cur)}">${esc(cur)} (기존)</option>`;
+                if (cur) el.value = cur;
+            });
+        }
+        function openTaxonomyManager() {
+            if (!STATE.profile || STATE.profile.role !== 'admin') { showToast('권한 없음', '관리자만 옵션을 관리할 수 있습니다.'); return; }
+            if (STATE.taxonomyMissing) { showToast('준비 필요', '옵션 테이블(taxonomy_options) 생성 SQL을 먼저 실행하세요.'); return; }
+            renderTaxonomyOptions(); openModal('taxonomy-modal');
+        }
+        function renderTaxonomyOptions() {
+            const arr = positionList();
+            const idArg = (id) => typeof id === 'number' ? id : `'${id}'`;
+            const row = (o) => `<div class="flex items-center justify-between gap-2 px-2.5 py-2 border border-slate-200 rounded-lg text-[13px]">
+                <span class="font-semibold text-slate-700 min-w-0 truncate">${esc(o.value)}</span>
+                <div class="flex gap-2 flex-shrink-0">
+                    <button onclick="editTaxonomyOption('position',${idArg(o.id)})" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button>
+                    <button onclick="deleteTaxonomyOption('position',${idArg(o.id)})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>
+                </div></div>`;
+            const el = document.getElementById('tax-position-list');
+            if (el) el.innerHTML = arr.length ? arr.map(row).join('') : `<div class="text-[12px] text-slate-400 py-2 text-center">등록된 항목 없음</div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+        async function addTaxonomyOption(category) {
+            const inp = document.getElementById('tax-' + category + '-value');
+            const value = (inp.value || '').trim();
+            if (!value) { showToast('입력 필요', '값을 입력하세요.'); return; }
+            if (positionList().some(o => o.value === value)) { showToast('중복', '이미 등록된 항목입니다.'); return; }
+            const { error } = await sb.from('taxonomy_options').insert({ category, value, sort_order: positionList().length });
+            if (error) { showToast('추가 실패', error.message); return; }
+            inp.value = '';
+            await reloadTaxonomy(); renderTaxonomyOptions();
+        }
+        async function editTaxonomyOption(category, id) {
+            const cur = positionList().find(o => o.id === id); if (!cur) return;
+            const nv = prompt('직급명 수정', cur.value); if (nv === null) return;
+            const v = nv.trim(); if (!v) return;
+            const { error } = await sb.from('taxonomy_options').update({ value: v }).eq('id', id);
+            if (error) { showToast('수정 실패', error.message); return; }
+            await reloadTaxonomy(); renderTaxonomyOptions();
+        }
+        async function deleteTaxonomyOption(category, id) {
+            if (!confirm('이 항목을 삭제하시겠습니까? (이미 저장된 프로필 데이터는 그대로 유지됩니다.)')) return;
+            const { error } = await sb.from('taxonomy_options').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadTaxonomy(); renderTaxonomyOptions();
+        }
+
         // 옵션 변경 시, 품목 폼이 열려 있으면 선택지 즉시 갱신(현재 선택값 보존)
         function syncInventoryFormOptions() {
             if (!document.getElementById('stock-move-modal').classList.contains('hidden')) populateStockMoveSubtype(document.getElementById('stock-move-kind').value);
@@ -2302,6 +2383,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, async () => { await reloadInventory(); renderDashboardWidgets(); if (STATE.currentTab === 'inventory') renderInventory(); refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_moves' }, async () => { await reloadStockMoves(); if (STATE.currentTab === 'inventory') refreshOpenDetail('inventory'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_options' }, async () => { await reloadInventoryOptions(); if (!document.getElementById('inventory-options-modal').classList.contains('hidden')) renderInventoryOptions(); syncInventoryFormOptions(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'taxonomy_options' }, async () => { await reloadTaxonomy(); if (!document.getElementById('taxonomy-modal').classList.contains('hidden')) renderTaxonomyOptions(); })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, async () => { if (STATE.currentTab === 'management-logs') { await reloadAuditLogs(); renderAuditLogs(); } })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'trade_documents' }, async () => { await reloadTrade(); renderDashboardWidgets(); if (STATE.currentTab === 'trade') renderTrade(); refreshOpenDetail('trade'); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'partners' }, async () => { await reloadPartners(); if (!document.getElementById('partner-modal').classList.contains('hidden')) renderPartnerList(); })

@@ -220,6 +220,14 @@ async function run() {
   ok('permissions loaded', S().permissions && S().permissions.south_cs);
   ok('calendar rendered', $('calendar-grid').children.length > 0);
 
+  // ===== 분류/직급 옵션 (편집 가능한 드롭다운) =====
+  ok('taxonomy state present', !!S().taxonomy);
+  ok('position list has defaults', typeof window.positionList === 'function' && window.positionList().some(o => o.value === '사원') && window.positionList().length >= 4);
+  window.populatePositionSelects();
+  const _posSel = doc.getElementById('signup-position');
+  ok('signup-position populated', _posSel && _posSel.querySelectorAll('option').length >= 4);
+  ok('taxonomy-modal exists', !!doc.getElementById('taxonomy-modal'));
+
   // navigate tabs
   await window.switchTab('management-stats');
   ok('stats tab: pending list rendered', $('pending-users-list-body').children.length >= 1);
