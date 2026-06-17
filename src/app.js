@@ -205,8 +205,25 @@
 
         // ── 데이터 로딩 (Supabase → STATE 캐시) ──────────────────────────
         // ════════════ 데이터 버전 / 마이그레이션 ════════════
-        const APP_DATA_VERSION = 2;
+        // ════════════ 데이터 버전 / 마이그레이션 (★ 모든 데이터 업그레이드는 여기 한 곳에서) ★ ════════════
+        // 사용법: 스키마(필드)를 추가하면 (1) ENTITY_DEFAULTS 에 기본값을 1줄 추가하고,
+        //         (2) DB 백필이 필요하면 MIGRATIONS 에 단계를 1개 추가한 뒤 APP_DATA_VERSION 을 올린다.
+        //         → 옛 데이터는 자동으로 신버전과 호환·보정된다.
+        const APP_DATA_VERSION = 3;
         function appDataVersion() { return APP_DATA_VERSION; }
+        // 레코드 정규화 일원화: 신버전 필드가 없는 옛 레코드도 한 곳에서 기본값을 채워 호환 보장
+        const ENTITY_DEFAULTS = {
+            ticket: { id: null, customer: '', site: '', equipment: '', issue: '', urgency: 'normal', assignee: '', status: 'received', result: '', deptId: '', author: '', photos: [], createdAt: '', assigneeId: '' },
+            asset: { id: null, name: '', model: '', customer: '', site: '', pmCycle: 0, lastPm: '', notes: '', assignee: '', position: '', deptId: '', assigneeId: '' },
+            completionReport: { id: null, ticketId: null, assetId: null, workDate: '', worker: '', workType: '', content: '', parts: '', result: '', deptId: '', author: '', createdAt: '' }
+        };
+        function normalizeRecord(entity, obj) {
+            const def = ENTITY_DEFAULTS[entity]; if (!def) return obj || {};
+            const out = Object.assign({}, def, obj || {});
+            for (const k in def) { if (Array.isArray(def[k]) && !Array.isArray(out[k])) out[k] = []; }
+            return out;
+        }
+        function normalizeList(entity, arr) { return (arr || []).map(o => normalizeRecord(entity, o)); }
         const MIGRATIONS = [
             { version: 1, name: '기본 입·출고 유형 보정', run: async () => {
                 if (STATE.invOptionsMissing) return;
@@ -218,9 +235,21 @@
             { version: 2, name: '기존 품목 분류·단위·품목명 옵션 등록', run: async () => {
                 if (STATE.invOptionsMissing) return;
                 await ensureImportOptions((STATE.inventory || []).map(i => ({ category: i.category, unit: i.unit, name: i.name })));
+            } },
+            { version: 3, name: '직급(taxonomy) 기본값 보정', run: async () => {
+                if (STATE.taxonomyMissing) return;
+                if (!(((STATE.taxonomy || {}).position) || []).length) {
+                    try { await sb.from('taxonomy_options').insert(['대표이사', '부서장', '팀장', '사원'].map((v, i) => ({ category: 'position', value: v, sort_order: i }))); await reloadTaxonomy(); } catch (e) {}
+                }
             } }
         ];
         async function persistDataVersion() { try { await sb.from('app_settings').upsert({ key: 'data_version', value: APP_DATA_VERSION, updated_at: new Date().toISOString() }); } catch (e) { } }
+        function updateDataVersionBadge() {
+            const el = document.getElementById('data-version-badge'); if (!el) return;
+            const cur = Number(STATE.dataVersion || 0);
+            el.textContent = cur >= APP_DATA_VERSION ? `최신 v${APP_DATA_VERSION}` : `현재 v${cur} → 최신 v${APP_DATA_VERSION}`;
+            el.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${cur >= APP_DATA_VERSION ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`;
+        }
         async function runMigrations() {
             if (!STATE.profile || STATE.profile.role !== 'admin') return;
             const cur = Number(STATE.dataVersion || 0);
@@ -229,17 +258,20 @@
             for (const m of pending) { try { await m.run(); } catch (e) { console.warn('migration failed:', m.name, e); return; } }
             STATE.dataVersion = APP_DATA_VERSION;
             await persistDataVersion();
+            updateDataVersionBadge();
         }
         async function repairData() {
             if (!STATE.profile || STATE.profile.role !== 'admin') { showToast('권한 없음', '데이터 보정은 관리자만 가능합니다.'); return; }
             for (const m of MIGRATIONS) { try { await m.run(); } catch (e) { } }
             STATE.dataVersion = APP_DATA_VERSION;
             await persistDataVersion();
+            updateDataVersionBadge();
             showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
         }
         async function loadAllData() {
             await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports()]);
             await runMigrations();
+            updateDataVersionBadge();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
         }
         async function reloadEvents() {
@@ -264,7 +296,7 @@
                 const { data, error } = await sb.from('tickets').select('*').order('id', { ascending: false }).limit(1000);
                 if (error) { STATE.ticketsTableMissing = true; STATE.tickets = []; return; }
                 STATE.ticketsTableMissing = false;
-                STATE.tickets = (data || []).map(r => ({ id: r.id, customer: r.customer, site: r.site, equipment: r.equipment, issue: r.issue, urgency: r.urgency || 'normal', assignee: r.assignee, status: r.status || 'received', result: r.result, deptId: r.dept_id, author: r.author, photos: Array.isArray(r.photos) ? r.photos : [], createdAt: r.created_at, assigneeId: r.assignee_id || '' }));
+                STATE.tickets = normalizeList('ticket', (data || []).map(r => ({ id: r.id, customer: r.customer, site: r.site, equipment: r.equipment, issue: r.issue, urgency: r.urgency || 'normal', assignee: r.assignee, status: r.status || 'received', result: r.result, deptId: r.dept_id, author: r.author, photos: Array.isArray(r.photos) ? r.photos : [], createdAt: r.created_at, assigneeId: r.assignee_id || '' })));
             } catch (e) { STATE.ticketsTableMissing = true; STATE.tickets = []; }
         }
         async function reloadMeetings() {
@@ -4763,7 +4795,7 @@
                 const { data, error } = await sb.from('completion_reports').select('*').order('id', { ascending: false }).limit(2000);
                 if (error) { STATE.reportsTableMissing = true; STATE.completionReports = []; return; }
                 STATE.reportsTableMissing = false;
-                STATE.completionReports = (data || []).map(r => ({ id: r.id, ticketId: r.ticket_id, assetId: r.asset_id, workDate: r.work_date || '', worker: r.worker || '', workType: r.work_type || '', content: r.content || '', parts: r.parts || '', result: r.result || '', deptId: r.dept_id || '', author: r.author || '', createdAt: r.created_at }));
+                STATE.completionReports = normalizeList('completionReport', (data || []).map(r => ({ id: r.id, ticketId: r.ticket_id, assetId: r.asset_id, workDate: r.work_date || '', worker: r.worker || '', workType: r.work_type || '', content: r.content || '', parts: r.parts || '', result: r.result || '', deptId: r.dept_id || '', author: r.author || '', createdAt: r.created_at })));
             } catch (e) { STATE.reportsTableMissing = true; STATE.completionReports = []; }
         }
         function reportsForTicket(ticketId) { return (STATE.completionReports || []).filter(r => r.ticketId === ticketId); }
@@ -4960,7 +4992,7 @@
                 const { data, error } = await sb.from('assets').select('*').order('id', { ascending: false }).limit(1000);
                 if (error) { STATE.assetsTableMissing = true; STATE.assets = []; return; }
                 STATE.assetsTableMissing = false;
-                STATE.assets = (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '', assignee: r.assignee || '', position: r.position || '', deptId: r.dept_id || '', assigneeId: r.assignee_id || '' }));
+                STATE.assets = normalizeList('asset', (data || []).map(r => ({ id: r.id, name: r.name, model: r.model, customer: r.customer, site: r.site, pmCycle: r.pm_cycle || 0, lastPm: r.last_pm || '', notes: r.notes || '', assignee: r.assignee || '', position: r.position || '', deptId: r.dept_id || '', assigneeId: r.assignee_id || '' })));
             } catch (e) { STATE.assetsTableMissing = true; STATE.assets = []; }
         }
         function assetPmInfo(a) {
@@ -5207,19 +5239,26 @@
         function closeSidebar() { const sb = document.getElementById('app-sidebar'); const bd = document.getElementById('sidebar-backdrop'); if (sb) sb.classList.remove('open'); if (bd) bd.classList.add('hidden'); updateSidebarHandle(); }
         // 사이드바 접기/펼치기 + 좌측 확장 핸들
         function isNarrowWidth() { try { return window.matchMedia ? window.matchMedia('(max-width: 1023px)').matches : (window.innerWidth || 1280) < 1024; } catch (e) { return (window.innerWidth || 1280) < 1024; } }
-        function updateSidebarHandle() {
-            const handle = document.getElementById('sidebar-expand-handle'); const sb = document.getElementById('app-sidebar');
-            if (!handle || !sb) return;
-            const mobile = isNarrowWidth();
-            const show = mobile ? !sb.classList.contains('open') : document.body.classList.contains('sidebar-collapsed');
-            handle.classList.toggle('show', show);
+        function sidebarVisible() {
+            const sb = document.getElementById('app-sidebar'); if (!sb) return true;
+            return isNarrowWidth() ? sb.classList.contains('open') : !document.body.classList.contains('sidebar-collapsed');
         }
-        function collapseSidebar() { // 데스크톱: 사이드바 접어 본문 폭 확보
+        function updateSidebarHandle() {
+            const handle = document.getElementById('sidebar-expand-handle');
+            if (!handle) return;
+            // 펼쳐져 있으면 우측 가장자리에서 "<"(접기), 접혀/닫혀 있으면 좌측에서 ">"(펼치기) — 항상 표시
+            handle.classList.toggle('expanded', sidebarVisible());
+        }
+        function toggleSidebarEdge() { // 가장자리 핸들: 현재 상태에 따라 접기 ↔ 펼치기
+            if (sidebarVisible()) { if (isNarrowWidth()) closeSidebar(); else collapseSidebar(); }
+            else { expandSidebar(); }
+        }
+        function collapseSidebar() { // 사이드바 접어 본문 폭 확보
             document.body.classList.add('sidebar-collapsed');
             try { localStorage.setItem('wsp_sidebar_collapsed', '1'); } catch (e) {}
             updateSidebarHandle();
         }
-        function expandSidebar() { // 좌측 핸들로 다시 펼치기 (데스크톱/모바일 공통)
+        function expandSidebar() { // 다시 펼치기 (데스크톱/모바일 공통)
             document.body.classList.remove('sidebar-collapsed');
             try { localStorage.removeItem('wsp_sidebar_collapsed'); } catch (e) {}
             if (isNarrowWidth()) {

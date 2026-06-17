@@ -263,8 +263,17 @@ async function run() {
   ok('sidebar expand handle exists', !!doc.getElementById('sidebar-expand-handle'));
   window.collapseSidebar();
   ok('collapse adds body class', doc.body.classList.contains('sidebar-collapsed'));
+  ok('handle not expanded when collapsed', !doc.getElementById('sidebar-expand-handle').classList.contains('expanded'));
   window.expandSidebar();
   ok('expand removes body class', !doc.body.classList.contains('sidebar-collapsed'));
+  ok('handle expanded when open', doc.getElementById('sidebar-expand-handle').classList.contains('expanded'));
+  ok('toggleSidebarEdge present', typeof window.toggleSidebarEdge === 'function');
+
+  // ===== 데이터 마이그레이션 일원화 =====
+  ok('data version is 3', typeof window.appDataVersion === 'function' && window.appDataVersion() === 3);
+  ok('normalizeRecord fills defaults', (function () { const t = window.normalizeRecord('ticket', { id: 9 }); return t.urgency === 'normal' && t.status === 'received' && Array.isArray(t.photos); })());
+  ok('normalizeRecord coerces array', (function () { const t = window.normalizeRecord('ticket', { id: 9, photos: null }); return Array.isArray(t.photos); })());
+  ok('normalizeRecord keeps values', window.normalizeRecord('asset', { id: 1, name: '펌프' }).name === '펌프');
 
   // navigate tabs
   await window.switchTab('management-stats');
