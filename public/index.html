@@ -1077,7 +1077,7 @@
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-600"></i> 주간 업무 보고 상세</h4>
                 <button onclick="closeModal('meeting-detail-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="meeting-detail-body" class="p-6 space-y-5 overflow-y-auto flex-1"></div>
+            <div id="meeting-detail-body" class="p-4 space-y-4 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -1644,12 +1644,12 @@
 
     <!-- AS 티켓 등록/편집 끝 -->
     <div id="day-expand-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[60] p-3 md:p-6">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl h-[80vh] overflow-hidden border flex flex-col">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl h-[80vh] overflow-hidden border flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">
                 <h4 id="day-expand-title" class="font-bold text-sm text-slate-800 flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-indigo-600"></i> 일별 업무</h4>
                 <button onclick="closeModal('day-expand-modal')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div id="day-expand-body" class="p-6 space-y-3 overflow-y-auto flex-1"></div>
+            <div id="day-expand-body" class="p-4 space-y-3 overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -5539,21 +5539,21 @@
             const rows = entries.map((en, i) => {
                 const proj = en.projectId ? STATE.projects.find(p => p.id === en.projectId) : null;
                 const link = proj ? `<button onclick="gotoLinkedProject(${en.projectId}, '${en.projectItemId || ''}')" class="inline-flex items-center gap-1 text-[13px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-lg px-2.5 py-1.5 hover:bg-indigo-100"><i data-lucide="link" class="w-3.5 h-3.5"></i> ${esc(proj.title)}${en.projectItemLabel ? ' › ' + esc(en.projectItemLabel) : ''}</button>` : '<span class="text-slate-300">—</span>';
-                const att = en.filePath ? `<div class="w-32">${attachSlot('mday', meet.id, en.id, 'sm')}</div>` : '<span class="text-slate-300">—</span>';
+                const att = en.filePath ? `<div class="w-28">${attachSlot('mday', meet.id, en.id, 'sm')}</div>` : '<span class="text-slate-300">—</span>';
                 const ctrl = canManage ? `<div class="flex gap-2.5 justify-end whitespace-nowrap"><button onclick="openMeetingDayForm(${meet.id}, ${wd}, '${en.id}')" class="text-indigo-500 hover:text-indigo-700 font-bold">편집</button><button onclick="deleteMeetingDay(${meet.id}, '${en.id}')" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button></div>` : '<span class="text-slate-300">—</span>';
                 const zebra = i % 2 ? 'bg-slate-50/40' : 'bg-white';
                 return `<tr class="${zebra} hover:bg-indigo-50/30 transition-colors align-top">
-                    <td class="px-4 py-3.5 font-bold text-slate-800 whitespace-pre-line min-w-[120px]">${esc(en.taskName) || '<span class=\'text-slate-300 font-normal\'>—</span>'}</td>
-                    <td class="px-4 py-3.5 text-slate-700 whitespace-nowrap font-medium">${esc(en.manager) || '—'}</td>
-                    <td class="px-4 py-3.5 text-slate-600 whitespace-pre-line min-w-[240px] leading-relaxed">${esc(en.content) || '—'}</td>
-                    <td class="px-4 py-3.5 min-w-[150px]">${link}</td>
-                    <td class="px-4 py-3.5 min-w-[130px]">${att}</td>
-                    <td class="px-4 py-3.5 text-right text-[13px]">${ctrl}</td>
+                    <td class="px-3 py-2.5 font-bold text-slate-800 whitespace-pre-line min-w-[100px]">${esc(en.taskName) || '<span class=\'text-slate-300 font-normal\'>—</span>'}</td>
+                    <td class="px-3 py-2.5 text-slate-700 whitespace-nowrap font-medium">${esc(en.manager) || '—'}</td>
+                    <td class="px-3 py-2.5 text-slate-600 whitespace-pre-line min-w-[190px] leading-snug">${esc(en.content) || '—'}</td>
+                    <td class="px-3 py-2.5 min-w-[120px]">${link}</td>
+                    <td class="px-3 py-2.5 min-w-[110px]">${att}</td>
+                    <td class="px-3 py-2.5 text-right text-[13px]">${ctrl}</td>
                 </tr>`;
             }).join('');
             return `<div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
                 <table class="w-full text-[14px] border-collapse">
-                    <thead><tr class="bg-indigo-600 text-white"><th class="px-4 py-3 text-left font-bold tracking-tight">업무명</th><th class="px-4 py-3 text-left font-bold tracking-tight">담당자</th><th class="px-4 py-3 text-left font-bold tracking-tight">상세 내용</th><th class="px-4 py-3 text-left font-bold tracking-tight">프로젝트</th><th class="px-4 py-3 text-left font-bold tracking-tight">첨부</th><th class="px-4 py-3 text-right font-bold tracking-tight">관리</th></tr></thead>
+                    <thead><tr class="bg-indigo-600 text-white"><th class="px-3 py-2.5 text-left font-bold tracking-tight">업무명</th><th class="px-3 py-2.5 text-left font-bold tracking-tight">담당자</th><th class="px-3 py-2.5 text-left font-bold tracking-tight">상세 내용</th><th class="px-3 py-2.5 text-left font-bold tracking-tight">프로젝트</th><th class="px-3 py-2.5 text-left font-bold tracking-tight">첨부</th><th class="px-3 py-2.5 text-right font-bold tracking-tight">관리</th></tr></thead>
                     <tbody>${rows}</tbody>
                 </table>
             </div>`;
@@ -5601,7 +5601,7 @@
                 <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="flex">
                         <div class="w-2 flex-shrink-0 ${stripe}"></div>
-                        <div class="flex-1 px-6 py-5 bg-gradient-to-r from-slate-50 to-white meeting-detail-banner">
+                        <div class="flex-1 px-5 py-4 bg-gradient-to-r from-slate-50 to-white meeting-detail-banner">
                             <div class="flex items-start justify-between gap-3 flex-wrap">
                                 <div class="space-y-2 min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
@@ -5616,7 +5616,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-5 space-y-3 border-t border-slate-100">
+                    <div class="p-4 space-y-3 border-t border-slate-100">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                             ${sec('list', 'text-slate-500', '주요 논의 내용', meet.content)}
                             ${sec('check-circle-2', 'text-emerald-600', '주요 결정 / 합의 사항', meet.decisions)}
@@ -5626,7 +5626,7 @@
                         ${attachWrap}
                     </div>
                 </div>
-                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-5 space-y-3">
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-4 space-y-3">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-sm text-slate-700 flex items-center gap-2"><i data-lucide="calendar-range" class="w-4 h-4 text-indigo-500"></i> 주간 일별 업무</h4>
                         ${addDayBtn}
