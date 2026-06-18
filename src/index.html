@@ -190,7 +190,12 @@
             #mobile-hamburger { display: none; }
             #sidebar-backdrop { display: none !important; }
         }
-        /* Custom Scrollbar */
+        /* 실시간 연결 상태 점 — 초록(연결) / 주황 점멸(재연결 중) */
+        #rt-status-dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; background: #94a3b8; transition: background .2s; }
+        #rt-status-dot.rt-on { background: #10b981; }
+        #rt-status-dot.rt-off { background: #f59e0b; animation: rtPulse 1s ease-in-out infinite; }
+        @keyframes rtPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+        html.dark #rt-status-dot.rt-on { background: #34d399; }
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -476,6 +481,7 @@
                     <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
                 <button onclick="openMobileSearch()" class="md:hidden w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
+                <span id="rt-status-dot" class="rt-on hidden sm:block" title="실시간 연결됨"></span>
                 <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-all">
                     <i data-lucide="bell" class="w-[18px] h-[18px]"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>

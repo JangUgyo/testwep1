@@ -272,6 +272,17 @@
             updateDataVersionBadge();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
         }
+        // 실시간 재연결·탭 복귀 시: 끊긴 사이 놓친 변경을 따라잡는 전체 재동기화 (마이그레이션 제외, 중복 실행 방지)
+        async function resyncAllData() {
+            if (STATE._resyncing) return; STATE._resyncing = true;
+            try {
+                await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports()]);
+                renderFilters(); renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu();
+                if (STATE.currentUser && STATE.currentTab) switchTab(STATE.currentTab);
+                if (STATE._openDetail) refreshOpenDetail(STATE._openDetail.type);
+                STATE._lastResync = Date.now();
+            } catch (e) { } finally { STATE._resyncing = false; }
+        }
         async function reloadEvents() {
             const { data } = await sb.from('events').select('*').order('start_date', { ascending: true });
             STATE.events = (data || []).map(r => ({ id: r.id, deptId: r.dept_id, title: r.title, startDate: r.start_date, endDate: r.end_date, site: r.site || '' }));
@@ -2424,7 +2435,46 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_stock' }, async () => { await reloadInventoryStock(); if (STATE.currentTab === 'inventory') renderInventory(); if (STATE._openDetail && STATE._openDetail.type === 'inventory' && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(STATE._openDetail.id); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
-                .subscribe();
+                .subscribe((status) => handleRealtimeStatus(status));
+            // 탭이 백그라운드였다가 다시 보일 때: 그 사이 놓친 변경 따라잡기 (중복 등록 방지)
+            if (!STATE._rtVisBound) {
+                STATE._rtVisBound = true;
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible' && STATE.currentUser) {
+                        if (STATE._rtWasDown || !STATE._lastResync || (Date.now() - STATE._lastResync) > 30000) resyncAllData();
+                    }
+                });
+            }
+        }
+        // 실시간 연결 상태 처리 — 끊김 감지 시 백오프 재연결, 복구 시 전체 재동기화로 일관성 유지
+        function handleRealtimeStatus(status) {
+            if (status === 'SUBSCRIBED') {
+                STATE._rtRetry = 0;
+                updateRealtimeStatus(true);
+                if (STATE._rtWasDown) { STATE._rtWasDown = false; resyncAllData(); showToast('실시간 재연결', '연결이 복구되어 최신 데이터로 동기화했습니다.'); }
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                STATE._rtWasDown = true;
+                updateRealtimeStatus(false);
+                scheduleRealtimeReconnect();
+            }
+        }
+        function scheduleRealtimeReconnect() {
+            if (STATE._rtReconnectTimer) return; // 중복 예약 방지
+            const retry = STATE._rtRetry = (STATE._rtRetry || 0) + 1;
+            const delay = Math.min(30000, 1000 * Math.pow(2, retry - 1)); // 1·2·4·…초, 최대 30초 백오프
+            STATE._rtReconnectTimer = setTimeout(() => {
+                STATE._rtReconnectTimer = null;
+                try { if (STATE._rt) sb.removeChannel(STATE._rt); } catch (e) {}
+                STATE._rt = null;
+                setupRealtime(); // 채널 재생성 → 재구독되면 SUBSCRIBED 콜백에서 재동기화
+            }, delay);
+        }
+        function updateRealtimeStatus(connected) {
+            STATE._rtConnected = !!connected;
+            const dot = document.getElementById('rt-status-dot'); if (!dot) return;
+            dot.classList.toggle('rt-on', !!connected);
+            dot.classList.toggle('rt-off', !connected);
+            dot.title = connected ? '실시간 연결됨' : '실시간 재연결 중…';
         }
 
         // 관리자가 내 계정의 권한/부서/직급을 바꾸면 새로고침 없이 즉시 반영

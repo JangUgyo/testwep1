@@ -266,6 +266,28 @@ async function run() {
   ok('normalizeRecord coerces array', (function () { const t = window.normalizeRecord('ticket', { id: 9, photos: null }); return Array.isArray(t.photos); })());
   ok('normalizeRecord keeps values', window.normalizeRecord('asset', { id: 1, name: '펌프' }).name === '펌프');
 
+  // ===== 실시간 일관성 (재연결 · 재동기화) =====
+  ok('resyncAllData present', typeof window.resyncAllData === 'function');
+  ok('realtime status fns present', typeof window.handleRealtimeStatus === 'function' && typeof window.scheduleRealtimeReconnect === 'function' && typeof window.updateRealtimeStatus === 'function');
+  await window.resyncAllData();
+  ok('resync stamps lastResync', !!S()._lastResync);
+  // 끊김 감지 → 재연결 예약 + 상태 플래그
+  window.handleRealtimeStatus('CHANNEL_ERROR');
+  ok('error sets rtWasDown', S()._rtWasDown === true);
+  ok('error schedules reconnect', !!S()._rtReconnectTimer);
+  if (S()._rtReconnectTimer) { clearTimeout(S()._rtReconnectTimer); S()._rtReconnectTimer = null; }
+  // 복구 시 재동기화 + 플래그 해제
+  S()._lastResync = 0;
+  window.handleRealtimeStatus('SUBSCRIBED');
+  await new Promise(r => setTimeout(r, 30));
+  ok('reconnect clears rtWasDown', S()._rtWasDown === false);
+  ok('reconnect triggers resync', !!S()._lastResync);
+  // 상태 점 토글
+  window.updateRealtimeStatus(false);
+  ok('status dot off on disconnect', (doc.getElementById('rt-status-dot') || { classList: { contains: () => false } }).classList.contains('rt-off'));
+  window.updateRealtimeStatus(true);
+  ok('status dot on when connected', doc.getElementById('rt-status-dot').classList.contains('rt-on'));
+
   // navigate tabs
   await window.switchTab('management-stats');
   ok('stats tab: pending list rendered', $('pending-users-list-body').children.length >= 1);
