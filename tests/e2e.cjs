@@ -288,6 +288,22 @@ async function run() {
   window.updateRealtimeStatus(true);
   ok('status dot on when connected', doc.getElementById('rt-status-dot').classList.contains('rt-on'));
 
+  // ===== 접근성 (a11y) =====
+  ok('skip link present', !!doc.querySelector('a.wsp-skip-link[href="#main-area"]'));
+  ok('main-area focusable target', (doc.getElementById('main-area') || {}).getAttribute && doc.getElementById('main-area').getAttribute('tabindex') === '-1');
+  ok('toast container aria-live', doc.getElementById('toast-container').getAttribute('aria-live') === 'polite' && doc.getElementById('toast-container').getAttribute('role') === 'status');
+  ok('nav has navigation role', !!doc.querySelector('[role="navigation"][aria-label]'));
+  window.syncSidebarActiveState('assets');
+  ok('active nav aria-current', doc.getElementById('nav-assets').getAttribute('aria-current') === 'page');
+  ok('inactive nav no aria-current', doc.getElementById('nav-dashboard').getAttribute('aria-current') == null);
+  ok('focus trap handler present', typeof window.handleGlobalModalKeydown === 'function');
+  window.openModal('taxonomy-modal');
+  { const tp = doc.querySelector('#taxonomy-modal > div');
+    ok('modal has dialog role', !!tp && tp.getAttribute('role') === 'dialog' && tp.getAttribute('aria-modal') === 'true');
+    ok('modal labelled by title', !!tp && !!tp.getAttribute('aria-labelledby')); }
+  window.closeModal('taxonomy-modal', true);
+  ok('icon button auto aria-label', (function () { const b = doc.createElement('button'); b.innerHTML = '<i data-lucide="trash-2"></i>'; doc.body.appendChild(b); window.enhanceA11y(doc.body); const r = b.getAttribute('aria-label'); b.remove(); return !!r; })());
+
   // navigate tabs
   await window.switchTab('management-stats');
   ok('stats tab: pending list rendered', $('pending-users-list-body').children.length >= 1);

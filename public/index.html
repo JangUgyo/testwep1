@@ -117,6 +117,11 @@
         button, a, input, select, textarea { transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease; }
         *:focus-visible { outline: 2px solid var(--wsp-accent); outline-offset: 1px; border-radius: 6px; }
         input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--wsp-ring); }
+        /* 건너뛰기 링크 — 평소 숨김, 키보드 포커스 시 좌상단에 노출 */
+        .wsp-skip-link { position: fixed; left: 8px; top: -48px; z-index: 100; background: #4f46e5; color: #fff; padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); transition: top .15s ease; }
+        .wsp-skip-link:focus { top: 8px; outline: 2px solid #fff; outline-offset: 1px; }
+        #main-area:focus { outline: none; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
         /* 상태 칩(전 모듈 공통 규격) */
         .wsp-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border-width: 1px; line-height: 1.4; white-space: nowrap; }
         /* 더 보기 버튼(목록 페이지네이션 공통) */
@@ -252,6 +257,7 @@
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
+    <a href="#main-area" class="wsp-skip-link">본문으로 건너뛰기</a>
 
     <!-- ──────────────────────────────────────────────────────── -->
     <!--  노션 스타일 통합 인증 게이트웨이 (로그인 및 회원가입 화면)  -->
@@ -347,7 +353,7 @@
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-6">
+        <div class="flex-1 overflow-y-auto p-3 space-y-6" role="navigation" aria-label="주 메뉴">
             <div>
                 <p class="sidebar-group-title">기본 플랫폼 서비스</p>
                 <div class="space-y-1" id="navgroup-platform">
@@ -461,7 +467,7 @@
         </div>
     </aside>
 
-    <main id="main-area" class="flex-1 p-10">
+    <main id="main-area" tabindex="-1" class="flex-1 p-10">
         <header class="flex justify-between items-center mb-7 lg:mb-10 border-b border-slate-100 pb-5 gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <button id="mobile-hamburger" onclick="toggleSidebar()" class="w-9 h-9 flex-shrink-0 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="menu" class="w-[18px] h-[18px]"></i></button>
@@ -2022,7 +2028,7 @@
     </div>
 
     <!-- [복구] 토스트 알림 컨테이너 -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 items-end pointer-events-none"></div>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-2 items-end pointer-events-none"></div>
 
     <!-- 스크립트 실행 제어 본부 -->
     <script>
@@ -7458,7 +7464,7 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
+        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => { i.classList.remove('active'); i.removeAttribute('aria-current'); }); const active = document.getElementById(`nav-${id}`); if (active) { active.classList.add('active'); active.setAttribute('aria-current', 'page'); } }
 
         function showToast(title, message) {
             const container = document.getElementById('toast-container'); if (!container) return;
@@ -7485,10 +7491,20 @@
             return `<tr><td colspan="${colspan}">${emptyState(icon, title, hint, true)}</td></tr>`;
         }
         function handleGlobalModalKeydown(e) {
-            if (e.key !== 'Escape') return;
             const stack = STATE.modalStack || [];
             if (!stack.length) return;
-            closeModal(stack[stack.length - 1]);
+            const m = document.getElementById(stack[stack.length - 1]);
+            if (!m) return;
+            if (e.key === 'Escape') { closeModal(stack[stack.length - 1]); return; }
+            if (e.key !== 'Tab') return;
+            // 포커스 트랩: Tab이 모달 밖으로 새어나가지 않도록 처음↔끝을 순환
+            const sel = 'a[href], button:not([disabled]), input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            const list = Array.from(m.querySelectorAll(sel)).filter(el => el.offsetParent !== null);
+            if (!list.length) return;
+            const first = list[0], last = list[list.length - 1];
+            if (!m.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         }
         function focusFirstInModal(m) {
             try {
@@ -7538,6 +7554,11 @@
                     if (window.lucide) lucide.createIcons();
                 }
                 else { makeModalResizable(m); }
+                if (_pp) { // 다이얼로그 시맨틱(스크린리더): role + aria-modal + 제목 라벨 연결
+                    _pp.setAttribute('role', 'dialog'); _pp.setAttribute('aria-modal', 'true');
+                    const titleEl = m.querySelector('h2, h3, h4, h5, [id$="-title"]');
+                    if (titleEl) { if (!titleEl.id) titleEl.id = id + '-a11y-title'; _pp.setAttribute('aria-labelledby', titleEl.id); }
+                }
                 STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id);
                 enhanceA11y(m); focusFirstInModal(m);
             }

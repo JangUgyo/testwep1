@@ -5430,7 +5430,7 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); const active = document.getElementById(`nav-${id}`); if (active) active.classList.add('active'); }
+        function syncSidebarActiveState(id) { document.querySelectorAll('.sidebar-item').forEach(i => { i.classList.remove('active'); i.removeAttribute('aria-current'); }); const active = document.getElementById(`nav-${id}`); if (active) { active.classList.add('active'); active.setAttribute('aria-current', 'page'); } }
 
         function showToast(title, message) {
             const container = document.getElementById('toast-container'); if (!container) return;
@@ -5457,10 +5457,20 @@
             return `<tr><td colspan="${colspan}">${emptyState(icon, title, hint, true)}</td></tr>`;
         }
         function handleGlobalModalKeydown(e) {
-            if (e.key !== 'Escape') return;
             const stack = STATE.modalStack || [];
             if (!stack.length) return;
-            closeModal(stack[stack.length - 1]);
+            const m = document.getElementById(stack[stack.length - 1]);
+            if (!m) return;
+            if (e.key === 'Escape') { closeModal(stack[stack.length - 1]); return; }
+            if (e.key !== 'Tab') return;
+            // 포커스 트랩: Tab이 모달 밖으로 새어나가지 않도록 처음↔끝을 순환
+            const sel = 'a[href], button:not([disabled]), input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            const list = Array.from(m.querySelectorAll(sel)).filter(el => el.offsetParent !== null);
+            if (!list.length) return;
+            const first = list[0], last = list[list.length - 1];
+            if (!m.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         }
         function focusFirstInModal(m) {
             try {
@@ -5510,6 +5520,11 @@
                     if (window.lucide) lucide.createIcons();
                 }
                 else { makeModalResizable(m); }
+                if (_pp) { // 다이얼로그 시맨틱(스크린리더): role + aria-modal + 제목 라벨 연결
+                    _pp.setAttribute('role', 'dialog'); _pp.setAttribute('aria-modal', 'true');
+                    const titleEl = m.querySelector('h2, h3, h4, h5, [id$="-title"]');
+                    if (titleEl) { if (!titleEl.id) titleEl.id = id + '-a11y-title'; _pp.setAttribute('aria-labelledby', titleEl.id); }
+                }
                 STATE.modalStack = STATE.modalStack || []; if (STATE.modalStack[STATE.modalStack.length - 1] !== id) STATE.modalStack.push(id);
                 enhanceA11y(m); focusFirstInModal(m);
             }
