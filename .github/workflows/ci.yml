@@ -23,3 +23,19 @@ jobs:
           || (echo "::error::public/index.html 이 최신이 아닙니다. 'npm run build' 후 커밋하세요." && exit 1)
       - name: Run test suite (jsdom)
         run: node tests/e2e.cjs
+
+  responsive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build single-file bundle
+        run: npm run build
+      - name: Run responsive checks (Mobile~4K, card-ization, drawer tab)
+        run: node tests/responsive.cjs
