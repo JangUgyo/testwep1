@@ -68,7 +68,10 @@ function startServer() {
 }
 
 const VIEWPORTS = [
+  { name: 'iPhoneSE', w: 320, h: 568, mobile: true },
+  { name: 'GalaxyS', w: 360, h: 800, mobile: true },
   { name: 'Mobile', w: 375, h: 812, mobile: true },
+  { name: 'Pixel', w: 412, h: 915, mobile: true },
   { name: 'Tablet', w: 768, h: 1024 },
   { name: 'Laptop', w: 1024, h: 768 },
   { name: 'FHD', w: 1920, h: 1080 },
@@ -113,6 +116,12 @@ function ok(name, cond) { if (cond) { pass++; console.log('PASS :', name); } els
   // (1) 해상도별 오버플로우 + (2) 카드화 전환
   for (const v of VIEWPORTS) {
     const { ctx, pg } = await newPage(v.w, v.h);
+    // 최악 케이스(로그인 관리자: 긴 인증 배지 + 점검 버튼)에서도 오버플로우/제목 가림이 없어야 함
+    await pg.evaluate(() => {
+      const rb = document.getElementById('header-user-role-badge'); if (rb) rb.textContent = '시스템 마스터 관리자';
+      const amc = document.getElementById('admin-maintenance-control'); if (amc) amc.classList.remove('hidden');
+    });
+    await pg.waitForTimeout(120);
     const m = await pg.evaluate(() => {
       const de = document.documentElement;
       const wrapDisp = (bodyId) => {
@@ -120,13 +129,15 @@ function ok(name, cond) { if (cond) { pass++; console.log('PASS :', name); } els
         const wrap = el.closest('div.hidden'); return wrap ? getComputedStyle(wrap).display : 'n/a';
       };
       const disp = (id) => { const el = document.getElementById(id); return el ? getComputedStyle(el).display : 'n/a'; };
+      const t = document.getElementById('view-title'); const tw = t ? t.getBoundingClientRect().width : 0;
       return {
-        ov: de.scrollWidth - de.clientWidth,
+        ov: de.scrollWidth - de.clientWidth, titleW: Math.round(tw),
         ticketTable: wrapDisp('ticket-list-body'), ticketCard: disp('ticket-card-list'),
         assetTable: wrapDisp('asset-list-body'), assetCard: disp('asset-card-list'),
       };
     });
-    ok(`[${v.name} ${v.w}] 가로 오버플로우 없음`, m.ov <= 1);
+    ok(`[${v.name} ${v.w}] 가로 오버플로우 없음(관리자 헤더 포함)`, m.ov <= 1);
+    ok(`[${v.name} ${v.w}] 페이지 제목 표시(잘림 방지)`, m.titleW >= 40);
     if (v.mobile) {
       ok(`[${v.name}] 티켓 표 숨김·카드 표시`, m.ticketTable === 'none' && m.ticketCard === 'grid');
       ok(`[${v.name}] 설비 표 숨김·카드 표시`, m.assetTable === 'none' && m.assetCard === 'grid');

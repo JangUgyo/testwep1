@@ -182,7 +182,13 @@
         #app-sidebar { width: 226px; transition: transform 0.25s ease; }
         #app-sidebar .logo-title { font-size: 14px; }
         #app-sidebar .logo-sub { font-size: 11px; }
-        #main-area { margin-left: 226px; }
+        #main-area { margin-left: 226px; min-width: 0; }
+        /* 캔버스(차트)가 컨테이너를 넘지 않도록 — Chart.js 로딩 전/실패 시에도 가로 오버플로우 방지 */
+        canvas { max-width: 100%; }
+        /* 모바일: 헤더 아이콘 버튼 터치 타깃 40px 확보 */
+        @media (max-width: 1023px) {
+            #mobile-hamburger, .hdr-icon-btn { width: 40px !important; height: 40px !important; }
+        }
         /* 모바일(≤1023px): 사이드바를 오프캔버스로 전환, 햄버거로 토글 */
         @media (max-width: 1023px) {
             html { font-size: 16px; }
@@ -483,24 +489,24 @@
             <div class="flex items-center gap-1.5 lg:gap-2 flex-shrink-0">
                 <div class="relative hidden md:block">
                     <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-9 pl-8 pr-3 border border-slate-200 rounded-lg text-[13px] w-52 xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-9 pl-8 pr-3 border border-slate-200 rounded-lg text-[13px] w-44 xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
                     <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
-                <button onclick="openMobileSearch()" class="md:hidden w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
+                <button onclick="openMobileSearch()" class="hdr-icon-btn md:hidden w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
                 <span id="rt-status-dot" class="rt-on hidden sm:block" title="실시간 연결됨"></span>
-                <button onclick="openNotifCenter()" title="통합 알림 센터" class="relative w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-all">
+                <button onclick="openNotifCenter()" title="통합 알림 센터" class="hdr-icon-btn relative w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-all">
                     <i data-lucide="bell" class="w-[18px] h-[18px]"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
                 </button>
-                <div class="flex items-center gap-1.5 h-9 px-3 bg-slate-100 border border-slate-200 rounded-lg text-[13px]">
-                    <span class="hidden sm:inline font-bold text-slate-600">인증 등급:</span>
-                    <span id="header-user-role-badge" class="font-bold text-slate-800">로딩 중</span>
+                <div class="hidden xl:flex items-center gap-1.5 h-9 px-3 bg-slate-100 border border-slate-200 rounded-lg text-[13px]">
+                    <span class="hidden xl:inline font-bold text-slate-600">인증 등급:</span>
+                    <span id="header-user-role-badge" class="font-bold text-slate-800 truncate max-w-[160px]">로딩 중</span>
                 </div>
 
                 <div id="admin-maintenance-control" class="hidden">
-                    <button onclick="toggleActiveTabMaintenance()" class="h-9 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] font-bold shadow flex items-center gap-1.5 transition-all">
-                        <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
-                        <span id="maintenance-btn-text">현재 메뉴 점검 설정</span>
+                    <button onclick="toggleActiveTabMaintenance()" title="현재 메뉴 점검 설정" class="h-10 lg:h-9 px-2.5 lg:px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] font-bold shadow flex items-center gap-1.5 transition-all">
+                        <i data-lucide="wrench" class="w-4 h-4 lg:w-3.5 lg:h-3.5"></i>
+                        <span id="maintenance-btn-text" class="hidden lg:inline">현재 메뉴 점검 설정</span>
                     </button>
                 </div>
             </div>
@@ -528,9 +534,9 @@
             <section id="view-dashboard" class="space-y-6">
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
                 </div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
