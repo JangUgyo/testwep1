@@ -274,14 +274,35 @@ async function run() {
   // 끊김 감지 → 재연결 예약 + 상태 플래그
   window.handleRealtimeStatus('CHANNEL_ERROR');
   ok('error sets rtWasDown', S()._rtWasDown === true);
+  ok('error records downSince', !!S()._rtDownSince);
   ok('error schedules reconnect', !!S()._rtReconnectTimer);
   if (S()._rtReconnectTimer) { clearTimeout(S()._rtReconnectTimer); S()._rtReconnectTimer = null; }
-  // 복구 시 재동기화 + 플래그 해제
-  S()._lastResync = 0;
+  // 토스트 호출 횟수 스파이
+  let toastCount = 0; const _origToast = window.showToast; window.showToast = () => { toastCount++; };
+  // (A) 실제 끊김(4초 초과) 복구 → 재동기화 + 토스트 1회
+  S()._lastResync = 0; S()._rtWasDown = true; S()._rtDownSince = Date.now() - 5000; S()._rtLastToast = 0;
   window.handleRealtimeStatus('SUBSCRIBED');
   await new Promise(r => setTimeout(r, 30));
   ok('reconnect clears rtWasDown', S()._rtWasDown === false);
-  ok('reconnect triggers resync', !!S()._lastResync);
+  ok('real outage triggers resync', !!S()._lastResync);
+  ok('real outage shows one toast', toastCount === 1);
+  // (B) 곧바로 또 끊김→복구(2분 내) → 토스트 디바운스(추가로 안 뜸) = 반복 알림 방지
+  S()._rtWasDown = true; S()._rtDownSince = Date.now() - 5000;
+  window.handleRealtimeStatus('SUBSCRIBED');
+  await new Promise(r => setTimeout(r, 10));
+  ok('repeat reconnect debounced (no extra toast)', toastCount === 1);
+  // (C) 순간 깜빡임(1.5초 미만) → 재동기화·토스트 모두 생략
+  S()._lastResync = 0; toastCount = 0; S()._rtWasDown = true; S()._rtDownSince = Date.now() - 300;
+  window.handleRealtimeStatus('SUBSCRIBED');
+  await new Promise(r => setTimeout(r, 10));
+  ok('brief blip: no resync', !S()._lastResync);
+  ok('brief blip: no toast', toastCount === 0);
+  window.showToast = _origToast;
+  // (D) 재연결은 채널 세대를 올려 옛 채널의 CLOSED 콜백이 루프를 다시 걸지 못하게 함
+  S()._rtGen = 7; window.handleRealtimeStatus('CHANNEL_ERROR');
+  const t = S()._rtReconnectTimer; ok('reconnect scheduled (loop-guarded)', !!t);
+  if (t) { clearTimeout(t); S()._rtReconnectTimer = null; }
+  S()._rtWasDown = false; S()._rtDownSince = 0;
   // 상태 점 토글
   window.updateRealtimeStatus(false);
   ok('status dot off on disconnect', (doc.getElementById('rt-status-dot') || { classList: { contains: () => false } }).classList.contains('rt-off'));

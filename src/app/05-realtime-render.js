@@ -1,5 +1,6 @@
         function setupRealtime() {
             if (STATE._rt) return;
+            const myGen = (STATE._rtGen = (STATE._rtGen || 0) + 1); // 채널 세대 — 재생성 시 옛 채널의 지연 콜백(CLOSED 등) 무시용
             STATE._rt = sb.channel('portal-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => { await reloadEvents(); renderFilters(); renderCalendar(); renderDashboardWidgets(); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'sites' }, async () => { await reloadSites(); const sel = document.getElementById('event-site'); renderSiteOptions(sel ? sel.value : ''); })
@@ -20,7 +21,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_stock' }, async () => { await reloadInventoryStock(); if (STATE.currentTab === 'inventory') renderInventory(); if (STATE._openDetail && STATE._openDetail.type === 'inventory' && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(STATE._openDetail.id); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
-                .subscribe((status) => handleRealtimeStatus(status));
+                .subscribe((status) => { if (myGen === STATE._rtGen) handleRealtimeStatus(status); });
             // 탭이 백그라운드였다가 다시 보일 때: 그 사이 놓친 변경 따라잡기 (중복 등록 방지)
             if (!STATE._rtVisBound) {
                 STATE._rtVisBound = true;
@@ -36,9 +37,21 @@
             if (status === 'SUBSCRIBED') {
                 STATE._rtRetry = 0;
                 updateRealtimeStatus(true);
-                if (STATE._rtWasDown) { STATE._rtWasDown = false; resyncAllData(); showToast('실시간 재연결', '연결이 복구되어 최신 데이터로 동기화했습니다.'); }
+                if (STATE._rtWasDown) {
+                    STATE._rtWasDown = false;
+                    const downMs = STATE._rtDownSince ? (Date.now() - STATE._rtDownSince) : 0;
+                    STATE._rtDownSince = 0;
+                    // 순간 깜빡임(1.5초 미만)은 조용히 넘어가고, 실제 끊김만 재동기화
+                    if (downMs > 1500) resyncAllData();
+                    // 토스트는 실제 끊김(4초 초과)에 한해 최대 2분에 1번만 — 반복 알림 방지
+                    const now = Date.now();
+                    if (downMs > 4000 && (now - (STATE._rtLastToast || 0)) > 120000) {
+                        STATE._rtLastToast = now;
+                        showToast('실시간 재연결', '연결이 복구되어 최신 데이터로 동기화했습니다.');
+                    }
+                }
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-                STATE._rtWasDown = true;
+                if (!STATE._rtWasDown) { STATE._rtWasDown = true; STATE._rtDownSince = Date.now(); }
                 updateRealtimeStatus(false);
                 scheduleRealtimeReconnect();
             }
@@ -49,8 +62,9 @@
             const delay = Math.min(30000, 1000 * Math.pow(2, retry - 1)); // 1·2·4·…초, 최대 30초 백오프
             STATE._rtReconnectTimer = setTimeout(() => {
                 STATE._rtReconnectTimer = null;
-                try { if (STATE._rt) sb.removeChannel(STATE._rt); } catch (e) {}
-                STATE._rt = null;
+                STATE._rtGen = (STATE._rtGen || 0) + 1; // 옛 채널 세대 무효화 → 제거 중 발생하는 CLOSED 콜백이 재연결을 다시 걸지 않음(루프 차단)
+                const old = STATE._rt; STATE._rt = null;
+                try { if (old) sb.removeChannel(old); } catch (e) {}
                 setupRealtime(); // 채널 재생성 → 재구독되면 SUBSCRIBED 콜백에서 재동기화
             }, delay);
         }
