@@ -1058,6 +1058,7 @@
                     <div class="inline-flex bg-slate-100 rounded-xl p-1">
                         <button id="inv-tab-dashboard" onclick="setInventoryView('dashboard')" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-white shadow text-slate-800">대시보드</button>
                         <button id="inv-tab-list" onclick="setInventoryView('list')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">목록</button>
+                        <button id="inv-tab-receiving" onclick="setInventoryView('receiving')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">입고/미착</button>
                     </div>
                 </div>
                 <div id="inventory-dashboard-view">
@@ -1100,6 +1101,24 @@
                     </div>
                 </div>
                 <div id="inventory-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+                </div>
+                <div id="inventory-receiving-view" class="hidden space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="package-search" class="w-4 h-4 text-emerald-600"></i> 발주 입고 / 미착 현황</h3>
+                            <p class="text-[12px] text-slate-500 mt-1">발주서 품목별 입고 진행 상황입니다. 부분 입고 시 입고 단가가 평균단가에 반영됩니다.</p>
+                        </div>
+                        <div id="receiving-filter-tabs" class="inline-flex bg-slate-100 rounded-xl p-1 gap-0.5"></div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-[14px]">
+                                <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-3 py-3 pl-4 text-left font-bold">품목 / 발주서</th><th class="px-3 py-3 text-right font-bold">발주</th><th class="px-3 py-3 text-right font-bold">입고</th><th class="px-3 py-3 text-right font-bold">미착</th><th class="px-3 py-3 text-left font-bold">진행률</th><th class="px-3 py-3 text-left font-bold">상태</th><th class="px-3 py-3 text-right font-bold">처리</th></tr></thead>
+                                <tbody id="inventory-receiving-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="inventory-receiving-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
                 </div>
             </section>
 
@@ -1567,7 +1586,26 @@
         </div>
     </div>
 
-    <!-- 재고: 데이터 백업 / 초기화 -->
+    <!-- 발주 부분 입고 처리 -->
+    <div id="receive-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[80] p-3 md:p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border flex flex-col">
+            <div class="px-6 py-4 border-b bg-slate-50 flex items-center gap-2">
+                <i data-lucide="package-plus" class="w-4 h-4 text-emerald-600"></i>
+                <h4 class="font-bold text-sm text-slate-800">발주 입고 처리</h4>
+            </div>
+            <div class="p-6 space-y-4">
+                <div id="receive-line-info" class="text-[13px] bg-slate-50 rounded-lg p-3"></div>
+                <div><label class="block text-[12px] font-bold text-slate-600 mb-1">입고 수량 <span class="text-rose-400">*</span></label><input type="number" id="receive-qty" step="any" min="0" oninput="updateReceiveAmount()" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-600 mb-1">입고 단가 <span class="text-rose-400">*</span></label><input type="number" id="receive-price" step="any" min="0" oninput="updateReceiveAmount()" placeholder="0" class="w-full px-3 py-2 border rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-[12px] font-bold text-slate-600 mb-1">입고 창고 <span class="text-rose-400">*</span></label><select id="receive-warehouse" class="w-full px-3 py-2 border rounded-lg text-sm bg-white outline-none"></select></div>
+                <div id="receive-amount-preview" class="text-[12px] text-slate-500"></div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('receive-modal')" class="flex-1 px-4 py-2.5 border rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50">취소</button>
+                    <button type="button" id="receive-submit-btn" onclick="submitReceive()" class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold">입고 처리</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="data-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-[85] p-3 md:p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border max-h-[92vh] flex flex-col">
             <div class="px-6 py-4 border-b bg-slate-50 flex items-center justify-between gap-2 flex-shrink-0">

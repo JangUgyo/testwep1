@@ -642,7 +642,7 @@
             const { data, error } = await fetchAllPaged(() => sb.from('inventory_items').select('*').order('name', { ascending: true }));
             if (error) { STATE.inventoryTableMissing = true; STATE.inventory = []; return; }
             STATE.inventoryTableMissing = false;
-            STATE.inventory = (data || []).map(r => ({ id: r.id, sku: r.sku || '', name: r.name, category: r.category || '', unit: r.unit || 'EA', stock: Number(r.stock) || 0, safeStock: Number(r.safe_stock) || 0, unitPrice: Number(r.unit_price) || 0, supplier: r.supplier || '', location: r.location || '', deptId: r.dept_id || '', notes: r.notes || '' }));
+            STATE.inventory = (data || []).map(r => ({ id: r.id, sku: r.sku || '', name: r.name, category: r.category || '', unit: r.unit || 'EA', stock: Number(r.stock) || 0, safeStock: Number(r.safe_stock) || 0, unitPrice: Number(r.unit_price) || 0, supplier: r.supplier || '', location: r.location || '', deptId: r.dept_id || '', notes: r.notes || '', avgPrice: Number(r.avg_price) || 0, inQtyTotal: Number(r.in_qty_total) || 0, inAmountTotal: Number(r.in_amount_total) || 0, acctFlag: !!r.acct_flag, acctAuto: !!r.acct_auto, acctLocked: !!r.acct_locked }));
         }
         async function reloadStockMoves() {
             const { data, error } = await fetchAllPaged(() => sb.from('stock_moves').select('*').order('created_at', { ascending: false }));
@@ -832,11 +832,14 @@
         function inventoryApplyFilter() { resetPage('inventory'); renderInventory(); }
         function setInventoryView(view) {
             STATE.inventoryView = view;
-            const dv = document.getElementById('inventory-dashboard-view'), lv = document.getElementById('inventory-list-view');
-            const td = document.getElementById('inv-tab-dashboard'), tl = document.getElementById('inv-tab-list');
+            const dv = document.getElementById('inventory-dashboard-view'), lv = document.getElementById('inventory-list-view'), rv = document.getElementById('inventory-receiving-view');
+            const td = document.getElementById('inv-tab-dashboard'), tl = document.getElementById('inv-tab-list'), tr = document.getElementById('inv-tab-receiving');
             const on = 'px-4 py-1.5 rounded-lg text-sm font-bold bg-white shadow text-slate-800', off = 'px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500';
-            if (view === 'list') { if (dv) dv.classList.add('hidden'); if (lv) lv.classList.remove('hidden'); if (td) td.className = off; if (tl) tl.className = on; renderInventory(); }
-            else { if (lv) lv.classList.add('hidden'); if (dv) dv.classList.remove('hidden'); if (tl) tl.className = off; if (td) td.className = on; renderInventoryDashboard(); }
+            [dv, lv, rv].forEach(el => { if (el) el.classList.add('hidden'); });
+            [td, tl, tr].forEach(el => { if (el) el.className = off; });
+            if (view === 'list') { if (lv) lv.classList.remove('hidden'); if (tl) tl.className = on; renderInventory(); }
+            else if (view === 'receiving') { if (rv) rv.classList.remove('hidden'); if (tr) tr.className = on; renderReceivingStatus(); }
+            else { if (dv) dv.classList.remove('hidden'); if (td) td.className = on; renderInventoryDashboard(); }
             if (window.lucide) lucide.createIcons();
         }
         function inventoryEmptyStateHTML() {

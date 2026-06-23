@@ -20,6 +20,7 @@ const SOURCES = [
   'app/06-projects-ux.js',     // UX(ESC/알림)·프로젝트 진척·페이지네이션·동시편집 보호
   'app/07-meetings-attach.js', // 주간 회의 일지·첨부 미리보기
   'app/08-dashboard-admin.js', // 대시보드 위젯·권한·사용자·동적기능·모달/토스트·a11y
+  'app/09-inventory-receiving.js', // 발주 연계·미착/입고 현황·부분입고·평균단가·회계 자동분류
 ];
 
 mkdirSync(join(__dirname, 'public'), { recursive: true });

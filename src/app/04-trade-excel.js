@@ -643,12 +643,15 @@
                 items, remarks, vat: t.vat, subtotal: t.subtotal, tax: t.tax, total: t.total,
                 author: STATE.profile.name, author_id: STATE.currentUser ? STATE.currentUser.id : null, dept_id: document.getElementById('trade-dept').value
             };
-            let error;
+            let error, savedId = id ? parseInt(id) : null;
             if (id) { ({ error } = await sb.from('trade_documents').update(row).eq('id', parseInt(id))); }
-            else { ({ error } = await sb.from('trade_documents').insert(row)); }
+            else { const r = await sb.from('trade_documents').insert(row).select('id').single(); error = r.error; savedId = r.data ? r.data.id : null; }
             if (error) { showToast('저장 실패', error.message); return; }
             logAudit(id ? 'trade_update' : 'trade_create', row.doc_no, `${TRADE_KIND[kind][0]} · ${row.client} · ₩${fmtNum(row.total)}`);
-            await reloadTrade(); renderTrade(); renderDashboardWidgets(); closeModal('trade-form-modal');
+            await reloadTrade();
+            // 발주서면 라인 품목을 재고에 자동 연동(미존재 품목 생성) — 요청 ①
+            if (kind === 'po' && savedId && typeof autoLinkPoToInventory === 'function') { try { const n = await autoLinkPoToInventory(savedId); if (n > 0) showToast('재고 자동 연동', `${n}개 품목이 재고관리에 연동되었습니다.`); } catch (e) {} if (typeof reloadPoReceipts === 'function') await reloadPoReceipts(); }
+            renderTrade(); renderDashboardWidgets(); closeModal('trade-form-modal');
             if (id && !document.getElementById('trade-detail-modal').classList.contains('hidden')) openTradeDetail(parseInt(id));
             showToast('저장 완료', `${TRADE_KIND[kind][0]} ${row.doc_no} 저장됨`);
         }

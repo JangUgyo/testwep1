@@ -44,7 +44,7 @@ let CURRENT_SESSION = { user: { id: 'admin-uuid', email: 'boss@co.com' } }; // s
 function makeBuilder(table) {
   const ctx = { table, op: 'select', filterId: null, single: false };
   const builder = {
-    select() { ctx.op = 'select'; return builder; },
+    select() { if (ctx.op === 'select') ctx.op = 'select'; else ctx.returning = true; return builder; },
     insert(v) { ctx.op = 'insert'; ctx._v = v; return builder; },
     update(v) { ctx.op = 'update'; ctx._v = v; return builder; },
     upsert(v) { ctx.op = 'upsert'; ctx._v = v; return builder; },
@@ -68,9 +68,12 @@ function makeBuilder(table) {
         else { data = rows.slice(); if (ctx._rangeFrom != null) data = data.slice(ctx._rangeFrom, ctx._rangeTo + 1); }
       } else if (ctx.op === 'insert' && (ctx.table === 'sites' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'audit_logs' || ctx.table === 'documents' || ctx.table === 'inventory_items' || ctx.table === 'stock_moves' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         const arr = Array.isArray(ctx._v) ? ctx._v : [ctx._v];
-        arr.forEach(v => { const row = Object.assign({}, v); if (row.id === undefined) row.id = (rows.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1); if (ctx.table === 'audit_logs' && !row.created_at) row.created_at = new Date().toISOString(); rows.push(row); });
+        const inserted = [];
+        arr.forEach(v => { const row = Object.assign({}, v); if (row.id === undefined) row.id = (rows.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1); if (ctx.table === 'audit_logs' && !row.created_at) row.created_at = new Date().toISOString(); rows.push(row); inserted.push(row); });
+        if (ctx.returning) data = ctx.single ? (inserted[0] || null) : inserted;
       } else if (ctx.op === 'update' && (ctx.table === 'projects' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'weekly_meetings' || ctx.table === 'documents' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         rows.forEach(r => { if (r.id === ctx.filterId) Object.assign(r, ctx._v); });
+        if (ctx.returning) { const u = rows.find(r => r.id === ctx.filterId) || null; data = ctx.single ? u : (u ? [u] : []); }
       } else if (ctx.op === 'delete' && (ctx.table === 'tickets' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
         const i = rows.findIndex(r => r.id === ctx.filterId); if (i >= 0) rows.splice(i, 1);
       } else if (ctx.op === 'upsert') {
@@ -1809,6 +1812,39 @@ async function run() {
 
   // logout
   await window.handleUserLogout(); ok('logout shows gateway', !$('auth-gateway-overlay').classList.contains('hidden'));
+
+  // ===== 재고 고도화 1단계: 발주 입고/미착·자동연동·임계값 =====
+  S().receiveDraft = { tradeId: 9001, lineIdx: 0, unit: 'EA', ordered: 10, pending: 10 };
+  if ($('receive-qty')) $('receive-qty').value = '4';
+  if ($('receive-price')) { $('receive-price').value = '250000'; window.updateReceiveAmount(); ok('receipt ≥100만원 → 회계 자동분류 안내', ($('receive-amount-preview').innerHTML || '').indexOf('회계재고') >= 0); }
+  if ($('receive-price')) { $('receive-price').value = '50000'; window.updateReceiveAmount(); ok('receipt <100만원 → 회계 안내 없음', ($('receive-amount-preview').innerHTML || '').indexOf('회계재고') < 0); }
+  S().trade = [{ id: 9001, kind: 'po', docNo: 'PO-T1', client: 'ACME', deptId: 'strategy', status: 'issued', createdAt: '2026-06-01T00:00:00Z', items: [
+    { description: '미착테스트A', qty: 10, unit: 'EA', unitPrice: 5000, sub: false },
+    { description: '소계행', sub: true },
+    { description: '미착테스트B', qty: 4, unit: 'EA', unitPrice: 300000, sub: false }
+  ] }];
+  S().poReceipts = [{ id: 1, tradeId: 9001, lineIdx: 0, itemId: null, qty: 4, unitPrice: 5000, amount: 20000 }];
+  S().poReceiptsMissing = false;
+  ok('receivedQtyForLine sums receipts', window.receivedQtyForLine(9001, 0) === 4);
+  const _ls = window.poLineStatusList();
+  const _lA = _ls.find(x => x.description === '미착테스트A');
+  const _lB = _ls.find(x => x.description === '미착테스트B');
+  ok('po line A ordered/received/pending', !!_lA && _lA.ordered === 10 && _lA.received === 4 && _lA.pending === 6 && _lA.stat === 'partial');
+  ok('po line A progress 40%', !!_lA && _lA.progress === 40);
+  ok('po line B fully pending', !!_lB && _lB.received === 0 && _lB.pending === 4 && _lB.stat === 'pending');
+  ok('sub line excluded from receiving', !_ls.find(x => x.description === '소계행'));
+  // 자동연동: 발주 라인 → 재고 품목 생성(미존재만)
+  S().inventory = []; S().inventoryTableMissing = false;
+  const _created = await window.autoLinkPoToInventory(9001);
+  ok('auto-link creates 2 inventory items for PO', _created === 2);
+  ok('auto-linked item A exists', !!(S().inventory || []).find(i => i.name === '미착테스트A'));
+  ok('sub line not auto-linked', !(S().inventory || []).find(i => i.name === '소계행'));
+  // 재실행 시 중복 생성 안 함
+  const _created2 = await window.autoLinkPoToInventory(9001);
+  ok('auto-link is idempotent (no duplicates)', _created2 === 0);
+  // 미착현황 렌더가 오류 없이 동작
+  S().receivingFilter = 'all'; let _recvErr = false; try { window.renderReceivingStatus(); } catch (e) { _recvErr = true; }
+  ok('renderReceivingStatus runs without error', !_recvErr);
 
   // login again
   $('login-id').value = 'boss@co.com'; $('login-password').value = 'x';
