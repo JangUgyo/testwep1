@@ -521,7 +521,7 @@
         function isDocAuthor(doc) { return (doc.author || '').trim() === (STATE.profile.name || '').trim(); }
         function renderDocuments(items = STATE.documents) {
             const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
-            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
+            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; renderListCards('document-card-list', [], documentCardHTML, '등록된 보고서가 없습니다'); return; }
             const shown = items.slice(0, pageCount('documents'));
             shown.forEach(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
@@ -539,6 +539,7 @@
                 tbody.appendChild(tr);
             });
             tbody.insertAdjacentHTML('beforeend', moreRowHTML(items.length, 'documents', 6));
+            renderListCards('document-card-list', shown, documentCardHTML, '등록된 보고서가 없습니다');
             if (window.lucide) lucide.createIcons();
         }
         async function submitDocForApproval(id) {

@@ -258,6 +258,7 @@
                     tr.addEventListener('click', () => openProjectDetail(proj.id));
                     tbody.appendChild(tr);
                 });
+                renderListCards('project-card-list', projList, projectCardHTML, '등록된 프로젝트가 없습니다');
             } else if (v === 'gantt') {
                 renderGantt(statusFill);
             }

@@ -193,3 +193,59 @@
             if (created > 0) { await reloadInventory(); }
             return created;
         }
+
+        // 회계재고 수동 지정/제외(담당자) — 요청 ④. set_inventory_acct RPC가 acct_locked=true 로 잠가 자동분류가 덮어쓰지 않음
+        async function toggleInventoryAcct(itemId, flag) {
+            const it = (STATE.inventory || []).find(x => String(x.id) === String(itemId));
+            if (it && !canManageInventory(it)) { showToast('권한 없음', '본인 부서 품목만 변경할 수 있습니다.'); return; }
+            const rec = await sb.rpc('set_inventory_acct', { p_item_id: itemId, p_flag: !!flag });
+            if (rec.error) {
+                const m = (rec.error.message || '');
+                if (m.indexOf('set_inventory_acct') >= 0 || m.indexOf('function') >= 0 || m.indexOf('does not exist') >= 0) showToast('준비 필요', '회계지정 함수(set_inventory_acct) SQL을 먼저 실행하세요.');
+                else showToast('변경 실패', m);
+                return;
+            }
+            showToast('회계재고', flag ? '회계재고로 지정했습니다.' : '회계재고에서 제외했습니다.');
+            await reloadInventory();
+            if (STATE.currentTab === 'inventory') renderInventory();
+            if (STATE._openDetail && STATE._openDetail.type === 'inventory' && String(STATE._openDetail.id) === String(itemId)) openInventoryDetail(parseInt(itemId));
+        }
+
+        // ============================================================
+        // 공통 목록 카드 렌더 헬퍼(DRY) — 모바일에서 표 대신 카드로 표시
+        // buildCard(item) -> 카드 HTML 문자열. 빈 목록·아이콘 갱신을 일괄 처리.
+        // ============================================================
+        function renderListCards(containerId, items, buildCard, emptyHint) {
+            const el = document.getElementById(containerId); if (!el) return;
+            if (!items || !items.length) { el.innerHTML = `<div class="sm:col-span-2">${emptyState('inbox', emptyHint || '항목이 없습니다', '', true)}</div>`; if (window.lucide) lucide.createIcons(); return; }
+            el.innerHTML = items.map(buildCard).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // 문서 허브 모바일 카드
+        function documentCardHTML(doc) {
+            const dept = STATE.departments.find(d => d.id === doc.deptId);
+            const fileBadge = doc.storagePath ? '<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ' : '';
+            let actions = `<button onclick="event.stopPropagation();viewDocument(${doc.id})" class="text-blue-600 font-bold">열람</button>`;
+            if ((doc.status === 'draft' || doc.status === 'rejected') && (isDocAuthor(doc) || STATE.profile.role === 'admin')) actions += `<button onclick="event.stopPropagation();submitDocForApproval(${doc.id})" class="text-amber-600 font-bold">결재요청</button>`;
+            if (doc.status === 'pending' && canApproveDoc(doc)) actions += `<button onclick="event.stopPropagation();approveDoc(${doc.id})" class="text-emerald-600 font-bold">승인</button><button onclick="event.stopPropagation();rejectDoc(${doc.id})" class="text-rose-500 font-bold">반려</button>`;
+            if (canManageDoc(doc)) actions += `<button onclick="event.stopPropagation();openEditDocument(${doc.id})" class="text-slate-500 font-bold">수정</button><button onclick="event.stopPropagation();deleteDocument(${doc.id})" class="text-rose-500 font-bold">삭제</button>`;
+            return `<div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-2" onclick="viewDocument(${doc.id})">
+                <div class="flex items-start justify-between gap-2"><div class="min-w-0"><div class="font-bold text-slate-800 truncate">${fileBadge}${esc(doc.title)}</div><div class="text-[11px] text-slate-400 mt-0.5">${esc(doc.author) || '-'}${doc.date ? ' · ' + doc.date : ''}</div></div>${docStatusBadge(doc.status)}</div>
+                <div class="flex items-center justify-between gap-2"><span class="wsp-chip ${dept ? dept.textTheme : 'bg-slate-100 text-slate-600 border-slate-200'}">${dept ? esc(dept.name) : '공통'}</span></div>
+                <div class="flex flex-wrap gap-x-3 gap-y-1 text-[13px] pt-1 border-t border-slate-100" onclick="event.stopPropagation()">${actions}</div>
+            </div>`;
+        }
+
+        // 프로젝트 진척 모바일 카드
+        function projectCardHTML(proj) {
+            const dept = STATE.departments.find(d => d.id === proj.deptId);
+            const bar = (typeof statusFill !== 'undefined' && statusFill[proj.status]) ? statusFill[proj.status] : 'bg-slate-400';
+            const manage = canManageProject(proj);
+            return `<div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-2" onclick="openProjectDetail(${proj.id})">
+                <div class="flex items-start justify-between gap-2"><div class="font-bold text-slate-800 min-w-0 truncate">${esc(proj.title)}</div><span class="text-slate-500 font-mono font-bold text-sm flex-shrink-0">${proj.progress}%</span></div>
+                <div class="text-[11px] text-slate-400">${dept ? esc(dept.name) : '전사'} · ${proj.startDate || '-'} ~ ${proj.endDate || '-'}</div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>
+                ${manage ? `<div class="flex justify-end pt-1 border-t border-slate-100" onclick="event.stopPropagation()"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[13px]">삭제</button></div>` : ''}
+            </div>`;
+        }

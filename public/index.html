@@ -648,13 +648,16 @@
                         <div id="board-completed-list" ondragover="onKanbanDragOver(event)" ondragleave="onKanbanDragLeave(event)" ondrop="onKanbanDrop(event,'completed')" class="space-y-3 flex-1 overflow-y-auto p-3 transition-colors"></div>
                     </div>
                 </div>
-                <div id="project-subview-list" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div id="project-subview-list" class="hidden">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden hidden md:block">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead class="bg-slate-50 border-b">
                             <tr><th class="p-4 font-bold">프로젝트명</th><th class="p-4 font-bold">수행 부서</th><th class="p-4 font-bold">일정 범위</th><th class="p-4 font-bold">진행도 (%)</th><th class="p-4 text-right">관리</th></tr>
                         </thead>
                         <tbody id="project-list-table-body" class="divide-y text-xs"></tbody>
                     </table>
+                    </div>
+                    <div id="project-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
                 </div>
                 <div id="project-subview-gantt" class="hidden bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                     <div class="flex items-center justify-between flex-wrap gap-3">
@@ -706,7 +709,7 @@
                     </div>
                     <button onclick="openModal('add-doc-modal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5"><i data-lucide="file-plus" class="w-4 h-4"></i> 보고서 등록</button>
                 </div>
-                <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border shadow-sm overflow-hidden hidden md:block">
                   <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[640px]">
                         <thead class="bg-slate-50 border-b">
@@ -716,6 +719,7 @@
                     </table>
                   </div>
                 </div>
+                <div id="document-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
             </section>
 
             <!-- 모달 및 히든 섹션 링크 -->
@@ -3341,11 +3345,11 @@
                 const dept = STATE.departments.find(d => d.id === i.deptId);
                 const low = isLowStock(i);
                 return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
-                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800 flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
                     <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
                     <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${fw !== 'all' ? ` <span class="text-[11px] text-slate-300">/${fmtNum(i.stock)}</span>` : ''}${low ? ' ' + chip('부족', 'danger') : ''}</td>
                     <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}${i.avgPrice > 0 ? `<div class="text-[11px] text-emerald-600 font-bold" title="입고 가중평균">평균 ₩${fmtNum(i.avgPrice)}</div>` : ''}</td>
                     <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
                     <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(i)}</td>
                 </tr>`;
@@ -3356,11 +3360,11 @@
                 const low = isLowStock(i);
                 return `<div class="bg-white rounded-2xl border ${low ? 'border-rose-200' : 'border-slate-200'} shadow-sm p-4 space-y-2" onclick="openInventoryDetail(${i.id})">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0"><div class="font-bold text-slate-800 truncate">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'} ${i.category ? '· ' + esc(i.category) : ''}</div></div>
+                        <div class="min-w-0"><div class="font-bold text-slate-800 truncate flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200 flex-shrink-0">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'} ${i.category ? '· ' + esc(i.category) : ''}</div></div>
                         ${low ? chip('부족', 'danger') : chip('정상', 'success')}
                     </div>
                     <div class="flex items-end justify-between">
-                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}${fw !== 'all' ? ' /' + fmtNum(i.stock) : ''} (안전 ${fmtNum(i.safeStock)})</span></div>
+                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}${fw !== 'all' ? ' /' + fmtNum(i.stock) : ''} (안전 ${fmtNum(i.safeStock)})</span>${i.avgPrice > 0 ? `<div class="text-[12px] text-emerald-600 font-bold mt-0.5">평균단가 ₩${fmtNum(i.avgPrice)}</div>` : ''}</div>
                         <div class="text-[12px] text-slate-400 text-right">${esc(i.supplier) || ''}<br>${dept ? esc(dept.name) : ''}</div>
                     </div>
                     <div class="flex gap-2 pt-1 text-[13px]" onclick="event.stopPropagation()">${actionsFor(i)}</div>
@@ -3530,11 +3534,16 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         ${field('현재고', `<span class="${low ? 'text-rose-600' : ''}">${fmtNum(it.stock)} ${esc(it.unit)}</span>`)}
                         ${field('안전재고', fmtNum(it.safeStock) + ' ' + esc(it.unit))}
-                        ${field('단가', '₩' + fmtNum(it.unitPrice))}
-                        ${field('재고 금액', '₩' + fmtNum(it.stock * it.unitPrice))}
+                        ${field('단가(기준)', '₩' + fmtNum(it.unitPrice))}
+                        ${field('평균단가', it.avgPrice > 0 ? `<span class="text-emerald-600">₩${fmtNum(it.avgPrice)}</span>` : '-')}
+                        ${field('재고 금액', '₩' + fmtNum(it.stock * (it.avgPrice > 0 ? it.avgPrice : it.unitPrice)))}
                         ${field('거래처', esc(it.supplier) || '-')}
                         ${field('보관 위치', esc(it.location) || '-')}
                     </div>
+                    ${manage ? `<div class="border-t border-slate-100 pt-3 flex items-center justify-between gap-2 flex-wrap">
+                        <div class="text-[12px] font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="calculator" class="w-3.5 h-3.5 text-violet-500"></i> 회계재고 ${it.acctFlag ? chip('지정됨', 'neutral') : '<span class="text-slate-400">미지정</span>'}${it.acctAuto ? ' <span class="text-[11px] text-violet-500">(자동분류 ≥100만원)</span>' : ''}${it.acctLocked ? ' <span class="text-[11px] text-slate-400">· 수동잠금</span>' : ''}</div>
+                        <button onclick="toggleInventoryAcct(${it.id}, ${it.acctFlag ? 'false' : 'true'})" class="px-3 py-1.5 ${it.acctFlag ? 'border border-slate-200 text-slate-500 hover:bg-slate-50' : 'bg-violet-600 hover:bg-violet-700 text-white'} text-xs font-bold rounded-lg">${it.acctFlag ? '회계재고 제외' : '회계재고로 지정'}</button>
+                    </div>` : ''}
                     ${(STATE.warehouses || []).length ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-1.5 flex items-center gap-1"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i> 창고별 재고</div><div class="flex flex-wrap gap-2">${(STATE.warehouses || []).map(w => { const q = itemWhQty(it.id, w.id); return `<span class="wsp-chip ${q > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">${esc(w.name)} <b>${fmtNum(q)}</b> ${esc(it.unit)}</span>`; }).join('')}</div></div>` : ''}
                     ${it.notes ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-0.5">비고</div><div class="text-sm text-slate-700 whitespace-pre-line">${esc(it.notes)}</div></div>` : ''}
                 </div>
@@ -5020,7 +5029,7 @@
         function isDocAuthor(doc) { return (doc.author || '').trim() === (STATE.profile.name || '').trim(); }
         function renderDocuments(items = STATE.documents) {
             const tbody = document.getElementById('document-list-body'); if (!tbody) return; tbody.innerHTML = '';
-            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; return; }
+            if (items.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">보관고에 등록된 사내 보고서가 없습니다.</td></tr>`; renderListCards('document-card-list', [], documentCardHTML, '등록된 보고서가 없습니다'); return; }
             const shown = items.slice(0, pageCount('documents'));
             shown.forEach(doc => {
                 const dept = STATE.departments.find(d => d.id === doc.deptId);
@@ -5038,6 +5047,7 @@
                 tbody.appendChild(tr);
             });
             tbody.insertAdjacentHTML('beforeend', moreRowHTML(items.length, 'documents', 6));
+            renderListCards('document-card-list', shown, documentCardHTML, '등록된 보고서가 없습니다');
             if (window.lucide) lucide.createIcons();
         }
         async function submitDocForApproval(id) {
@@ -5456,6 +5466,7 @@
                     tr.addEventListener('click', () => openProjectDetail(proj.id));
                     tbody.appendChild(tr);
                 });
+                renderListCards('project-card-list', projList, projectCardHTML, '등록된 프로젝트가 없습니다');
             } else if (v === 'gantt') {
                 renderGantt(statusFill);
             }
@@ -8029,6 +8040,62 @@
             }
             if (created > 0) { await reloadInventory(); }
             return created;
+        }
+
+        // 회계재고 수동 지정/제외(담당자) — 요청 ④. set_inventory_acct RPC가 acct_locked=true 로 잠가 자동분류가 덮어쓰지 않음
+        async function toggleInventoryAcct(itemId, flag) {
+            const it = (STATE.inventory || []).find(x => String(x.id) === String(itemId));
+            if (it && !canManageInventory(it)) { showToast('권한 없음', '본인 부서 품목만 변경할 수 있습니다.'); return; }
+            const rec = await sb.rpc('set_inventory_acct', { p_item_id: itemId, p_flag: !!flag });
+            if (rec.error) {
+                const m = (rec.error.message || '');
+                if (m.indexOf('set_inventory_acct') >= 0 || m.indexOf('function') >= 0 || m.indexOf('does not exist') >= 0) showToast('준비 필요', '회계지정 함수(set_inventory_acct) SQL을 먼저 실행하세요.');
+                else showToast('변경 실패', m);
+                return;
+            }
+            showToast('회계재고', flag ? '회계재고로 지정했습니다.' : '회계재고에서 제외했습니다.');
+            await reloadInventory();
+            if (STATE.currentTab === 'inventory') renderInventory();
+            if (STATE._openDetail && STATE._openDetail.type === 'inventory' && String(STATE._openDetail.id) === String(itemId)) openInventoryDetail(parseInt(itemId));
+        }
+
+        // ============================================================
+        // 공통 목록 카드 렌더 헬퍼(DRY) — 모바일에서 표 대신 카드로 표시
+        // buildCard(item) -> 카드 HTML 문자열. 빈 목록·아이콘 갱신을 일괄 처리.
+        // ============================================================
+        function renderListCards(containerId, items, buildCard, emptyHint) {
+            const el = document.getElementById(containerId); if (!el) return;
+            if (!items || !items.length) { el.innerHTML = `<div class="sm:col-span-2">${emptyState('inbox', emptyHint || '항목이 없습니다', '', true)}</div>`; if (window.lucide) lucide.createIcons(); return; }
+            el.innerHTML = items.map(buildCard).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // 문서 허브 모바일 카드
+        function documentCardHTML(doc) {
+            const dept = STATE.departments.find(d => d.id === doc.deptId);
+            const fileBadge = doc.storagePath ? '<i data-lucide="paperclip" class="w-3 h-3 inline-block text-blue-500"></i> ' : '';
+            let actions = `<button onclick="event.stopPropagation();viewDocument(${doc.id})" class="text-blue-600 font-bold">열람</button>`;
+            if ((doc.status === 'draft' || doc.status === 'rejected') && (isDocAuthor(doc) || STATE.profile.role === 'admin')) actions += `<button onclick="event.stopPropagation();submitDocForApproval(${doc.id})" class="text-amber-600 font-bold">결재요청</button>`;
+            if (doc.status === 'pending' && canApproveDoc(doc)) actions += `<button onclick="event.stopPropagation();approveDoc(${doc.id})" class="text-emerald-600 font-bold">승인</button><button onclick="event.stopPropagation();rejectDoc(${doc.id})" class="text-rose-500 font-bold">반려</button>`;
+            if (canManageDoc(doc)) actions += `<button onclick="event.stopPropagation();openEditDocument(${doc.id})" class="text-slate-500 font-bold">수정</button><button onclick="event.stopPropagation();deleteDocument(${doc.id})" class="text-rose-500 font-bold">삭제</button>`;
+            return `<div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-2" onclick="viewDocument(${doc.id})">
+                <div class="flex items-start justify-between gap-2"><div class="min-w-0"><div class="font-bold text-slate-800 truncate">${fileBadge}${esc(doc.title)}</div><div class="text-[11px] text-slate-400 mt-0.5">${esc(doc.author) || '-'}${doc.date ? ' · ' + doc.date : ''}</div></div>${docStatusBadge(doc.status)}</div>
+                <div class="flex items-center justify-between gap-2"><span class="wsp-chip ${dept ? dept.textTheme : 'bg-slate-100 text-slate-600 border-slate-200'}">${dept ? esc(dept.name) : '공통'}</span></div>
+                <div class="flex flex-wrap gap-x-3 gap-y-1 text-[13px] pt-1 border-t border-slate-100" onclick="event.stopPropagation()">${actions}</div>
+            </div>`;
+        }
+
+        // 프로젝트 진척 모바일 카드
+        function projectCardHTML(proj) {
+            const dept = STATE.departments.find(d => d.id === proj.deptId);
+            const bar = (typeof statusFill !== 'undefined' && statusFill[proj.status]) ? statusFill[proj.status] : 'bg-slate-400';
+            const manage = canManageProject(proj);
+            return `<div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm space-y-2" onclick="openProjectDetail(${proj.id})">
+                <div class="flex items-start justify-between gap-2"><div class="font-bold text-slate-800 min-w-0 truncate">${esc(proj.title)}</div><span class="text-slate-500 font-mono font-bold text-sm flex-shrink-0">${proj.progress}%</span></div>
+                <div class="text-[11px] text-slate-400">${dept ? esc(dept.name) : '전사'} · ${proj.startDate || '-'} ~ ${proj.endDate || '-'}</div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${bar} rounded-full" style="width:${proj.progress}%"></div></div>
+                ${manage ? `<div class="flex justify-end pt-1 border-t border-slate-100" onclick="event.stopPropagation()"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[13px]">삭제</button></div>` : ''}
+            </div>`;
         }
 
 

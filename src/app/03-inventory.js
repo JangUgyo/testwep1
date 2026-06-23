@@ -925,11 +925,11 @@
                 const dept = STATE.departments.find(d => d.id === i.deptId);
                 const low = isLowStock(i);
                 return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
-                    <td class="px-4 py-3"><div class="font-bold text-slate-800">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
+                    <td class="px-4 py-3"><div class="font-bold text-slate-800 flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
                     <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
                     <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${fw !== 'all' ? ` <span class="text-[11px] text-slate-300">/${fmtNum(i.stock)}</span>` : ''}${low ? ' ' + chip('부족', 'danger') : ''}</td>
                     <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}${i.avgPrice > 0 ? `<div class="text-[11px] text-emerald-600 font-bold" title="입고 가중평균">평균 ₩${fmtNum(i.avgPrice)}</div>` : ''}</td>
                     <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
                     <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(i)}</td>
                 </tr>`;
@@ -940,11 +940,11 @@
                 const low = isLowStock(i);
                 return `<div class="bg-white rounded-2xl border ${low ? 'border-rose-200' : 'border-slate-200'} shadow-sm p-4 space-y-2" onclick="openInventoryDetail(${i.id})">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0"><div class="font-bold text-slate-800 truncate">${esc(i.name)}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'} ${i.category ? '· ' + esc(i.category) : ''}</div></div>
+                        <div class="min-w-0"><div class="font-bold text-slate-800 truncate flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200 flex-shrink-0">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'} ${i.category ? '· ' + esc(i.category) : ''}</div></div>
                         ${low ? chip('부족', 'danger') : chip('정상', 'success')}
                     </div>
                     <div class="flex items-end justify-between">
-                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}${fw !== 'all' ? ' /' + fmtNum(i.stock) : ''} (안전 ${fmtNum(i.safeStock)})</span></div>
+                        <div><span class="text-2xl font-extrabold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}${fw !== 'all' ? ' /' + fmtNum(i.stock) : ''} (안전 ${fmtNum(i.safeStock)})</span>${i.avgPrice > 0 ? `<div class="text-[12px] text-emerald-600 font-bold mt-0.5">평균단가 ₩${fmtNum(i.avgPrice)}</div>` : ''}</div>
                         <div class="text-[12px] text-slate-400 text-right">${esc(i.supplier) || ''}<br>${dept ? esc(dept.name) : ''}</div>
                     </div>
                     <div class="flex gap-2 pt-1 text-[13px]" onclick="event.stopPropagation()">${actionsFor(i)}</div>
@@ -1114,11 +1114,16 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         ${field('현재고', `<span class="${low ? 'text-rose-600' : ''}">${fmtNum(it.stock)} ${esc(it.unit)}</span>`)}
                         ${field('안전재고', fmtNum(it.safeStock) + ' ' + esc(it.unit))}
-                        ${field('단가', '₩' + fmtNum(it.unitPrice))}
-                        ${field('재고 금액', '₩' + fmtNum(it.stock * it.unitPrice))}
+                        ${field('단가(기준)', '₩' + fmtNum(it.unitPrice))}
+                        ${field('평균단가', it.avgPrice > 0 ? `<span class="text-emerald-600">₩${fmtNum(it.avgPrice)}</span>` : '-')}
+                        ${field('재고 금액', '₩' + fmtNum(it.stock * (it.avgPrice > 0 ? it.avgPrice : it.unitPrice)))}
                         ${field('거래처', esc(it.supplier) || '-')}
                         ${field('보관 위치', esc(it.location) || '-')}
                     </div>
+                    ${manage ? `<div class="border-t border-slate-100 pt-3 flex items-center justify-between gap-2 flex-wrap">
+                        <div class="text-[12px] font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="calculator" class="w-3.5 h-3.5 text-violet-500"></i> 회계재고 ${it.acctFlag ? chip('지정됨', 'neutral') : '<span class="text-slate-400">미지정</span>'}${it.acctAuto ? ' <span class="text-[11px] text-violet-500">(자동분류 ≥100만원)</span>' : ''}${it.acctLocked ? ' <span class="text-[11px] text-slate-400">· 수동잠금</span>' : ''}</div>
+                        <button onclick="toggleInventoryAcct(${it.id}, ${it.acctFlag ? 'false' : 'true'})" class="px-3 py-1.5 ${it.acctFlag ? 'border border-slate-200 text-slate-500 hover:bg-slate-50' : 'bg-violet-600 hover:bg-violet-700 text-white'} text-xs font-bold rounded-lg">${it.acctFlag ? '회계재고 제외' : '회계재고로 지정'}</button>
+                    </div>` : ''}
                     ${(STATE.warehouses || []).length ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-1.5 flex items-center gap-1"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i> 창고별 재고</div><div class="flex flex-wrap gap-2">${(STATE.warehouses || []).map(w => { const q = itemWhQty(it.id, w.id); return `<span class="wsp-chip ${q > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}">${esc(w.name)} <b>${fmtNum(q)}</b> ${esc(it.unit)}</span>`; }).join('')}</div></div>` : ''}
                     ${it.notes ? `<div class="border-t border-slate-100 pt-3"><div class="text-[12px] font-bold text-slate-400 mb-0.5">비고</div><div class="text-sm text-slate-700 whitespace-pre-line">${esc(it.notes)}</div></div>` : ''}
                 </div>

@@ -1845,6 +1845,22 @@ async function run() {
   // 미착현황 렌더가 오류 없이 동작
   S().receivingFilter = 'all'; let _recvErr = false; try { window.renderReceivingStatus(); } catch (e) { _recvErr = true; }
   ok('renderReceivingStatus runs without error', !_recvErr);
+  // 평균단가·회계 배지 목록 노출
+  S().inventory = [{ id: 7777, name: '평균단가품목', sku: 'AVG1', category: '', unit: 'EA', stock: 5, safeStock: 0, unitPrice: 100000, supplier: '', location: '', deptId: 'strategy', notes: '', avgPrice: 350000, inQtyTotal: 4, inAmountTotal: 1400000, acctFlag: true, acctAuto: true, acctLocked: false }];
+  S().inventoryTableMissing = false; S().inventoryView = 'list';
+  try { window.renderInventory(); } catch (e) {}
+  { const ib = (doc.getElementById('inventory-list-body') || {}).innerHTML || '';
+    ok('avg price shown in inventory list', ib.indexOf('평균 ₩350,000') >= 0);
+    ok('accounting badge shown in inventory list', ib.indexOf('>회계<') >= 0); }
+  ok('toggleInventoryAcct fn present', typeof window.toggleInventoryAcct === 'function');
+  // 공통 카드 헬퍼 + 문서/프로젝트 카드 빌더(모바일 카드화)
+  ok('renderListCards fn present', typeof window.renderListCards === 'function');
+  window.renderListCards('document-card-list', [{ id: 1 }], () => '<div class="testcard">x</div>', 'none');
+  ok('renderListCards fills container', ((doc.getElementById('document-card-list') || {}).innerHTML || '').indexOf('testcard') >= 0);
+  window.renderListCards('document-card-list', [], () => 'x', '비어있음표시');
+  ok('renderListCards shows empty hint', ((doc.getElementById('document-card-list') || {}).innerHTML || '').indexOf('비어있음표시') >= 0);
+  ok('documentCardHTML builds', typeof window.documentCardHTML === 'function' && window.documentCardHTML({ id: 5, title: '문서카드A', status: 'approved', deptId: 'strategy', author: '홍길동', date: '2026-06-01' }).indexOf('문서카드A') >= 0);
+  ok('projectCardHTML builds', typeof window.projectCardHTML === 'function' && window.projectCardHTML({ id: 6, title: '프로젝트카드X', deptId: 'strategy', progress: 40, startDate: '2026-06-01', endDate: '2026-07-01', status: 'ongoing' }).indexOf('프로젝트카드X') >= 0);
 
   // login again
   $('login-id').value = 'boss@co.com'; $('login-password').value = 'x';

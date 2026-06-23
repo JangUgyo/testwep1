@@ -134,6 +134,7 @@ function ok(name, cond) { if (cond) { pass++; console.log('PASS :', name); } els
         ov: de.scrollWidth - de.clientWidth, titleW: Math.round(tw),
         ticketTable: wrapDisp('ticket-list-body'), ticketCard: disp('ticket-card-list'),
         assetTable: wrapDisp('asset-list-body'), assetCard: disp('asset-card-list'),
+        docCard: disp('document-card-list'), projCard: disp('project-card-list'),
       };
     });
     ok(`[${v.name} ${v.w}] 가로 오버플로우 없음(관리자 헤더 포함)`, m.ov <= 1);
@@ -141,9 +142,11 @@ function ok(name, cond) { if (cond) { pass++; console.log('PASS :', name); } els
     if (v.mobile) {
       ok(`[${v.name}] 티켓 표 숨김·카드 표시`, m.ticketTable === 'none' && m.ticketCard === 'grid');
       ok(`[${v.name}] 설비 표 숨김·카드 표시`, m.assetTable === 'none' && m.assetCard === 'grid');
+      ok(`[${v.name}] 문서·프로젝트 카드 표시`, m.docCard === 'grid' && m.projCard === 'grid');
     } else {
       ok(`[${v.name}] 티켓 표 표시·카드 숨김`, m.ticketTable !== 'none' && m.ticketCard === 'none');
       ok(`[${v.name}] 설비 표 표시·카드 숨김`, m.assetTable !== 'none' && m.assetCard === 'none');
+      ok(`[${v.name}] 문서·프로젝트 카드 숨김`, m.docCard === 'none' && m.projCard === 'none');
     }
     await ctx.close();
   }
