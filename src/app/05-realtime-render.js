@@ -142,6 +142,9 @@
             const avatar = document.getElementById('user-avatar');
             const dName = document.getElementById('user-display-name');
             const dDept = document.getElementById('user-display-dept');
+            const headerAvatar = document.getElementById('header-user-avatar');
+            const headerName = document.getElementById('header-user-name');
+            const headerDept = document.getElementById('header-user-dept');
             const u = STATE.currentUser;
             if (avatar) {
                 avatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
@@ -153,6 +156,10 @@
                 const dept = u ? STATE.departments.find(d => d.id === u.deptId) : null;
                 dDept.innerText = dept ? dept.name : (u ? '인프라 총무부' : '로그인 필요');
             }
+            const currentDept = u ? STATE.departments.find(d => d.id === u.deptId) : null;
+            if (headerAvatar) headerAvatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
+            if (headerName) headerName.innerText = u ? u.name : '사용자';
+            if (headerDept) headerDept.innerText = currentDept ? currentDept.name : (u ? '부서 미지정' : '로그인 필요');
             const headerRoleBadge = document.getElementById('header-user-role-badge');
             if (headerRoleBadge) {
                 const roleLabels = { 'admin': '시스템 마스터 관리자', 'ceo': '대표이사 (CEO)', 'head': '본부 부서장', 'leader': '실무 팀장', 'employee': '일반 실무진' };

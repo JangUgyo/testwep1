@@ -26,7 +26,7 @@
                     const pending = STATE.users.filter(u => !u.approved).length;
                     cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
                 }
-                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all h-full"><div class="w-11 h-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="text-2xl font-extrabold text-slate-800 leading-none">${c.value}</div><div class="text-[13px] text-slate-400 font-medium mt-1">${c.label}</div></div></div></div>`).join('');
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-stat-card"><div class="wsp-stat-icon ${c.bg}"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="wsp-stat-value">${c.value}</div><div class="wsp-stat-label">${c.label}</div></div></div></div>`).join('');
             }
             // 편지함 위젯
             const widget = document.getElementById('dashboard-mail-widget');
@@ -1357,6 +1357,7 @@
             document.documentElement.classList.toggle('dark', !!on);
             const lbl = document.getElementById('darkmode-label'); if (lbl) lbl.innerText = on ? '라이트 모드' : '다크 모드';
             const btn = document.getElementById('darkmode-btn'); if (btn) { const ic = btn.querySelector('i'); if (ic) ic.setAttribute('data-lucide', on ? 'sun' : 'moon'); }
+            const headerBtn = document.getElementById('header-darkmode-btn'); if (headerBtn) { const ic = headerBtn.querySelector('i'); if (ic) ic.setAttribute('data-lucide', on ? 'sun' : 'moon'); }
             if (window.lucide) lucide.createIcons();
             if (STATE.currentTab === 'dashboard') { try { renderDashboardCharts(); } catch (e) { } }
         }

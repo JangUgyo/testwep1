@@ -360,6 +360,330 @@
         [id$="-modal"].modal-drawer > div { overflow: visible !important; }
         [id$="-modal"].modal-drawer > div.drawer-full .drawer-expand-tab { left: 8px; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 2px 10px rgba(15,23,42,.10); }
         html.dark .drawer-expand-tab { background: #26211c; border-color: #3a3835; color: #a5b4fc; }
+
+        /* ============================================================
+           workspace-pro (1).html 디자인 정합화
+           - 74px 아이콘 레일 / 232px 확장 메뉴
+           - 64px 고정 상단바 / 1400px 콘텐츠 캔버스
+           - 그림자보다 선과 면을 사용하는 업무 도구형 UI
+           ============================================================ */
+        html { font-size: 16px; }
+        body {
+            display: block;
+            min-width: 320px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            background: var(--wsp-canvas) !important;
+            color: var(--wsp-ink);
+        }
+        #app-sidebar {
+            width: 232px;
+            background: var(--wsp-surface) !important;
+            border-color: var(--wsp-line) !important;
+            transition: width .18s ease, transform .22s ease;
+            box-shadow: none;
+        }
+        #sidebar-logo {
+            height: 64px;
+            padding: 0 12px !important;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            background: var(--wsp-surface);
+            border-color: var(--wsp-line) !important;
+        }
+        #sidebar-logo > div { width: 100%; }
+        #sidebar-logo .brand-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: var(--wsp-accent);
+            color: var(--wsp-accent-ink);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        #rail-toggle {
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 9px;
+            border: 1px solid var(--wsp-line);
+            background: var(--wsp-surface);
+            color: var(--wsp-ink);
+        }
+        #rail-toggle:hover { background: var(--wsp-surface-2); }
+        #nav-scroll {
+            padding: 12px 8px !important;
+            background: var(--wsp-surface);
+            scrollbar-width: thin;
+        }
+        .sidebar-group-title {
+            padding: 0 10px;
+            margin-bottom: 6px;
+            color: var(--wsp-muted);
+            font-size: 11px;
+            line-height: 1.4;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: none;
+        }
+        .sidebar-item {
+            min-height: 38px;
+            gap: 11px;
+            padding: 8px 10px;
+            border-radius: 9px;
+            color: var(--wsp-muted);
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+        .sidebar-item span { color: inherit; font-weight: inherit; }
+        .sidebar-item:hover {
+            background: var(--wsp-surface-2);
+            color: var(--wsp-ink);
+        }
+        .sidebar-item.active {
+            background: var(--wsp-accent-soft) !important;
+            color: var(--wsp-accent) !important;
+            box-shadow: none;
+        }
+        .sidebar-item.active::before {
+            content: "";
+            width: 3px;
+            align-self: stretch;
+            margin: -3px 0 -3px -10px;
+            border-radius: 0 3px 3px 0;
+            background: var(--wsp-accent);
+        }
+        #sidebar-footer {
+            padding: 10px 8px !important;
+            background: var(--wsp-surface) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        #sidebar-footer .sidebar-profile {
+            border-color: var(--wsp-line) !important;
+            background: var(--wsp-surface-2) !important;
+        }
+        #main-area {
+            min-height: 100vh;
+            margin-left: 232px;
+            padding: 0 !important;
+            background: var(--wsp-canvas);
+            transition: margin-left .18s ease;
+        }
+        #main-area > header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            min-height: 64px;
+            margin: 0 !important;
+            padding: 10px 24px !important;
+            background: color-mix(in srgb, var(--wsp-surface) 96%, transparent);
+            border-bottom: 1px solid var(--wsp-line) !important;
+            backdrop-filter: blur(10px);
+        }
+        #view-title {
+            color: var(--wsp-ink) !important;
+            font-size: 20px !important;
+            line-height: 1.2;
+            font-weight: 800 !important;
+            letter-spacing: -.01em;
+        }
+        #view-description {
+            margin-top: 2px !important;
+            color: var(--wsp-muted) !important;
+            font-size: 12px !important;
+        }
+        .wsp-header-action {
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 11px;
+            border: 1px solid var(--wsp-line);
+            border-radius: 10px;
+            background: var(--wsp-surface);
+            color: var(--wsp-ink);
+            font-size: 12.5px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .wsp-header-action:hover { background: var(--wsp-surface-2); }
+        .wsp-header-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--wsp-line);
+            border-radius: 10px;
+            background: var(--wsp-surface);
+            color: var(--wsp-ink);
+        }
+        .wsp-header-icon:hover { background: var(--wsp-surface-2); }
+        .wsp-header-profile {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 10px;
+            border-left: 1px solid var(--wsp-line);
+        }
+        #header-user-avatar {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            flex-shrink: 0;
+            background: var(--wsp-accent);
+            color: var(--wsp-accent-ink);
+            font-size: 11px;
+            font-weight: 800;
+        }
+        #header-user-name { color: var(--wsp-ink); font-size: 12.5px; font-weight: 800; }
+        #header-user-dept, #header-user-role-badge { color: var(--wsp-muted); font-size: 11px; font-weight: 600; }
+        #main-content-sections {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        #main-content-sections > section { gap: 20px; }
+        #main-content-sections .bg-white {
+            background-color: var(--wsp-surface) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        #main-content-sections .bg-slate-50,
+        #main-content-sections .bg-slate-50\/20,
+        #main-content-sections .bg-slate-50\/50,
+        #main-content-sections .bg-slate-50\/60,
+        #main-content-sections .bg-slate-50\/70,
+        #main-content-sections .bg-slate-50\/80,
+        #main-content-sections .bg-slate-100 {
+            background-color: var(--wsp-surface-2) !important;
+        }
+        #main-content-sections .border-slate-100,
+        #main-content-sections .border-slate-200,
+        #main-content-sections .border-slate-200\/80,
+        #main-content-sections .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+        #main-content-sections .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+            border-color: var(--wsp-line) !important;
+        }
+        #main-content-sections .shadow-sm,
+        #main-content-sections .shadow-md,
+        #main-content-sections .shadow-lg { box-shadow: none !important; }
+        #main-content-sections .rounded-3xl { border-radius: 16px !important; }
+        #main-content-sections .rounded-2xl { border-radius: 14px !important; }
+        #main-content-sections .rounded-xl { border-radius: 12px !important; }
+        #main-content-sections h3,
+        #main-content-sections h4 { color: var(--wsp-ink) !important; }
+        #main-content-sections input:not([type="checkbox"]):not([type="radio"]),
+        #main-content-sections select,
+        #main-content-sections textarea {
+            border-color: var(--wsp-line) !important;
+            border-radius: 10px !important;
+            background: var(--wsp-surface) !important;
+            color: var(--wsp-ink) !important;
+        }
+        #main-content-sections table th {
+            color: var(--wsp-muted);
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        #main-content-sections table td {
+            color: var(--wsp-ink);
+            font-size: 13px;
+        }
+        #view-dashboard .dashboard-panel {
+            padding: 20px !important;
+            border: 1px solid var(--wsp-line);
+            border-radius: 14px !important;
+            background: var(--wsp-surface);
+            box-shadow: none !important;
+        }
+        #dashboard-stats { gap: 12px !important; }
+        #dashboard-stats .wsp-stat-card {
+            height: 100%;
+            min-height: 88px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--wsp-line);
+            border-radius: 14px;
+            background: var(--wsp-surface);
+            transition: border-color .15s ease, transform .15s ease;
+        }
+        #dashboard-stats .wsp-stat-card:hover {
+            border-color: color-mix(in srgb, var(--wsp-accent) 45%, var(--wsp-line));
+            transform: translateY(-1px);
+        }
+        #dashboard-stats .wsp-stat-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            flex-shrink: 0;
+        }
+        #dashboard-stats .wsp-stat-value {
+            color: var(--wsp-ink);
+            font-size: 23px;
+            line-height: 1;
+            font-weight: 800;
+        }
+        #dashboard-stats .wsp-stat-label {
+            margin-top: 5px;
+            color: var(--wsp-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        [id$="-modal"] > div {
+            background: var(--wsp-surface) !important;
+            border-color: var(--wsp-line) !important;
+            border-radius: 16px;
+        }
+        html.dark #main-area > header {
+            background: color-mix(in srgb, var(--wsp-surface) 95%, transparent);
+        }
+        html.dark #sidebar-footer .sidebar-profile { background: var(--wsp-surface-2) !important; }
+
+        @media (min-width: 1024px) {
+            body.rail #app-sidebar { width: 74px; }
+            body.rail #main-area { margin-left: 74px; }
+            body.rail #sidebar-logo { padding: 0 20px !important; }
+            body.rail #sidebar-logo > div { justify-content: center; }
+            body.rail #sidebar-logo .brand-wrap { display: none; }
+            body.rail #nav-scroll { padding-left: 8px !important; padding-right: 8px !important; }
+            body.rail .sidebar-item { justify-content: center; padding: 9px 0; }
+            body.rail .sidebar-item.active::before { display: none; }
+            body.rail #sidebar-footer { padding-left: 8px !important; padding-right: 8px !important; }
+        }
+        @media (max-width: 1023px) {
+            #app-sidebar {
+                width: min(268px, 88vw);
+                transform: translateX(-100%);
+                box-shadow: 12px 0 30px rgba(8,12,22,.16);
+            }
+            #app-sidebar.open { transform: translateX(0); }
+            #main-area { margin-left: 0 !important; }
+            #main-area > header { padding: 10px 16px !important; }
+            #main-content-sections { padding: 16px; }
+        }
+        @media (max-width: 639px) {
+            #main-area > header { min-height: 60px; }
+            #view-title { font-size: 17px !important; }
+            #main-content-sections { padding: 14px 12px 24px; }
+            #dashboard-stats { grid-template-columns: 1fr 1fr; }
+            #dashboard-stats .wsp-stat-card { min-height: 82px; padding: 13px; }
+            #dashboard-stats .wsp-stat-icon { width: 36px; height: 36px; }
+            #dashboard-stats .wsp-stat-value { font-size: 20px; }
+            .wsp-task { align-items: flex-start; padding: 12px; }
+            .wsp-task > button { padding: 7px 9px; }
+        }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -465,10 +789,10 @@
         </div>
     </div>
     <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
-        <div id="sidebar-logo" class="p-6 border-b border-slate-200/60">
+        <div id="sidebar-logo" class="border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center text-white text-lg font-bold tracking-tight">W</div>
-                <div class="flex flex-col">
+                <button id="rail-toggle" onclick="toggleRail()" title="메뉴 접기/펼치기" aria-label="메뉴 접기/펼치기" class="hidden lg:flex flex-shrink-0 items-center justify-center"><i data-lucide="panel-left" class="w-[18px] h-[18px]"></i></button>
+                <div class="brand-wrap flex flex-col min-w-0">
                     <span class="logo-title font-bold text-slate-800 tracking-tight">WorkSpace Pro</span>
                     <span class="logo-sub text-slate-400 font-medium">통합 지원 시스템</span>
                 </div>
@@ -571,7 +895,7 @@
             </button>
 
             <div class="flex flex-col gap-2">
-                <div onclick="openModal('profile-setting-modal')" class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all cursor-pointer group">
+                <div onclick="openModal('profile-setting-modal')" class="sidebar-profile flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all cursor-pointer group">
                     <div id="user-avatar" class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-bold shadow-inner">?</div>
                     <div class="overflow-hidden flex-1">
                         <p id="user-display-name" class="text-xs font-bold text-slate-800 truncate font-mono">사용자 미설정</p>
@@ -589,11 +913,10 @@
         </div>
     </aside>
 
-    <main id="main-area" tabindex="-1" class="flex-1 p-10">
-        <header class="flex justify-between items-center mb-7 lg:mb-10 border-b border-slate-100 pb-5 gap-3">
+    <main id="main-area" tabindex="-1" class="flex-1">
+        <header class="flex justify-between items-center border-b border-slate-100 gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <button id="mobile-hamburger" onclick="toggleSidebar()" class="w-9 h-9 flex-shrink-0 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="menu" class="w-[18px] h-[18px]"></i></button>
-                <button id="rail-toggle" onclick="toggleRail()" title="메뉴 접기/펼치기" aria-label="메뉴 접기/펼치기" class="hidden lg:flex w-9 h-9 flex-shrink-0 rounded-lg border border-slate-200 hover:bg-slate-100 items-center justify-center text-slate-500"><i data-lucide="panel-left" class="w-[18px] h-[18px]"></i></button>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <h2 id="view-title" class="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight truncate">종합 대시보드</h2>
@@ -604,21 +927,33 @@
             </div>
             
             <div class="flex items-center gap-1.5 lg:gap-2 flex-shrink-0">
-                <div class="relative hidden md:block">
+                <button onclick="openCmdk()" class="wsp-header-action hidden sm:inline-flex" title="명령 팔레트 열기">
+                    <i data-lucide="command" class="w-4 h-4"></i>
+                    <span class="hidden lg:inline">빠른 실행</span>
+                    <kbd class="hidden xl:inline px-1.5 py-0.5 rounded border text-[10px]" style="border-color:var(--wsp-line);background:var(--wsp-surface-2);color:var(--wsp-muted)">⌘K</kbd>
+                </button>
+                <div class="relative hidden xl:block">
                     <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-9 pl-8 pr-14 border border-slate-200 rounded-lg text-[13px] w-44 xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
-                    <button type="button" onclick="openCmdk()" title="명령 팔레트 열기 (⌘K)" aria-label="명령 팔레트 열기" class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[10.5px] font-extrabold text-slate-500 leading-none">⌘K</button>
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색" class="h-9 pl-8 pr-3 border border-slate-200 rounded-lg text-[13px] w-48 2xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
                     <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
                 <button onclick="openMobileSearch()" class="hdr-icon-btn md:hidden w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
+                <button id="header-darkmode-btn" onclick="toggleDarkMode()" class="wsp-header-icon" title="다크 모드 전환" aria-label="다크 모드 전환"><i data-lucide="moon" class="w-[18px] h-[18px]"></i></button>
                 <span id="rt-status-dot" class="rt-on hidden sm:block" title="실시간 연결됨"></span>
-                <button onclick="openNotifCenter()" title="통합 알림 센터" class="hdr-icon-btn relative w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-all">
+                <button onclick="openNotifCenter()" title="통합 알림 센터" class="wsp-header-icon hdr-icon-btn relative">
                     <i data-lucide="bell" class="w-[18px] h-[18px]"></i>
                     <span id="notif-bell-count" class="hidden absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
                 </button>
-                <div class="hidden xl:flex items-center gap-1.5 h-9 px-3 bg-slate-100 border border-slate-200 rounded-lg text-[13px]">
-                    <span class="hidden xl:inline font-bold text-slate-600">인증 등급:</span>
-                    <span id="header-user-role-badge" class="font-bold text-slate-800 truncate max-w-[160px]">로딩 중</span>
+                <div class="wsp-header-profile hidden md:flex">
+                    <div id="header-user-avatar">?</div>
+                    <div class="leading-tight min-w-0 hidden lg:block">
+                        <div id="header-user-name" class="truncate">사용자</div>
+                        <div class="flex items-center gap-1.5">
+                            <span id="header-user-dept" class="truncate">부서 확인 중</span>
+                            <span aria-hidden="true" style="color:var(--wsp-line)">·</span>
+                            <span id="header-user-role-badge" class="truncate max-w-[130px]">로딩 중</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="admin-maintenance-control" class="hidden">
@@ -653,9 +988,9 @@
                 <div id="action-inbox-wrap"></div>
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
                 </div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -4769,6 +5104,9 @@
             const avatar = document.getElementById('user-avatar');
             const dName = document.getElementById('user-display-name');
             const dDept = document.getElementById('user-display-dept');
+            const headerAvatar = document.getElementById('header-user-avatar');
+            const headerName = document.getElementById('header-user-name');
+            const headerDept = document.getElementById('header-user-dept');
             const u = STATE.currentUser;
             if (avatar) {
                 avatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
@@ -4780,6 +5118,10 @@
                 const dept = u ? STATE.departments.find(d => d.id === u.deptId) : null;
                 dDept.innerText = dept ? dept.name : (u ? '인프라 총무부' : '로그인 필요');
             }
+            const currentDept = u ? STATE.departments.find(d => d.id === u.deptId) : null;
+            if (headerAvatar) headerAvatar.innerText = u ? u.name.substring(0, 2).toUpperCase() : '?';
+            if (headerName) headerName.innerText = u ? u.name : '사용자';
+            if (headerDept) headerDept.innerText = currentDept ? currentDept.name : (u ? '부서 미지정' : '로그인 필요');
             const headerRoleBadge = document.getElementById('header-user-role-badge');
             if (headerRoleBadge) {
                 const roleLabels = { 'admin': '시스템 마스터 관리자', 'ceo': '대표이사 (CEO)', 'head': '본부 부서장', 'leader': '실무 팀장', 'employee': '일반 실무진' };
@@ -5325,6 +5667,7 @@
             const lb = document.getElementById('image-lightbox'); if (lb) { lb.classList.add('hidden'); lb.classList.remove('flex'); }
             const img = document.getElementById('image-lightbox-img'); if (img) { img.src = ''; img.dataset.zoomed = ''; }
         }
+
         // ── UX: ESC 닫기 / 연결 상태 표시 / 알림 개별 삭제 ───────────────
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape' && e.keyCode !== 27) return;
@@ -6486,7 +6829,7 @@
                     const pending = STATE.users.filter(u => !u.approved).length;
                     cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
                 }
-                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all h-full"><div class="w-11 h-11 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="text-2xl font-extrabold text-slate-800 leading-none">${c.value}</div><div class="text-[13px] text-slate-400 font-medium mt-1">${c.label}</div></div></div></div>`).join('');
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-stat-card"><div class="wsp-stat-icon ${c.bg}"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="wsp-stat-value">${c.value}</div><div class="wsp-stat-label">${c.label}</div></div></div></div>`).join('');
             }
             // 편지함 위젯
             const widget = document.getElementById('dashboard-mail-widget');
@@ -7817,6 +8160,7 @@
             document.documentElement.classList.toggle('dark', !!on);
             const lbl = document.getElementById('darkmode-label'); if (lbl) lbl.innerText = on ? '라이트 모드' : '다크 모드';
             const btn = document.getElementById('darkmode-btn'); if (btn) { const ic = btn.querySelector('i'); if (ic) ic.setAttribute('data-lucide', on ? 'sun' : 'moon'); }
+            const headerBtn = document.getElementById('header-darkmode-btn'); if (headerBtn) { const ic = headerBtn.querySelector('i'); if (ic) ic.setAttribute('data-lucide', on ? 'sun' : 'moon'); }
             if (window.lucide) lucide.createIcons();
             if (STATE.currentTab === 'dashboard') { try { renderDashboardCharts(); } catch (e) { } }
         }
@@ -7966,6 +8310,7 @@
         function acknowledgeAndOpen(projId, itemId) { notifOpen('proj', projId, itemId); }
         function acknowledgeTasks() { markAllNotifSeen(); renderDashboardWidgets(); }
         function openNotifCenter() { switchTab('dashboard'); }
+
         // ============================================================
         // 재고 고도화 1단계 — 발주 연계 · 미착/입고 현황 · 부분입고 · 평균단가
         // (전역 스코프 유지: onclick 에서 직접 호출)
