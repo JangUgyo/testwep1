@@ -1181,13 +1181,18 @@
             const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
             const mb = document.getElementById('maintenance-btn-text'); if (mb) mb.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
             if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
+            else if (tabId === 'notice') renderNotices();
             else if (tabId === 'calendar') renderCalendar();
+            else if (tabId === 'todo') renderTodos();
+            else if (tabId === 'worklog') renderWorklogs();
+            else if (tabId === 'messenger') renderMessenger();
             else if (tabId === 'documents') { resetPage('documents'); filterDocs(); }
             else if (tabId === 'documents-pending') { resetPage('pendingDocs'); renderPendingDocs(); }
             else if (tabId === 'documents-archive') { resetPage('archiveDocs'); renderArchiveDocs(); }
             else if (tabId === 'field-support') { resetPage('tickets'); renderTickets(); }
             else if (tabId === 'assets') { resetPage('assets'); renderAssets(); }
             else if (tabId === 'inventory') { resetPage('inventory'); setInventoryView(STATE.inventoryView || 'dashboard'); }
+            else if (tabId === 'acct-inventory') renderAccountingInventory();
             else if (tabId === 'trade') { resetPage('trade'); renderTrade(); }
             else if (tabId === 'management-logs') { resetPage('audit'); await reloadAuditLogs(); renderAuditLogs(); }
             else if (tabId === 'management-progress') renderProjects();

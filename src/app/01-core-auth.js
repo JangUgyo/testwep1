@@ -62,7 +62,8 @@
             ],
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
-            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [], assets: [], auditLogs: [], listPage: {},
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [], assets: [], auditLogs: [],
+            notices: [], todos: [], worklogs: [], messages: [], listPage: {},
             ganttScale: 'year', ganttAnchor: null,
             permissions: {},
             mailplug: {
@@ -96,7 +97,8 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false, 'trade': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false, 'trade': false,
+                'notice': false, 'todo': false, 'worklog': false, 'messenger': false, 'acct-inventory': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };

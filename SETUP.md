@@ -8,9 +8,11 @@
 
 새 Supabase 프로젝트를 만든 뒤, **SQL Editor**에서 아래 순서로 실행하세요.
 
-1. **`db/00-workspace-pro-db-full.sql`** 먼저 실행 — 전체 스키마(21개 테이블 + `apply_stock_move` 등).
+1. **`db/00-workspace-pro-db-full.sql`** 먼저 실행 — 전체 스키마와 권한 정책.
    - 파일 안내대로 **"(8) 실시간 등록" 섹션만 빼고** 통째로 실행하세요.
    - 그다음 (8)의 `alter publication ... add table ...` 줄을 **한 줄씩** 실행하고, `already member` 메시지는 무시합니다.
+   - 기존 7개 부서는 `departments` 테이블에 같은 코드로 생성됩니다.
+   - 공지사항(`notices`), 투두(`todos`), 업무일지(`worklogs`), 메신저(`messages`)가 함께 생성됩니다.
 2. **`db/phase1-inventory-receiving.sql`** 다음 실행 — 재고 고도화(발주 연계 · 미착/입고 · 평균단가 · 회계재고).
    - `po_receipts` 테이블, `inventory_items` 확장 컬럼(`avg_price`, `acct_flag` 등), RPC `record_po_receipt` · `set_inventory_acct`, 그리고 `po_receipts` 실시간 등록까지 포함(멱등).
 
@@ -76,6 +78,8 @@ git push -u origin main
 ## 이번 버전에 새로 들어간 것
 
 - **새 디자인 정체성(코발트)** + 사이드바 **아이콘 레일**(데스크톱, 접기/펼치기 · 헤더 토글 버튼 · 호버 툴팁, 환경설정은 브라우저에 저장).
+- 기준 HTML과 동일한 **워크스페이스 / 현장 운영 / 문서·결재 / 시스템 관리** 메뉴 체계.
+- 공지사항·투두리스트·업무일지·전사/부서 메신저의 Supabase CRUD·Realtime 연동.
 - **⌘K / Ctrl+K 명령 팔레트** — 어디서든 화면 이동 · 빠른 작업(발주 작성 · 품목 등록 · 입고 처리 · 보고서 등록 등).
 - **처리 대기(Action Inbox)** — 대시보드 상단에 재고경보 · 미착입고 · 결재대기 · 가입승인 · 오늘일정을 한 큐로 모음.
 - 재고 **평균단가 · 회계재고**(목록/카드/상세 + 수동 회계지정), 문서 · 프로젝트 **모바일 카드화**.

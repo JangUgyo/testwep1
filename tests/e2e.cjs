@@ -11,11 +11,24 @@ const DBDATA = {
     { id: 'emp-uuid', email: 'kim@co.com', name: '김사원', dept_id: 'south_cs', role: 'employee', position: '사원', approved: true, created_at: '2026-02-01' },
     { id: 'pending-uuid', email: 'new@co.com', name: '신입', dept_id: 'rnd', role: 'none', position: '사원', approved: false, created_at: '2026-03-01' }
   ],
+  departments: [
+    { id: 'ceo', name: '대표이사', sort_order: 0, active: true },
+    { id: 'south_cs', name: '남부CS', sort_order: 10, active: true },
+    { id: 'strategy', name: '미래전략기획실', sort_order: 20, active: true },
+    { id: 'hydrogen', name: '수소사업부', sort_order: 30, active: true },
+    { id: 'rnd', name: 'R&D 센터', sort_order: 40, active: true },
+    { id: 'central_cs', name: '중부CS', sort_order: 50, active: true },
+    { id: 'sales', name: '영업팀', sort_order: 60, active: true }
+  ],
+  notices: [{ id: 1, title: '전사 공지', body: '테스트 공지입니다.', pinned: true, dept_id: 'strategy', author: '사장', author_id: 'admin-uuid', created_at: '2026-06-24T09:00:00Z' }],
+  todos: [{ id: 1, title: '발주 확인', detail: '미착 품목 확인', owner: '사장', owner_id: 'admin-uuid', due_date: '2026-06-25', completed: false, dept_id: 'strategy', created_by: 'admin-uuid', created_at: '2026-06-24T09:00:00Z' }],
+  worklogs: [{ id: 1, work_date: '2026-06-24', project_id: 1, project_title: '프로젝트A', content: '현장 점검 완료', hours: 3, owner: '사장', owner_id: 'admin-uuid', dept_id: 'strategy', created_at: '2026-06-24T09:00:00Z' }],
+  messages: [{ id: 1, channel: 'general', body: '테스트 메시지', sender: '사장', sender_id: 'admin-uuid', dept_id: null, created_at: '2026-06-24T09:00:00Z' }],
   sites: [{ id: 1, name: '동해 수소스테이션' }],
     events: [{ id: 1, dept_id: 'ceo', title: '회의', start_date: '2026-06-03', end_date: '2026-06-05', site: '동해 수소스테이션' }],
   projects: [{ id: 1, title: '프로젝트A', dept_id: 'rnd', progress: 50, status: 'ongoing', start_date: '2026-06-05', end_date: '2026-06-12', descr: '설명', file_path: 'projects/p.pdf', file_name: '계획.pdf', file_mime: 'application/pdf' }, { id: 2, title: '프로젝트B', dept_id: 'strategy', progress: 100, status: 'completed', start_date: '2026-05-20', end_date: '2026-07-03', descr: 'x' }],
   documents: [{ id: 1, title: '보고서.pdf', dept_id: 'south_cs', author: '박', doc_date: '2026-06-01', file_type: 'pdf', file_size: '1MB', storage_path: 'p.pdf', file_mime: 'application/pdf' }, { id: 2, title: '보고서.docx', dept_id: 'rnd', author: '김', doc_date: '2026-06-02', file_type: 'docx', file_size: '20KB', storage_path: 'd.docx', file_mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }],
-  inventory_items: [{ id:1, sku:'A-1', name:'볼트 M8', category:'부품', unit:'EA', stock:5, safe_stock:10, unit_price:100, supplier:'대성', location:'A-1', dept_id:'strategy', notes:'' }, { id:2, sku:'B-2', name:'안전장갑', category:'소모품', unit:'BOX', stock:50, safe_stock:5, unit_price:3000, supplier:'안전산업', location:'B-2', dept_id:'rnd', notes:'' }],
+  inventory_items: [{ id:1, sku:'A-1', name:'볼트 M8', category:'부품', unit:'EA', stock:5, safe_stock:10, unit_price:100, avg_price:120, acct_flag:true, acct_auto:true, acct_locked:false, supplier:'대성', location:'A-1', dept_id:'strategy', notes:'' }, { id:2, sku:'B-2', name:'안전장갑', category:'소모품', unit:'BOX', stock:50, safe_stock:5, unit_price:3000, supplier:'안전산업', location:'B-2', dept_id:'rnd', notes:'' }],
   stock_moves: [],
   warehouses: [{ id:1, name:'기본창고', code:'WH1', location:'', notes:'' }],
   inventory_stock: [{ id:1, item_id:1, warehouse_id:1, qty:5 }, { id:2, item_id:2, warehouse_id:1, qty:50 }],
@@ -66,15 +79,15 @@ function makeBuilder(table) {
       if (ctx.op === 'select') {
         if (ctx.single) data = rows.find(r => r.id === ctx.filterId) || null;
         else { data = rows.slice(); if (ctx._rangeFrom != null) data = data.slice(ctx._rangeFrom, ctx._rangeTo + 1); }
-      } else if (ctx.op === 'insert' && (ctx.table === 'sites' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'audit_logs' || ctx.table === 'documents' || ctx.table === 'inventory_items' || ctx.table === 'stock_moves' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'insert' && (ctx.table === 'sites' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'audit_logs' || ctx.table === 'documents' || ctx.table === 'inventory_items' || ctx.table === 'stock_moves' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses' || ctx.table === 'notices' || ctx.table === 'todos' || ctx.table === 'worklogs' || ctx.table === 'messages')) {
         const arr = Array.isArray(ctx._v) ? ctx._v : [ctx._v];
         const inserted = [];
         arr.forEach(v => { const row = Object.assign({}, v); if (row.id === undefined) row.id = (rows.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1); if (ctx.table === 'audit_logs' && !row.created_at) row.created_at = new Date().toISOString(); rows.push(row); inserted.push(row); });
         if (ctx.returning) data = ctx.single ? (inserted[0] || null) : inserted;
-      } else if (ctx.op === 'update' && (ctx.table === 'projects' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'weekly_meetings' || ctx.table === 'documents' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'update' && (ctx.table === 'projects' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'weekly_meetings' || ctx.table === 'documents' || ctx.table === 'tickets' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses' || ctx.table === 'notices' || ctx.table === 'todos' || ctx.table === 'worklogs')) {
         rows.forEach(r => { if (r.id === ctx.filterId) Object.assign(r, ctx._v); });
         if (ctx.returning) { const u = rows.find(r => r.id === ctx.filterId) || null; data = ctx.single ? u : (u ? [u] : []); }
-      } else if (ctx.op === 'delete' && (ctx.table === 'tickets' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses')) {
+      } else if (ctx.op === 'delete' && (ctx.table === 'tickets' || ctx.table === 'completion_reports' || ctx.table === 'taxonomy_options' || ctx.table === 'assets' || ctx.table === 'inventory_items' || ctx.table === 'inventory_options' || ctx.table === 'trade_documents' || ctx.table === 'partners' || ctx.table === 'warehouses' || ctx.table === 'notices' || ctx.table === 'todos' || ctx.table === 'worklogs' || ctx.table === 'messages')) {
         const i = rows.findIndex(r => r.id === ctx.filterId); if (i >= 0) rows.splice(i, 1);
       } else if (ctx.op === 'upsert') {
         const arr = Array.isArray(ctx._v) ? ctx._v : [ctx._v];
@@ -328,6 +341,21 @@ async function run() {
   window.closeModal('taxonomy-modal', true);
   ok('icon button auto aria-label', (function () { const b = doc.createElement('button'); b.innerHTML = '<i data-lucide="trash-2"></i>'; doc.body.appendChild(b); window.enhanceA11y(doc.body); const r = b.getAttribute('aria-label'); b.remove(); return !!r; })());
 
+  // ===== 기준 HTML 워크스페이스 메뉴/신규 모듈 =====
+  ok('reference workspace menu groups', cssText.includes('워크스페이스') && cssText.includes('현장 운영') && cssText.includes('문서 · 결재') && cssText.includes('시스템 관리'));
+  await window.switchTab('notice');
+  ok('notice view renders DB row', $('notice-list').innerHTML.includes('전사 공지'));
+  await window.switchTab('todo');
+  ok('todo view renders DB row', $('todo-list').innerHTML.includes('발주 확인'));
+  await window.toggleTodo(1, true);
+  ok('todo completion persists', S().todos.find(t => t.id === 1).completed === true);
+  await window.switchTab('worklog');
+  ok('worklog view renders DB row', $('worklog-list-body').innerHTML.includes('현장 점검 완료'));
+  await window.switchTab('messenger');
+  ok('messenger view renders DB row', $('message-list').innerHTML.includes('테스트 메시지'));
+  await window.switchTab('acct-inventory');
+  ok('accounting inventory renders flagged item', $('acct-inventory-body').innerHTML.includes('볼트 M8'));
+
   // navigate tabs
   await window.switchTab('management-stats');
   ok('stats tab: pending list rendered', $('pending-users-list-body').children.length >= 1);
@@ -477,7 +505,7 @@ async function run() {
 
   // tab title updates per tab
   await window.switchTab('calendar');
-  ok('header title updates on tab', doc.getElementById('view-title').innerText === '부서 통합 캘린더');
+  ok('header title updates on tab', doc.getElementById('view-title').innerText === '캘린더');
   await window.switchTab('documents');
   ok('header desc updates on tab', doc.getElementById('view-description').innerText.indexOf('보고') >= 0);
 
@@ -893,7 +921,7 @@ async function run() {
   ok('asset import inserts new asset', S().assets.some(a=>a.name==='신규설비A' && a.model==='NM-1'));
   ok('asset import updates existing pm_cycle', Number(S().assets.find(a=>a.id===1).pmCycle)===200);
   await window.markAssetPmDone(1);
-  ok('asset pm done updates last_pm', S().assets.find(a=>a.id===1).lastPm === new Date().toISOString().slice(0,10));
+  ok('asset pm done updates last_pm', S().assets.find(a=>a.id===1).lastPm === window.formatDate(new Date()));
   // PM 알림 (id 2: 30일 주기, last 6/5 → due)
   window.renderNotificationCenter();
   ok('pm notification generated', (S()._notifIds||[]).some(id=>String(id).indexOf('pm_')===0));

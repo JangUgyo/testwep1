@@ -64,7 +64,7 @@
             showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
         }
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts(), reloadDepartments(), reloadNotices(), reloadTodos(), reloadWorklogs(), reloadMessages()]);
             await runMigrations();
             updateDataVersionBadge();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
@@ -73,7 +73,7 @@
         async function resyncAllData() {
             if (STATE._resyncing) return; STATE._resyncing = true;
             try {
-                await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts()]);
+                await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts(), reloadDepartments(), reloadNotices(), reloadTodos(), reloadWorklogs(), reloadMessages()]);
                 renderFilters(); renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu();
                 if (STATE.currentUser && STATE.currentTab) switchTab(STATE.currentTab);
                 if (STATE._openDetail) refreshOpenDetail(STATE._openDetail.type);

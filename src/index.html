@@ -1046,86 +1046,83 @@
 
         <div id="nav-scroll" class="flex-1 overflow-y-auto p-3 space-y-6" role="navigation" aria-label="주 메뉴">
             <div>
-                <p class="sidebar-group-title">기본 플랫폼 서비스</p>
+                <p class="sidebar-group-title">워크스페이스</p>
                 <div class="space-y-1" id="navgroup-platform">
-                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active">
-                        <i data-lucide="layout-grid" class="w-4.5 h-4.5"></i>
-                        <span>종합 대시보드</span>
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active" data-tip="대시보드">
+                        <i data-lucide="layout-dashboard" class="w-4.5 h-4.5"></i><span>대시보드</span>
                     </button>
-                    <button onclick="switchTab('calendar')" id="nav-calendar" class="sidebar-item">
-                        <i data-lucide="calendar" class="w-4.5 h-4.5"></i>
-                        <span>부서 통합 캘린더</span>
+                    <button onclick="switchTab('notice')" id="nav-notice" class="sidebar-item" data-tip="공지사항">
+                        <i data-lucide="megaphone" class="w-4.5 h-4.5"></i><span>공지사항</span>
                     </button>
-                    <button onclick="switchTab('management-progress')" id="nav-management-progress" class="sidebar-item">
-                        <i data-lucide="line-chart" class="w-4.5 h-4.5"></i>
-                        <span>프로젝트 진척 관리</span>
+                    <button onclick="switchTab('calendar')" id="nav-calendar" class="sidebar-item" data-tip="캘린더">
+                        <i data-lucide="calendar" class="w-4.5 h-4.5"></i><span>캘린더</span>
                     </button>
-                    <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">
-                        <i data-lucide="clipboard-signature" class="w-4.5 h-4.5 text-indigo-600"></i>
-                        <span>주간 회의 대시보드</span>
+                    <button onclick="switchTab('management-progress')" id="nav-management-progress" class="sidebar-item" data-tip="프로젝트">
+                        <i data-lucide="folder-kanban" class="w-4.5 h-4.5"></i><span>프로젝트</span>
                     </button>
-                    <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item">
-                        <i data-lucide="wrench" class="w-4.5 h-4.5 text-rose-500"></i>
-                        <span>현장 지원 / AS</span>
+                    <button onclick="switchTab('todo')" id="nav-todo" class="sidebar-item" data-tip="투두리스트">
+                        <i data-lucide="list-checks" class="w-4.5 h-4.5"></i><span>투두리스트</span>
                     </button>
-                    <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item">
-                        <i data-lucide="server-cog" class="w-4.5 h-4.5 text-emerald-600"></i>
-                        <span>설비 자산 대장</span>
+                    <button onclick="switchTab('worklog')" id="nav-worklog" class="sidebar-item" data-tip="업무일지">
+                        <i data-lucide="clipboard-list" class="w-4.5 h-4.5"></i><span>업무일지</span>
                     </button>
-                    <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
-                        <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
-                        <span>일반 재고</span>
-                    </button>
-                    <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
-                        <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
-                        <span>발주 · 견적</span>
+                    <button onclick="switchTab('messenger')" id="nav-messenger" class="sidebar-item" data-tip="사내 메신저">
+                        <i data-lucide="message-square" class="w-4.5 h-4.5"></i><span>사내 메신저</span>
                     </button>
                 </div>
             </div>
 
             <div>
-                <p class="sidebar-group-title">문서 / 보고서 분류</p>
+                <p class="sidebar-group-title">현장 운영</p>
+                <div class="space-y-1" id="navgroup-operations">
+                    <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item" data-tip="현장 AS 관리">
+                        <i data-lucide="wrench" class="w-4.5 h-4.5"></i><span>현장 AS 관리</span>
+                    </button>
+                    <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item" data-tip="설비 · 점검 관리">
+                        <i data-lucide="cog" class="w-4.5 h-4.5"></i><span>설비 · 점검 관리</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item" data-tip="일반 재고">
+                        <i data-lucide="package" class="w-4.5 h-4.5"></i><span>일반 재고</span>
+                    </button>
+                    <button onclick="switchTab('acct-inventory')" id="nav-acct-inventory" class="sidebar-item" data-tip="회계 재고">
+                        <i data-lucide="calculator" class="w-4.5 h-4.5"></i><span>회계 재고</span>
+                    </button>
+                    <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item" data-tip="발주 · 견적">
+                        <i data-lucide="receipt" class="w-4.5 h-4.5"></i><span>발주 · 견적</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="sidebar-group-title">문서 · 결재</p>
                 <div class="space-y-1" id="navgroup-docs">
-                    <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item">
-                        <i data-lucide="folder-closed" class="w-4.5 h-4.5"></i>
-                        <span>통합 보고 허브</span>
+                    <button onclick="switchTab('documents-pending')" id="nav-documents-pending" class="sidebar-item" data-tip="결재 대기함">
+                        <i data-lucide="inbox" class="w-4.5 h-4.5"></i><span>결재 대기함</span>
                     </button>
-                    <button onclick="switchTab('documents-pending')" id="nav-documents-pending" class="sidebar-item">
-                        <i data-lucide="clock-4" class="w-4.5 h-4.5"></i>
-                        <span>결재 대기 함</span>
+                    <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item" data-tip="보고서 관리">
+                        <i data-lucide="file-text" class="w-4.5 h-4.5"></i><span>보고서 관리</span>
                     </button>
-                    <button onclick="switchTab('documents-archive')" id="nav-documents-archive" class="sidebar-item">
-                        <i data-lucide="archive-restore" class="w-4.5 h-4.5"></i>
-                        <span>보고 보관소</span>
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <p class="sidebar-group-title">그룹웨어 인프라</p>
-                <div class="space-y-1" id="navgroup-groupware">
-                    <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">
-                        <i data-lucide="mail" class="w-4.5 h-4.5 text-blue-600"></i>
-                        <span class="font-semibold text-slate-700">통합 메일 연동 센터</span>
+                    <button onclick="switchTab('documents-archive')" id="nav-documents-archive" class="sidebar-item" data-tip="승인 완료 보관함">
+                        <i data-lucide="archive" class="w-4.5 h-4.5"></i><span>승인 완료 보관함</span>
                     </button>
                 </div>
             </div>
 
             <div id="sidebar-admin-group">
-                <p class="sidebar-group-title flex items-center gap-1">
-                    <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
-                    <span>시스템 관리자</span>
-                </p>
+                <p class="sidebar-group-title">시스템 관리</p>
                 <div class="space-y-1" id="navgroup-admin">
-                    <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item">
-                        <i data-lucide="shield-check" class="w-4.5 h-4.5 text-blue-600"></i>
-                        <span class="font-semibold text-slate-800">조직 권한 제어 센터</span>
+                    <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item" data-tip="권한 · 조직 관리">
+                        <i data-lucide="users" class="w-4.5 h-4.5"></i><span>권한 · 조직 관리</span>
                     </button>
-                    <button onclick="switchTab('management-logs')" id="nav-management-logs" class="sidebar-item">
-                        <i data-lucide="shield-alert" class="w-4.5 h-4.5 text-rose-500"></i>
-                        <span class="text-rose-600 font-medium">보안 감사 원장</span>
+                    <button onclick="switchTab('management-logs')" id="nav-management-logs" class="sidebar-item" data-tip="보안 감사 로그">
+                        <i data-lucide="shield-check" class="w-4.5 h-4.5"></i><span>보안 감사 로그</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="hidden" aria-hidden="true">
+                <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">주간 회의</button>
+                <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">메일 연동</button>
             </div>
 
             <div id="custom-features-group" class="hidden">
@@ -1280,6 +1277,77 @@
                             <button onclick="switchTab('documents')" class="text-xs text-blue-600 font-bold hover:underline">전체 보기</button>
                         </div>
                         <div class="space-y-1" id="dashboard-recent-docs"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 공지사항 -->
+            <section id="view-notice" class="hidden space-y-5">
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="notice-search" oninput="renderNotices()" placeholder="제목·내용·작성자 검색" class="wsp-ref-field w-full sm:w-72">
+                        <select id="notice-filter-dept" onchange="renderNotices()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openNoticeForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>공지 작성</button>
+                </div>
+                <div id="notice-list" class="space-y-3"></div>
+            </section>
+
+            <!-- 투두리스트 -->
+            <section id="view-todo" class="hidden space-y-5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="todo-stats"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="todo-search" oninput="renderTodos()" placeholder="할 일·담당자 검색" class="wsp-ref-field w-full sm:w-64">
+                        <select id="todo-filter-status" onchange="renderTodos()" class="wsp-ref-field">
+                            <option value="open">미완료</option><option value="all">전체</option><option value="done">완료</option>
+                        </select>
+                        <select id="todo-filter-dept" onchange="renderTodos()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openTodoForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>할 일 추가</button>
+                </div>
+                <div id="todo-list" class="space-y-2"></div>
+            </section>
+
+            <!-- 업무일지 -->
+            <section id="view-worklog" class="hidden space-y-5">
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="worklog-search" oninput="renderWorklogs()" placeholder="프로젝트·내용·작성자 검색" class="wsp-ref-field w-full sm:w-72">
+                        <input id="worklog-filter-date" type="date" onchange="renderWorklogs()" class="wsp-ref-field">
+                        <select id="worklog-filter-dept" onchange="renderWorklogs()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openWorklogForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>업무일지 작성</button>
+                </div>
+                <div class="wsp-ref-surface overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="wsp-ref-table">
+                            <thead><tr><th>일자</th><th>프로젝트</th><th>작성자 / 부서</th><th>업무 내용</th><th>시간</th><th class="text-right">관리</th></tr></thead>
+                            <tbody id="worklog-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="worklog-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
+            <!-- 사내 메신저 -->
+            <section id="view-messenger" class="hidden">
+                <div class="wsp-ref-surface overflow-hidden min-h-[620px] grid md:grid-cols-[220px_minmax(0,1fr)]">
+                    <aside class="p-4 border-b md:border-b-0 md:border-r" style="border-color:var(--wsp-line);background:var(--wsp-surface-2)">
+                        <div class="t-card-title mb-3">채널</div>
+                        <button id="msg-channel-general" onclick="setMessageChannel('general')" class="w-full text-left px-3 py-2 rounded-lg t-body"># 전사 공용</button>
+                        <button id="msg-channel-dept" onclick="setMessageChannel('department')" class="w-full text-left px-3 py-2 rounded-lg t-body mt-1"># 내 부서</button>
+                    </aside>
+                    <div class="min-w-0 flex flex-col">
+                        <div class="px-5 py-4 border-b" style="border-color:var(--wsp-line)">
+                            <div id="messenger-channel-title" class="t-card-title"># 전사 공용</div>
+                            <div class="t-label mt-1">승인된 임직원에게 실시간으로 공유됩니다.</div>
+                        </div>
+                        <div id="message-list" class="flex-1 overflow-y-auto p-5 space-y-3 min-h-[440px]"></div>
+                        <form onsubmit="sendMessage(event)" class="p-4 border-t flex gap-2" style="border-color:var(--wsp-line)">
+                            <input id="message-input" maxlength="1000" autocomplete="off" placeholder="메시지를 입력하세요" class="wsp-ref-field flex-1">
+                            <button class="wsp-ref-btn wsp-ref-btn-primary" type="submit"><i data-lucide="send" class="w-4 h-4"></i><span class="hidden sm:inline">전송</span></button>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -1832,6 +1900,27 @@
                 </div>
             </section>
 
+            <!-- 회계 재고 -->
+            <section id="view-acct-inventory" class="hidden space-y-5">
+                <div id="acct-inventory-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="acct-inventory-search" oninput="renderAccountingInventory()" placeholder="품목·SKU·거래처 검색" class="wsp-ref-field w-full sm:w-72">
+                        <select id="acct-inventory-dept" onchange="renderAccountingInventory()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="switchTab('inventory')" class="wsp-ref-btn wsp-ref-btn-ghost"><i data-lucide="package" class="w-4 h-4"></i>전체 재고 관리</button>
+                </div>
+                <div class="wsp-ref-surface overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="wsp-ref-table">
+                            <thead><tr><th>SKU / 품목</th><th>분류</th><th>부서</th><th class="text-right">현재고</th><th class="text-right">평균단가</th><th class="text-right">재고금액</th><th>분류 방식</th><th class="text-right">관리</th></tr></thead>
+                            <tbody id="acct-inventory-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="acct-inventory-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
             <section id="view-custom-feature" class="hidden space-y-4">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -1850,6 +1939,66 @@
             </section>
         </div>
     </main>
+
+    <div id="notice-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="notice-form-title" class="font-bold text-sm text-slate-800">공지 작성</h4>
+                <button type="button" onclick="closeModal('notice-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveNotice(event)" class="p-5 space-y-4">
+                <input type="hidden" id="notice-id">
+                <div><label class="t-label block mb-1">제목 *</label><input id="notice-title" required class="wsp-ref-field"></div>
+                <div><label class="t-label block mb-1">내용</label><textarea id="notice-body" rows="6" class="wsp-ref-field"></textarea></div>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">부서</label><select id="notice-dept" class="wsp-ref-field"></select></div>
+                    <label class="flex items-center gap-2 t-body self-end pb-2"><input id="notice-pinned" type="checkbox" class="accent-blue-600"> 상단 고정</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('notice-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="todo-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="todo-form-title" class="font-bold text-sm text-slate-800">할 일 추가</h4>
+                <button type="button" onclick="closeModal('todo-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveTodo(event)" class="p-5 space-y-4">
+                <input type="hidden" id="todo-id">
+                <div><label class="t-label block mb-1">할 일 *</label><input id="todo-title" required class="wsp-ref-field"></div>
+                <div><label class="t-label block mb-1">상세</label><textarea id="todo-detail" rows="3" class="wsp-ref-field"></textarea></div>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">담당자</label><select id="todo-owner" class="wsp-ref-field"></select></div>
+                    <div><label class="t-label block mb-1">마감일</label><input id="todo-due" type="date" class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">부서</label><select id="todo-dept" class="wsp-ref-field"></select></div>
+                    <label class="flex items-center gap-2 t-body self-end pb-2"><input id="todo-completed" type="checkbox" class="accent-blue-600"> 완료 처리</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('todo-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="worklog-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="worklog-form-title" class="font-bold text-sm text-slate-800">업무일지 작성</h4>
+                <button type="button" onclick="closeModal('worklog-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveWorklog(event)" class="p-5 space-y-4">
+                <input type="hidden" id="worklog-id">
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">업무일 *</label><input id="worklog-date" type="date" required class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">투입 시간</label><input id="worklog-hours" type="number" min="0" step="0.5" value="0" class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">프로젝트</label><select id="worklog-project" class="wsp-ref-field"></select></div>
+                    <div><label class="t-label block mb-1">부서</label><select id="worklog-dept" class="wsp-ref-field"></select></div>
+                </div>
+                <div><label class="t-label block mb-1">업무 내용 *</label><textarea id="worklog-content" rows="6" required class="wsp-ref-field"></textarea></div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('worklog-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
 
     <!-- 모달 파트 레이아웃 설계 -->
     <div id="add-meeting-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">

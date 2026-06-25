@@ -22,6 +22,11 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_stock' }, async () => { await reloadInventoryStock(); if (STATE.currentTab === 'inventory') renderInventory(); if (STATE._openDetail && STATE._openDetail.type === 'inventory' && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(STATE._openDetail.id); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'departments' }, async () => { await reloadDepartments(); renderDeptOptions(); renderFilters(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'notices' }, async () => { await reloadNotices(); renderDashboardWidgets(); if (STATE.currentTab === 'notice') renderNotices(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, async () => { await reloadTodos(); renderDashboardWidgets(); if (STATE.currentTab === 'todo') renderTodos(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'worklogs' }, async () => { await reloadWorklogs(); renderDashboardWidgets(); if (STATE.currentTab === 'worklog') renderWorklogs(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, async () => { await reloadMessages(); if (STATE.currentTab === 'messenger') renderMessenger(); })
                 .subscribe((status) => { if (myGen === STATE._rtGen) handleRealtimeStatus(status); });
             // 탭이 백그라운드였다가 다시 보일 때: 그 사이 놓친 변경 따라잡기 (중복 등록 방지)
             if (!STATE._rtVisBound) {

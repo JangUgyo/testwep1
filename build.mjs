@@ -22,6 +22,7 @@ const SOURCES = [
   'app/08-dashboard-admin.js', // 대시보드 위젯·권한·사용자·동적기능·모달/토스트·a11y
   'app/09-inventory-receiving.js', // 발주 연계·미착/입고 현황·부분입고·평균단가·회계 자동분류
   'app/10-reference-ui.js',    // 기준 HTML 디자인 시스템·공통 화면 정합화
+  'app/11-workspace-modules.js', // 공지·투두·업무일지·메신저·회계재고 + 기준 메뉴 체계
 ];
 
 mkdirSync(join(__dirname, 'public'), { recursive: true });

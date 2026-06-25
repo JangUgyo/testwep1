@@ -1046,86 +1046,83 @@
 
         <div id="nav-scroll" class="flex-1 overflow-y-auto p-3 space-y-6" role="navigation" aria-label="주 메뉴">
             <div>
-                <p class="sidebar-group-title">기본 플랫폼 서비스</p>
+                <p class="sidebar-group-title">워크스페이스</p>
                 <div class="space-y-1" id="navgroup-platform">
-                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active">
-                        <i data-lucide="layout-grid" class="w-4.5 h-4.5"></i>
-                        <span>종합 대시보드</span>
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active" data-tip="대시보드">
+                        <i data-lucide="layout-dashboard" class="w-4.5 h-4.5"></i><span>대시보드</span>
                     </button>
-                    <button onclick="switchTab('calendar')" id="nav-calendar" class="sidebar-item">
-                        <i data-lucide="calendar" class="w-4.5 h-4.5"></i>
-                        <span>부서 통합 캘린더</span>
+                    <button onclick="switchTab('notice')" id="nav-notice" class="sidebar-item" data-tip="공지사항">
+                        <i data-lucide="megaphone" class="w-4.5 h-4.5"></i><span>공지사항</span>
                     </button>
-                    <button onclick="switchTab('management-progress')" id="nav-management-progress" class="sidebar-item">
-                        <i data-lucide="line-chart" class="w-4.5 h-4.5"></i>
-                        <span>프로젝트 진척 관리</span>
+                    <button onclick="switchTab('calendar')" id="nav-calendar" class="sidebar-item" data-tip="캘린더">
+                        <i data-lucide="calendar" class="w-4.5 h-4.5"></i><span>캘린더</span>
                     </button>
-                    <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">
-                        <i data-lucide="clipboard-signature" class="w-4.5 h-4.5 text-indigo-600"></i>
-                        <span>주간 회의 대시보드</span>
+                    <button onclick="switchTab('management-progress')" id="nav-management-progress" class="sidebar-item" data-tip="프로젝트">
+                        <i data-lucide="folder-kanban" class="w-4.5 h-4.5"></i><span>프로젝트</span>
                     </button>
-                    <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item">
-                        <i data-lucide="wrench" class="w-4.5 h-4.5 text-rose-500"></i>
-                        <span>현장 지원 / AS</span>
+                    <button onclick="switchTab('todo')" id="nav-todo" class="sidebar-item" data-tip="투두리스트">
+                        <i data-lucide="list-checks" class="w-4.5 h-4.5"></i><span>투두리스트</span>
                     </button>
-                    <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item">
-                        <i data-lucide="server-cog" class="w-4.5 h-4.5 text-emerald-600"></i>
-                        <span>설비 자산 대장</span>
+                    <button onclick="switchTab('worklog')" id="nav-worklog" class="sidebar-item" data-tip="업무일지">
+                        <i data-lucide="clipboard-list" class="w-4.5 h-4.5"></i><span>업무일지</span>
                     </button>
-                    <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
-                        <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
-                        <span>일반 재고</span>
-                    </button>
-                    <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
-                        <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
-                        <span>발주 · 견적</span>
+                    <button onclick="switchTab('messenger')" id="nav-messenger" class="sidebar-item" data-tip="사내 메신저">
+                        <i data-lucide="message-square" class="w-4.5 h-4.5"></i><span>사내 메신저</span>
                     </button>
                 </div>
             </div>
 
             <div>
-                <p class="sidebar-group-title">문서 / 보고서 분류</p>
+                <p class="sidebar-group-title">현장 운영</p>
+                <div class="space-y-1" id="navgroup-operations">
+                    <button onclick="switchTab('field-support')" id="nav-field-support" class="sidebar-item" data-tip="현장 AS 관리">
+                        <i data-lucide="wrench" class="w-4.5 h-4.5"></i><span>현장 AS 관리</span>
+                    </button>
+                    <button onclick="switchTab('assets')" id="nav-assets" class="sidebar-item" data-tip="설비 · 점검 관리">
+                        <i data-lucide="cog" class="w-4.5 h-4.5"></i><span>설비 · 점검 관리</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item" data-tip="일반 재고">
+                        <i data-lucide="package" class="w-4.5 h-4.5"></i><span>일반 재고</span>
+                    </button>
+                    <button onclick="switchTab('acct-inventory')" id="nav-acct-inventory" class="sidebar-item" data-tip="회계 재고">
+                        <i data-lucide="calculator" class="w-4.5 h-4.5"></i><span>회계 재고</span>
+                    </button>
+                    <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item" data-tip="발주 · 견적">
+                        <i data-lucide="receipt" class="w-4.5 h-4.5"></i><span>발주 · 견적</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="sidebar-group-title">문서 · 결재</p>
                 <div class="space-y-1" id="navgroup-docs">
-                    <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item">
-                        <i data-lucide="folder-closed" class="w-4.5 h-4.5"></i>
-                        <span>통합 보고 허브</span>
+                    <button onclick="switchTab('documents-pending')" id="nav-documents-pending" class="sidebar-item" data-tip="결재 대기함">
+                        <i data-lucide="inbox" class="w-4.5 h-4.5"></i><span>결재 대기함</span>
                     </button>
-                    <button onclick="switchTab('documents-pending')" id="nav-documents-pending" class="sidebar-item">
-                        <i data-lucide="clock-4" class="w-4.5 h-4.5"></i>
-                        <span>결재 대기 함</span>
+                    <button onclick="switchTab('documents')" id="nav-documents" class="sidebar-item" data-tip="보고서 관리">
+                        <i data-lucide="file-text" class="w-4.5 h-4.5"></i><span>보고서 관리</span>
                     </button>
-                    <button onclick="switchTab('documents-archive')" id="nav-documents-archive" class="sidebar-item">
-                        <i data-lucide="archive-restore" class="w-4.5 h-4.5"></i>
-                        <span>보고 보관소</span>
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <p class="sidebar-group-title">그룹웨어 인프라</p>
-                <div class="space-y-1" id="navgroup-groupware">
-                    <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">
-                        <i data-lucide="mail" class="w-4.5 h-4.5 text-blue-600"></i>
-                        <span class="font-semibold text-slate-700">통합 메일 연동 센터</span>
+                    <button onclick="switchTab('documents-archive')" id="nav-documents-archive" class="sidebar-item" data-tip="승인 완료 보관함">
+                        <i data-lucide="archive" class="w-4.5 h-4.5"></i><span>승인 완료 보관함</span>
                     </button>
                 </div>
             </div>
 
             <div id="sidebar-admin-group">
-                <p class="sidebar-group-title flex items-center gap-1">
-                    <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
-                    <span>시스템 관리자</span>
-                </p>
+                <p class="sidebar-group-title">시스템 관리</p>
                 <div class="space-y-1" id="navgroup-admin">
-                    <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item">
-                        <i data-lucide="shield-check" class="w-4.5 h-4.5 text-blue-600"></i>
-                        <span class="font-semibold text-slate-800">조직 권한 제어 센터</span>
+                    <button onclick="switchTab('management-stats')" id="nav-management-stats" class="sidebar-item" data-tip="권한 · 조직 관리">
+                        <i data-lucide="users" class="w-4.5 h-4.5"></i><span>권한 · 조직 관리</span>
                     </button>
-                    <button onclick="switchTab('management-logs')" id="nav-management-logs" class="sidebar-item">
-                        <i data-lucide="shield-alert" class="w-4.5 h-4.5 text-rose-500"></i>
-                        <span class="text-rose-600 font-medium">보안 감사 원장</span>
+                    <button onclick="switchTab('management-logs')" id="nav-management-logs" class="sidebar-item" data-tip="보안 감사 로그">
+                        <i data-lucide="shield-check" class="w-4.5 h-4.5"></i><span>보안 감사 로그</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="hidden" aria-hidden="true">
+                <button onclick="switchTab('weekly-meeting')" id="nav-weekly-meeting" class="sidebar-item">주간 회의</button>
+                <button onclick="switchTab('mail-integration')" id="nav-mail-integration" class="sidebar-item">메일 연동</button>
             </div>
 
             <div id="custom-features-group" class="hidden">
@@ -1280,6 +1277,77 @@
                             <button onclick="switchTab('documents')" class="text-xs text-blue-600 font-bold hover:underline">전체 보기</button>
                         </div>
                         <div class="space-y-1" id="dashboard-recent-docs"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 공지사항 -->
+            <section id="view-notice" class="hidden space-y-5">
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="notice-search" oninput="renderNotices()" placeholder="제목·내용·작성자 검색" class="wsp-ref-field w-full sm:w-72">
+                        <select id="notice-filter-dept" onchange="renderNotices()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openNoticeForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>공지 작성</button>
+                </div>
+                <div id="notice-list" class="space-y-3"></div>
+            </section>
+
+            <!-- 투두리스트 -->
+            <section id="view-todo" class="hidden space-y-5">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="todo-stats"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="todo-search" oninput="renderTodos()" placeholder="할 일·담당자 검색" class="wsp-ref-field w-full sm:w-64">
+                        <select id="todo-filter-status" onchange="renderTodos()" class="wsp-ref-field">
+                            <option value="open">미완료</option><option value="all">전체</option><option value="done">완료</option>
+                        </select>
+                        <select id="todo-filter-dept" onchange="renderTodos()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openTodoForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>할 일 추가</button>
+                </div>
+                <div id="todo-list" class="space-y-2"></div>
+            </section>
+
+            <!-- 업무일지 -->
+            <section id="view-worklog" class="hidden space-y-5">
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="worklog-search" oninput="renderWorklogs()" placeholder="프로젝트·내용·작성자 검색" class="wsp-ref-field w-full sm:w-72">
+                        <input id="worklog-filter-date" type="date" onchange="renderWorklogs()" class="wsp-ref-field">
+                        <select id="worklog-filter-dept" onchange="renderWorklogs()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="openWorklogForm()" class="wsp-ref-btn wsp-ref-btn-primary"><i data-lucide="plus" class="w-4 h-4"></i>업무일지 작성</button>
+                </div>
+                <div class="wsp-ref-surface overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="wsp-ref-table">
+                            <thead><tr><th>일자</th><th>프로젝트</th><th>작성자 / 부서</th><th>업무 내용</th><th>시간</th><th class="text-right">관리</th></tr></thead>
+                            <tbody id="worklog-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="worklog-card-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
+            <!-- 사내 메신저 -->
+            <section id="view-messenger" class="hidden">
+                <div class="wsp-ref-surface overflow-hidden min-h-[620px] grid md:grid-cols-[220px_minmax(0,1fr)]">
+                    <aside class="p-4 border-b md:border-b-0 md:border-r" style="border-color:var(--wsp-line);background:var(--wsp-surface-2)">
+                        <div class="t-card-title mb-3">채널</div>
+                        <button id="msg-channel-general" onclick="setMessageChannel('general')" class="w-full text-left px-3 py-2 rounded-lg t-body"># 전사 공용</button>
+                        <button id="msg-channel-dept" onclick="setMessageChannel('department')" class="w-full text-left px-3 py-2 rounded-lg t-body mt-1"># 내 부서</button>
+                    </aside>
+                    <div class="min-w-0 flex flex-col">
+                        <div class="px-5 py-4 border-b" style="border-color:var(--wsp-line)">
+                            <div id="messenger-channel-title" class="t-card-title"># 전사 공용</div>
+                            <div class="t-label mt-1">승인된 임직원에게 실시간으로 공유됩니다.</div>
+                        </div>
+                        <div id="message-list" class="flex-1 overflow-y-auto p-5 space-y-3 min-h-[440px]"></div>
+                        <form onsubmit="sendMessage(event)" class="p-4 border-t flex gap-2" style="border-color:var(--wsp-line)">
+                            <input id="message-input" maxlength="1000" autocomplete="off" placeholder="메시지를 입력하세요" class="wsp-ref-field flex-1">
+                            <button class="wsp-ref-btn wsp-ref-btn-primary" type="submit"><i data-lucide="send" class="w-4 h-4"></i><span class="hidden sm:inline">전송</span></button>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -1832,6 +1900,27 @@
                 </div>
             </section>
 
+            <!-- 회계 재고 -->
+            <section id="view-acct-inventory" class="hidden space-y-5">
+                <div id="acct-inventory-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
+                        <input id="acct-inventory-search" oninput="renderAccountingInventory()" placeholder="품목·SKU·거래처 검색" class="wsp-ref-field w-full sm:w-72">
+                        <select id="acct-inventory-dept" onchange="renderAccountingInventory()" class="wsp-ref-field"></select>
+                    </div>
+                    <button onclick="switchTab('inventory')" class="wsp-ref-btn wsp-ref-btn-ghost"><i data-lucide="package" class="w-4 h-4"></i>전체 재고 관리</button>
+                </div>
+                <div class="wsp-ref-surface overflow-hidden hidden md:block">
+                    <div class="overflow-x-auto">
+                        <table class="wsp-ref-table">
+                            <thead><tr><th>SKU / 품목</th><th>분류</th><th>부서</th><th class="text-right">현재고</th><th class="text-right">평균단가</th><th class="text-right">재고금액</th><th>분류 방식</th><th class="text-right">관리</th></tr></thead>
+                            <tbody id="acct-inventory-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="acct-inventory-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden"></div>
+            </section>
+
             <section id="view-custom-feature" class="hidden space-y-4">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -1850,6 +1939,66 @@
             </section>
         </div>
     </main>
+
+    <div id="notice-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="notice-form-title" class="font-bold text-sm text-slate-800">공지 작성</h4>
+                <button type="button" onclick="closeModal('notice-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveNotice(event)" class="p-5 space-y-4">
+                <input type="hidden" id="notice-id">
+                <div><label class="t-label block mb-1">제목 *</label><input id="notice-title" required class="wsp-ref-field"></div>
+                <div><label class="t-label block mb-1">내용</label><textarea id="notice-body" rows="6" class="wsp-ref-field"></textarea></div>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">부서</label><select id="notice-dept" class="wsp-ref-field"></select></div>
+                    <label class="flex items-center gap-2 t-body self-end pb-2"><input id="notice-pinned" type="checkbox" class="accent-blue-600"> 상단 고정</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('notice-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="todo-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="todo-form-title" class="font-bold text-sm text-slate-800">할 일 추가</h4>
+                <button type="button" onclick="closeModal('todo-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveTodo(event)" class="p-5 space-y-4">
+                <input type="hidden" id="todo-id">
+                <div><label class="t-label block mb-1">할 일 *</label><input id="todo-title" required class="wsp-ref-field"></div>
+                <div><label class="t-label block mb-1">상세</label><textarea id="todo-detail" rows="3" class="wsp-ref-field"></textarea></div>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">담당자</label><select id="todo-owner" class="wsp-ref-field"></select></div>
+                    <div><label class="t-label block mb-1">마감일</label><input id="todo-due" type="date" class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">부서</label><select id="todo-dept" class="wsp-ref-field"></select></div>
+                    <label class="flex items-center gap-2 t-body self-end pb-2"><input id="todo-completed" type="checkbox" class="accent-blue-600"> 완료 처리</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('todo-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="worklog-form-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden border">
+            <div class="px-5 py-4 border-b flex items-center justify-between">
+                <h4 id="worklog-form-title" class="font-bold text-sm text-slate-800">업무일지 작성</h4>
+                <button type="button" onclick="closeModal('worklog-form-modal')" class="icon-btn" aria-label="닫기"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveWorklog(event)" class="p-5 space-y-4">
+                <input type="hidden" id="worklog-id">
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div><label class="t-label block mb-1">업무일 *</label><input id="worklog-date" type="date" required class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">투입 시간</label><input id="worklog-hours" type="number" min="0" step="0.5" value="0" class="wsp-ref-field"></div>
+                    <div><label class="t-label block mb-1">프로젝트</label><select id="worklog-project" class="wsp-ref-field"></select></div>
+                    <div><label class="t-label block mb-1">부서</label><select id="worklog-dept" class="wsp-ref-field"></select></div>
+                </div>
+                <div><label class="t-label block mb-1">업무 내용 *</label><textarea id="worklog-content" rows="6" required class="wsp-ref-field"></textarea></div>
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeModal('worklog-form-modal')" class="wsp-ref-btn wsp-ref-btn-ghost">취소</button><button type="submit" class="wsp-ref-btn wsp-ref-btn-primary">저장</button></div>
+            </form>
+        </div>
+    </div>
 
     <!-- 모달 파트 레이아웃 설계 -->
     <div id="add-meeting-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
@@ -2850,7 +2999,8 @@
             ],
             visibility: { ceo: true, south_cs: true, strategy: true, hydrogen: true, rnd: true, central_cs: true, sales: true },
             dashboardNotice: { title: '공지', date: '', content: '' },
-            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [], assets: [], auditLogs: [], listPage: {},
+            events: [], projects: [], documents: [], weeklyMeetings: [], users: [], sites: [], tickets: [], assets: [], auditLogs: [],
+            notices: [], todos: [], worklogs: [], messages: [], listPage: {},
             ganttScale: 'year', ganttAnchor: null,
             permissions: {},
             mailplug: {
@@ -2884,7 +3034,8 @@
             maintenance: {
                 'dashboard': false, 'calendar': false, 'documents': false, 'documents-pending': false,
                 'documents-archive': false, 'mail-integration': false, 'management-progress': false,
-                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false, 'trade': false
+                'management-stats': false, 'management-logs': false, 'weekly-meeting': false, 'field-support': false, 'assets': false, 'inventory': false, 'trade': false,
+                'notice': false, 'todo': false, 'worklog': false, 'messenger': false, 'acct-inventory': false
             },
             meetingUploadedImg: '', meetingUploadedFileName: '', meetingUploadedFile: null
         };
@@ -3055,7 +3206,7 @@
             showToast('점검 완료', `데이터 구조를 최신(v${APP_DATA_VERSION})으로 보정했습니다.`);
         }
         async function loadAllData() {
-            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts()]);
+            await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts(), reloadDepartments(), reloadNotices(), reloadTodos(), reloadWorklogs(), reloadMessages()]);
             await runMigrations();
             updateDataVersionBadge();
             renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); enhanceA11y(document);
@@ -3064,7 +3215,7 @@
         async function resyncAllData() {
             if (STATE._resyncing) return; STATE._resyncing = true;
             try {
-                await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts()]);
+                await Promise.all([reloadEvents(), reloadProjects(), reloadDocuments(), reloadMeetings(), reloadSettings(), reloadProfiles(), reloadSites(), reloadTickets(), reloadAssets(), reloadInventory(), reloadStockMoves(), reloadInventoryOptions(), reloadTrade(), reloadPartners(), reloadWarehouses(), reloadInventoryStock(), reloadTaxonomy(), reloadCompletionReports(), reloadPoReceipts(), reloadDepartments(), reloadNotices(), reloadTodos(), reloadWorklogs(), reloadMessages()]);
                 renderFilters(); renderCalendar(); renderDocuments(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu();
                 if (STATE.currentUser && STATE.currentTab) switchTab(STATE.currentTab);
                 if (STATE._openDetail) refreshOpenDetail(STATE._openDetail.type);
@@ -5294,6 +5445,11 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_stock' }, async () => { await reloadInventoryStock(); if (STATE.currentTab === 'inventory') renderInventory(); if (STATE._openDetail && STATE._openDetail.type === 'inventory' && !document.getElementById('inventory-detail-modal').classList.contains('hidden')) openInventoryDetail(STATE._openDetail.id); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, async () => { await reloadSettings(); renderDashboardNotice(); renderDashboardWidgets(); renderCustomFeaturesMenu(); if (STATE.currentTab === 'management-stats') renderPermissionMatrix(); if (STATE.currentUser) switchTab(STATE.currentTab); })
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, async () => { await reloadProfiles(); renderDashboardWidgets(); if (STATE.currentTab === 'management-stats') { renderPendingUsers(); renderActiveUsers(); } await maybeRecheckSelf(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'departments' }, async () => { await reloadDepartments(); renderDeptOptions(); renderFilters(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'notices' }, async () => { await reloadNotices(); renderDashboardWidgets(); if (STATE.currentTab === 'notice') renderNotices(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, async () => { await reloadTodos(); renderDashboardWidgets(); if (STATE.currentTab === 'todo') renderTodos(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'worklogs' }, async () => { await reloadWorklogs(); renderDashboardWidgets(); if (STATE.currentTab === 'worklog') renderWorklogs(); })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, async () => { await reloadMessages(); if (STATE.currentTab === 'messenger') renderMessenger(); })
                 .subscribe((status) => { if (myGen === STATE._rtGen) handleRealtimeStatus(status); });
             // 탭이 백그라운드였다가 다시 보일 때: 그 사이 놓친 변경 따라잡기 (중복 등록 방지)
             if (!STATE._rtVisBound) {
@@ -8294,13 +8450,18 @@
             const badge = document.getElementById('tab-maintenance-badge'); if (badge) badge.classList.toggle('hidden', !STATE.maintenance[tabId]);
             const mb = document.getElementById('maintenance-btn-text'); if (mb) mb.innerText = STATE.maintenance[tabId] ? '점검 해제하기' : '현재 메뉴 점검 설정';
             if (tabId === 'dashboard') { renderDashboardWidgets(); renderDashboardNotice(); }
+            else if (tabId === 'notice') renderNotices();
             else if (tabId === 'calendar') renderCalendar();
+            else if (tabId === 'todo') renderTodos();
+            else if (tabId === 'worklog') renderWorklogs();
+            else if (tabId === 'messenger') renderMessenger();
             else if (tabId === 'documents') { resetPage('documents'); filterDocs(); }
             else if (tabId === 'documents-pending') { resetPage('pendingDocs'); renderPendingDocs(); }
             else if (tabId === 'documents-archive') { resetPage('archiveDocs'); renderArchiveDocs(); }
             else if (tabId === 'field-support') { resetPage('tickets'); renderTickets(); }
             else if (tabId === 'assets') { resetPage('assets'); renderAssets(); }
             else if (tabId === 'inventory') { resetPage('inventory'); setInventoryView(STATE.inventoryView || 'dashboard'); }
+            else if (tabId === 'acct-inventory') renderAccountingInventory();
             else if (tabId === 'trade') { resetPage('trade'); renderTrade(); }
             else if (tabId === 'management-logs') { resetPage('audit'); await reloadAuditLogs(); renderAuditLogs(); }
             else if (tabId === 'management-progress') renderProjects();
@@ -8938,19 +9099,24 @@
 
         function cmdkCommands() {
             const nav = [
-                ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
-                ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
-                ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
-                ['inventory', '일반 재고', 'package'], ['trade', '발주 · 견적', 'file-text'],
-                ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
-                ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
-                ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
+                ['dashboard', '대시보드', 'layout-dashboard'], ['notice', '공지사항', 'megaphone'],
+                ['calendar', '캘린더', 'calendar'], ['management-progress', '프로젝트', 'folder-kanban'],
+                ['todo', '투두리스트', 'list-checks'], ['worklog', '업무일지', 'clipboard-list'],
+                ['messenger', '사내 메신저', 'message-square'], ['field-support', '현장 AS 관리', 'wrench'],
+                ['assets', '설비 · 점검 관리', 'cog'], ['inventory', '일반 재고', 'package'],
+                ['acct-inventory', '회계 재고', 'calculator'], ['trade', '발주 · 견적', 'receipt'],
+                ['documents-pending', '결재 대기함', 'inbox'], ['documents', '보고서 관리', 'file-text'],
+                ['documents-archive', '승인 완료 보관함', 'archive'], ['management-stats', '권한 · 조직 관리', 'users'],
+                ['management-logs', '보안 감사 로그', 'shield-check'],
             ];
             const cmds = nav.map(([t, l, i]) => ({ label: l, icon: i, hint: '이동', act: () => switchTab(t) }));
             cmds.push({ label: '새 발주서 · 견적 작성', icon: 'file-plus', hint: '작업', act: () => { switchTab('trade'); setTimeout(() => { try { openTradeForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
             cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '공지 작성', icon: 'megaphone', hint: '작업', act: () => { switchTab('notice'); setTimeout(() => { try { openNoticeForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '할 일 추가', icon: 'list-plus', hint: '작업', act: () => { switchTab('todo'); setTimeout(() => { try { openTodoForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '업무일지 작성', icon: 'clipboard-plus', hint: '작업', act: () => { switchTab('worklog'); setTimeout(() => { try { openWorklogForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '통합 데이터 검색', icon: 'search', hint: '검색', act: () => { try { openMobileSearch(); } catch (e) { } } });
             cmds.push({ label: '통합 알림 센터', icon: 'bell', hint: '이동', act: () => { try { openNotifCenter(); } catch (e) { } } });
             if (STATE.profile && STATE.profile.role === 'admin') cmds.push({ label: '현재 메뉴 점검 설정', icon: 'construction', hint: '관리', act: () => { try { toggleActiveTabMaintenance(); } catch (e) { } } });
@@ -9121,6 +9287,470 @@
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initReferenceUI);
             else initReferenceUI();
         } catch (e) { }
+
+        // ============================================================
+        // 기준 HTML 워크스페이스 모듈
+        // 공지 · 투두 · 업무일지 · 메신저 · 회계재고
+        // ============================================================
+        function workspaceDeptName(id) {
+            const dept = (STATE.departments || []).find(d => d.id === id);
+            return dept ? dept.name : (id || '전사');
+        }
+
+        function workspaceCanManage(deptId, ownerId) {
+            if (!STATE.currentUser) return false;
+            return STATE.profile.role === 'admin'
+                || (!!deptId && deptId === STATE.profile.deptId)
+                || (!!ownerId && ownerId === STATE.currentUser.id);
+        }
+
+        function workspaceDeptOptions(includeAll, selected) {
+            const first = includeAll ? '<option value="all">전체 부서</option>' : '';
+            return first + (STATE.departments || []).map(d =>
+                `<option value="${d.id}" ${d.id === selected ? 'selected' : ''}>${esc(d.name)}</option>`
+            ).join('');
+        }
+
+        function workspaceSyncDeptSelect(id, includeAll, selected) {
+            const el = document.getElementById(id); if (!el) return;
+            const keep = selected != null ? selected : (el.value || (includeAll ? 'all' : STATE.profile.deptId));
+            el.innerHTML = workspaceDeptOptions(includeAll, keep);
+            if ([...el.options].some(o => o.value === keep)) el.value = keep;
+        }
+
+        function workspaceTableNotice(flag, name) {
+            if (!STATE[flag]) return '';
+            return `<div class="wsp-ref-surface p-6 text-center">
+                <div class="t-card-title">${name} 데이터베이스 준비가 필요합니다.</div>
+                <p class="t-page-sub mt-2">db/00-workspace-pro-db-full.sql을 Supabase SQL Editor에서 다시 실행해 주세요.</p>
+            </div>`;
+        }
+
+        async function reloadDepartments() {
+            try {
+                const { data, error } = await sb.from('departments').select('*').order('sort_order', { ascending: true });
+                if (error || !(data || []).length) return;
+                const previous = STATE.departments || [];
+                STATE.departments = data.filter(r => r.active !== false).map(r => {
+                    const old = previous.find(d => d.id === r.id) || {};
+                    return Object.assign({}, old, { id: r.id, name: r.name });
+                });
+                STATE.departments.forEach(d => { if (STATE.visibility[d.id] === undefined) STATE.visibility[d.id] = true; });
+            } catch (e) { }
+        }
+
+        async function reloadNotices() {
+            try {
+                const { data, error } = await sb.from('notices').select('*').order('pinned', { ascending: false }).order('created_at', { ascending: false }).limit(500);
+                if (error) { STATE.noticesTableMissing = true; STATE.notices = []; return; }
+                STATE.noticesTableMissing = false;
+                STATE.notices = (data || []).map(r => ({
+                    id: r.id, title: r.title || '', body: r.body || '', pinned: !!r.pinned,
+                    deptId: r.dept_id || '', author: r.author || '', authorId: r.author_id || '',
+                    createdAt: r.created_at || '', updatedAt: r.updated_at || ''
+                }));
+            } catch (e) { STATE.noticesTableMissing = true; STATE.notices = []; }
+        }
+
+        async function reloadTodos() {
+            try {
+                const { data, error } = await sb.from('todos').select('*').order('completed', { ascending: true }).order('due_date', { ascending: true }).limit(1000);
+                if (error) { STATE.todosTableMissing = true; STATE.todos = []; return; }
+                STATE.todosTableMissing = false;
+                STATE.todos = (data || []).map(r => ({
+                    id: r.id, title: r.title || '', detail: r.detail || '', owner: r.owner || '',
+                    ownerId: r.owner_id || '', dueDate: r.due_date || '', completed: !!r.completed,
+                    deptId: r.dept_id || '', createdBy: r.created_by || '', createdAt: r.created_at || ''
+                }));
+            } catch (e) { STATE.todosTableMissing = true; STATE.todos = []; }
+        }
+
+        async function reloadWorklogs() {
+            try {
+                const { data, error } = await sb.from('worklogs').select('*').order('work_date', { ascending: false }).order('id', { ascending: false }).limit(1000);
+                if (error) { STATE.worklogsTableMissing = true; STATE.worklogs = []; return; }
+                STATE.worklogsTableMissing = false;
+                STATE.worklogs = (data || []).map(r => ({
+                    id: r.id, workDate: r.work_date || '', projectId: r.project_id,
+                    projectTitle: r.project_title || '', content: r.content || '', hours: Number(r.hours) || 0,
+                    owner: r.owner || '', ownerId: r.owner_id || '', deptId: r.dept_id || '',
+                    createdAt: r.created_at || ''
+                }));
+            } catch (e) { STATE.worklogsTableMissing = true; STATE.worklogs = []; }
+        }
+
+        async function reloadMessages() {
+            try {
+                const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: false }).limit(300);
+                if (error) { STATE.messagesTableMissing = true; STATE.messages = []; return; }
+                STATE.messagesTableMissing = false;
+                STATE.messages = (data || []).map(r => ({
+                    id: r.id, channel: r.channel || 'general', body: r.body || '', sender: r.sender || '',
+                    senderId: r.sender_id || '', deptId: r.dept_id || '', createdAt: r.created_at || ''
+                }));
+            } catch (e) { STATE.messagesTableMissing = true; STATE.messages = []; }
+        }
+
+        function renderNotices() {
+            const root = document.getElementById('notice-list'); if (!root) return;
+            workspaceSyncDeptSelect('notice-filter-dept', true);
+            if (STATE.noticesTableMissing) { root.innerHTML = workspaceTableNotice('noticesTableMissing', '공지사항'); return; }
+            const q = ((document.getElementById('notice-search') || {}).value || '').trim().toLowerCase();
+            const dept = ((document.getElementById('notice-filter-dept') || {}).value || 'all');
+            const list = (STATE.notices || []).filter(n => {
+                const text = `${n.title} ${n.body} ${n.author}`.toLowerCase();
+                return (!q || text.indexOf(q) >= 0) && (dept === 'all' || n.deptId === dept);
+            }).sort((a, b) => Number(b.pinned) - Number(a.pinned) || String(b.createdAt).localeCompare(String(a.createdAt)));
+            root.innerHTML = list.length ? list.map(n => {
+                const manage = workspaceCanManage(n.deptId, n.authorId);
+                const date = n.createdAt ? String(n.createdAt).slice(0, 10) : '';
+                return `<article class="wsp-ref-surface p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                ${n.pinned ? '<span class="badge" style="background:var(--wsp-warn-soft);color:var(--wsp-warn)">고정</span>' : ''}
+                                <span class="badge" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">${esc(workspaceDeptName(n.deptId))}</span>
+                                <h3 class="t-card-title">${esc(n.title)}</h3>
+                            </div>
+                            <div class="t-label mt-2">${esc(n.author || '작성자 미상')} · ${esc(date)}</div>
+                        </div>
+                        ${manage ? `<div class="flex gap-1"><button class="icon-btn" onclick="openNoticeForm(${n.id})" aria-label="편집"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="icon-btn" onclick="deleteNotice(${n.id})" aria-label="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+                    </div>
+                    ${n.body ? `<p class="t-body mt-4 whitespace-pre-wrap leading-relaxed">${esc(n.body)}</p>` : ''}
+                </article>`;
+            }).join('') : emptyState('megaphone', '등록된 공지가 없습니다', '새 공지를 작성하면 전사에 실시간으로 공유됩니다.');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function openNoticeForm(id) {
+            const item = id ? (STATE.notices || []).find(n => n.id === id) : null;
+            workspaceSyncDeptSelect('notice-dept', false, item ? item.deptId : STATE.profile.deptId);
+            document.getElementById('notice-id').value = item ? item.id : '';
+            document.getElementById('notice-title').value = item ? item.title : '';
+            document.getElementById('notice-body').value = item ? item.body : '';
+            document.getElementById('notice-pinned').checked = !!(item && item.pinned);
+            document.getElementById('notice-form-title').textContent = item ? '공지 편집' : '공지 작성';
+            const dept = document.getElementById('notice-dept');
+            dept.disabled = STATE.profile.role !== 'admin';
+            if (STATE.profile.role !== 'admin') dept.value = STATE.profile.deptId;
+            openModal('notice-form-modal');
+        }
+
+        async function saveNotice(e) {
+            e.preventDefault();
+            const id = Number(document.getElementById('notice-id').value) || null;
+            const payload = {
+                title: document.getElementById('notice-title').value.trim(),
+                body: document.getElementById('notice-body').value.trim(),
+                pinned: document.getElementById('notice-pinned').checked,
+                dept_id: document.getElementById('notice-dept').value || STATE.profile.deptId,
+                updated_at: new Date().toISOString()
+            };
+            if (!id) { payload.author = STATE.currentUser.name; payload.author_id = STATE.currentUser.id; }
+            const result = id ? await sb.from('notices').update(payload).eq('id', id) : await sb.from('notices').insert(payload);
+            if (result.error) { showToast('저장 실패', result.error.message); return; }
+            closeModal('notice-form-modal'); await reloadNotices(); renderNotices(); renderDashboardWidgets(); showToast('저장 완료', '공지사항이 반영되었습니다.');
+        }
+
+        async function deleteNotice(id) {
+            if (!confirm('이 공지를 삭제할까요?')) return;
+            const { error } = await sb.from('notices').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadNotices(); renderNotices(); showToast('삭제 완료', '공지가 삭제되었습니다.');
+        }
+
+        function renderTodos() {
+            const root = document.getElementById('todo-list'); if (!root) return;
+            workspaceSyncDeptSelect('todo-filter-dept', true);
+            if (STATE.todosTableMissing) { root.innerHTML = workspaceTableNotice('todosTableMissing', '투두리스트'); return; }
+            const q = ((document.getElementById('todo-search') || {}).value || '').trim().toLowerCase();
+            const status = ((document.getElementById('todo-filter-status') || {}).value || 'open');
+            const dept = ((document.getElementById('todo-filter-dept') || {}).value || 'all');
+            const todayStr = formatDate(new Date());
+            const list = (STATE.todos || []).filter(t => {
+                const text = `${t.title} ${t.detail} ${t.owner}`.toLowerCase();
+                const statusOk = status === 'all' || (status === 'done' ? t.completed : !t.completed);
+                return (!q || text.indexOf(q) >= 0) && statusOk && (dept === 'all' || t.deptId === dept);
+            });
+            const all = STATE.todos || [];
+            const stats = document.getElementById('todo-stats');
+            if (stats) {
+                const values = [
+                    ['전체', all.length, 'list-checks'], ['미완료', all.filter(t => !t.completed).length, 'circle'],
+                    ['오늘 마감', all.filter(t => !t.completed && t.dueDate === todayStr).length, 'calendar-clock'],
+                    ['완료', all.filter(t => t.completed).length, 'circle-check']
+                ];
+                stats.innerHTML = values.map(v => `<div class="wsp-ref-kpi"><div class="wsp-ref-kpi-head"><span>${v[0]}</span><i data-lucide="${v[2]}" class="w-4 h-4"></i></div><div class="wsp-ref-kpi-value">${v[1]}</div></div>`).join('');
+            }
+            root.innerHTML = list.length ? list.map(t => {
+                const manage = workspaceCanManage(t.deptId, t.ownerId);
+                const overdue = !t.completed && t.dueDate && t.dueDate < todayStr;
+                return `<div class="wsp-ref-surface p-4 flex items-start gap-3 ${t.completed ? 'opacity-65' : ''}">
+                    <button onclick="toggleTodo(${t.id},${t.completed ? 'false' : 'true'})" class="mt-0.5 flex-shrink-0" aria-label="${t.completed ? '미완료로 변경' : '완료 처리'}">
+                        <i data-lucide="${t.completed ? 'circle-check-big' : 'circle'}" class="w-5 h-5" style="color:var(${t.completed ? '--wsp-ok' : '--wsp-muted'})"></i>
+                    </button>
+                    <div class="min-w-0 flex-1">
+                        <div class="t-body font-semibold ${t.completed ? 'line-through' : ''}">${esc(t.title)}</div>
+                        ${t.detail ? `<div class="t-page-sub mt-1 whitespace-pre-wrap">${esc(t.detail)}</div>` : ''}
+                        <div class="flex flex-wrap gap-2 mt-2 t-label"><span>${esc(t.owner || '담당자 미지정')}</span><span>·</span><span>${esc(workspaceDeptName(t.deptId))}</span>${t.dueDate ? `<span>·</span><span style="color:var(${overdue ? '--wsp-danger' : '--wsp-muted'})">${overdue ? '기한 초과 ' : ''}${esc(t.dueDate)}</span>` : ''}</div>
+                    </div>
+                    ${manage ? `<div class="flex gap-1"><button class="icon-btn" onclick="openTodoForm(${t.id})" aria-label="편집"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="icon-btn" onclick="deleteTodo(${t.id})" aria-label="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+                </div>`;
+            }).join('') : emptyState('list-checks', '조건에 맞는 할 일이 없습니다', '필터를 바꾸거나 새 할 일을 등록해 보세요.');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function populateTodoOwners(selected) {
+            const el = document.getElementById('todo-owner'); if (!el) return;
+            const users = (STATE.users || []).filter(u => u.approved);
+            el.innerHTML = users.map(u => `<option value="${u.id}" ${u.id === selected ? 'selected' : ''}>${esc(u.name)} · ${esc(workspaceDeptName(u.deptId))}</option>`).join('');
+            if (!el.value && STATE.currentUser) el.value = STATE.currentUser.id;
+        }
+
+        function openTodoForm(id) {
+            const item = id ? (STATE.todos || []).find(t => t.id === id) : null;
+            document.getElementById('todo-id').value = item ? item.id : '';
+            document.getElementById('todo-title').value = item ? item.title : '';
+            document.getElementById('todo-detail').value = item ? item.detail : '';
+            document.getElementById('todo-due').value = item ? item.dueDate : '';
+            document.getElementById('todo-completed').checked = !!(item && item.completed);
+            document.getElementById('todo-form-title').textContent = item ? '할 일 편집' : '할 일 추가';
+            populateTodoOwners(item ? item.ownerId : STATE.currentUser.id);
+            workspaceSyncDeptSelect('todo-dept', false, item ? item.deptId : STATE.profile.deptId);
+            const dept = document.getElementById('todo-dept');
+            dept.disabled = STATE.profile.role !== 'admin';
+            if (STATE.profile.role !== 'admin') dept.value = STATE.profile.deptId;
+            openModal('todo-form-modal');
+        }
+
+        async function saveTodo(e) {
+            e.preventDefault();
+            const id = Number(document.getElementById('todo-id').value) || null;
+            const ownerId = document.getElementById('todo-owner').value || STATE.currentUser.id;
+            const owner = (STATE.users || []).find(u => u.id === ownerId);
+            const payload = {
+                title: document.getElementById('todo-title').value.trim(),
+                detail: document.getElementById('todo-detail').value.trim(),
+                owner: owner ? owner.name : STATE.currentUser.name,
+                owner_id: ownerId,
+                due_date: document.getElementById('todo-due').value || null,
+                completed: document.getElementById('todo-completed').checked,
+                dept_id: document.getElementById('todo-dept').value || STATE.profile.deptId,
+                updated_at: new Date().toISOString()
+            };
+            if (!id) payload.created_by = STATE.currentUser.id;
+            const result = id ? await sb.from('todos').update(payload).eq('id', id) : await sb.from('todos').insert(payload);
+            if (result.error) { showToast('저장 실패', result.error.message); return; }
+            closeModal('todo-form-modal'); await reloadTodos(); renderTodos(); renderDashboardWidgets(); showToast('저장 완료', '할 일이 반영되었습니다.');
+        }
+
+        async function toggleTodo(id, completed) {
+            const { error } = await sb.from('todos').update({ completed: !!completed, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) { showToast('변경 실패', error.message); return; }
+            await reloadTodos(); renderTodos(); renderDashboardWidgets();
+        }
+
+        async function deleteTodo(id) {
+            if (!confirm('이 할 일을 삭제할까요?')) return;
+            const { error } = await sb.from('todos').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadTodos(); renderTodos(); renderDashboardWidgets();
+        }
+
+        function renderWorklogs() {
+            const body = document.getElementById('worklog-list-body');
+            const cards = document.getElementById('worklog-card-list');
+            if (!body || !cards) return;
+            workspaceSyncDeptSelect('worklog-filter-dept', true);
+            if (STATE.worklogsTableMissing) {
+                body.innerHTML = `<tr><td colspan="6">${workspaceTableNotice('worklogsTableMissing', '업무일지')}</td></tr>`;
+                cards.innerHTML = workspaceTableNotice('worklogsTableMissing', '업무일지'); return;
+            }
+            const q = ((document.getElementById('worklog-search') || {}).value || '').trim().toLowerCase();
+            const date = ((document.getElementById('worklog-filter-date') || {}).value || '');
+            const dept = ((document.getElementById('worklog-filter-dept') || {}).value || 'all');
+            const list = (STATE.worklogs || []).filter(w => {
+                const text = `${w.projectTitle} ${w.content} ${w.owner}`.toLowerCase();
+                return (!q || text.indexOf(q) >= 0) && (!date || w.workDate === date) && (dept === 'all' || w.deptId === dept);
+            });
+            const actions = w => workspaceCanManage(w.deptId, w.ownerId)
+                ? `<button class="icon-btn" onclick="openWorklogForm(${w.id})" aria-label="편집"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="icon-btn" onclick="deleteWorklog(${w.id})" aria-label="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : '';
+            body.innerHTML = list.length ? list.map(w => `<tr>
+                <td class="whitespace-nowrap">${esc(w.workDate)}</td><td>${esc(w.projectTitle || '일반 업무')}</td>
+                <td><div class="font-semibold">${esc(w.owner || '-')}</div><div class="t-label">${esc(workspaceDeptName(w.deptId))}</div></td>
+                <td><div class="max-w-xl whitespace-pre-wrap">${esc(w.content)}</div></td><td class="whitespace-nowrap">${w.hours ? fmtNum(w.hours) + 'h' : '-'}</td>
+                <td><div class="flex justify-end gap-1">${actions(w)}</div></td></tr>`).join('') : emptyCell(6, 'clipboard-list', '업무일지가 없습니다', '새 업무일지를 작성해 주세요.');
+            cards.innerHTML = list.length ? list.map(w => `<article class="wsp-ref-surface p-4">
+                <div class="flex justify-between gap-3"><div><div class="t-label">${esc(w.workDate)} · ${esc(workspaceDeptName(w.deptId))}</div><div class="t-card-title mt-1">${esc(w.projectTitle || '일반 업무')}</div></div><div class="flex gap-1">${actions(w)}</div></div>
+                <p class="t-body mt-3 whitespace-pre-wrap">${esc(w.content)}</p><div class="t-label mt-3">${esc(w.owner || '-')} ${w.hours ? '· ' + fmtNum(w.hours) + 'h' : ''}</div>
+            </article>`).join('') : emptyState('clipboard-list', '업무일지가 없습니다', '새 업무일지를 작성해 주세요.');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function populateWorklogProjects(selected) {
+            const el = document.getElementById('worklog-project'); if (!el) return;
+            el.innerHTML = '<option value="">일반 업무</option>' + (STATE.projects || []).map(p =>
+                `<option value="${p.id}" ${String(p.id) === String(selected || '') ? 'selected' : ''}>${esc(p.title)}</option>`
+            ).join('');
+        }
+
+        function openWorklogForm(id) {
+            const item = id ? (STATE.worklogs || []).find(w => w.id === id) : null;
+            document.getElementById('worklog-id').value = item ? item.id : '';
+            document.getElementById('worklog-date').value = item ? item.workDate : formatDate(new Date());
+            document.getElementById('worklog-hours').value = item ? item.hours : 0;
+            document.getElementById('worklog-content').value = item ? item.content : '';
+            document.getElementById('worklog-form-title').textContent = item ? '업무일지 편집' : '업무일지 작성';
+            populateWorklogProjects(item ? item.projectId : '');
+            workspaceSyncDeptSelect('worklog-dept', false, item ? item.deptId : STATE.profile.deptId);
+            const dept = document.getElementById('worklog-dept');
+            dept.disabled = STATE.profile.role !== 'admin';
+            if (STATE.profile.role !== 'admin') dept.value = STATE.profile.deptId;
+            openModal('worklog-form-modal');
+        }
+
+        async function saveWorklog(e) {
+            e.preventDefault();
+            const id = Number(document.getElementById('worklog-id').value) || null;
+            const projectId = Number(document.getElementById('worklog-project').value) || null;
+            const project = (STATE.projects || []).find(p => p.id === projectId);
+            const payload = {
+                work_date: document.getElementById('worklog-date').value,
+                project_id: projectId,
+                project_title: project ? project.title : '',
+                content: document.getElementById('worklog-content').value.trim(),
+                hours: Number(document.getElementById('worklog-hours').value) || 0,
+                dept_id: document.getElementById('worklog-dept').value || STATE.profile.deptId,
+                updated_at: new Date().toISOString()
+            };
+            if (!id) { payload.owner = STATE.currentUser.name; payload.owner_id = STATE.currentUser.id; }
+            const result = id ? await sb.from('worklogs').update(payload).eq('id', id) : await sb.from('worklogs').insert(payload);
+            if (result.error) { showToast('저장 실패', result.error.message); return; }
+            closeModal('worklog-form-modal'); await reloadWorklogs(); renderWorklogs(); renderDashboardWidgets(); showToast('저장 완료', '업무일지가 반영되었습니다.');
+        }
+
+        async function deleteWorklog(id) {
+            if (!confirm('이 업무일지를 삭제할까요?')) return;
+            const { error } = await sb.from('worklogs').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadWorklogs(); renderWorklogs(); renderDashboardWidgets();
+        }
+
+        function setMessageChannel(channel) {
+            STATE.messageChannel = channel === 'department' ? 'department' : 'general';
+            renderMessenger();
+        }
+
+        function renderMessenger() {
+            const root = document.getElementById('message-list'); if (!root) return;
+            const channel = STATE.messageChannel || 'general';
+            const channelKey = channel === 'department' ? `dept:${STATE.profile.deptId}` : 'general';
+            const general = document.getElementById('msg-channel-general');
+            const dept = document.getElementById('msg-channel-dept');
+            if (general) general.style.background = channel === 'general' ? 'var(--wsp-accent-soft)' : 'transparent';
+            if (dept) dept.style.background = channel === 'department' ? 'var(--wsp-accent-soft)' : 'transparent';
+            const title = document.getElementById('messenger-channel-title');
+            if (title) title.textContent = channel === 'department' ? `# ${workspaceDeptName(STATE.profile.deptId)}` : '# 전사 공용';
+            if (STATE.messagesTableMissing) { root.innerHTML = workspaceTableNotice('messagesTableMissing', '사내 메신저'); return; }
+            const list = (STATE.messages || []).filter(m => m.channel === channelKey).sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+            root.innerHTML = list.length ? list.map(m => {
+                const mine = STATE.currentUser && m.senderId === STATE.currentUser.id;
+                const canDelete = mine || STATE.profile.role === 'admin';
+                const time = m.createdAt ? new Date(m.createdAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                return `<div class="flex ${mine ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[86%] sm:max-w-[70%]">
+                        <div class="t-label mb-1 ${mine ? 'text-right' : ''}">${esc(m.sender || '사용자')} · ${esc(time)}</div>
+                        <div class="rounded-2xl px-4 py-3 t-body whitespace-pre-wrap relative group" style="background:${mine ? 'var(--wsp-accent)' : 'var(--wsp-surface-2)'};color:${mine ? 'var(--wsp-accent-ink)' : 'var(--wsp-ink)'}">
+                            ${esc(m.body)}
+                            ${canDelete ? `<button onclick="deleteMessage(${m.id})" class="ml-2 opacity-70 hover:opacity-100" aria-label="메시지 삭제">×</button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') : emptyState('message-square', '아직 메시지가 없습니다', '첫 메시지를 보내 대화를 시작해 보세요.', true);
+            root.scrollTop = root.scrollHeight;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('message-input');
+            const body = (input.value || '').trim(); if (!body) return;
+            const department = (STATE.messageChannel || 'general') === 'department';
+            const payload = {
+                channel: department ? `dept:${STATE.profile.deptId}` : 'general',
+                body, sender: STATE.currentUser.name, sender_id: STATE.currentUser.id,
+                dept_id: department ? STATE.profile.deptId : null
+            };
+            const { error } = await sb.from('messages').insert(payload);
+            if (error) { showToast('전송 실패', error.message); return; }
+            input.value = ''; await reloadMessages(); renderMessenger();
+        }
+
+        async function deleteMessage(id) {
+            const { error } = await sb.from('messages').delete().eq('id', id);
+            if (error) { showToast('삭제 실패', error.message); return; }
+            await reloadMessages(); renderMessenger();
+        }
+
+        function renderAccountingInventory() {
+            const body = document.getElementById('acct-inventory-body');
+            const cards = document.getElementById('acct-inventory-cards');
+            const stats = document.getElementById('acct-inventory-stats');
+            if (!body || !cards || !stats) return;
+            workspaceSyncDeptSelect('acct-inventory-dept', true);
+            const q = ((document.getElementById('acct-inventory-search') || {}).value || '').trim().toLowerCase();
+            const dept = ((document.getElementById('acct-inventory-dept') || {}).value || 'all');
+            const all = (STATE.inventory || []).filter(i => i.acctFlag);
+            const list = all.filter(i => {
+                const text = `${i.name} ${i.sku} ${i.supplier} ${i.category}`.toLowerCase();
+                return (!q || text.indexOf(q) >= 0) && (dept === 'all' || i.deptId === dept);
+            });
+            const totalQty = all.reduce((s, i) => s + Number(i.stock || 0), 0);
+            const totalValue = all.reduce((s, i) => s + Number(i.stock || 0) * Number(i.avgPrice || i.unitPrice || 0), 0);
+            const autoCount = all.filter(i => i.acctAuto && !i.acctLocked).length;
+            const statData = [['회계 품목', all.length, 'calculator'], ['총 수량', fmtNum(totalQty), 'package-check'], ['재고 자산가액', fmtNum(totalValue) + '원', 'wallet-cards'], ['자동 분류', autoCount, 'sparkles']];
+            stats.innerHTML = statData.map(v => `<div class="wsp-ref-kpi"><div class="wsp-ref-kpi-head"><span>${v[0]}</span><i data-lucide="${v[2]}" class="w-4 h-4"></i></div><div class="wsp-ref-kpi-value ${String(v[1]).length > 10 ? 'text-xl' : ''}">${v[1]}</div></div>`).join('');
+            const action = i => `<button onclick="toggleInventoryAcct(${i.id},false).then(()=>renderAccountingInventory())" class="wsp-ref-btn wsp-ref-btn-ghost">회계 제외</button>`;
+            body.innerHTML = list.length ? list.map(i => `<tr>
+                <td><div class="font-semibold">${esc(i.name)}</div><div class="t-label font-mono">${esc(i.sku || '-')}</div></td>
+                <td>${esc(i.category || '-')}</td><td>${esc(workspaceDeptName(i.deptId))}</td>
+                <td class="text-right">${fmtNum(i.stock)} ${esc(i.unit || '')}</td><td class="text-right">${fmtNum(i.avgPrice || i.unitPrice)}원</td>
+                <td class="text-right font-semibold">${fmtNum(Number(i.stock || 0) * Number(i.avgPrice || i.unitPrice || 0))}원</td>
+                <td>${i.acctLocked ? '수동 지정' : (i.acctAuto ? '자동 분류' : '기존 지정')}</td><td class="text-right">${action(i)}</td>
+            </tr>`).join('') : emptyCell(8, 'calculator', '회계 재고가 없습니다', '일반 재고의 품목 상세에서 회계재고로 지정할 수 있습니다.');
+            cards.innerHTML = list.length ? list.map(i => `<article class="wsp-ref-surface p-4">
+                <div class="flex justify-between gap-3"><div><div class="t-card-title">${esc(i.name)}</div><div class="t-label mt-1">${esc(i.sku || '-')} · ${esc(workspaceDeptName(i.deptId))}</div></div><span class="badge" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">회계</span></div>
+                <div class="grid grid-cols-2 gap-3 mt-4"><div><div class="t-label">현재고</div><div class="t-body font-bold mt-1">${fmtNum(i.stock)} ${esc(i.unit || '')}</div></div><div><div class="t-label">자산가액</div><div class="t-body font-bold mt-1">${fmtNum(Number(i.stock || 0) * Number(i.avgPrice || i.unitPrice || 0))}원</div></div></div>
+                <div class="mt-4">${action(i)}</div>
+            </article>`).join('') : emptyState('calculator', '회계 재고가 없습니다', '일반 재고의 품목 상세에서 회계재고로 지정할 수 있습니다.');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        Object.assign(TAB_META, {
+            dashboard: { title: '대시보드', desc: '사내 통합 운영 현황과 처리 대기 항목을 확인합니다.' },
+            notice: { title: '공지사항', desc: '전사·부서 공지를 작성하고 실시간으로 공유합니다.' },
+            calendar: { title: '캘린더', desc: '전 부서의 일정을 한 화면에서 관리합니다.' },
+            'management-progress': { title: '프로젝트', desc: '부서별 프로젝트 진척을 칸반·목록·간트로 관리합니다.' },
+            todo: { title: '투두리스트', desc: '담당자와 마감일이 있는 할 일을 관리합니다.' },
+            worklog: { title: '업무일지', desc: '프로젝트별 일일 업무 내역과 투입 시간을 기록합니다.' },
+            messenger: { title: '사내 메신저', desc: '전사 또는 내 부서 채널에서 실시간으로 대화합니다.' },
+            'field-support': { title: '현장 AS 관리', desc: '고객사 장애 접수부터 처리 완료까지 관리합니다.' },
+            assets: { title: '설비 · 점검 관리', desc: '현장 설비와 정기점검 일정을 관리합니다.' },
+            'acct-inventory': { title: '회계 재고', desc: '회계 대상으로 지정된 재고와 자산가액을 조회합니다.' },
+            documents: { title: '보고서 관리', desc: '사내 보고서를 등록하고 결재선·열람자를 관리합니다.' },
+            'documents-pending': { title: '결재 대기함', desc: '검토와 승인을 기다리는 문서를 처리합니다.' },
+            'documents-archive': { title: '승인 완료 보관함', desc: '승인이 끝난 문서를 조회하고 내려받습니다.' },
+            'management-stats': { title: '권한 · 조직 관리', desc: '임직원 승인·권한·소속 부서를 관리합니다.' },
+            'management-logs': { title: '보안 감사 로그', desc: '결재·삭제·권한 변경 이력을 점검합니다.' }
+        });
+
+        if (typeof REFERENCE_PAGE_ACTIONS !== 'undefined') {
+            Object.assign(REFERENCE_PAGE_ACTIONS, {
+                notice: [['primary', 'plus', '공지 작성', 'openNoticeForm()']],
+                todo: [['primary', 'plus', '할 일 추가', 'openTodoForm()']],
+                worklog: [['primary', 'plus', '업무일지 작성', 'openWorklogForm()']]
+            });
+        }
 
 
     </script>

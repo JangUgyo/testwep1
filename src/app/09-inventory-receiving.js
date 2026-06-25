@@ -318,19 +318,24 @@
 
         function cmdkCommands() {
             const nav = [
-                ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
-                ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
-                ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
-                ['inventory', '일반 재고', 'package'], ['trade', '발주 · 견적', 'file-text'],
-                ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
-                ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
-                ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
+                ['dashboard', '대시보드', 'layout-dashboard'], ['notice', '공지사항', 'megaphone'],
+                ['calendar', '캘린더', 'calendar'], ['management-progress', '프로젝트', 'folder-kanban'],
+                ['todo', '투두리스트', 'list-checks'], ['worklog', '업무일지', 'clipboard-list'],
+                ['messenger', '사내 메신저', 'message-square'], ['field-support', '현장 AS 관리', 'wrench'],
+                ['assets', '설비 · 점검 관리', 'cog'], ['inventory', '일반 재고', 'package'],
+                ['acct-inventory', '회계 재고', 'calculator'], ['trade', '발주 · 견적', 'receipt'],
+                ['documents-pending', '결재 대기함', 'inbox'], ['documents', '보고서 관리', 'file-text'],
+                ['documents-archive', '승인 완료 보관함', 'archive'], ['management-stats', '권한 · 조직 관리', 'users'],
+                ['management-logs', '보안 감사 로그', 'shield-check'],
             ];
             const cmds = nav.map(([t, l, i]) => ({ label: l, icon: i, hint: '이동', act: () => switchTab(t) }));
             cmds.push({ label: '새 발주서 · 견적 작성', icon: 'file-plus', hint: '작업', act: () => { switchTab('trade'); setTimeout(() => { try { openTradeForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
             cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '공지 작성', icon: 'megaphone', hint: '작업', act: () => { switchTab('notice'); setTimeout(() => { try { openNoticeForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '할 일 추가', icon: 'list-plus', hint: '작업', act: () => { switchTab('todo'); setTimeout(() => { try { openTodoForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '업무일지 작성', icon: 'clipboard-plus', hint: '작업', act: () => { switchTab('worklog'); setTimeout(() => { try { openWorklogForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '통합 데이터 검색', icon: 'search', hint: '검색', act: () => { try { openMobileSearch(); } catch (e) { } } });
             cmds.push({ label: '통합 알림 센터', icon: 'bell', hint: '이동', act: () => { try { openNotifCenter(); } catch (e) { } } });
             if (STATE.profile && STATE.profile.role === 'admin') cmds.push({ label: '현재 메뉴 점검 설정', icon: 'construction', hint: '관리', act: () => { try { toggleActiveTabMaintenance(); } catch (e) { } } });
