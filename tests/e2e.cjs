@@ -1861,6 +1861,30 @@ async function run() {
   ok('renderListCards shows empty hint', ((doc.getElementById('document-card-list') || {}).innerHTML || '').indexOf('비어있음표시') >= 0);
   ok('documentCardHTML builds', typeof window.documentCardHTML === 'function' && window.documentCardHTML({ id: 5, title: '문서카드A', status: 'approved', deptId: 'strategy', author: '홍길동', date: '2026-06-01' }).indexOf('문서카드A') >= 0);
   ok('projectCardHTML builds', typeof window.projectCardHTML === 'function' && window.projectCardHTML({ id: 6, title: '프로젝트카드X', deptId: 'strategy', progress: 40, startDate: '2026-06-01', endDate: '2026-07-01', status: 'ongoing' }).indexOf('프로젝트카드X') >= 0);
+  // 처리 대기 (Action Inbox)
+  ok('renderActionInbox fn present', typeof window.renderActionInbox === 'function');
+  S().documents = []; S().users = []; S().events = []; S().trade = []; S().poReceipts = [];
+  S().inventory = [{ id: 8001, name: '부족품목X', stock: 1, safeStock: 5, deptId: 'strategy', unit: 'EA', avgPrice: 0, acctFlag: false }];
+  window.renderActionInbox();
+  { const ih = (doc.getElementById('action-inbox-wrap') || {}).innerHTML || '';
+    ok('action inbox surfaces low-stock alert', ih.indexOf('재고경보') >= 0 && ih.indexOf('부족품목X') >= 0); }
+  S().inventory = [];
+  window.renderActionInbox();
+  ok('action inbox empty state', ((doc.getElementById('action-inbox-wrap') || {}).innerHTML || '').indexOf('처리할 항목이 없습니다') >= 0);
+  // 아이콘 레일 토글
+  ok('toggleRail fn present', typeof window.toggleRail === 'function');
+  ok('rail mode default-on', doc.body.classList.contains('rail'));
+  window.toggleRail(); ok('toggleRail collapses off', !doc.body.classList.contains('rail'));
+  window.toggleRail(); ok('toggleRail back on', doc.body.classList.contains('rail'));
+  // ⌘K 명령 팔레트
+  ok('cmdkCommands builds list', typeof window.cmdkCommands === 'function' && window.cmdkCommands().length >= 14);
+  ok('openCmdk fn present', typeof window.openCmdk === 'function');
+  window.openCmdk();
+  ok('cmdk overlay opens', !doc.getElementById('cmdk-overlay').classList.contains('hidden'));
+  doc.getElementById('cmdk-input').value = '재고'; window.renderCmdk();
+  ok('cmdk filters by query', (doc.getElementById('cmdk-list').innerHTML || '').indexOf('재고') >= 0 && (doc.getElementById('cmdk-list').innerHTML || '').indexOf('대시보드') < 0);
+  window.closeCmdk();
+  ok('cmdk overlay closes', doc.getElementById('cmdk-overlay').classList.contains('hidden'));
 
   // login again
   $('login-id').value = 'boss@co.com'; $('login-password').value = 'x';

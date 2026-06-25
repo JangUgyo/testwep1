@@ -3,6 +3,7 @@
             const isAdmin = STATE.profile.role === 'admin';
             const myDept = STATE.profile.deptId;
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
+            if (typeof renderActionInbox === 'function') renderActionInbox();
             // 통합 알림 센터
             renderNotificationCenter();
             renderDashboardCharts();

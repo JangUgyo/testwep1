@@ -102,6 +102,12 @@ $$;
 grant execute on function public.record_po_receipt(bigint,integer,bigint,numeric,numeric,bigint,text,text,uuid,text) to authenticated;
 grant execute on function public.set_inventory_acct(bigint,boolean) to authenticated;
 
+-- (실시간) po_receipts 를 supabase_realtime 발행에 등록 — 입고 발생 시 즉시 반영.
+--   이미 등록돼 있으면 무시(멱등).
+do $$ begin
+  alter publication supabase_realtime add table public.po_receipts;
+exception when duplicate_object then null; when undefined_object then null; end $$;
+
 -- ============================================================================
 -- 완료. 앱은 이 테이블/함수가 없으면 관련 화면을 자동으로 비활성화하므로,
 -- 실행 전에도 기존 기능은 그대로 동작합니다.

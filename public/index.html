@@ -6,6 +6,13 @@
     <title>WorkSpace Pro - Enterprise Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // 새 브랜드 정체성: indigo 계열을 코발트로 리매핑(기존 indigo 사용처가 자동으로 새 브랜드색으로 전환).
+      // CDN(window.tailwind)이 로드된 경우에만 설정(테스트 등 비-브라우저 환경 안전).
+      if (window.tailwind) { window.tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
+        indigo: { 50:'#e6edff', 100:'#cdd9ff', 200:'#a3b8ff', 300:'#7090ff', 400:'#446bf0', 500:'#1f4fd6', 600:'#1a43b8', 700:'#173a9c', 800:'#16327f', 900:'#152b66' }
+      } } } }; }
+    </script>
     <!-- Lucide Icons CDN -->
     <!-- Supabase JS Client CDN -->
     <script src="./vendor.js"></script>
@@ -108,11 +115,59 @@
 
         /* ── 디자인 시스템 토큰 & 공통 컴포넌트 ───────────────────────── */
         :root {
-            --wsp-accent: #4f46e5;      /* 기본 강조(인디고) */
-            --wsp-radius: 0.75rem;
-            --wsp-ring: rgba(79,70,229,0.35);
+            /* 업로드 디자인 시스템과 동일한 코발트 토큰 */
+            --wsp-canvas: #eef1f8;        /* 페이지 배경(쿨 뉴트럴) */
+            --wsp-surface: #ffffff;        /* 카드/패널 */
+            --wsp-surface-2: #f6f8fc;      /* 보조 표면(헤더/호버) */
+            --wsp-ink: #161c2b;            /* 본문 텍스트(진하게) */
+            --wsp-muted: #525d72;          /* 보조 텍스트(흐릿함 금지) */
+            --wsp-line: #d8deea;           /* 경계선 */
+            --wsp-accent: #1f4fd6;         /* 코발트 강조 */
+            --wsp-accent-ink: #ffffff;
+            --wsp-accent-soft: #e6edff;
+            --wsp-warn: #b45309; --wsp-warn-soft: #fef3c7;
+            --wsp-ok: #15803d; --wsp-ok-soft: #dcfce7;
+            --wsp-danger: #b91c1c; --wsp-danger-soft: #fee2e2;
+            --wsp-radius: 0.875rem;
+            --wsp-ring: rgba(31,79,214,0.28);
         }
-        html.dark { --wsp-accent: #c96442; --wsp-ring: rgba(201,100,66,0.40); }
+        html.dark {
+            --wsp-canvas: #0c1018; --wsp-surface: #151b26; --wsp-surface-2: #1c2433;
+            --wsp-ink: #e9eef8; --wsp-muted: #a7b2c6; --wsp-line: #2a3445;
+            --wsp-accent: #5b86ff; --wsp-accent-ink: #0c1018; --wsp-accent-soft: #1b2742;
+            --wsp-warn: #fbbf24; --wsp-warn-soft: #3a2e10;
+            --wsp-ok: #4ade80; --wsp-ok-soft: #13301f;
+            --wsp-danger: #f87171; --wsp-danger-soft: #3a1718;
+            --wsp-ring: rgba(91,134,255,0.40);
+        }
+        /* 통일 타이포 스케일(제목·부제·카드·본문·라벨·메뉴 일관) */
+        .t-page-title { font-size: 20px; font-weight: 800; letter-spacing: -.01em; color: var(--wsp-ink); }
+        .t-page-sub { font-size: 13px; font-weight: 500; color: var(--wsp-muted); }
+        .t-card-title { font-size: 15px; font-weight: 700; color: var(--wsp-ink); }
+        .t-body { font-size: 13.5px; font-weight: 500; color: var(--wsp-ink); }
+        .t-label { font-size: 12px; font-weight: 600; color: var(--wsp-muted); }
+        .t-menu { font-size: 13.5px; font-weight: 600; }
+        .t-menu-group { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--wsp-muted); }
+        /* 공통 컴포넌트(디자인 시스템) */
+        .surface { background: var(--wsp-surface); border: 1px solid var(--wsp-line); border-radius: 14px; }
+        .surface-2 { background: var(--wsp-surface-2); }
+        .field { width: 100%; background: var(--wsp-surface); color: var(--wsp-ink); border: 1px solid var(--wsp-line); border-radius: 10px; padding: 9px 11px; font-size: 13.5px; font-family: inherit; outline: none; }
+        .field:focus { border-color: var(--wsp-accent); box-shadow: 0 0 0 3px var(--wsp-accent-soft); }
+        .btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 10px; padding: 8px 13px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; white-space: nowrap; }
+        .btn-primary { background: var(--wsp-accent); color: var(--wsp-accent-ink); }
+        .btn-primary:hover { filter: brightness(1.06); }
+        .btn-ghost { background: transparent; color: var(--wsp-ink); border-color: var(--wsp-line); }
+        .btn-ghost:hover { background: var(--wsp-surface-2); }
+        .btn-danger { background: transparent; color: var(--wsp-danger); border-color: var(--wsp-line); }
+        .btn-danger:hover { background: var(--wsp-danger-soft); }
+        .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--wsp-line); background: var(--wsp-surface); color: var(--wsp-ink); cursor: pointer; }
+        .icon-btn:hover { background: var(--wsp-surface-2); }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+        table.wsp { width: 100%; border-collapse: collapse; }
+        table.wsp th { text-align: left; font-size: 11.5px; font-weight: 700; color: var(--wsp-muted); padding: 10px 12px; border-bottom: 1px solid var(--wsp-line); white-space: nowrap; }
+        table.wsp td { font-size: 13px; color: var(--wsp-ink); padding: 11px 12px; border-bottom: 1px solid var(--wsp-line); }
+        table.wsp tr:last-child td { border-bottom: none; }
+        table.wsp tbody tr:hover { background: var(--wsp-surface-2); }
         /* 부드러운 전환 + 접근성 포커스 링(전역) */
         button, a, input, select, textarea { transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease; }
         *:focus-visible { outline: 2px solid var(--wsp-accent); outline-offset: 1px; border-radius: 6px; }
@@ -122,6 +177,51 @@
         .wsp-skip-link:focus { top: 8px; outline: 2px solid #fff; outline-offset: 1px; }
         #main-area:focus { outline: none; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        /* ===== 새 디자인 정체성 (코발트 워크스페이스) ===== */
+        body { background: var(--wsp-canvas) !important; }
+        #app-sidebar { background: var(--wsp-surface); border-right: 1px solid var(--wsp-line); }
+        .sidebar-item { border-radius: 10px; }
+        .sidebar-item.active { background-color: var(--wsp-accent-soft) !important; box-shadow: inset 3px 0 0 var(--wsp-accent); }
+        .sidebar-item.active span, .sidebar-item.active i { color: var(--wsp-accent) !important; font-weight: 700 !important; }
+        html.dark .sidebar-item.active span, html.dark .sidebar-item.active i { color: #c7d3ff !important; }
+        #main-area > header { background: var(--wsp-surface); }
+        /* 처리 대기(Action Inbox) */
+        .wsp-inbox { background: var(--wsp-surface); border: 1px solid var(--wsp-line); border-radius: 16px; overflow: hidden; }
+        .wsp-task { display: flex; align-items: center; gap: 13px; padding: 13px 18px; border-top: 1px solid var(--wsp-line); position: relative; }
+        .wsp-task::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; }
+        .wsp-task.p-rose::before { background: #dc2b4e; } .wsp-task.p-blue::before { background: var(--wsp-accent); } .wsp-task.p-amber::before { background: #b97400; } .wsp-task.p-teal::before { background: #0e9f87; }
+        .wsp-tic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; }
+        /* ===== 아이콘 레일 (데스크톱 ≥1024px, body.rail) ===== */
+        @media (min-width: 1024px) {
+            body.rail #app-sidebar { width: 74px; }
+            body.rail #main-area { margin-left: 74px; }
+            body.rail #sidebar-logo { padding: 16px 0; }
+            body.rail #sidebar-logo > div { justify-content: center; gap: 0; }
+            body.rail .logo-title, body.rail .logo-sub { display: none; }
+            body.rail .sidebar-group-title { display: none; }
+            body.rail #nav-scroll { padding-left: 10px; padding-right: 10px; }
+            body.rail .sidebar-item { justify-content: center; padding: 11px 0; position: relative; }
+            body.rail .sidebar-item span { display: none; }
+            body.rail #sidebar-footer { padding: 10px 8px; }
+            body.rail #sidebar-footer > div { gap: 8px; }
+            body.rail #add-feature-btn { padding: 11px 0; }
+            body.rail #add-feature-btn span { display: none; }
+            body.rail #sidebar-footer [onclick*="profile-setting-modal"] { justify-content: center; gap: 0; padding: 9px; }
+            body.rail #sidebar-footer [onclick*="profile-setting-modal"] .overflow-hidden,
+            body.rail #sidebar-footer [onclick*="profile-setting-modal"] [data-lucide="cog"] { display: none; }
+            body.rail #sidebar-footer button { font-size: 0; padding: 10px 0; }   /* 맨텍스트 라벨 숨김(아이콘 SVG는 유지) */
+            body.rail #darkmode-label { display: none; }
+            /* 호버 툴팁 */
+            body.rail .sidebar-item:hover::after { content: attr(data-tip); position: absolute; left: 60px; top: 50%; transform: translateY(-50%); background: #14161d; color: #fff; padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; white-space: nowrap; z-index: 200; pointer-events: none; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        }
+        /* ===== ⌘K 명령 팔레트 ===== */
+        #cmdk-list .cmdk-item { display: flex; align-items: center; gap: 11px; padding: 9px 16px; cursor: pointer; }
+        #cmdk-list .cmdk-item.active { background: var(--wsp-accent-soft); }
+        #cmdk-list .cmdk-item .lbl { font-size: 13.5px; font-weight: 600; color: var(--wsp-ink); }
+        #cmdk-list .cmdk-item.active .lbl { color: var(--wsp-accent); }
+        #cmdk-list .cmdk-item .hint { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--wsp-muted); }
+        #cmdk-list .cmdk-item i { color: var(--wsp-muted); }
+        #cmdk-list .cmdk-item.active i { color: var(--wsp-accent); }
         /* 상태 칩(전 모듈 공통 규격) */
         .wsp-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border-width: 1px; line-height: 1.4; white-space: nowrap; }
         /* 더 보기 버튼(목록 페이지네이션 공통) */
@@ -348,8 +448,24 @@
     <!-- 사이드바 (Sidebar) -->
     <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-[200] bg-rose-600 text-white text-center text-[13px] font-bold py-1.5 shadow-lg">⚠️ 네트워크 연결이 끊겼습니다 — 변경 사항이 저장되지 않을 수 있습니다.</div>
     <div id="sidebar-backdrop" onclick="closeSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden"></div>
+
+    <!-- ⌘K 명령 팔레트 -->
+    <div id="cmdk-overlay" class="fixed inset-0 z-[200] hidden" onclick="if(event.target===this)closeCmdk()">
+        <div class="absolute inset-0 bg-slate-900/45"></div>
+        <div class="relative max-w-xl mx-4 sm:mx-auto mt-[12vh] rounded-2xl shadow-2xl border overflow-hidden" role="dialog" aria-modal="true" aria-label="명령 팔레트" style="background:var(--wsp-surface);border-color:var(--wsp-line)">
+            <div class="flex items-center gap-2.5 px-4 py-3 border-b" style="border-color:var(--wsp-line)">
+                <i data-lucide="search" class="w-[18px] h-[18px]" style="color:var(--wsp-muted)"></i>
+                <input id="cmdk-input" oninput="renderCmdk()" onkeydown="cmdkKey(event)" placeholder="이동하거나 실행할 작업을 검색…" autocomplete="off" class="flex-1 bg-transparent outline-none text-sm" style="color:var(--wsp-ink)">
+                <kbd class="text-[10px] font-bold px-1.5 py-0.5 rounded border" style="color:var(--wsp-muted);border-color:var(--wsp-line)">ESC</kbd>
+            </div>
+            <div id="cmdk-list" class="max-h-80 overflow-y-auto py-1.5"></div>
+            <div class="px-4 py-2 border-t flex items-center gap-3 text-[11px]" style="border-color:var(--wsp-line);color:var(--wsp-muted)">
+                <span>↑↓ 이동</span><span>↵ 실행</span><span class="ml-auto">⌘K / Ctrl K 로 언제든 열기</span>
+            </div>
+        </div>
+    </div>
     <aside id="app-sidebar" class="bg-slate-50 border-r border-slate-200 h-screen flex flex-col fixed left-0 top-0 z-50">
-        <div class="p-6 border-b border-slate-200/60">
+        <div id="sidebar-logo" class="p-6 border-b border-slate-200/60">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center text-white text-lg font-bold tracking-tight">W</div>
                 <div class="flex flex-col">
@@ -359,7 +475,7 @@
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-6" role="navigation" aria-label="주 메뉴">
+        <div id="nav-scroll" class="flex-1 overflow-y-auto p-3 space-y-6" role="navigation" aria-label="주 메뉴">
             <div>
                 <p class="sidebar-group-title">기본 플랫폼 서비스</p>
                 <div class="space-y-1" id="navgroup-platform">
@@ -448,7 +564,7 @@
             </div>
         </div>
 
-        <div class="p-4 border-t border-slate-200/60 bg-slate-50/50 space-y-3">
+        <div id="sidebar-footer" class="p-4 border-t border-slate-200/60 bg-slate-50/50 space-y-3">
             <button id="add-feature-btn" onclick="openAddFeatureFresh()" class="w-full py-2.5 bg-slate-950 hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow transition-all flex items-center justify-center gap-1.5">
                 <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                 <span>시스템 기능 추가</span>
@@ -477,6 +593,7 @@
         <header class="flex justify-between items-center mb-7 lg:mb-10 border-b border-slate-100 pb-5 gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <button id="mobile-hamburger" onclick="toggleSidebar()" class="w-9 h-9 flex-shrink-0 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="menu" class="w-[18px] h-[18px]"></i></button>
+                <button id="rail-toggle" onclick="toggleRail()" title="메뉴 접기/펼치기" aria-label="메뉴 접기/펼치기" class="hidden lg:flex w-9 h-9 flex-shrink-0 rounded-lg border border-slate-200 hover:bg-slate-100 items-center justify-center text-slate-500"><i data-lucide="panel-left" class="w-[18px] h-[18px]"></i></button>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <h2 id="view-title" class="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight truncate">종합 대시보드</h2>
@@ -489,7 +606,8 @@
             <div class="flex items-center gap-1.5 lg:gap-2 flex-shrink-0">
                 <div class="relative hidden md:block">
                     <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-9 pl-8 pr-3 border border-slate-200 rounded-lg text-[13px] w-44 xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
+                    <input type="text" id="global-search" onkeyup="runGlobalSearch()" onfocus="runGlobalSearch()" placeholder="통합 검색 (프로젝트·문서·보고·AS·설비)" class="h-9 pl-8 pr-14 border border-slate-200 rounded-lg text-[13px] w-44 xl:w-64 outline-none focus:border-indigo-300 bg-white text-slate-800 placeholder:text-slate-500">
+                    <button type="button" onclick="openCmdk()" title="명령 팔레트 열기 (⌘K)" aria-label="명령 팔레트 열기" class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[10.5px] font-extrabold text-slate-500 leading-none">⌘K</button>
                     <div id="global-search-results" class="hidden absolute top-full mt-1.5 right-0 w-[24rem] max-w-[90vw] max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-[90]"></div>
                 </div>
                 <button onclick="openMobileSearch()" class="hdr-icon-btn md:hidden w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-600"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
@@ -532,6 +650,7 @@
         <div id="main-content-sections">
             <!-- 대시보드 탭 -->
             <section id="view-dashboard" class="space-y-6">
+                <div id="action-inbox-wrap"></div>
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
@@ -6344,6 +6463,7 @@
             const isAdmin = STATE.profile.role === 'admin';
             const myDept = STATE.profile.deptId;
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
+            if (typeof renderActionInbox === 'function') renderActionInbox();
             // 통합 알림 센터
             renderNotificationCenter();
             renderDashboardCharts();
@@ -8097,6 +8217,128 @@
                 ${manage ? `<div class="flex justify-end pt-1 border-t border-slate-100" onclick="event.stopPropagation()"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[13px]">삭제</button></div>` : ''}
             </div>`;
         }
+
+        // ============================================================
+        // 처리 대기 (Action Inbox) — 전 모듈의 "지금 처리할 일"을 우선순위 큐로 집계
+        // 기존 데이터/함수만 사용(읽기), 각 항목은 해당 화면으로 이동
+        // ============================================================
+        function actionTaskHTML(t) {
+            const tone = { rose: 'background:#fce8ed;color:#dc2b4e', blue: 'background:var(--wsp-accent-soft);color:var(--wsp-accent)', amber: 'background:#fbf1d9;color:#b97400', teal: 'background:#e1f6f1;color:#0e9f87' };
+            const btnCls = t.ghost ? 'border border-slate-200 hover:bg-slate-50' : 'text-white hover:brightness-110';
+            const btnStyle = t.ghost ? 'background:var(--wsp-surface);color:var(--wsp-ink)' : 'background:var(--wsp-accent)';
+            return `<div class="wsp-task p-${t.p}">
+                <div class="wsp-tic" style="${tone[t.p] || ''}"><i data-lucide="${t.icon}" class="w-[19px] h-[19px]"></i></div>
+                <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate" style="color:var(--wsp-ink)"><span class="text-[10.5px] font-extrabold px-1.5 py-0.5 rounded-md mr-1.5" style="${tone[t.tagc] || ''}">${t.tag}</span>${t.title}</div><div class="text-[12px] mt-0.5 truncate" style="color:var(--wsp-muted)">${t.meta}</div></div>
+                <button onclick="${t.act}" class="flex-shrink-0 text-[12.5px] font-bold px-3.5 py-2 rounded-[10px] ${btnCls}" style="${btnStyle}">${t.btn}</button>
+            </div>`;
+        }
+        function renderActionInbox() {
+            const wrap = document.getElementById('action-inbox-wrap'); if (!wrap || !STATE.profile) return;
+            const isAdmin = STATE.profile.role === 'admin';
+            const myDept = STATE.profile.deptId;
+            const scope = arr => isAdmin ? (arr || []) : (arr || []).filter(x => x.deptId === myDept);
+            const tasks = [];
+            // 재고 부족 경보
+            const low = (typeof isLowStock === 'function') ? scope(STATE.inventory).filter(isLowStock) : [];
+            if (low.length) tasks.push({ p: 'rose', tagc: 'rose', icon: 'alert-triangle', tag: '재고경보', title: `${esc(low[0].name)}${low.length > 1 ? ` 외 ${low.length - 1}종` : ''} 안전재고 미만`, meta: `현재 ${fmtNum(low[0].stock)} / 안전 ${fmtNum(low[0].safeStock)}`, btn: '재고 보기', act: "switchTab('inventory')" });
+            // 미착 입고
+            let pend = [];
+            try { pend = scope((typeof poLineStatusList === 'function' ? poLineStatusList() : []).filter(r => r.stat !== 'done')); } catch (e) { }
+            if (pend.length) { const tot = pend.reduce((s, r) => s + r.pending, 0); tasks.push({ p: 'blue', tagc: 'blue', icon: 'package-search', tag: '미착입고', title: `${esc(pend[0].description)}${pend.length > 1 ? ` 외 ${pend.length - 1}건` : ''} 미착`, meta: `미착 합계 ${fmtNum(tot)} · 발주 입고 대기`, btn: '입고 현황', act: "switchTab('inventory');setTimeout(function(){setInventoryView('receiving')},80)" }); }
+            // 결재 대기 문서
+            const docs = (STATE.documents || []).filter(d => d.status === 'pending' && (typeof canApproveDoc === 'function' && canApproveDoc(d)));
+            if (docs.length) tasks.push({ p: 'amber', tagc: 'amber', icon: 'file-check', tag: '결재', title: `${esc(docs[0].title)}${docs.length > 1 ? ` 외 ${docs.length - 1}건` : ''} 결재 대기`, meta: `${esc(docs[0].author) || '문서'} 상신`, btn: '검토·승인', act: "switchTab('documents-pending')" });
+            // 가입 승인 대기(관리자)
+            if (isAdmin) { const pu = (STATE.users || []).filter(u => !u.approved); if (pu.length) tasks.push({ p: 'amber', tagc: 'amber', icon: 'user-plus', tag: '가입승인', title: `신규 사원 ${pu.length}건 승인 대기`, meta: `${esc(pu[0].name) || ''} 등`, btn: '검토', act: "switchTab('management-stats')", ghost: true }); }
+            // 오늘 일정
+            const today = new Date().toISOString().slice(0, 10);
+            const todayEv = scope(STATE.events).filter(e => e.startDate && e.startDate <= today && (e.endDate || e.startDate) >= today);
+            if (todayEv.length) tasks.push({ p: 'teal', tagc: 'teal', icon: 'calendar', tag: '오늘일정', title: `${esc(todayEv[0].title)}${todayEv.length > 1 ? ` 외 ${todayEv.length - 1}건` : ''}`, meta: `오늘 일정 ${todayEv.length}건`, btn: '캘린더', act: "switchTab('calendar')", ghost: true });
+
+            if (!tasks.length) {
+                wrap.innerHTML = `<div class="wsp-inbox"><div class="px-5 py-7 text-center"><div class="text-sm font-bold" style="color:var(--wsp-ink)">처리할 항목이 없습니다</div><div class="text-[12px] mt-1" style="color:var(--wsp-muted)">미착 입고·결재·재고 경보가 모두 정리되었습니다.</div></div></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            const head = `<div class="flex items-center gap-2 px-5 py-3.5"><i data-lucide="zap" class="w-[17px] h-[17px]" style="color:var(--wsp-accent)"></i><b class="text-[15px] font-extrabold" style="color:var(--wsp-ink)">처리 대기</b><span class="text-[11.5px] font-extrabold px-2 py-0.5 rounded-full" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">${tasks.length}건</span></div>`;
+            wrap.innerHTML = `<div class="wsp-inbox">${head}${tasks.slice(0, 6).map(actionTaskHTML).join('')}</div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // ============================================================
+        // 아이콘 레일 (접기/펼치기) + ⌘K 명령 팔레트
+        // ============================================================
+        function toggleRail() {
+            const on = document.body.classList.toggle('rail');
+            try { localStorage.setItem('wsp_rail', on ? '1' : '0'); } catch (e) { }
+            if (window.lucide) lucide.createIcons();
+        }
+        function initRail() {
+            let on = true;
+            try { const v = localStorage.getItem('wsp_rail'); if (v === '0') on = false; } catch (e) { }
+            document.body.classList.toggle('rail', on);
+            // 레일 호버 툴팁용 라벨 주입
+            try {
+                document.querySelectorAll('#app-sidebar .sidebar-item').forEach(b => {
+                    const s = b.querySelector('span'); if (s && !b.getAttribute('data-tip')) b.setAttribute('data-tip', (s.textContent || '').trim());
+                });
+            } catch (e) { }
+        }
+
+        function cmdkCommands() {
+            const nav = [
+                ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
+                ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
+                ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
+                ['inventory', '재고 관리', 'package'], ['trade', '발주 · 견적', 'file-text'],
+                ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
+                ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
+                ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
+            ];
+            const cmds = nav.map(([t, l, i]) => ({ label: l, icon: i, hint: '이동', act: () => switchTab(t) }));
+            cmds.push({ label: '새 발주서 · 견적 작성', icon: 'file-plus', hint: '작업', act: () => { switchTab('trade'); setTimeout(() => { try { openTradeForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '다크 모드 전환', icon: 'moon', hint: '설정', act: () => { try { toggleDarkMode(); } catch (e) { } } });
+            cmds.push({ label: '메뉴 접기 / 펼치기', icon: 'panel-left', hint: '설정', act: () => toggleRail() });
+            return cmds;
+        }
+        let _cmdkIdx = 0, _cmdkList = [];
+        function openCmdk() {
+            const o = document.getElementById('cmdk-overlay'); if (!o) return;
+            o.classList.remove('hidden'); _cmdkIdx = 0;
+            const inp = document.getElementById('cmdk-input'); if (inp) inp.value = '';
+            renderCmdk(); setTimeout(() => { if (inp) inp.focus(); }, 20);
+        }
+        function closeCmdk() { const o = document.getElementById('cmdk-overlay'); if (o) o.classList.add('hidden'); }
+        function renderCmdk() {
+            const inp = document.getElementById('cmdk-input'); const q = ((inp && inp.value) || '').trim().toLowerCase();
+            const all = cmdkCommands();
+            _cmdkList = q ? all.filter(c => c.label.toLowerCase().indexOf(q) >= 0) : all;
+            if (_cmdkIdx >= _cmdkList.length) _cmdkIdx = 0;
+            const list = document.getElementById('cmdk-list'); if (!list) return;
+            list.innerHTML = _cmdkList.length
+                ? _cmdkList.map((c, i) => `<div class="cmdk-item ${i === _cmdkIdx ? 'active' : ''}" onmouseenter="_cmdkIdx=${i};cmdkPaint()" onclick="cmdkRun(${i})"><i data-lucide="${c.icon}" class="w-[17px] h-[17px]"></i><span class="lbl">${esc(c.label)}</span><span class="hint">${c.hint}</span></div>`).join('')
+                : `<div class="px-4 py-7 text-center text-sm" style="color:var(--wsp-muted)">검색 결과가 없습니다</div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+        function cmdkPaint() { document.querySelectorAll('#cmdk-list .cmdk-item').forEach((el, i) => el.classList.toggle('active', i === _cmdkIdx)); }
+        function cmdkRun(i) { const c = _cmdkList[i != null ? i : _cmdkIdx]; if (!c) return; closeCmdk(); try { c.act(); } catch (e) { } }
+        function cmdkKey(e) {
+            if (e.key === 'ArrowDown') { e.preventDefault(); _cmdkIdx = Math.min(_cmdkIdx + 1, _cmdkList.length - 1); cmdkPaint(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); _cmdkIdx = Math.max(_cmdkIdx - 1, 0); cmdkPaint(); }
+            else if (e.key === 'Enter') { e.preventDefault(); cmdkRun(); }
+            else if (e.key === 'Escape') { e.preventDefault(); closeCmdk(); }
+        }
+        // 전역 단축키 + 초기화
+        document.addEventListener('keydown', function (e) {
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
+                const o = document.getElementById('cmdk-overlay');
+                if (o && o.classList.contains('hidden')) openCmdk(); else closeCmdk();
+            }
+        });
+        try { if (document.readyState !== 'loading') initRail(); else document.addEventListener('DOMContentLoaded', initRail); } catch (e) { }
 
 
     </script>

@@ -249,3 +249,125 @@
                 ${manage ? `<div class="flex justify-end pt-1 border-t border-slate-100" onclick="event.stopPropagation()"><button onclick="deleteProject(${proj.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[13px]">삭제</button></div>` : ''}
             </div>`;
         }
+
+        // ============================================================
+        // 처리 대기 (Action Inbox) — 전 모듈의 "지금 처리할 일"을 우선순위 큐로 집계
+        // 기존 데이터/함수만 사용(읽기), 각 항목은 해당 화면으로 이동
+        // ============================================================
+        function actionTaskHTML(t) {
+            const tone = { rose: 'background:#fce8ed;color:#dc2b4e', blue: 'background:var(--wsp-accent-soft);color:var(--wsp-accent)', amber: 'background:#fbf1d9;color:#b97400', teal: 'background:#e1f6f1;color:#0e9f87' };
+            const btnCls = t.ghost ? 'border border-slate-200 hover:bg-slate-50' : 'text-white hover:brightness-110';
+            const btnStyle = t.ghost ? 'background:var(--wsp-surface);color:var(--wsp-ink)' : 'background:var(--wsp-accent)';
+            return `<div class="wsp-task p-${t.p}">
+                <div class="wsp-tic" style="${tone[t.p] || ''}"><i data-lucide="${t.icon}" class="w-[19px] h-[19px]"></i></div>
+                <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate" style="color:var(--wsp-ink)"><span class="text-[10.5px] font-extrabold px-1.5 py-0.5 rounded-md mr-1.5" style="${tone[t.tagc] || ''}">${t.tag}</span>${t.title}</div><div class="text-[12px] mt-0.5 truncate" style="color:var(--wsp-muted)">${t.meta}</div></div>
+                <button onclick="${t.act}" class="flex-shrink-0 text-[12.5px] font-bold px-3.5 py-2 rounded-[10px] ${btnCls}" style="${btnStyle}">${t.btn}</button>
+            </div>`;
+        }
+        function renderActionInbox() {
+            const wrap = document.getElementById('action-inbox-wrap'); if (!wrap || !STATE.profile) return;
+            const isAdmin = STATE.profile.role === 'admin';
+            const myDept = STATE.profile.deptId;
+            const scope = arr => isAdmin ? (arr || []) : (arr || []).filter(x => x.deptId === myDept);
+            const tasks = [];
+            // 재고 부족 경보
+            const low = (typeof isLowStock === 'function') ? scope(STATE.inventory).filter(isLowStock) : [];
+            if (low.length) tasks.push({ p: 'rose', tagc: 'rose', icon: 'alert-triangle', tag: '재고경보', title: `${esc(low[0].name)}${low.length > 1 ? ` 외 ${low.length - 1}종` : ''} 안전재고 미만`, meta: `현재 ${fmtNum(low[0].stock)} / 안전 ${fmtNum(low[0].safeStock)}`, btn: '재고 보기', act: "switchTab('inventory')" });
+            // 미착 입고
+            let pend = [];
+            try { pend = scope((typeof poLineStatusList === 'function' ? poLineStatusList() : []).filter(r => r.stat !== 'done')); } catch (e) { }
+            if (pend.length) { const tot = pend.reduce((s, r) => s + r.pending, 0); tasks.push({ p: 'blue', tagc: 'blue', icon: 'package-search', tag: '미착입고', title: `${esc(pend[0].description)}${pend.length > 1 ? ` 외 ${pend.length - 1}건` : ''} 미착`, meta: `미착 합계 ${fmtNum(tot)} · 발주 입고 대기`, btn: '입고 현황', act: "switchTab('inventory');setTimeout(function(){setInventoryView('receiving')},80)" }); }
+            // 결재 대기 문서
+            const docs = (STATE.documents || []).filter(d => d.status === 'pending' && (typeof canApproveDoc === 'function' && canApproveDoc(d)));
+            if (docs.length) tasks.push({ p: 'amber', tagc: 'amber', icon: 'file-check', tag: '결재', title: `${esc(docs[0].title)}${docs.length > 1 ? ` 외 ${docs.length - 1}건` : ''} 결재 대기`, meta: `${esc(docs[0].author) || '문서'} 상신`, btn: '검토·승인', act: "switchTab('documents-pending')" });
+            // 가입 승인 대기(관리자)
+            if (isAdmin) { const pu = (STATE.users || []).filter(u => !u.approved); if (pu.length) tasks.push({ p: 'amber', tagc: 'amber', icon: 'user-plus', tag: '가입승인', title: `신규 사원 ${pu.length}건 승인 대기`, meta: `${esc(pu[0].name) || ''} 등`, btn: '검토', act: "switchTab('management-stats')", ghost: true }); }
+            // 오늘 일정
+            const today = new Date().toISOString().slice(0, 10);
+            const todayEv = scope(STATE.events).filter(e => e.startDate && e.startDate <= today && (e.endDate || e.startDate) >= today);
+            if (todayEv.length) tasks.push({ p: 'teal', tagc: 'teal', icon: 'calendar', tag: '오늘일정', title: `${esc(todayEv[0].title)}${todayEv.length > 1 ? ` 외 ${todayEv.length - 1}건` : ''}`, meta: `오늘 일정 ${todayEv.length}건`, btn: '캘린더', act: "switchTab('calendar')", ghost: true });
+
+            if (!tasks.length) {
+                wrap.innerHTML = `<div class="wsp-inbox"><div class="px-5 py-7 text-center"><div class="text-sm font-bold" style="color:var(--wsp-ink)">처리할 항목이 없습니다</div><div class="text-[12px] mt-1" style="color:var(--wsp-muted)">미착 입고·결재·재고 경보가 모두 정리되었습니다.</div></div></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            const head = `<div class="flex items-center gap-2 px-5 py-3.5"><i data-lucide="zap" class="w-[17px] h-[17px]" style="color:var(--wsp-accent)"></i><b class="text-[15px] font-extrabold" style="color:var(--wsp-ink)">처리 대기</b><span class="text-[11.5px] font-extrabold px-2 py-0.5 rounded-full" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">${tasks.length}건</span></div>`;
+            wrap.innerHTML = `<div class="wsp-inbox">${head}${tasks.slice(0, 6).map(actionTaskHTML).join('')}</div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // ============================================================
+        // 아이콘 레일 (접기/펼치기) + ⌘K 명령 팔레트
+        // ============================================================
+        function toggleRail() {
+            const on = document.body.classList.toggle('rail');
+            try { localStorage.setItem('wsp_rail', on ? '1' : '0'); } catch (e) { }
+            if (window.lucide) lucide.createIcons();
+        }
+        function initRail() {
+            let on = true;
+            try { const v = localStorage.getItem('wsp_rail'); if (v === '0') on = false; } catch (e) { }
+            document.body.classList.toggle('rail', on);
+            // 레일 호버 툴팁용 라벨 주입
+            try {
+                document.querySelectorAll('#app-sidebar .sidebar-item').forEach(b => {
+                    const s = b.querySelector('span'); if (s && !b.getAttribute('data-tip')) b.setAttribute('data-tip', (s.textContent || '').trim());
+                });
+            } catch (e) { }
+        }
+
+        function cmdkCommands() {
+            const nav = [
+                ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
+                ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
+                ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
+                ['inventory', '재고 관리', 'package'], ['trade', '발주 · 견적', 'file-text'],
+                ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
+                ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
+                ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
+            ];
+            const cmds = nav.map(([t, l, i]) => ({ label: l, icon: i, hint: '이동', act: () => switchTab(t) }));
+            cmds.push({ label: '새 발주서 · 견적 작성', icon: 'file-plus', hint: '작업', act: () => { switchTab('trade'); setTimeout(() => { try { openTradeForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
+            cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '다크 모드 전환', icon: 'moon', hint: '설정', act: () => { try { toggleDarkMode(); } catch (e) { } } });
+            cmds.push({ label: '메뉴 접기 / 펼치기', icon: 'panel-left', hint: '설정', act: () => toggleRail() });
+            return cmds;
+        }
+        let _cmdkIdx = 0, _cmdkList = [];
+        function openCmdk() {
+            const o = document.getElementById('cmdk-overlay'); if (!o) return;
+            o.classList.remove('hidden'); _cmdkIdx = 0;
+            const inp = document.getElementById('cmdk-input'); if (inp) inp.value = '';
+            renderCmdk(); setTimeout(() => { if (inp) inp.focus(); }, 20);
+        }
+        function closeCmdk() { const o = document.getElementById('cmdk-overlay'); if (o) o.classList.add('hidden'); }
+        function renderCmdk() {
+            const inp = document.getElementById('cmdk-input'); const q = ((inp && inp.value) || '').trim().toLowerCase();
+            const all = cmdkCommands();
+            _cmdkList = q ? all.filter(c => c.label.toLowerCase().indexOf(q) >= 0) : all;
+            if (_cmdkIdx >= _cmdkList.length) _cmdkIdx = 0;
+            const list = document.getElementById('cmdk-list'); if (!list) return;
+            list.innerHTML = _cmdkList.length
+                ? _cmdkList.map((c, i) => `<div class="cmdk-item ${i === _cmdkIdx ? 'active' : ''}" onmouseenter="_cmdkIdx=${i};cmdkPaint()" onclick="cmdkRun(${i})"><i data-lucide="${c.icon}" class="w-[17px] h-[17px]"></i><span class="lbl">${esc(c.label)}</span><span class="hint">${c.hint}</span></div>`).join('')
+                : `<div class="px-4 py-7 text-center text-sm" style="color:var(--wsp-muted)">검색 결과가 없습니다</div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+        function cmdkPaint() { document.querySelectorAll('#cmdk-list .cmdk-item').forEach((el, i) => el.classList.toggle('active', i === _cmdkIdx)); }
+        function cmdkRun(i) { const c = _cmdkList[i != null ? i : _cmdkIdx]; if (!c) return; closeCmdk(); try { c.act(); } catch (e) { } }
+        function cmdkKey(e) {
+            if (e.key === 'ArrowDown') { e.preventDefault(); _cmdkIdx = Math.min(_cmdkIdx + 1, _cmdkList.length - 1); cmdkPaint(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); _cmdkIdx = Math.max(_cmdkIdx - 1, 0); cmdkPaint(); }
+            else if (e.key === 'Enter') { e.preventDefault(); cmdkRun(); }
+            else if (e.key === 'Escape') { e.preventDefault(); closeCmdk(); }
+        }
+        // 전역 단축키 + 초기화
+        document.addEventListener('keydown', function (e) {
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
+                const o = document.getElementById('cmdk-overlay');
+                if (o && o.classList.contains('hidden')) openCmdk(); else closeCmdk();
+            }
+        });
+        try { if (document.readyState !== 'loading') initRail(); else document.addEventListener('DOMContentLoaded', initRail); } catch (e) { }
