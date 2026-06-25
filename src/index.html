@@ -684,6 +684,251 @@
             .wsp-task { align-items: flex-start; padding: 12px; }
             .wsp-task > button { padding: 7px 9px; }
         }
+
+        /* ===== 기준 HTML 엄격 정합화 레이어 ===== */
+        #view-description { display: none !important; }
+        #main-area > header { height: 64px; min-height: 64px; }
+        #main-content-sections { padding-top: 24px; }
+        #wsp-page-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        #wsp-page-head-title {
+            color: var(--wsp-ink);
+            font-size: 20px;
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -.01em;
+        }
+        #wsp-page-head-description {
+            margin-top: 4px;
+            color: var(--wsp-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        #wsp-page-head-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #wsp-page-head-actions:empty { display: none; }
+        .wsp-ref-btn,
+        #main-content-sections button.wsp-ref-btn {
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 13px !important;
+            border: 1px solid transparent !important;
+            border-radius: 10px !important;
+            font-size: 13px !important;
+            line-height: 1.2;
+            font-weight: 600 !important;
+            white-space: nowrap;
+            box-shadow: none !important;
+        }
+        .wsp-ref-btn-primary {
+            background: var(--wsp-accent) !important;
+            color: var(--wsp-accent-ink) !important;
+        }
+        .wsp-ref-btn-primary:hover { filter: brightness(1.06); }
+        .wsp-ref-btn-ghost {
+            background: transparent !important;
+            color: var(--wsp-ink) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        .wsp-ref-btn-ghost:hover { background: var(--wsp-surface-2) !important; }
+        .wsp-ref-btn-danger {
+            background: transparent !important;
+            color: var(--wsp-danger) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        .wsp-ref-field {
+            min-height: 38px;
+            padding: 9px 11px !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 10px !important;
+            background: var(--wsp-surface) !important;
+            color: var(--wsp-ink) !important;
+            font-size: 13.5px !important;
+            line-height: 1.35;
+            outline: none;
+            box-shadow: none !important;
+        }
+        .wsp-ref-field:focus {
+            border-color: var(--wsp-accent) !important;
+            box-shadow: 0 0 0 3px var(--wsp-accent-soft) !important;
+        }
+        .wsp-ref-surface {
+            background: var(--wsp-surface) !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+        }
+        .wsp-ref-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .wsp-ref-table thead,
+        .wsp-ref-table thead tr { background: var(--wsp-surface) !important; }
+        .wsp-ref-table th {
+            padding: 10px 12px !important;
+            border-bottom: 1px solid var(--wsp-line) !important;
+            color: var(--wsp-muted) !important;
+            font-size: 11.5px !important;
+            line-height: 1.3;
+            font-weight: 700 !important;
+            white-space: nowrap;
+        }
+        .wsp-ref-table td {
+            padding: 11px 12px !important;
+            border-bottom: 1px solid var(--wsp-line) !important;
+            color: var(--wsp-ink);
+            font-size: 13px !important;
+        }
+        .wsp-ref-table tbody tr:last-child td { border-bottom: 0 !important; }
+        .wsp-ref-table tbody tr:hover { background: var(--wsp-surface-2) !important; }
+        .wsp-ref-tabs {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+        }
+        .wsp-ref-tabs > button {
+            min-height: 36px;
+            padding: 8px 13px !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            color: var(--wsp-ink) !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+        }
+        #main-content-sections .wsp-ref-tabs > button.wsp-ref-tab-active {
+            border-color: var(--wsp-accent) !important;
+            background: var(--wsp-accent) !important;
+            color: var(--wsp-accent-ink) !important;
+        }
+        .wsp-ref-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .wsp-ref-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .wsp-ref-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .wsp-ref-kpi {
+            min-height: 98px;
+            padding: 16px;
+            background: var(--wsp-surface);
+            border: 1px solid var(--wsp-line);
+            border-radius: 14px;
+        }
+        .wsp-ref-kpi-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--wsp-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .wsp-ref-kpi-value {
+            margin-top: 8px;
+            color: var(--wsp-ink);
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 800;
+        }
+        .wsp-ref-kpi-sub {
+            margin-top: 5px;
+            color: var(--wsp-muted);
+            font-size: 11.5px;
+        }
+        .wsp-ref-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 12px;
+            color: var(--wsp-ink);
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .wsp-ref-secondary-analysis summary {
+            padding: 13px 16px;
+            color: var(--wsp-muted);
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sidebar-item > i,
+        .sidebar-item > svg { color: var(--wsp-muted) !important; }
+        .sidebar-item.active > i,
+        .sidebar-item.active > svg { color: var(--wsp-accent) !important; }
+        #header-darkmode-btn { border-color: var(--wsp-line) !important; }
+        #main-area > header #global-search,
+        #main-area > header #global-search + button,
+        #main-area > header #global-search-results,
+        #main-area > header button[onclick="openMobileSearch()"],
+        #main-area > header button[onclick="openNotifCenter()"],
+        #main-area > header #rt-status-dot,
+        #main-area > header #admin-maintenance-control { display: none !important; }
+        #main-area > header #global-search { pointer-events: none; }
+        #main-area > header div:has(> #global-search) { display: none !important; }
+        #view-management-progress button[onclick="openAddProject()"],
+        #view-weekly-meeting button[onclick="openAddMeeting()"],
+        #view-documents button[onclick="openModal('add-doc-modal')"],
+        #view-field-support button[onclick="openTicketForm()"],
+        #view-assets button[onclick="openAssetForm()"],
+        #view-trade button[onclick="openPartnerManager()"],
+        #view-trade button[onclick="openTradeForm(null,'po')"],
+        #view-trade button[onclick="openTradeForm(null,'quote')"],
+        #view-management-stats button[onclick="openTaxonomyManager()"] { display: none !important; }
+        #view-calendar > div:first-child > button[onclick="quickAddEvent('')"] { display: none !important; }
+        #sidebar-footer button {
+            border-color: var(--wsp-line) !important;
+            background: var(--wsp-surface) !important;
+            color: var(--wsp-muted) !important;
+        }
+        @media (min-width: 1024px) {
+            body.rail #sidebar-footer > #add-feature-btn,
+            body.rail #sidebar-footer .sidebar-profile,
+            body.rail #sidebar-footer button[onclick="handleUserLogout()"] { display: none !important; }
+            body.rail #sidebar-footer { margin-top: auto; }
+        }
+        @media (max-width: 1023px) {
+            #wsp-page-head { margin-bottom: 16px; }
+            #wsp-page-head-actions { width: 100%; justify-content: flex-start; }
+            .wsp-ref-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 639px) {
+            #wsp-page-head-title { font-size: 18px; }
+            #wsp-page-head-description { font-size: 12px; }
+            #view-dashboard .h-\[330px\] { height: 240px !important; }
+            .wsp-ref-toolbar,
+            .wsp-ref-toolbar-group { align-items: stretch; }
+            .wsp-ref-toolbar-group { width: 100%; }
+            .wsp-ref-toolbar-group > .wsp-ref-field { flex: 1 1 140px; width: auto !important; }
+        }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -829,7 +1074,7 @@
                     </button>
                     <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
                         <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
-                        <span>재고 관리</span>
+                        <span>일반 재고</span>
                     </button>
                     <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
                         <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
@@ -983,15 +1228,22 @@
         </div>
 
         <div id="main-content-sections">
+            <div id="wsp-page-head">
+                <div class="min-w-0">
+                    <div id="wsp-page-head-title">대시보드</div>
+                    <div id="wsp-page-head-description">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</div>
+                </div>
+                <div id="wsp-page-head-actions"></div>
+            </div>
             <!-- 대시보드 탭 -->
             <section id="view-dashboard" class="space-y-6">
-                <div id="action-inbox-wrap"></div>
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">프로젝트 상태 분포</h4><div class="h-[330px]"><canvas id="chart-proj-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">부서별 평균 진행도</h4><div class="h-[330px]"><canvas id="chart-dept-progress"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">AS 티켓 처리 현황</h4><div class="h-[330px]"><canvas id="chart-ticket-status"></canvas></div></div>
                 </div>
+                <div id="action-inbox-wrap"></div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
                         <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 통합 알림 센터
@@ -1513,16 +1765,16 @@
 
             <section id="view-inventory" class="hidden space-y-5">
                 <div class="flex items-center">
-                    <div class="inline-flex bg-slate-100 rounded-xl p-1">
+                    <div class="wsp-ref-tabs inline-flex bg-slate-100 rounded-xl p-1">
                         <button id="inv-tab-dashboard" onclick="setInventoryView('dashboard')" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-white shadow text-slate-800">대시보드</button>
                         <button id="inv-tab-list" onclick="setInventoryView('list')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">목록</button>
                         <button id="inv-tab-receiving" onclick="setInventoryView('receiving')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">입고/미착</button>
                     </div>
                 </div>
                 <div id="inventory-dashboard-view">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-600"></i> 재고 대시보드</h3>
-                        <div class="flex gap-2 flex-wrap">
+                    <div class="wsp-ref-toolbar mb-4">
+                        <h3 class="sr-only">재고 대시보드</h3>
+                        <div class="wsp-ref-toolbar-group ml-auto">
                             <button onclick="openLedger()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4"></i> 입출고 이력</button>
                             <button onclick="openInventoryReport()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
                             <button onclick="openDataManager()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="database" class="w-4 h-4"></i> 백업/초기화</button>
@@ -1533,27 +1785,27 @@
                     <div id="inventory-dashboard-body" class="space-y-6"></div>
                 </div>
                 <div id="inventory-list-view" class="hidden space-y-5">
-                <div id="inventory-stats" class="grid grid-cols-2 lg:grid-cols-3 gap-3"></div>
-                <div class="flex flex-wrap justify-between items-center gap-3">
-                    <div class="flex gap-2 flex-wrap items-center">
+                <div id="inventory-stats" class="hidden grid grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
                         <input type="text" id="inventory-search" onkeyup="inventoryApplyFilter()" placeholder="품목·코드·거래처 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-full sm:w-56 outline-none focus:border-amber-300">
                         <select id="inventory-filter-cat" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 분류</option></select>
                         <select id="inventory-filter-dept" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
                         <select id="inventory-filter-wh" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 창고</option></select>
                         <label class="flex items-center gap-1.5 text-sm text-slate-600 px-2 py-2 border rounded-xl bg-white cursor-pointer"><input type="checkbox" id="inventory-filter-low" onchange="inventoryApplyFilter()" class="accent-amber-600"> 부족만</label>
                     </div>
-                    <button onclick="openInventoryForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 품목 등록</button>
-                    <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
-                    <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
-                    <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
-                    <button onclick="openStocktake()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="clipboard-check" class="w-4 h-4"></i> 재고 실사</button>
-                    <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
+                    <div class="wsp-ref-toolbar-group">
+                        <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+                        <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
+                        <button onclick="openStocktake()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="clipboard-check" class="w-4 h-4"></i> 재고 실사</button>
+                        <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
+                    </div>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                <div class="wsp-ref-surface bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-[14px]">
-                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">품목 / 코드</th><th class="px-4 py-3 text-left font-bold">분류</th><th class="px-4 py-3 text-right font-bold">현재고</th><th class="px-4 py-3 text-right font-bold">안전재고</th><th class="px-4 py-3 text-right font-bold">단가</th><th class="px-4 py-3 text-left font-bold">거래처 / 부서</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                        <table class="wsp-ref-table w-full text-[14px]">
+                            <thead><tr class="text-slate-600 text-[13px]"><th class="text-left font-bold">품목코드(SKU)</th><th class="text-left font-bold">품목명</th><th class="text-left font-bold">분류</th><th class="text-left font-bold">단위</th><th class="text-right font-bold">현재고</th><th class="text-right font-bold">안전재고</th><th class="text-right font-bold">평균단가</th><th class="text-right font-bold">재고금액</th><th class="text-right font-bold">관리</th></tr></thead>
                             <tbody id="inventory-list-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>

@@ -684,6 +684,251 @@
             .wsp-task { align-items: flex-start; padding: 12px; }
             .wsp-task > button { padding: 7px 9px; }
         }
+
+        /* ===== 기준 HTML 엄격 정합화 레이어 ===== */
+        #view-description { display: none !important; }
+        #main-area > header { height: 64px; min-height: 64px; }
+        #main-content-sections { padding-top: 24px; }
+        #wsp-page-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        #wsp-page-head-title {
+            color: var(--wsp-ink);
+            font-size: 20px;
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -.01em;
+        }
+        #wsp-page-head-description {
+            margin-top: 4px;
+            color: var(--wsp-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        #wsp-page-head-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #wsp-page-head-actions:empty { display: none; }
+        .wsp-ref-btn,
+        #main-content-sections button.wsp-ref-btn {
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 13px !important;
+            border: 1px solid transparent !important;
+            border-radius: 10px !important;
+            font-size: 13px !important;
+            line-height: 1.2;
+            font-weight: 600 !important;
+            white-space: nowrap;
+            box-shadow: none !important;
+        }
+        .wsp-ref-btn-primary {
+            background: var(--wsp-accent) !important;
+            color: var(--wsp-accent-ink) !important;
+        }
+        .wsp-ref-btn-primary:hover { filter: brightness(1.06); }
+        .wsp-ref-btn-ghost {
+            background: transparent !important;
+            color: var(--wsp-ink) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        .wsp-ref-btn-ghost:hover { background: var(--wsp-surface-2) !important; }
+        .wsp-ref-btn-danger {
+            background: transparent !important;
+            color: var(--wsp-danger) !important;
+            border-color: var(--wsp-line) !important;
+        }
+        .wsp-ref-field {
+            min-height: 38px;
+            padding: 9px 11px !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 10px !important;
+            background: var(--wsp-surface) !important;
+            color: var(--wsp-ink) !important;
+            font-size: 13.5px !important;
+            line-height: 1.35;
+            outline: none;
+            box-shadow: none !important;
+        }
+        .wsp-ref-field:focus {
+            border-color: var(--wsp-accent) !important;
+            box-shadow: 0 0 0 3px var(--wsp-accent-soft) !important;
+        }
+        .wsp-ref-surface {
+            background: var(--wsp-surface) !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+        }
+        .wsp-ref-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .wsp-ref-table thead,
+        .wsp-ref-table thead tr { background: var(--wsp-surface) !important; }
+        .wsp-ref-table th {
+            padding: 10px 12px !important;
+            border-bottom: 1px solid var(--wsp-line) !important;
+            color: var(--wsp-muted) !important;
+            font-size: 11.5px !important;
+            line-height: 1.3;
+            font-weight: 700 !important;
+            white-space: nowrap;
+        }
+        .wsp-ref-table td {
+            padding: 11px 12px !important;
+            border-bottom: 1px solid var(--wsp-line) !important;
+            color: var(--wsp-ink);
+            font-size: 13px !important;
+        }
+        .wsp-ref-table tbody tr:last-child td { border-bottom: 0 !important; }
+        .wsp-ref-table tbody tr:hover { background: var(--wsp-surface-2) !important; }
+        .wsp-ref-tabs {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+        }
+        .wsp-ref-tabs > button {
+            min-height: 36px;
+            padding: 8px 13px !important;
+            border: 1px solid var(--wsp-line) !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            color: var(--wsp-ink) !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+        }
+        #main-content-sections .wsp-ref-tabs > button.wsp-ref-tab-active {
+            border-color: var(--wsp-accent) !important;
+            background: var(--wsp-accent) !important;
+            color: var(--wsp-accent-ink) !important;
+        }
+        .wsp-ref-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .wsp-ref-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .wsp-ref-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .wsp-ref-kpi {
+            min-height: 98px;
+            padding: 16px;
+            background: var(--wsp-surface);
+            border: 1px solid var(--wsp-line);
+            border-radius: 14px;
+        }
+        .wsp-ref-kpi-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--wsp-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .wsp-ref-kpi-value {
+            margin-top: 8px;
+            color: var(--wsp-ink);
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 800;
+        }
+        .wsp-ref-kpi-sub {
+            margin-top: 5px;
+            color: var(--wsp-muted);
+            font-size: 11.5px;
+        }
+        .wsp-ref-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 12px;
+            color: var(--wsp-ink);
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .wsp-ref-secondary-analysis summary {
+            padding: 13px 16px;
+            color: var(--wsp-muted);
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sidebar-item > i,
+        .sidebar-item > svg { color: var(--wsp-muted) !important; }
+        .sidebar-item.active > i,
+        .sidebar-item.active > svg { color: var(--wsp-accent) !important; }
+        #header-darkmode-btn { border-color: var(--wsp-line) !important; }
+        #main-area > header #global-search,
+        #main-area > header #global-search + button,
+        #main-area > header #global-search-results,
+        #main-area > header button[onclick="openMobileSearch()"],
+        #main-area > header button[onclick="openNotifCenter()"],
+        #main-area > header #rt-status-dot,
+        #main-area > header #admin-maintenance-control { display: none !important; }
+        #main-area > header #global-search { pointer-events: none; }
+        #main-area > header div:has(> #global-search) { display: none !important; }
+        #view-management-progress button[onclick="openAddProject()"],
+        #view-weekly-meeting button[onclick="openAddMeeting()"],
+        #view-documents button[onclick="openModal('add-doc-modal')"],
+        #view-field-support button[onclick="openTicketForm()"],
+        #view-assets button[onclick="openAssetForm()"],
+        #view-trade button[onclick="openPartnerManager()"],
+        #view-trade button[onclick="openTradeForm(null,'po')"],
+        #view-trade button[onclick="openTradeForm(null,'quote')"],
+        #view-management-stats button[onclick="openTaxonomyManager()"] { display: none !important; }
+        #view-calendar > div:first-child > button[onclick="quickAddEvent('')"] { display: none !important; }
+        #sidebar-footer button {
+            border-color: var(--wsp-line) !important;
+            background: var(--wsp-surface) !important;
+            color: var(--wsp-muted) !important;
+        }
+        @media (min-width: 1024px) {
+            body.rail #sidebar-footer > #add-feature-btn,
+            body.rail #sidebar-footer .sidebar-profile,
+            body.rail #sidebar-footer button[onclick="handleUserLogout()"] { display: none !important; }
+            body.rail #sidebar-footer { margin-top: auto; }
+        }
+        @media (max-width: 1023px) {
+            #wsp-page-head { margin-bottom: 16px; }
+            #wsp-page-head-actions { width: 100%; justify-content: flex-start; }
+            .wsp-ref-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 639px) {
+            #wsp-page-head-title { font-size: 18px; }
+            #wsp-page-head-description { font-size: 12px; }
+            #view-dashboard .h-\[330px\] { height: 240px !important; }
+            .wsp-ref-toolbar,
+            .wsp-ref-toolbar-group { align-items: stretch; }
+            .wsp-ref-toolbar-group { width: 100%; }
+            .wsp-ref-toolbar-group > .wsp-ref-field { flex: 1 1 140px; width: auto !important; }
+        }
     </style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-900 min-h-screen flex">
@@ -829,7 +1074,7 @@
                     </button>
                     <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item">
                         <i data-lucide="package" class="w-4.5 h-4.5 text-amber-600"></i>
-                        <span>재고 관리</span>
+                        <span>일반 재고</span>
                     </button>
                     <button onclick="switchTab('trade')" id="nav-trade" class="sidebar-item">
                         <i data-lucide="file-text" class="w-4.5 h-4.5 text-teal-600"></i>
@@ -983,15 +1228,22 @@
         </div>
 
         <div id="main-content-sections">
+            <div id="wsp-page-head">
+                <div class="min-w-0">
+                    <div id="wsp-page-head-title">대시보드</div>
+                    <div id="wsp-page-head-description">사내 전 부서의 실시간 업무 활동 상태를 통합 관제합니다.</div>
+                </div>
+                <div id="wsp-page-head-actions"></div>
+            </div>
             <!-- 대시보드 탭 -->
             <section id="view-dashboard" class="space-y-6">
-                <div id="action-inbox-wrap"></div>
                 <div id="dashboard-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> 프로젝트 상태 분포</h4><div class="h-48"><canvas id="chart-proj-status"></canvas></div></div>
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-500"></i> 부서별 평균 진행도</h4><div class="h-48"><canvas id="chart-dept-progress"></canvas></div></div>
-                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-rose-500"></i> AS 티켓 처리 현황</h4><div class="h-48"><canvas id="chart-ticket-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">프로젝트 상태 분포</h4><div class="h-[330px]"><canvas id="chart-proj-status"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">부서별 평균 진행도</h4><div class="h-[330px]"><canvas id="chart-dept-progress"></canvas></div></div>
+                    <div class="dashboard-panel bg-white p-5 rounded-2xl border border-slate-200 shadow-sm min-w-0"><h4 class="text-sm font-bold text-slate-700 mb-3">AS 티켓 처리 현황</h4><div class="h-[330px]"><canvas id="chart-ticket-status"></canvas></div></div>
                 </div>
+                <div id="action-inbox-wrap"></div>
                 <div id="dashboard-mytasks-wrap" class="hidden bg-white p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
                     <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
                         <i data-lucide="bell-ring" class="w-5 h-5 text-indigo-500"></i> 통합 알림 센터
@@ -1513,16 +1765,16 @@
 
             <section id="view-inventory" class="hidden space-y-5">
                 <div class="flex items-center">
-                    <div class="inline-flex bg-slate-100 rounded-xl p-1">
+                    <div class="wsp-ref-tabs inline-flex bg-slate-100 rounded-xl p-1">
                         <button id="inv-tab-dashboard" onclick="setInventoryView('dashboard')" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-white shadow text-slate-800">대시보드</button>
                         <button id="inv-tab-list" onclick="setInventoryView('list')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">목록</button>
                         <button id="inv-tab-receiving" onclick="setInventoryView('receiving')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500">입고/미착</button>
                     </div>
                 </div>
                 <div id="inventory-dashboard-view">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-600"></i> 재고 대시보드</h3>
-                        <div class="flex gap-2 flex-wrap">
+                    <div class="wsp-ref-toolbar mb-4">
+                        <h3 class="sr-only">재고 대시보드</h3>
+                        <div class="wsp-ref-toolbar-group ml-auto">
                             <button onclick="openLedger()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="history" class="w-4 h-4"></i> 입출고 이력</button>
                             <button onclick="openInventoryReport()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
                             <button onclick="openDataManager()" class="px-3 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="database" class="w-4 h-4"></i> 백업/초기화</button>
@@ -1533,27 +1785,27 @@
                     <div id="inventory-dashboard-body" class="space-y-6"></div>
                 </div>
                 <div id="inventory-list-view" class="hidden space-y-5">
-                <div id="inventory-stats" class="grid grid-cols-2 lg:grid-cols-3 gap-3"></div>
-                <div class="flex flex-wrap justify-between items-center gap-3">
-                    <div class="flex gap-2 flex-wrap items-center">
+                <div id="inventory-stats" class="hidden grid grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                <div class="wsp-ref-toolbar">
+                    <div class="wsp-ref-toolbar-group">
                         <input type="text" id="inventory-search" onkeyup="inventoryApplyFilter()" placeholder="품목·코드·거래처 검색" class="px-3 py-2 border border-slate-200 rounded-xl text-sm w-full sm:w-56 outline-none focus:border-amber-300">
                         <select id="inventory-filter-cat" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 분류</option></select>
                         <select id="inventory-filter-dept" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"></select>
                         <select id="inventory-filter-wh" onchange="inventoryApplyFilter()" class="px-2.5 py-2 border rounded-xl text-sm bg-white outline-none"><option value="all">전체 창고</option></select>
                         <label class="flex items-center gap-1.5 text-sm text-slate-600 px-2 py-2 border rounded-xl bg-white cursor-pointer"><input type="checkbox" id="inventory-filter-low" onchange="inventoryApplyFilter()" class="accent-amber-600"> 부족만</label>
                     </div>
-                    <button onclick="openInventoryForm()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold shadow flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4"></i> 품목 등록</button>
-                    <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
-                    <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
-                    <button onclick="openWarehouseManager()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="warehouse" class="w-4 h-4"></i> 창고</button>
-                    <button onclick="openStocktake()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="clipboard-check" class="w-4 h-4"></i> 재고 실사</button>
-                    <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
+                    <div class="wsp-ref-toolbar-group">
+                        <button onclick="exportXlsx('inventory')" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> 엑셀</button>
+                        <button onclick="triggerImport('inventory')" class="px-3 py-2.5 border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="upload" class="w-4 h-4"></i> 가져오기</button>
+                        <button onclick="openStocktake()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="clipboard-check" class="w-4 h-4"></i> 재고 실사</button>
+                        <button onclick="openInventoryReport()" class="px-3 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-bold flex items-center gap-1.5"><i data-lucide="file-bar-chart" class="w-4 h-4"></i> 보고서</button>
+                    </div>
                 </div>
                 <!-- 데스크탑: 표 / 모바일: 카드 (반응형) -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                <div class="wsp-ref-surface bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-[14px]">
-                            <thead><tr class="bg-slate-100 text-slate-600 text-[13px]"><th class="px-4 py-3 text-left font-bold">품목 / 코드</th><th class="px-4 py-3 text-left font-bold">분류</th><th class="px-4 py-3 text-right font-bold">현재고</th><th class="px-4 py-3 text-right font-bold">안전재고</th><th class="px-4 py-3 text-right font-bold">단가</th><th class="px-4 py-3 text-left font-bold">거래처 / 부서</th><th class="px-4 py-3 text-right font-bold">관리</th></tr></thead>
+                        <table class="wsp-ref-table w-full text-[14px]">
+                            <thead><tr class="text-slate-600 text-[13px]"><th class="text-left font-bold">품목코드(SKU)</th><th class="text-left font-bold">품목명</th><th class="text-left font-bold">분류</th><th class="text-left font-bold">단위</th><th class="text-right font-bold">현재고</th><th class="text-right font-bold">안전재고</th><th class="text-right font-bold">평균단가</th><th class="text-right font-bold">재고금액</th><th class="text-right font-bold">관리</th></tr></thead>
                             <tbody id="inventory-list-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
@@ -3149,21 +3401,73 @@
             const body = document.getElementById('inventory-dashboard-body'); if (!body) return;
             const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
             if (es) { body.innerHTML = es; if (window.lucide) lucide.createIcons(); return; }
-            const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
-            const kpi = `<div class="grid grid-cols-3 gap-3">
-                ${card('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'text-slate-800')}
-                ${card('재고 총수량', fmtNum(d.totalQty), '전체 수량 합계', 'text-slate-800')}
-                ${card('재고 부족', fmtNum(d.lowCnt), '안전재고 이하', d.lowCnt ? 'text-rose-600' : 'text-slate-800')}
+            const kpiCard = (label, val, sub, icon, color) => `<div class="wsp-ref-kpi">
+                <div class="wsp-ref-kpi-head"><span>${label}</span><i data-lucide="${icon}" class="w-[18px] h-[18px]" style="color:${color}"></i></div>
+                <div class="wsp-ref-kpi-value">${val}</div>
+                <div class="wsp-ref-kpi-sub">${sub}</div>
             </div>`;
-            const low = d.lowItems.length ? `<div class="bg-white border border-rose-200/70 rounded-2xl p-5 shadow-sm">
-                <div class="text-[13px] font-bold text-rose-600 mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 재고 부족 품목 (${d.lowItems.length})</div>
-                <div class="overflow-x-auto"><table class="w-full text-[13px]"><tbody>${d.lowItems.slice(0, 40).map(i => `<tr class="border-t border-rose-50"><td class="py-2 pr-2"><span class="font-semibold text-slate-700">${esc(i.name)}</span> <span class="text-[11px] text-slate-400 font-mono">${esc(i.sku || '')}</span></td><td class="py-2 pr-2 text-right whitespace-nowrap"><span class="text-rose-600 font-bold">${fmtNum(i.stock)}</span> <span class="text-[11px] text-slate-400">/ ${fmtNum(i.safe)} ${esc(i.unit)}</span></td><td class="py-2 text-right"><button onclick="createPoFromItem(${i.id})" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[12px] font-bold">발주</button></td></tr>`).join('')}</tbody></table></div>
-            </div>` : '';
-            body.innerHTML = kpi
-                + dashGroupTable('창고별 재고', 'warehouse', d.byWh, '창고')
-                + `<div class="grid md:grid-cols-2 gap-5">${dashGroupTable('공급처별 재고', 'truck', d.bySupplier, '공급처')}${dashGroupTable('분류별 재고', 'tags', d.byCategory, '분류')}</div>`
-                + low;
+            const kpi = `<div class="wsp-ref-kpi-grid">
+                ${kpiCard('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'package', 'var(--wsp-accent)')}
+                ${kpiCard('재고 총수량', fmtNum(d.totalQty), '전체 수량 합계', 'boxes', 'var(--wsp-ok)')}
+                ${kpiCard('부족 품목', fmtNum(d.lowCnt), '안전재고 이하', 'alert-triangle', 'var(--wsp-danger)')}
+                ${kpiCard('창고 수', fmtNum((STATE.warehouses || []).length), '운영 중인 창고', 'warehouse', 'var(--wsp-warn)')}
+            </div>`;
+            const lowRows = d.lowItems.length ? d.lowItems.slice(0, 40).map(i => `
+                <div class="flex items-center justify-between gap-3 py-3" style="border-bottom:1px solid var(--wsp-line)">
+                    <div class="min-w-0">
+                        <div class="t-body font-semibold truncate">${esc(i.name)}</div>
+                        <div class="t-label mt-0.5">${esc(i.sku || '')} · 안전 ${fmtNum(i.safe)} ${esc(i.unit)}</div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="badge" style="background:var(--wsp-danger-soft);color:var(--wsp-danger)">현재고 ${fmtNum(i.stock)}</span>
+                        <button onclick="createPoFromItem(${i.id})" class="wsp-ref-btn wsp-ref-btn-primary">발주</button>
+                    </div>
+                </div>`).join('') : `<div class="t-page-sub py-10 text-center">부족 품목이 없습니다.</div>`;
+            const overview = `<div class="grid lg:grid-cols-2 gap-3">
+                <div class="wsp-ref-surface p-4 min-w-0">
+                    <div class="wsp-ref-panel-title"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:var(--wsp-accent)"></i>분류별 재고 수량</div>
+                    <div class="h-[330px]"><canvas id="inventory-category-chart"></canvas></div>
+                </div>
+                <div class="wsp-ref-surface p-4">
+                    <div class="wsp-ref-panel-title"><i data-lucide="alert-triangle" class="w-4 h-4" style="color:var(--wsp-danger)"></i>안전재고 부족 품목</div>
+                    <div>${lowRows}</div>
+                </div>
+            </div>`;
+            const secondary = `<details class="wsp-ref-secondary-analysis wsp-ref-surface">
+                <summary>창고·공급처별 상세 분석 보기</summary>
+                <div class="p-4 pt-0 space-y-3">
+                    ${dashGroupTable('창고별 재고', 'warehouse', d.byWh, '창고')}
+                    <div class="grid md:grid-cols-2 gap-3">${dashGroupTable('공급처별 재고', 'truck', d.bySupplier, '공급처')}${dashGroupTable('분류별 재고', 'tags', d.byCategory, '분류')}</div>
+                </div>
+            </details>`;
+            body.innerHTML = kpi + overview + secondary;
             if (window.lucide) lucide.createIcons();
+            renderInventoryReferenceChart(d);
+        }
+        async function renderInventoryReferenceChart(d) {
+            try {
+                await ensureChart();
+                const dark = document.documentElement.classList.contains('dark');
+                const axis = dark ? '#a7b2c6' : '#525d72';
+                const grid = dark ? 'rgba(255,255,255,.08)' : '#d8deea';
+                drawChart('inventory-category-chart', {
+                    type: 'bar',
+                    data: {
+                        labels: d.byCategory.map(r => r.name),
+                        datasets: [{ data: d.byCategory.map(r => r.qty), backgroundColor: '#1f4fd6', borderRadius: 6 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: axis }, grid: { color: grid } },
+                            x: { ticks: { color: axis }, grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch (e) { }
         }
         function dashboardReportHTML(d) {
             const co = company();
@@ -3714,6 +4018,7 @@
             if (view === 'list') { if (lv) lv.classList.remove('hidden'); if (tl) tl.className = on; renderInventory(); }
             else if (view === 'receiving') { if (rv) rv.classList.remove('hidden'); if (tr) tr.className = on; renderReceivingStatus(); }
             else { if (dv) dv.classList.remove('hidden'); if (td) td.className = on; renderInventoryDashboard(); }
+            if (typeof syncReferenceInventoryTabs === 'function') syncReferenceInventoryTabs();
             if (window.lucide) lucide.createIcons();
         }
         function inventoryEmptyStateHTML() {
@@ -3777,10 +4082,10 @@
             if (list.length === 0) {
                 const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
                 if (es) {
-                    if (body) body.innerHTML = `<tr><td colspan="7" class="p-3">${es}</td></tr>`;
+                    if (body) body.innerHTML = `<tr><td colspan="9" class="p-3">${es}</td></tr>`;
                     if (cards) cards.innerHTML = `<div class="sm:col-span-2">${es}</div>`;
                 } else {
-                    if (body) body.innerHTML = `<tr><td colspan="7" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
+                    if (body) body.innerHTML = `<tr><td colspan="9" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
                     if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">조건에 맞는 품목이 없습니다.</div>`;
                 }
                 if (window.lucide) lucide.createIcons();
@@ -3792,22 +4097,27 @@
             const actionsFor = (i) => {
                 const manage = canManageInventory(i);
                 return manage
-                    ? `<button onclick="event.stopPropagation();openStockMove(${i.id},'in')" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">입고</button><button onclick="event.stopPropagation();openStockMove(${i.id},'out')" class="text-rose-500 hover:text-rose-700 font-bold mr-2">출고</button><button onclick="event.stopPropagation();openInventoryForm(${i.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="event.stopPropagation();deleteInventoryItem(${i.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>`
-                    : `<span class="text-slate-300">열람</span>`;
+                    ? `<button onclick="event.stopPropagation();openInventoryDetail(${i.id})" class="icon-btn" title="입출고"><i data-lucide="arrow-down-up"></i></button>
+                       <button onclick="event.stopPropagation();openInventoryForm(${i.id})" class="icon-btn" title="편집"><i data-lucide="pencil"></i></button>
+                       <button onclick="event.stopPropagation();deleteInventoryItem(${i.id})" class="icon-btn" title="삭제"><i data-lucide="trash-2"></i></button>`
+                    : `<button onclick="event.stopPropagation();openInventoryDetail(${i.id})" class="icon-btn" title="열람"><i data-lucide="eye"></i></button>`;
             };
             if (body) body.innerHTML = shown.map(i => {
-                const dept = STATE.departments.find(d => d.id === i.deptId);
                 const low = isLowStock(i);
-                return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
-                    <td class="px-4 py-3"><div class="font-bold text-slate-800 flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
-                    <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
-                    <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${fw !== 'all' ? ` <span class="text-[11px] text-slate-300">/${fmtNum(i.stock)}</span>` : ''}${low ? ' ' + chip('부족', 'danger') : ''}</td>
-                    <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}${i.avgPrice > 0 ? `<div class="text-[11px] text-emerald-600 font-bold" title="입고 가중평균">평균 ₩${fmtNum(i.avgPrice)}</div>` : ''}</td>
-                    <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(i)}</td>
+                const qty = dispQty(i);
+                const avg = Number(i.avgPrice) > 0 ? Number(i.avgPrice) : Number(i.unitPrice) || 0;
+                return `<tr class="cursor-pointer" onclick="openInventoryDetail(${i.id})">
+                    <td class="font-semibold font-mono">${esc(i.sku) || '-'}</td>
+                    <td><div class="font-semibold flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="badge" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">회계</span>' : ''}</div></td>
+                    <td>${esc(i.category) || '-'}</td>
+                    <td>${esc(i.unit) || '-'}</td>
+                    <td class="text-right"><span class="font-bold" style="color:${low ? 'var(--wsp-danger)' : 'var(--wsp-ink)'}">${fmtNum(qty)}</span>${fw !== 'all' ? ` <span class="t-label">/${fmtNum(i.stock)}</span>` : ''}${low ? ' <span class="badge" style="background:var(--wsp-danger-soft);color:var(--wsp-danger)">부족</span>' : ''}</td>
+                    <td class="text-right">${fmtNum(i.safeStock)}</td>
+                    <td class="text-right">평균 ₩${fmtNum(avg)}</td>
+                    <td class="text-right">${fmtNum(avg * qty)}원</td>
+                    <td class="text-right whitespace-nowrap"><div class="inline-flex gap-1">${actionsFor(i)}</div></td>
                 </tr>`;
-            }).join('') + moreRowHTML(list.length, 'inventory', 7);
+            }).join('') + moreRowHTML(list.length, 'inventory', 9);
             // 카드(모바일)
             if (cards) cards.innerHTML = shown.map(i => {
                 const dept = STATE.departments.find(d => d.id === i.deptId);
@@ -6825,11 +7135,7 @@
                     { label: '완료 프로젝트', value: completed, icon: 'check-circle-2', bg: 'bg-emerald-50', fg: 'text-emerald-600', onclick: "switchTab('management-progress')" },
                     { label: '등록 보고서', value: docCount, icon: 'files', bg: 'bg-slate-100', fg: 'text-slate-600', onclick: "switchTab('documents')" }
                 ];
-                if (isAdmin) {
-                    const pending = STATE.users.filter(u => !u.approved).length;
-                    cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
-                }
-                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-stat-card"><div class="wsp-stat-icon ${c.bg}"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="wsp-stat-value">${c.value}</div><div class="wsp-stat-label">${c.label}</div></div></div></div>`).join('');
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-ref-kpi"><div class="wsp-ref-kpi-head"><span>${c.label}</span><i data-lucide="${c.icon}" class="w-[18px] h-[18px] ${c.fg}"></i></div><div class="wsp-ref-kpi-value">${c.value}</div></div></div>`).join('');
             }
             // 편지함 위젯
             const widget = document.getElementById('dashboard-mail-widget');
@@ -7808,13 +8114,13 @@
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
             const projs = scope(STATE.projects);
             const sCnt = (s) => projs.filter(p => p.status === s).length;
-            drawChart('chart-proj-status', { type: 'doughnut', data: { labels: ['대기', '진행', '완료'], datasets: [{ data: [sCnt('paused'), sCnt('ongoing'), sCnt('completed')], backgroundColor: ['#94a3b8', '#3b82f6', '#10b981'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: axisC, font: { size: 12 } } } } } });
+            drawChart('chart-proj-status', { type: 'doughnut', data: { labels: ['대기', '진행', '완료'], datasets: [{ data: [sCnt('paused'), sCnt('ongoing'), sCnt('completed')], backgroundColor: ['#b45309', '#1f4fd6', '#15803d'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color: axisC, font: { size: 12 } } } } } });
             const depts = STATE.departments.filter(d => d.id !== 'ceo');
             const avg = depts.map(d => { const list = STATE.projects.filter(p => p.deptId === d.id); return list.length ? Math.round(list.reduce((s, p) => s + (p.progress || 0), 0) / list.length) : 0; });
-            drawChart('chart-dept-progress', { type: 'bar', data: { labels: depts.map(d => d.name), datasets: [{ data: avg, backgroundColor: '#6366f1', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { color: axisC, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC, font: { size: 10 } }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
+            drawChart('chart-dept-progress', { type: 'bar', data: { labels: depts.map(d => d.name), datasets: [{ data: avg, backgroundColor: '#1f4fd6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, indexAxis: 'y', scales: { x: { min: 0, max: 100, ticks: { color: axisC, font: { size: 11 } }, grid: { color: gridC } }, y: { ticks: { color: axisC, font: { size: 10 } }, grid: { display: false } } }, plugins: { legend: { display: false } } } });
             const tks = STATE.tickets || [];
             const tCnt = (s) => tks.filter(t => t.status === s).length;
-            drawChart('chart-ticket-status', { type: 'bar', data: { labels: ['접수', '진행중', '보류', '완료'], datasets: [{ data: [tCnt('received'), tCnt('in_progress'), tCnt('hold'), tCnt('done')], backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#10b981'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: axisC, stepSize: 1, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
+            drawChart('chart-ticket-status', { type: 'bar', data: { labels: ['접수', '진행중', '보류', '완료'], datasets: [{ data: [tCnt('received'), tCnt('in_progress'), tCnt('hold'), tCnt('done')], backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#10b981'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { beginAtZero: true, ticks: { color: axisC, stepSize: 1, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
         }
 
         // ── 전역 통합 검색 ───────────────────────────────────────────────
@@ -7947,7 +8253,7 @@
             'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
             'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
             'assets': { title: '설비 자산 대장', desc: '현장 설비 자산과 정기점검(PM) 일정을 관리합니다.' },
-            'inventory': { title: '재고 관리', desc: '품목 재고 현황과 입고·출고를 실시간으로 관리합니다.' },
+            'inventory': { title: '일반 재고', desc: '품목·창고별 재고와 입출고·미착 현황을 관리합니다.' },
             'trade': { title: '발주 · 견적', desc: '재고 품목으로 발주서·견적서를 작성하고 발행·인쇄합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
@@ -7958,6 +8264,7 @@
             closeSidebar();
             const meta = TAB_META[tabId];
             if (meta) { const vt = document.getElementById('view-title'); if (vt) vt.innerText = meta.title; const vd = document.getElementById('view-description'); if (vd) vd.innerText = meta.desc; }
+            if (typeof syncReferencePageHead === 'function') syncReferencePageHead();
             const isAdmin = (STATE.profile.role === 'admin');
             const adminOnly = ['management-stats', 'management-logs'];
             document.getElementById('main-content-sections').classList.remove('hidden');
@@ -8634,7 +8941,7 @@
                 ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
                 ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
                 ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
-                ['inventory', '재고 관리', 'package'], ['trade', '발주 · 견적', 'file-text'],
+                ['inventory', '일반 재고', 'package'], ['trade', '발주 · 견적', 'file-text'],
                 ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
                 ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
                 ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
@@ -8644,6 +8951,9 @@
             cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
             cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '통합 데이터 검색', icon: 'search', hint: '검색', act: () => { try { openMobileSearch(); } catch (e) { } } });
+            cmds.push({ label: '통합 알림 센터', icon: 'bell', hint: '이동', act: () => { try { openNotifCenter(); } catch (e) { } } });
+            if (STATE.profile && STATE.profile.role === 'admin') cmds.push({ label: '현재 메뉴 점검 설정', icon: 'construction', hint: '관리', act: () => { try { toggleActiveTabMaintenance(); } catch (e) { } } });
             cmds.push({ label: '다크 모드 전환', icon: 'moon', hint: '설정', act: () => { try { toggleDarkMode(); } catch (e) { } } });
             cmds.push({ label: '메뉴 접기 / 펼치기', icon: 'panel-left', hint: '설정', act: () => toggleRail() });
             return cmds;
@@ -8684,6 +8994,133 @@
             }
         });
         try { if (document.readyState !== 'loading') initRail(); else document.addEventListener('DOMContentLoaded', initRail); } catch (e) { }
+
+        // ============================================================
+        // 기준 HTML(workspace-pro (1).html) UI/UX 정합화
+        // 기존 Supabase 기능과 이벤트는 유지하고 화면 표현만 공통 규격으로 정규화한다.
+        // ============================================================
+        const REFERENCE_PAGE_ACTIONS = {
+            calendar: [['primary', 'plus', '일정 등록', "quickAddEvent('')"]],
+            'management-progress': [['primary', 'plus', '프로젝트 추가', 'openAddProject()']],
+            'weekly-meeting': [['primary', 'plus', '업무 보고 작성', 'openAddMeeting()']],
+            documents: [['primary', 'file-plus', '보고서 등록', "openModal('add-doc-modal')"]],
+            'field-support': [['primary', 'plus', 'AS 접수', 'openTicketForm()']],
+            assets: [['primary', 'plus', '설비 등록', 'openAssetForm()']],
+            trade: [
+                ['ghost', 'contact', '거래처', 'openPartnerManager()'],
+                ['primary', 'file-plus', '발주서', "openTradeForm(null,'po')"],
+                ['primary', 'file-plus', '견적서', "openTradeForm(null,'quote')"]
+            ],
+            inventory: [
+                ['ghost', 'warehouse', '창고', 'openWarehouseManager()'],
+                ['primary', 'plus', '품목 등록', 'openInventoryForm()']
+            ],
+            'management-stats': [['ghost', 'settings-2', '직급 옵션', 'openTaxonomyManager()']]
+        };
+
+        function referenceActionHTML(action) {
+            const [tone, icon, label, onclick] = action;
+            return `<button type="button" onclick="${onclick}" class="wsp-ref-btn wsp-ref-btn-${tone}"><i data-lucide="${icon}" class="w-4 h-4"></i>${label}</button>`;
+        }
+
+        function syncReferencePageHead() {
+            const title = document.getElementById('wsp-page-head-title');
+            const desc = document.getElementById('wsp-page-head-description');
+            const actions = document.getElementById('wsp-page-head-actions');
+            const sourceTitle = document.getElementById('view-title');
+            const sourceDesc = document.getElementById('view-description');
+            const nextTitle = sourceTitle ? (sourceTitle.textContent || '') : '';
+            const nextDesc = sourceDesc ? (sourceDesc.textContent || '') : '';
+            if (title && title.textContent !== nextTitle) title.textContent = nextTitle;
+            if (desc && desc.textContent !== nextDesc) desc.textContent = nextDesc;
+            if (actions && actions.dataset.tab !== STATE.currentTab) {
+                actions.dataset.tab = STATE.currentTab || '';
+                actions.innerHTML = (REFERENCE_PAGE_ACTIONS[STATE.currentTab] || []).map(referenceActionHTML).join('');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function referenceButtonTone(button) {
+            const cls = String(button.className || '');
+            const text = (button.textContent || '').trim();
+            if (/rose|danger|delete|remove/i.test(cls) || /삭제|반려|해지|초기화/.test(text)) return 'danger';
+            if (/bg-(blue|indigo|amber|emerald|teal|sky|slate-9|rose)-[56789]00/.test(cls) || button.getAttribute('type') === 'submit') return 'primary';
+            return 'ghost';
+        }
+
+        function normalizeReferenceButtons(root) {
+            root.querySelectorAll('button:not([data-wsp-ref-button])').forEach(button => {
+                button.dataset.wspRefButton = '1';
+                if (button.closest('.wsp-ref-tabs') || button.closest('#wsp-page-head-actions')) return;
+                const hasText = (button.textContent || '').trim().length > 0;
+                if (!hasText) {
+                    button.classList.add('icon-btn');
+                    return;
+                }
+                if (button.classList.contains('sidebar-item') || button.id === 'mobile-hamburger') return;
+                button.classList.add('wsp-ref-btn', `wsp-ref-btn-${referenceButtonTone(button)}`);
+            });
+        }
+
+        function normalizeReferenceFields(root) {
+            root.querySelectorAll('input:not([type="hidden"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea').forEach(field => {
+                field.classList.add('wsp-ref-field');
+            });
+        }
+
+        function normalizeReferenceSurfaces(root) {
+            root.querySelectorAll('div.bg-white[class*="rounded-"], article.bg-white[class*="rounded-"]').forEach(card => {
+                if (!card.closest('#auth-gateway-overlay')) card.classList.add('wsp-ref-surface');
+            });
+            root.querySelectorAll('table').forEach(table => table.classList.add('wsp-ref-table'));
+        }
+
+        function normalizeReferenceUI(root) {
+            const scope = root || document;
+            normalizeReferenceFields(scope);
+            normalizeReferenceSurfaces(scope);
+            normalizeReferenceButtons(scope);
+        }
+
+        function syncReferenceInventoryTabs() {
+            const tabs = document.querySelector('#view-inventory > div:first-child > div');
+            if (tabs) tabs.classList.add('wsp-ref-tabs');
+            const map = {
+                dashboard: document.getElementById('inv-tab-dashboard'),
+                list: document.getElementById('inv-tab-list'),
+                receiving: document.getElementById('inv-tab-receiving')
+            };
+            Object.entries(map).forEach(([key, button]) => {
+                if (button) button.classList.toggle('wsp-ref-tab-active', (STATE.inventoryView || 'dashboard') === key);
+            });
+        }
+
+        function applyReferenceUI() {
+            syncReferencePageHead();
+            syncReferenceInventoryTabs();
+            normalizeReferenceUI(document.getElementById('main-content-sections') || document);
+            document.querySelectorAll('[id$="-modal"]').forEach(normalizeReferenceUI);
+        }
+
+        let _referenceUiTimer = null;
+        const referenceUiObserver = new MutationObserver(() => {
+            clearTimeout(_referenceUiTimer);
+            _referenceUiTimer = setTimeout(applyReferenceUI, 20);
+        });
+
+        function initReferenceUI() {
+            const main = document.getElementById('main-content-sections');
+            if (main) referenceUiObserver.observe(main, { childList: true, subtree: true });
+            document.querySelectorAll('[id$="-modal"]').forEach(modal => referenceUiObserver.observe(modal, { childList: true, subtree: true }));
+            const sourceTitle = document.getElementById('view-title');
+            if (sourceTitle) referenceUiObserver.observe(sourceTitle, { childList: true, characterData: true, subtree: true });
+            applyReferenceUI();
+        }
+
+        try {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initReferenceUI);
+            else initReferenceUI();
+        } catch (e) { }
 
 
     </script>

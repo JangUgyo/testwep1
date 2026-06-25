@@ -275,21 +275,73 @@
             const body = document.getElementById('inventory-dashboard-body'); if (!body) return;
             const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
             if (es) { body.innerHTML = es; if (window.lucide) lucide.createIcons(); return; }
-            const card = (label, val, sub, tone) => `<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4"><div class="text-[12px] font-bold text-slate-400">${label}</div><div class="text-2xl font-extrabold ${tone} mt-1">${val}</div><div class="text-[11px] text-slate-400 mt-0.5">${sub}</div></div>`;
-            const kpi = `<div class="grid grid-cols-3 gap-3">
-                ${card('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'text-slate-800')}
-                ${card('재고 총수량', fmtNum(d.totalQty), '전체 수량 합계', 'text-slate-800')}
-                ${card('재고 부족', fmtNum(d.lowCnt), '안전재고 이하', d.lowCnt ? 'text-rose-600' : 'text-slate-800')}
+            const kpiCard = (label, val, sub, icon, color) => `<div class="wsp-ref-kpi">
+                <div class="wsp-ref-kpi-head"><span>${label}</span><i data-lucide="${icon}" class="w-[18px] h-[18px]" style="color:${color}"></i></div>
+                <div class="wsp-ref-kpi-value">${val}</div>
+                <div class="wsp-ref-kpi-sub">${sub}</div>
             </div>`;
-            const low = d.lowItems.length ? `<div class="bg-white border border-rose-200/70 rounded-2xl p-5 shadow-sm">
-                <div class="text-[13px] font-bold text-rose-600 mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 재고 부족 품목 (${d.lowItems.length})</div>
-                <div class="overflow-x-auto"><table class="w-full text-[13px]"><tbody>${d.lowItems.slice(0, 40).map(i => `<tr class="border-t border-rose-50"><td class="py-2 pr-2"><span class="font-semibold text-slate-700">${esc(i.name)}</span> <span class="text-[11px] text-slate-400 font-mono">${esc(i.sku || '')}</span></td><td class="py-2 pr-2 text-right whitespace-nowrap"><span class="text-rose-600 font-bold">${fmtNum(i.stock)}</span> <span class="text-[11px] text-slate-400">/ ${fmtNum(i.safe)} ${esc(i.unit)}</span></td><td class="py-2 text-right"><button onclick="createPoFromItem(${i.id})" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[12px] font-bold">발주</button></td></tr>`).join('')}</tbody></table></div>
-            </div>` : '';
-            body.innerHTML = kpi
-                + dashGroupTable('창고별 재고', 'warehouse', d.byWh, '창고')
-                + `<div class="grid md:grid-cols-2 gap-5">${dashGroupTable('공급처별 재고', 'truck', d.bySupplier, '공급처')}${dashGroupTable('분류별 재고', 'tags', d.byCategory, '분류')}</div>`
-                + low;
+            const kpi = `<div class="wsp-ref-kpi-grid">
+                ${kpiCard('총 품목', fmtNum(d.totalItems), '등록된 품목 수', 'package', 'var(--wsp-accent)')}
+                ${kpiCard('재고 총수량', fmtNum(d.totalQty), '전체 수량 합계', 'boxes', 'var(--wsp-ok)')}
+                ${kpiCard('부족 품목', fmtNum(d.lowCnt), '안전재고 이하', 'alert-triangle', 'var(--wsp-danger)')}
+                ${kpiCard('창고 수', fmtNum((STATE.warehouses || []).length), '운영 중인 창고', 'warehouse', 'var(--wsp-warn)')}
+            </div>`;
+            const lowRows = d.lowItems.length ? d.lowItems.slice(0, 40).map(i => `
+                <div class="flex items-center justify-between gap-3 py-3" style="border-bottom:1px solid var(--wsp-line)">
+                    <div class="min-w-0">
+                        <div class="t-body font-semibold truncate">${esc(i.name)}</div>
+                        <div class="t-label mt-0.5">${esc(i.sku || '')} · 안전 ${fmtNum(i.safe)} ${esc(i.unit)}</div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="badge" style="background:var(--wsp-danger-soft);color:var(--wsp-danger)">현재고 ${fmtNum(i.stock)}</span>
+                        <button onclick="createPoFromItem(${i.id})" class="wsp-ref-btn wsp-ref-btn-primary">발주</button>
+                    </div>
+                </div>`).join('') : `<div class="t-page-sub py-10 text-center">부족 품목이 없습니다.</div>`;
+            const overview = `<div class="grid lg:grid-cols-2 gap-3">
+                <div class="wsp-ref-surface p-4 min-w-0">
+                    <div class="wsp-ref-panel-title"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:var(--wsp-accent)"></i>분류별 재고 수량</div>
+                    <div class="h-[330px]"><canvas id="inventory-category-chart"></canvas></div>
+                </div>
+                <div class="wsp-ref-surface p-4">
+                    <div class="wsp-ref-panel-title"><i data-lucide="alert-triangle" class="w-4 h-4" style="color:var(--wsp-danger)"></i>안전재고 부족 품목</div>
+                    <div>${lowRows}</div>
+                </div>
+            </div>`;
+            const secondary = `<details class="wsp-ref-secondary-analysis wsp-ref-surface">
+                <summary>창고·공급처별 상세 분석 보기</summary>
+                <div class="p-4 pt-0 space-y-3">
+                    ${dashGroupTable('창고별 재고', 'warehouse', d.byWh, '창고')}
+                    <div class="grid md:grid-cols-2 gap-3">${dashGroupTable('공급처별 재고', 'truck', d.bySupplier, '공급처')}${dashGroupTable('분류별 재고', 'tags', d.byCategory, '분류')}</div>
+                </div>
+            </details>`;
+            body.innerHTML = kpi + overview + secondary;
             if (window.lucide) lucide.createIcons();
+            renderInventoryReferenceChart(d);
+        }
+        async function renderInventoryReferenceChart(d) {
+            try {
+                await ensureChart();
+                const dark = document.documentElement.classList.contains('dark');
+                const axis = dark ? '#a7b2c6' : '#525d72';
+                const grid = dark ? 'rgba(255,255,255,.08)' : '#d8deea';
+                drawChart('inventory-category-chart', {
+                    type: 'bar',
+                    data: {
+                        labels: d.byCategory.map(r => r.name),
+                        datasets: [{ data: d.byCategory.map(r => r.qty), backgroundColor: '#1f4fd6', borderRadius: 6 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: axis }, grid: { color: grid } },
+                            x: { ticks: { color: axis }, grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch (e) { }
         }
         function dashboardReportHTML(d) {
             const co = company();
@@ -840,6 +892,7 @@
             if (view === 'list') { if (lv) lv.classList.remove('hidden'); if (tl) tl.className = on; renderInventory(); }
             else if (view === 'receiving') { if (rv) rv.classList.remove('hidden'); if (tr) tr.className = on; renderReceivingStatus(); }
             else { if (dv) dv.classList.remove('hidden'); if (td) td.className = on; renderInventoryDashboard(); }
+            if (typeof syncReferenceInventoryTabs === 'function') syncReferenceInventoryTabs();
             if (window.lucide) lucide.createIcons();
         }
         function inventoryEmptyStateHTML() {
@@ -903,10 +956,10 @@
             if (list.length === 0) {
                 const es = STATE.inventoryTableMissing ? inventoryErrorStateHTML() : inventoryEmptyStateHTML();
                 if (es) {
-                    if (body) body.innerHTML = `<tr><td colspan="7" class="p-3">${es}</td></tr>`;
+                    if (body) body.innerHTML = `<tr><td colspan="9" class="p-3">${es}</td></tr>`;
                     if (cards) cards.innerHTML = `<div class="sm:col-span-2">${es}</div>`;
                 } else {
-                    if (body) body.innerHTML = `<tr><td colspan="7" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
+                    if (body) body.innerHTML = `<tr><td colspan="9" class="wsp-empty">조건에 맞는 품목이 없습니다.</td></tr>`;
                     if (cards) cards.innerHTML = `<div class="wsp-empty sm:col-span-2">조건에 맞는 품목이 없습니다.</div>`;
                 }
                 if (window.lucide) lucide.createIcons();
@@ -918,22 +971,27 @@
             const actionsFor = (i) => {
                 const manage = canManageInventory(i);
                 return manage
-                    ? `<button onclick="event.stopPropagation();openStockMove(${i.id},'in')" class="text-emerald-600 hover:text-emerald-800 font-bold mr-2">입고</button><button onclick="event.stopPropagation();openStockMove(${i.id},'out')" class="text-rose-500 hover:text-rose-700 font-bold mr-2">출고</button><button onclick="event.stopPropagation();openInventoryForm(${i.id})" class="text-indigo-500 hover:text-indigo-700 font-bold mr-2">편집</button><button onclick="event.stopPropagation();deleteInventoryItem(${i.id})" class="text-rose-400 hover:text-rose-600 font-bold">삭제</button>`
-                    : `<span class="text-slate-300">열람</span>`;
+                    ? `<button onclick="event.stopPropagation();openInventoryDetail(${i.id})" class="icon-btn" title="입출고"><i data-lucide="arrow-down-up"></i></button>
+                       <button onclick="event.stopPropagation();openInventoryForm(${i.id})" class="icon-btn" title="편집"><i data-lucide="pencil"></i></button>
+                       <button onclick="event.stopPropagation();deleteInventoryItem(${i.id})" class="icon-btn" title="삭제"><i data-lucide="trash-2"></i></button>`
+                    : `<button onclick="event.stopPropagation();openInventoryDetail(${i.id})" class="icon-btn" title="열람"><i data-lucide="eye"></i></button>`;
             };
             if (body) body.innerHTML = shown.map(i => {
-                const dept = STATE.departments.find(d => d.id === i.deptId);
                 const low = isLowStock(i);
-                return `<tr class="hover:bg-amber-50/30 align-top cursor-pointer ${low ? 'bg-rose-50/30' : ''}" onclick="openInventoryDetail(${i.id})">
-                    <td class="px-4 py-3"><div class="font-bold text-slate-800 flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="wsp-chip bg-violet-50 text-violet-700 border-violet-200">회계</span>' : ''}</div><div class="text-[12px] text-slate-400 font-mono">${esc(i.sku) || '-'}</div></td>
-                    <td class="px-4 py-3 text-slate-600">${esc(i.category) || '-'}</td>
-                    <td class="px-4 py-3 text-right"><span class="font-bold ${low ? 'text-rose-600' : 'text-slate-800'}">${fmtNum(dispQty(i))}</span> <span class="text-[12px] text-slate-400">${esc(i.unit)}</span>${fw !== 'all' ? ` <span class="text-[11px] text-slate-300">/${fmtNum(i.stock)}</span>` : ''}${low ? ' ' + chip('부족', 'danger') : ''}</td>
-                    <td class="px-4 py-3 text-right text-slate-500">${fmtNum(i.safeStock)}</td>
-                    <td class="px-4 py-3 text-right text-slate-600">₩${fmtNum(i.unitPrice)}${i.avgPrice > 0 ? `<div class="text-[11px] text-emerald-600 font-bold" title="입고 가중평균">평균 ₩${fmtNum(i.avgPrice)}</div>` : ''}</td>
-                    <td class="px-4 py-3"><div class="text-slate-700">${esc(i.supplier) || '-'}</div><div class="text-[12px] text-slate-400">${dept ? esc(dept.name) : '-'}</div></td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap text-[13px]">${actionsFor(i)}</td>
+                const qty = dispQty(i);
+                const avg = Number(i.avgPrice) > 0 ? Number(i.avgPrice) : Number(i.unitPrice) || 0;
+                return `<tr class="cursor-pointer" onclick="openInventoryDetail(${i.id})">
+                    <td class="font-semibold font-mono">${esc(i.sku) || '-'}</td>
+                    <td><div class="font-semibold flex items-center gap-1.5">${esc(i.name)}${i.acctFlag ? '<span class="badge" style="background:var(--wsp-accent-soft);color:var(--wsp-accent)">회계</span>' : ''}</div></td>
+                    <td>${esc(i.category) || '-'}</td>
+                    <td>${esc(i.unit) || '-'}</td>
+                    <td class="text-right"><span class="font-bold" style="color:${low ? 'var(--wsp-danger)' : 'var(--wsp-ink)'}">${fmtNum(qty)}</span>${fw !== 'all' ? ` <span class="t-label">/${fmtNum(i.stock)}</span>` : ''}${low ? ' <span class="badge" style="background:var(--wsp-danger-soft);color:var(--wsp-danger)">부족</span>' : ''}</td>
+                    <td class="text-right">${fmtNum(i.safeStock)}</td>
+                    <td class="text-right">평균 ₩${fmtNum(avg)}</td>
+                    <td class="text-right">${fmtNum(avg * qty)}원</td>
+                    <td class="text-right whitespace-nowrap"><div class="inline-flex gap-1">${actionsFor(i)}</div></td>
                 </tr>`;
-            }).join('') + moreRowHTML(list.length, 'inventory', 7);
+            }).join('') + moreRowHTML(list.length, 'inventory', 9);
             // 카드(모바일)
             if (cards) cards.innerHTML = shown.map(i => {
                 const dept = STATE.departments.find(d => d.id === i.deptId);

@@ -22,11 +22,7 @@
                     { label: '완료 프로젝트', value: completed, icon: 'check-circle-2', bg: 'bg-emerald-50', fg: 'text-emerald-600', onclick: "switchTab('management-progress')" },
                     { label: '등록 보고서', value: docCount, icon: 'files', bg: 'bg-slate-100', fg: 'text-slate-600', onclick: "switchTab('documents')" }
                 ];
-                if (isAdmin) {
-                    const pending = STATE.users.filter(u => !u.approved).length;
-                    cards.push({ label: '가입 승인 대기', value: pending, icon: 'user-plus', bg: pending > 0 ? 'bg-rose-50' : 'bg-slate-100', fg: pending > 0 ? 'text-rose-600' : 'text-slate-500', onclick: "switchTab('management-stats')" });
-                }
-                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-stat-card"><div class="wsp-stat-icon ${c.bg}"><i data-lucide="${c.icon}" class="w-5 h-5 ${c.fg}"></i></div><div><div class="wsp-stat-value">${c.value}</div><div class="wsp-stat-label">${c.label}</div></div></div></div>`).join('');
+                stats.innerHTML = cards.map(c => `<div ${c.onclick ? `onclick="${c.onclick}" class="cursor-pointer"` : 'class=""'}><div class="wsp-ref-kpi"><div class="wsp-ref-kpi-head"><span>${c.label}</span><i data-lucide="${c.icon}" class="w-[18px] h-[18px] ${c.fg}"></i></div><div class="wsp-ref-kpi-value">${c.value}</div></div></div>`).join('');
             }
             // 편지함 위젯
             const widget = document.getElementById('dashboard-mail-widget');
@@ -1005,13 +1001,13 @@
             const scope = (arr) => isAdmin ? arr : arr.filter(x => x.deptId === myDept);
             const projs = scope(STATE.projects);
             const sCnt = (s) => projs.filter(p => p.status === s).length;
-            drawChart('chart-proj-status', { type: 'doughnut', data: { labels: ['대기', '진행', '완료'], datasets: [{ data: [sCnt('paused'), sCnt('ongoing'), sCnt('completed')], backgroundColor: ['#94a3b8', '#3b82f6', '#10b981'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: axisC, font: { size: 12 } } } } } });
+            drawChart('chart-proj-status', { type: 'doughnut', data: { labels: ['대기', '진행', '완료'], datasets: [{ data: [sCnt('paused'), sCnt('ongoing'), sCnt('completed')], backgroundColor: ['#b45309', '#1f4fd6', '#15803d'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color: axisC, font: { size: 12 } } } } } });
             const depts = STATE.departments.filter(d => d.id !== 'ceo');
             const avg = depts.map(d => { const list = STATE.projects.filter(p => p.deptId === d.id); return list.length ? Math.round(list.reduce((s, p) => s + (p.progress || 0), 0) / list.length) : 0; });
-            drawChart('chart-dept-progress', { type: 'bar', data: { labels: depts.map(d => d.name), datasets: [{ data: avg, backgroundColor: '#6366f1', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { color: axisC, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC, font: { size: 10 } }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
+            drawChart('chart-dept-progress', { type: 'bar', data: { labels: depts.map(d => d.name), datasets: [{ data: avg, backgroundColor: '#1f4fd6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, indexAxis: 'y', scales: { x: { min: 0, max: 100, ticks: { color: axisC, font: { size: 11 } }, grid: { color: gridC } }, y: { ticks: { color: axisC, font: { size: 10 } }, grid: { display: false } } }, plugins: { legend: { display: false } } } });
             const tks = STATE.tickets || [];
             const tCnt = (s) => tks.filter(t => t.status === s).length;
-            drawChart('chart-ticket-status', { type: 'bar', data: { labels: ['접수', '진행중', '보류', '완료'], datasets: [{ data: [tCnt('received'), tCnt('in_progress'), tCnt('hold'), tCnt('done')], backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#10b981'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: axisC, stepSize: 1, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
+            drawChart('chart-ticket-status', { type: 'bar', data: { labels: ['접수', '진행중', '보류', '완료'], datasets: [{ data: [tCnt('received'), tCnt('in_progress'), tCnt('hold'), tCnt('done')], backgroundColor: ['#94a3b8', '#3b82f6', '#f59e0b', '#10b981'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { beginAtZero: true, ticks: { color: axisC, stepSize: 1, font: { size: 11 } }, grid: { color: gridC } }, x: { ticks: { color: axisC }, grid: { color: gridC } } }, plugins: { legend: { display: false } } } });
         }
 
         // ── 전역 통합 검색 ───────────────────────────────────────────────
@@ -1144,7 +1140,7 @@
             'mail-integration': { title: '통합 메일 연동 센터', desc: '사내·외부 메일 사서함을 연동합니다.' },
             'field-support': { title: '현장 지원 / AS 관리', desc: '고객사·현장 설비 장애 접수부터 처리 완료까지 관리합니다.' },
             'assets': { title: '설비 자산 대장', desc: '현장 설비 자산과 정기점검(PM) 일정을 관리합니다.' },
-            'inventory': { title: '재고 관리', desc: '품목 재고 현황과 입고·출고를 실시간으로 관리합니다.' },
+            'inventory': { title: '일반 재고', desc: '품목·창고별 재고와 입출고·미착 현황을 관리합니다.' },
             'trade': { title: '발주 · 견적', desc: '재고 품목으로 발주서·견적서를 작성하고 발행·인쇄합니다.' },
             'management-stats': { title: '조직 권한 제어 센터', desc: '임직원 승인·인가 등급·소속 부서를 관리합니다.' },
             'management-logs': { title: '보안 감사 원장', desc: '시스템 보안 활동 로그를 점검합니다.' }
@@ -1155,6 +1151,7 @@
             closeSidebar();
             const meta = TAB_META[tabId];
             if (meta) { const vt = document.getElementById('view-title'); if (vt) vt.innerText = meta.title; const vd = document.getElementById('view-description'); if (vd) vd.innerText = meta.desc; }
+            if (typeof syncReferencePageHead === 'function') syncReferencePageHead();
             const isAdmin = (STATE.profile.role === 'admin');
             const adminOnly = ['management-stats', 'management-logs'];
             document.getElementById('main-content-sections').classList.remove('hidden');

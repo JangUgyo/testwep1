@@ -321,7 +321,7 @@
                 ['dashboard', '종합 대시보드', 'layout-dashboard'], ['calendar', '부서 통합 캘린더', 'calendar'],
                 ['management-progress', '프로젝트 진척 관리', 'trending-up'], ['weekly-meeting', '주간 회의 대시보드', 'users'],
                 ['field-support', '현장 지원 / AS', 'wrench'], ['assets', '설비 자산 대장', 'box'],
-                ['inventory', '재고 관리', 'package'], ['trade', '발주 · 견적', 'file-text'],
+                ['inventory', '일반 재고', 'package'], ['trade', '발주 · 견적', 'file-text'],
                 ['documents', '통합 보고 허브', 'folder'], ['documents-pending', '결재 대기 함', 'clock'],
                 ['documents-archive', '보고 보관소', 'archive'], ['management-stats', '사원 · 가입 관리', 'user-cog'],
                 ['management-logs', '감사 로그', 'list'], ['mail-integration', '메일 연동', 'mail'],
@@ -331,6 +331,9 @@
             cmds.push({ label: '재고 품목 등록', icon: 'package-plus', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { openInventoryForm(); } catch (e) { } }, 80); } });
             cmds.push({ label: '입고 처리 (입고/미착)', icon: 'package-search', hint: '작업', act: () => { switchTab('inventory'); setTimeout(() => { try { setInventoryView('receiving'); } catch (e) { } }, 80); } });
             cmds.push({ label: '보고서 등록', icon: 'file-text', hint: '작업', act: () => { switchTab('documents'); setTimeout(() => { try { openModal('add-doc-modal'); } catch (e) { } }, 80); } });
+            cmds.push({ label: '통합 데이터 검색', icon: 'search', hint: '검색', act: () => { try { openMobileSearch(); } catch (e) { } } });
+            cmds.push({ label: '통합 알림 센터', icon: 'bell', hint: '이동', act: () => { try { openNotifCenter(); } catch (e) { } } });
+            if (STATE.profile && STATE.profile.role === 'admin') cmds.push({ label: '현재 메뉴 점검 설정', icon: 'construction', hint: '관리', act: () => { try { toggleActiveTabMaintenance(); } catch (e) { } } });
             cmds.push({ label: '다크 모드 전환', icon: 'moon', hint: '설정', act: () => { try { toggleDarkMode(); } catch (e) { } } });
             cmds.push({ label: '메뉴 접기 / 펼치기', icon: 'panel-left', hint: '설정', act: () => toggleRail() });
             return cmds;
